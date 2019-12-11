@@ -167,7 +167,7 @@ gufo -gp\t tools to play with gaussian fits
         gPar = gufo.gufo(args.cfgFile)
         lineInfo = gp.openLineList(gPar.cfg_par)
         tP.binLineRatio(lineInfo)
-        mom.makeLineRatios(gPar.cfg_par)
+        mom.makeLineRatioMaps(gPar.cfg_par)
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
     else:
