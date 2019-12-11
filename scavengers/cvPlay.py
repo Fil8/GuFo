@@ -40,9 +40,7 @@ class convert:
         tck = interpolate.splrep(x, y, s=0)
         xnew = np.linspace(np.min(x),np.max(x),1e4)
         ynew = interpolate.splev(xnew, tck, der=0)
-        print ynew
         dVlambda = 1./ynew *xnew
-        print dVlambda
         return dVlambda
 
 
