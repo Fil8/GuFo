@@ -227,7 +227,7 @@ class gplay:
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['tableBinName'],
             workDir+cfg_par[key]['tableSpecName'])
         #open datacube
-        f = fits.open(workDir+cfg_par[key]['dataCubeName'])
+        f = fits.open(cfg_par[key]['cubeDir']+cfg_par[key]['dataCubeName'])
         hh = f[0].header
         dd = f[0].data
         
