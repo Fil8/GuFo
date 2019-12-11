@@ -130,7 +130,7 @@ gufo -gp\t tools to play with gaussian fits
     # +++++++++++++++++++
     if args.cfgFile:
         print("## Load parameter file")
-        gPar = gf.gufo(args.cfgFile)
+        gPar = gufo.gufo(args.cfgFile)
     #    print("## Load parameter file ... Done ({0:.2f}s)".format(
     #time.time() - time_start_load))
     else:
