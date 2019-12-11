@@ -31,15 +31,15 @@ class starsub:
         for i in xrange(0,vorBinInfo['ID'].shape[0]):
             #print xAxis
             #print yAxis
-            indexX = ((xAxis < (np.round(dataTab['X'][i],1)+diffusion)) & 
-                      ((np.round(dataTab['X'][i],1)-diffusion) < xAxis))
-            indexY = ((yAxis < (np.round(dataTab['Y'][i],1)+diffusion)) & 
-                      ((np.round(dataTab['Y'][i],1)-diffusion) < yAxis))       
+            indexX = ((xAxis < (np.round(vorBinInfo['X'][i],1)+diffusion)) & 
+                      ((np.round(vorBinInfo['X'][i],1)-diffusion) < xAxis))
+            indexY = ((yAxis < (np.round(vorBinInfo['Y'][i],1)+diffusion)) & 
+                      ((np.round(vorBinInfo['Y'][i],1)-diffusion) < yAxis))       
 
             xx = np.where(indexX)[0]
             yy = np.where(indexY)[0]
 
-            indexBin =  dataTab['BIN_ID'][i]
+            indexBin =  vorBinInfo['BIN_ID'][i]
             
             if indexBin>0 and xx and yy: 
                        
