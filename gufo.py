@@ -62,11 +62,18 @@ class gufo:
         
         self.cfg_par['general']['outPlotDir'] = outPlotDir
 
-        momDir = cfg_par['general']['runNameDir']+'/moments/'
+        momDir =self. cfg_par['general']['runNameDir']+'moments/'
         if not os.path.exists(momDir):
             os.mkdir(momDir)
 
-        cfg_par['general']['momDir'] = momDir
+        self.cfg_par['general']['momDir'] = momDir
+
+
+        modNameDir = cfg_par[key]['runNameDir']+'myMods/'
+        cfg_par[key]['modNameDir'] = modNameDir
+        if not os.path.exists(modNameDir):
+            os.mkdir(modNameDir)
+        self.cfg_par['general']['modNameDir'] = momDir
 
         return
 
