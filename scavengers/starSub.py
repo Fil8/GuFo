@@ -83,7 +83,7 @@ class starsub:
         workDir = cfg_par['general']['workdir']
         tab = fits.open(workDir+cfg_par['general']['tableBinName'])
         head = tab[0].header
-        fits.close()
+        tab.close()
         pixelSize = head['PIXSIZE']/3600.
 
         # these are arbitrary but must correspond, I choose the centre of the galaxy(usually offset with fov)
