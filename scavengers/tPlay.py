@@ -104,6 +104,7 @@ class tplay:
         return lineInfo
 
     def openTablesPPXF(self,cfg_par,tableBin,tableSpec):
+        
         crPix1=cfg_par['starSub']['pixX']
         crPix2=cfg_par['starSub']['pixY']
       

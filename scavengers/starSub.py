@@ -79,7 +79,12 @@ class starsub:
 
 
     def makeHeader(self,cfg_par,wave):
-
+        
+        #workDir = cfg_par['general']['workdir']
+        #tab = fits.open(workDir+cfg_par['general']['tableBinName'])
+#
+        #head = tab[0].header
+        #fits.close()
 
         # these are arbitrary but must correspond, I choose the centre of the galaxy(usually offset with fov)
         crPix3 =cfg_par['starSub']['pixZ']
@@ -99,8 +104,6 @@ class starsub:
         ra = cvP.hms2deg(crVal1)
         dec = cvP.dms2deg(crVal2)
 
-        head['CRPIX1'] = crPix1
-        head['CRPIX2'] = crPix2
 
 
         w = wcs.WCS(naxis=3)
@@ -121,5 +124,7 @@ class starsub:
         header['CRDER3'] = 0.026
         header['CTYPE3'] = "AWAV"
         header['CUNIT3'] = "Angstrom"
+        #header['CRPIX1'] = crPix1
+        #head['CRPIX2'] = crPix2
 
         return header
