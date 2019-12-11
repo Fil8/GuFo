@@ -20,7 +20,7 @@ class starsub:
         Stars=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         Lines=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
 
-        self.makeHeader(cfg_par, wave)
+        header = self.makeHeader(cfg_par, wave)
 
         hdu = fits.PrimaryHDU(data=data,header=header)
 
