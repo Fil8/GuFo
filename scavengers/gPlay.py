@@ -367,6 +367,7 @@ class gplay:
 
                 waveCut = wave[idxMin:idxMax]
                 #check if spectrum is not empty                   
+                
                 if np.sum(y)>0:
 
                     # identify voronoi bin
@@ -378,14 +379,14 @@ class gplay:
                     ((yVal-pxSize/2.-diffusion) < vorBinInfo['Y']))
                     
                     if np.sum(index)>0: 
-                        binIDName = binArr['BIN_ID'][counter]     
+                        binArr = tP.updateBinArray(cfg_par,binArr,vorBinInfo,index,i,j,counter)
+                        binIDName = binArr['BIN_ID'][counter]    
                     else:
-                        #fitResArr = np.delete(fitResArr,counter,0)
-                        #lineArr = np.delete(lineArr,counter,0)  
+                        fitResArr = np.delete(fitResArr,counter,0)
+                        lineArr = np.delete(lineArr,counter,0)  
                         counter+=1
                         continue
                     print binIDName
-                    print binID
                     #check if it is first time in bin
                     if binIDName not in binID[:,:] and np.sum(index)>0:
  
@@ -394,10 +395,8 @@ class gplay:
 
                         # FIT
                         result = load_modelresult(modNameDir+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
-                        print result
                         #plot Fit
                         if cfg_par['gPlot']['enable'] == True:
-                            print 'i'
                         #self.plotSpecFit(waveCut, y,result,noiseVec[idxMin:idxMax],i,j,lineInfo,vorBinInfo[index])
                             sP.plotLineZoom(cfg_par,waveCut, y,result,noiseVec[idxMin:idxMax],i,j,lineInfo,vorBinInfo[index])
                           
