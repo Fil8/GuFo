@@ -24,6 +24,7 @@ class starsub:
 
         hdu = fits.PrimaryHDU(data=data,header=header)
 
+        diffusion = 1e-5
         del header['LATPOLE']
         del header['LONPOLE']
 
