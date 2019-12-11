@@ -146,15 +146,14 @@ def main (argv):
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-   if args.starSub or gPar.cfg_par['starSub'].get('enable',False) == True:
+    if args.starSub or gPar.cfg_par['starSub'].get('enable',False) == True:
         time_start_load = time.time()        
         print ('\n\t************* --- GuFo : make Datacubes --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
         ss.makeCubes(gPar.cfg_par)
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
-
-
+        
     elif args.gPlot or gPar.cfg_par['gPlot'].get('enable',False) == True:
         time_start_load = time.time()
         print ('\n\t************* --- GuFo : gPlot --- **************\n')
