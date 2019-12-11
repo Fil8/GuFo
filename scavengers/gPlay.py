@@ -351,7 +351,6 @@ class gplay:
         binID, binArr, fitResArr, lineArr = tP.makeInputArrays(cfg_par,lineInfo, Xdim, Ydim)
        
         counter = 0
-        print 'culo'
         #for j in xrange(205,208):
         #    for i in xrange(250,252):
         for j in xrange(0,dd.shape[1]):
@@ -379,7 +378,6 @@ class gplay:
                         lineArr = np.delete(lineArr,counter,0)  
                         counter+=1
                         continue
-                    print binIDName
                     #check if it is first time in bin
                     if binIDName not in binID[:,:] and np.sum(index)>0:
  
