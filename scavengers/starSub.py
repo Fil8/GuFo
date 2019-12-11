@@ -60,21 +60,21 @@ class starsub:
         outputs = cfg_par['starSub']['outputs']
         
         if outputs == 'lines':
-            fits.writeto(self.cfg_par['general']['outLines'],Lines,header,overwrite=True)
+            fits.writeto(cfg_par['general']['outLines'],Lines,header,overwrite=True)
             print('''\t+---------+\n\t Line Cube saved\n\t+---------+''')     
             return 
         else: 
             if outputs == 'stars':
-                fits.writeto(self.cfg_par['general']['outStars'],Stars,header,overwrite=True)
+                fits.writeto(cfg_par['general']['outStars'],Stars,header,overwrite=True)
                 print('''\t+---------+\n\t Star Cube saved\n\t+---------+''')    
                 return 
             elif outputs == 'data':
-                fits.writeto(self.cfg_par['general']['outCube'],data,header,overwrite=True)
+                fits.writeto(cfg_par['general']['outCube'],data,header,overwrite=True)
                 print('''\t+---------+\n\t Data Cube saved\n\t+---------+''')                 
             elif outputs=='all':
-                fits.writeto(self.cfg_par['general']['outLines'],Lines,header,overwrite=True)
-                fits.writeto(self.cfg_par['general']['outStars'],Stars,header,overwrite=True)
-                fits.writeto(self.cfg_par['general']['outCube'],data,header,overwrite=True)
+                fits.writeto(cfg_par['general']['outLines'],Lines,header,overwrite=True)
+                fits.writeto(cfg_par['general']['outStars'],Stars,header,overwrite=True)
+                fits.writeto(cfg_par['general']['outCube'],data,header,overwrite=True)
                 print('''\t+---------+\n\t All Cubes saved\n\t+---------+''')    
                 return
 

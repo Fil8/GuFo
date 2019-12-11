@@ -82,6 +82,7 @@ class specplot:
         
         return params
 
+
     def plotSpecFit(self,cfg_par,vel,y,result,noise,xx,yy,lineInfo,singleVorBinInfo):
         
         velPlot = np.exp(vel)

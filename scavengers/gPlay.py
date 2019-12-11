@@ -390,6 +390,48 @@ class gplay:
                           
                 counter+=1
 
+        f.close()
         print('''\t+---------+\n\t gPlot done\n\t+---------+''')
+
+        return 0
+
+    def plotSingleBin(self,cfg_par,binID):
+
+        lambdaMin = np.log(cfg_par['gFit']['lambdaMin'])
+        lambdaMax = np.log(cfg_par['gFit']['lambdaMax'])
+        idxMin = int(np.where(abs(wave-lambdaMin)==abs(wave-lambdaMin).min())[0]) 
+        idxMax = int(np.where(abs(wave-lambdaMax)==abs(wave-lambdaMax).min())[0])
+
+        #open datacube
+        f = fits.open(workDir+cfg_par[key]['dataCubeName'])
+        dd = f[0].data
+        f.close()
+        
+        lineInfo = tP.openLineList(cfg_par)
+
+
+        #open table for bins
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['tableBinName'],
+            workDir+cfg_par[key]['tableSpecName'])
+
+
+        idxTable = int(np.where(vorBinInfo['BIN_ID'] == str(binID)))
+        y = dd[idxMin:idxMax,vorBinInfo['Y'],vorBinInfo['X']]
+
+        waveCut = wave[idxMin:idxMax]
+
+        result = load_modelresult(modNameDir+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
+
+        noiseVec = noiseBin[str(binID)][:]
+
+        #plot Fit
+        if cfg_par['gPlot']['enable'] == True:
+        #self.plotSpecFit(waveCut, y,result,noiseVec[idxMin:idxMax],i,j,lineInfo,vorBinInfo[index])
+            sP.plotLineZoom(cfg_par,waveCut, y,result,noiseVec[idxMin:idxMax],vorBinInfo['X'],vorBinInfo['Y'],lineInfo,vorBinInfo[index])
+
+
+
+        print('''\t+---------+\n\t bin Plotted\n\t+---------+''')
+
 
         return 0

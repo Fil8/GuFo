@@ -83,6 +83,15 @@ def main (argv):
         action='store_true',
         help= 'tool to plot fit results for each beam')
 
+    add('-gPs', '--gPlotSingle',
+        action='store_true',
+        help= 'tool to plot fit results from a single bin')
+
+    add('-bin', '--binID',
+        type = str,
+        default=False,
+        help= 'bin to plot')
+
     add('-mom', '--moments',
         action='store_true',
         help= 'tool to play with gaussian fits')
@@ -153,12 +162,20 @@ def main (argv):
         ss.makeCubes(gPar.cfg_par)
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
-        
+
     elif args.gPlot or gPar.cfg_par['gPlot'].get('enable',False) == True:
         time_start_load = time.time()
         print ('\n\t************* --- GuFo : gPlot --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
         gp.gPlot(gPar.cfg_par)
+        print("## plot fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
+        print('\n\t************* --- GuFo : DONE --- **************\n')
+
+    elif args.gPlotSingle:
+        time_start_load = time.time()
+        print ('\n\t************* --- GuFo : gPlot single BIN --- **************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        gp.gPlotSingle(gPar.cfg_par, gPar.binID)
         print("## plot fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
     
