@@ -2,9 +2,10 @@ general:
   __helpstr: General INPUT parameters for gaussFit
   workdir: '/home/maccagni/Projects/MFS/FornaxA/MUSE/cubes/results/FornaxE_4750-6800-v100/'
   runName: 'run2-prova'
-  dataCubeName:  'mycubes/lineCube.fits' # outputs will be stored here
   tableBinName: 'FornaxE_table.fits' # name of continuum image (assumed stored in workdir)
   tableSpecName: 'FornaxE_VorSpectra.fits' # name of datacube (assumed stored in workdir)
+  tableStarName:  'FornaxE_ppxf-bestfit.fits'
+  dataCubeName:  'mycubes/lineCube.fits' # outputs will be stored here
   lineListName: 'lineList.txt'
   verbose: False
 starSub:

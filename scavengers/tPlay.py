@@ -138,6 +138,45 @@ class tplay:
 
         return wave,xAxis,yAxis,pxSize,noiseBin,dataTab
 
+    def openPPXFforSubtraction(self,cfg_par,tableBin,tableSpec,tableStar):
+        
+        crPix1=cfg_par['starSub']['pixX']
+        crPix2=cfg_par['starSub']['pixY']
+      
+        tab = fits.open(tableBin)
+        head = tab[0].header
+        headTab = tab[1].header
+        dataTab = tab[1].data    
+        head['CRPIX1'] = crPix1
+        head['CRPIX2'] = crPix2 
+        
+        xMin = np.min(dataTab['X'])
+        xMax = np.max(dataTab['X'])
+
+        shapeX = (xMax-xMin)/head['PIXSIZE']
+
+        yMin = np.min(dataTab['Y'])
+        yMax = np.max(dataTab['Y'])
+
+        shapeY = (yMax-yMin)/head['PIXSIZE']
+
+        xAxis = (np.linspace(1, shapeX+1, shapeX+1)-head['CRPIX1']+1) *head['PIXSIZE']
+        yAxis = (np.linspace(1, shapeY+1, shapeY+1)-head['CRPIX2']+1) *head['PIXSIZE']
+        tab = fits.open(tableSpec)
+        dataSpec = tab[1].data
+        specExp = tab[2].data
+        wave = [item for t in specExp for item in t] 
+
+        pxSize = head['PIXSIZE']
+
+
+        tabStar = fits.open(starTable)
+        dataStar = tabStar[1].data
+
+
+        return wave,xAxis,yAxis,pxSize,dataTab,dataSpec,dataStar
+
+
     def makeInputArrays(self,cfg_par,lineInfo, Xdim,Ydim):
 
         binID = np.zeros([Ydim,Xdim],dtype=int)

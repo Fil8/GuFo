@@ -13,14 +13,14 @@ class starsub:
 
         workDir = cfg_par['general']['workdir']
 
-        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openTablesPPXF(cfg_par,workDir+cfg_par['general']['tableBinName'],
-            workDir+cfg_par['general']['tableSpecName'])
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['tableBinName'],
+            workDir+cfg_par['general']['tableSpecName'],workDir+cfg_par['general']['tableStarName'])
 
         data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         Stars=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         Lines=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
 
-        header = self.makeHeader(cfg_par, wave)
+        header = self.makeHeader(cfg_par, wave, pxSize)
 
         hdu = fits.PrimaryHDU(data=data,header=header)
 
@@ -79,14 +79,8 @@ class starsub:
                 return
 
 
-    def makeHeader(self,cfg_par,wave):
+    def makeHeader(self,cfg_par,wave,pxSize):
         
-        workDir = cfg_par['general']['workdir']
-        tab = fits.open(workDir+cfg_par['general']['tableBinName'])
-        head = tab[0].header
-        tab.close()
-        pixelSize = head['PIXSIZE']/3600.
-
         # these are arbitrary but must correspond, I choose the centre of the galaxy(usually offset with fov)
         crPix3 =cfg_par['starSub']['pixZ']
         crPix1=cfg_par['starSub']['pixX']
@@ -105,15 +99,13 @@ class starsub:
         ra = cvP.hms2deg(crVal1)
         dec = cvP.dms2deg(crVal2)
 
-
-
         w = wcs.WCS(naxis=3)
 
 
         # Set up an "Airy's zenithal" projection
         # Vector properties may be set with Python lists, or Numpy arrays
         w.wcs.crpix = [crPix1, crPix2, crPix3]
-        w.wcs.cdelt = np.array([-pixelSize,pixelSize,deltaLambda])
+        w.wcs.cdelt = np.array([-pxSize,pxSize,deltaLambda])
         w.wcs.crval = [ra, dec, crVal3]
         w.wcs.ctype = ["RA---TAN", "DEC--TAN","AWAV"]
 
