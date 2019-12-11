@@ -1,7 +1,7 @@
 Metadata-Version: 1.1
 Name: radiobs
 Version: 1.0.0
-Summary: A set of tools for fitting N-gaussian function to an optical spectrum
+Summary: Set of tools to fit N-gaussian functions to an optical spectrum
 Home-page: https://github.com/Fil8/radiobs
 Author: Filippo Marcello Maccagni
 Author-email: filippo.maccagni@gmail.com
