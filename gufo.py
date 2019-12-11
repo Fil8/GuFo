@@ -69,7 +69,7 @@ class gufo:
         self.cfg_par['general']['momDir'] = momDir
 
 
-        modNameDir = cfg_par[key]['runNameDir']+'myMods/'
+        modNameDir = self.cfg_par[key]['runNameDir']+'myMods/'
         cfg_par[key]['modNameDir'] = modNameDir
         if not os.path.exists(modNameDir):
             os.mkdir(modNameDir)
