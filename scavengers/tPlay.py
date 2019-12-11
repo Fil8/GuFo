@@ -170,7 +170,7 @@ class tplay:
         pxSize = head['PIXSIZE']
 
 
-        tabStar = fits.open(starTable)
+        tabStar = fits.open(tableStar)
         dataStar = tabStar[1].data
 
 
