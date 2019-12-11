@@ -57,7 +57,7 @@ class starsub:
 
         outputs = cfg_par['starSub']['outputs']
         
-        if outputs == 'lines'
+        if outputs == 'lines':
             fits.writeto(self.cfg_par['general']['outLines'],Lines,header,overwrite=True)
             print('''\t+---------+\n\t Line Cube saved\n\t+---------+''')     
             return 
