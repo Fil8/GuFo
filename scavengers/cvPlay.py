@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-class cvplay:
+class convert:
 
     def __init__(self):
 
