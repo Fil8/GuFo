@@ -384,7 +384,8 @@ class gplay:
                         #lineArr = np.delete(lineArr,counter,0)  
                         counter+=1
                         continue
-                    
+                    print binIDName
+                    print binID
                     #check if it is first time in bin
                     if binIDName not in binID[:,:] and np.sum(index)>0:
  
