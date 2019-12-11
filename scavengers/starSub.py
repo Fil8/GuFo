@@ -3,9 +3,9 @@ from astropy import wcs
 import os
 import numpy as np
 
-from scavengers import cvPlay
+from scavengers import cvPlay, tPlay
 cvP = cvPlay.convert()
-
+tP = tPlay.tplay()
 class starsub:
 
     def makeCubes(self,cfg_par):
