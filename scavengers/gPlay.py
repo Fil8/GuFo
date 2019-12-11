@@ -182,8 +182,10 @@ class gplay:
                     pars['g2ln'+str(i)+'_'+'center'].set(expr='g2ln'+str(i)+'Pos_center if g2ln'+str(i)+'Split_center >= 0 else g2ln'+str(i)+'Neg_center' )                    
 
                 else:
-                    pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
-                        min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i])                   
+                    #pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
+                    #    min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i])                   
+
+                    pars['g2ln'+str(i)+'_'+'center'].set(expr=expr='g2ln'+str(0)+'_'+'center')                   
 
                 pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn2,min=0,max=None)
                 
