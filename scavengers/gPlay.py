@@ -5,6 +5,8 @@ import yaml
 from lmfit import Model
 from lmfit.models import GaussianModel
 from lmfit.model import save_modelresult
+from lmfit.model import load_modelresult
+
 
 from astropy.io import ascii, fits
 from astropy.table import Table, Column
@@ -12,15 +14,6 @@ import numpy as np
 import numpy.ma as ma
 
 import shutil
-from matplotlib import pyplot as plt
-from matplotlib import rc
-from matplotlib import gridspec
-from matplotlib.ticker import AutoMinorLocator, MultipleLocator, LogLocator
-from matplotlib import transforms as mtransforms
-from matplotlib.ticker import LogFormatter 
-from matplotlib.colors import LogNorm
-from matplotlib.colors import SymLogNorm
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import gufo as gf
 import cvPlay
