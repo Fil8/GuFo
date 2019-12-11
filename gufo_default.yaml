@@ -1,0 +1,34 @@
+general:
+  __helpstr: General INPUT parameters for gaussFit
+  workdir: '/home/maccagni/Projects/MFS/FornaxA/MUSE/cubes/results/FornaxE_4750-6800-v100/'
+  runName: 'run2-prova'
+  dataCubeName:  'mycubes/lineCube.fits' # outputs will be stored here
+  tableBinName: 'FornaxE_table.fits' # name of continuum image (assumed stored in workdir)
+  tableSpecName: 'FornaxE_VorSpectra.fits' # name of datacube (assumed stored in workdir)
+  lineListName: 'lineList.txt'
+  verbose: False
+gFit:  
+  enable: False
+  modName: 'g2'
+  fixCentre: True
+  fixSigma: True
+  lambdaMin: 4750
+  lambdaMax: 6800
+  sigmaIn1: 50.
+  dltAmp12: 0.5
+  dltV12: 300.
+  dltSigma12: 250.
+  dltAmp13: 0.2
+  dltSigma13: 100.
+  dltV13: 150.
+gPlot:
+  enable: True
+  fixed_scale: False
+  Res-fixed_scale: True
+  deltaVlabel: 1000.
+  deltaVRange: 2000.
+moments:
+  enable: False
+lineRatios:
+  enable: False
+

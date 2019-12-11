@@ -1,0 +1,43 @@
+Metadata-Version: 1.1
+Name: radiobs
+Version: 1.0.0
+Summary: A set of tools for fitting N-gaussian function to an optical spectrum
+Home-page: https://github.com/Fil8/radiobs
+Author: Filippo Marcello Maccagni
+Author-email: filippo.maccagni@gmail.com
+License: GNU GPL 3
+Description: ## Radiobs
+        
+        tools for radioastronomy data analysis
+        
+        ### Installation
+        
+        Add `<path to gufo>` to `PYTHONPATH`
+          
+          - in your `.cshrc`
+          `setenv PYTHONPATH <path_to_radiobs>:${PYTHONPATH}`
+          - in your `.bashrc`
+          `export PYTHONPATH=<path_to_gufo>:$PYTHONPATH`
+          
+        ### Usage
+         In `python` environment type `import gufo` and `from scavengers import gPlay`
+
+         
+         find which classes are available.
+         
+         `gufo.__dict__.keys()`
+         
+         We choose to read the parameter file and run the fitter
+         
+          `gPar = gufo.gufo(args.cfgFile)`
+
+          `gp = gPlay.gplay()`
+
+          `gp.gFit(gPar.cfg_par)`
+         
+        
+Platform: OS Independent
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 2
+Classifier: Topic :: Scientific/Engineering :: Astronomy
+Classifier: Topic :: Software Development :: Libraries :: Python Modules

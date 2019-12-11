@@ -1,0 +1,181 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import logging
+import time
+
+import gufo
+from scavengers import gPlay
+
+import argparse
+from  argparse import ArgumentParser
+import textwrap as _textwrap
+
+import pkg_resources
+try:
+    __version__ = pkg_resources.require("gufo")[0].version
+except pkg_resources.DistributionNotFound:
+    __version__ = "dev"
+
+
+
+gp = gPlay.gplay()
+
+class MultilineFormatter(argparse.HelpFormatter):
+    def _fill_text(self, text, width, indent):
+        text = self._whitespace_matcher.sub(' ', text).strip()
+        paragraphs = text.split('|n ')
+        multiline_text = ''
+        for paragraph in paragraphs:
+            formatted_paragraph = _textwrap.fill(paragraph, width, initial_indent=indent, subsequent_indent=indent) + '\n\n'
+            multiline_text = multiline_text + formatted_paragraph
+        return multiline_text
+
+def outFunction ():
+        
+        print ('\n\t************* --- GuFo : ERROR --- **************')
+        print ('\t... you have not entered a config File ... \n')
+        print ("""\nRun one of the following commands:\n
+        gufo\t\t\t-gd <configFileName>:\tgenerate config file in working directory
+        gufo\t\t\t-c  <configFileName>:\trun GuFo with modules enabled from config file
+        gufo -gp\t\t-c  <configFileName>:\trun fit with parameters from config file and lineList file
+        gufo -gPl\t\t-c  <configFileName>:\tplot fit results for each bin
+        gufo -mom\t\t-c  <configFileName>:\tmake moment maps of fitted lines
+        gufo -lineRatios\t-c  <configFileName>:\testimate lineRatios, make lineRatio maps and BPT plots of fitted lines
+                    """)
+        print ('\t************* --- GuFo : DONE  --- *************\n')
+        sys.exit(0)
+        return 
+
+def main (argv):
+
+    for i, arg in enumerate(argv):
+        if (arg[0] == '-') and arg[1].isdigit(): argv[i] = ' ' + arg
+
+    parser = ArgumentParser(description='gufo: tools to fit gaussian lines in cubes'
+                            '|n version {:s} |n install path {:s} |n '
+                            'Filippo Maccagni <filippo.maccagni@gmial.com>'.format(__version__,
+                                                                               os.path.dirname(__file__)),
+                            formatter_class=MultilineFormatter,
+                            add_help=False)
+
+    add = parser.add_argument
+
+    add("-h", "--help",  action="store_true",
+            help="Print help message and exit")
+
+    add("-v","--version", action='version',
+            version='{:s} version {:s}'.format(parser.prog, __version__))
+
+    add("-gd", "--generate_default",
+        default=False,
+        help='Generate a default configuration file (YAML format)')
+
+    add('-gp', '--gPlay',
+        action='store_true',
+        help= 'tool to play with gaussian fits')
+
+    add('-gPl', '--gPlot',
+        action='store_true',
+        help= 'tool to plot fit results for each beam')
+
+    add('-mom', '--moments',
+        action='store_true',
+        help= 'tool to play with gaussian fits')
+
+    add('-lr', '--lineRatios',
+        action='store_true',
+        help= 'tool to play with gaussian fits')
+
+    add('-c', '--cfgFile',
+        type=str,
+        default=False,
+        help='''input .fits file''')
+
+    args, unknown = parser.parse_known_args()
+
+    if args.help and len(argv) ==1 :
+        print '\n\t************* --- GuFo : Help --- **************\n'
+
+        print ('\t\t  ... called for help ...\n')
+        parser.print_help()
+
+        print ("""\nRun a command. This can be:\n
+gufo -gp\t tools to play with gaussian fits
+            """)
+        print '\n\t************* --- GuFo : DONE --- **************\n'
+
+        sys.exit(0)
+
+    # Make default file
+    # +++++++++++++++++
+    if args.generate_default:
+        time_start_load = time.time()
+        from shutil import copyfile
+        configfile = args.generate_default
+        print("## Getting parameter file: {}".format(configfile))
+        GUFO_PATH =  os.path.dirname((os.path.dirname(os.path.abspath(__file__))))
+        #print os.path.abspath(os.path.join(os.pardir))
+        copyfile('{}/{}'.format(GUFO_PATH, 'gufo_default.yaml'),
+                 configfile)
+        print("## !!! edit parameter in your current directory before use !!!".format(time.time() - time_start_load))
+        print("## Done ({0:.2f}s)".format(time.time() - time_start_load))
+
+        sys.exit(0)
+
+    #time_start_load = time.time()
+
+    # Load parameter file
+    # +++++++++++++++++++
+    if args.cfgFile:
+        print("## Load parameter file")
+        gPar = gf.gufo(args.cfgFile)
+    #    print("## Load parameter file ... Done ({0:.2f}s)".format(
+    #time.time() - time_start_load))
+    else:
+        outFunction()
+        
+
+    if args.gPlay or cfg_par['gFit'].get('enable',False) == True:
+        time_start_load = time.time()        
+        print ('\n\t************* --- GuFo : gPlay --- **************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        print gPar.cfg_par
+        gp.gFit(gPar.cfg_par)
+        print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load))/60.)
+        print('\n\t************* --- GuFo : DONE --- **************\n')
+
+    elif args.gPlot or cfg_par['gPlot'].get('enable',False) == True:
+        time_start_load = time.time()
+        print ('\n\t************* --- GuFo : gPlot --- **************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        gp.gPlot(gPar.cfg_par)
+        print("## plot fits ... Done ({0:.2f}m)".format((time.time()- time_start_load))/60.)
+        print('\n\t************* --- GuFo : DONE --- **************\n')
+    
+    elif args.moments or cfg_par['moments'].get('enable',False) == True:
+        
+        print ('\n\t************* --- GuFo : moments --- **************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        mom.makeMoments(gPar.cfg_par)
+        print('\n\t************* --- GuFo : DONE --- **************\n')
+
+    elif args.lineRatios or cfg_par['lineRatios'].get('enable',False) == True:
+        
+        print ('\n\t************* --- GuFo : lineRatios --- **************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        lineInfo = gp.openLineList(gPar.cfg_par)
+        tP.binLineRatio(lineInfo)
+        mom.makeLineRatios(gPar.cfg_par)
+        print('\n\t************* --- GuFo : DONE --- **************\n')
+
+    else:
+        outFunction()
+
+
+print ('\n\t************* ---      GuFo    --- *************')
+
+main([a for a in sys.argv[1:]])
+
+print ('\t************* --- GuFo : DONE  --- *************\n')
