@@ -28,7 +28,7 @@ class starsub:
         del header['LONPOLE']
 
         #create AllSpectra datacube
-        for i in xrange(0,dataTab['ID'].shape[0]):
+        for i in xrange(0,vorBinInfo['ID'].shape[0]):
             #print xAxis
             #print yAxis
             indexX = ((xAxis < (np.round(dataTab['X'][i],1)+diffusion)) & 
