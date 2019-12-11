@@ -137,7 +137,7 @@ gufo -gp\t tools to play with gaussian fits
         outFunction()
         
 
-    if args.gPlay or cfg_par['gFit'].get('enable',False) == True:
+    if args.gPlay or gPar.cfg_par['gFit'].get('enable',False) == True:
         time_start_load = time.time()        
         print ('\n\t************* --- GuFo : gPlay --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
@@ -146,7 +146,7 @@ gufo -gp\t tools to play with gaussian fits
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load))/60.)
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    elif args.gPlot or cfg_par['gPlot'].get('enable',False) == True:
+    elif args.gPlot or gPar.cfg_par['gPlot'].get('enable',False) == True:
         time_start_load = time.time()
         print ('\n\t************* --- GuFo : gPlot --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
@@ -154,14 +154,14 @@ gufo -gp\t tools to play with gaussian fits
         print("## plot fits ... Done ({0:.2f}m)".format((time.time()- time_start_load))/60.)
         print('\n\t************* --- GuFo : DONE --- **************\n')
     
-    elif args.moments or cfg_par['moments'].get('enable',False) == True:
+    elif args.moments or gPar.cfg_par['moments'].get('enable',False) == True:
         
         print ('\n\t************* --- GuFo : moments --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
         mom.makeMoments(gPar.cfg_par)
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    elif args.lineRatios or cfg_par['lineRatios'].get('enable',False) == True:
+    elif args.lineRatios or gPar.cfg_par['lineRatios'].get('enable',False) == True:
         
         print ('\n\t************* --- GuFo : lineRatios --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
