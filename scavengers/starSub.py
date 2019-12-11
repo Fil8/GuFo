@@ -13,7 +13,7 @@ class starsub:
 
         workDir = cfg_par['general']['workdir']
 
-        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['tableBinName'],
+        wave,xAxis,yAxis,pxSize, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['tableBinName'],
             workDir+cfg_par['general']['tableSpecName'],workDir+cfg_par['general']['tableStarName'])
 
         data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
