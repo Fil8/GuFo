@@ -25,9 +25,10 @@ class gufo:
 
         # get directories
         GFIT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        GFIT_DIR = GFIT_PATH+'/scavengers/'
         sys.path.append(os.path.join(GFIT_PATH, 'gufo'))
         
+        GFIT_DIR = GFIT_PATH+'/gufo/'
+
         file_default = GFIT_DIR + 'gPlay_default.yaml'
 
         if file != None:
@@ -38,7 +39,7 @@ class gufo:
         self.cfg_par = yaml.load(cfg)
         if self.cfg_par['general']['verbose'] == True:
             print yaml.dump(self.cfg_par)
-
+        self.cfg_par['general']['gfitPath'] = GFIT_DIR
         self.set_dirs()
 
         cfg.close()

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import string
-
+import numpy as np
+from astropy.io import ascii
+from scipy import interpolate
 
 class convert:
 
@@ -24,6 +26,24 @@ class convert:
 
         # wavelenght in Angstrom
         return lambdaWave
+
+    def specRes(self,cfg_par):
+
+
+        MUSEfile = cfg_par['general']['gfitPath'] + 'MUSEspecs.csv'
+
+        MUSETable = ascii.read(MUSEfile)
+
+        x = MUSETable['Lambda']
+        y = MUSETable['R']
+
+        tck = interpolate.splrep(x, y, s=0)
+        xnew = np.linspace(np.min(x),np.max(x),1e4)
+        ynew = interpolate.splev(xnew, tck, der=0)
+        print ynew
+        dVlambda = 1./ynew *xnew
+        print dVlambda
+        return dVlambda
 
 
     def hms2deg(self,ra_hms):

@@ -1,23 +1,25 @@
 general:
   __helpstr: General INPUT parameters for gaussFit
-  workdir: '/home/maccagni/Projects/MFS/FornaxA/MUSE/cubes/results/FornaxE_4750-6800-v100/'
-  runName: 'run2-prova'
+  workdir: '/Users/maccagni/Projects/MFS/FornaxA/MUSE/cubes/results/FornaxE_4750-6800-v100/'
+  runName: 'run'
   tableBinName: 'FornaxE_table.fits' # name of continuum image (assumed stored in workdir)
   tableSpecName: 'FornaxE_VorSpectra.fits' # name of datacube (assumed stored in workdir)
   tableStarName:  'FornaxE_ppxf-bestfit.fits'
-  dataCubeName:  'mycubes/lineCube.fits' # outputs will be stored here
+  dataCubeName:  'lineCube.fits' # outputs will be stored here
   lineListName: 'lineList.txt'
+  redshift: 0.00587
   verbose: False
 starSub:
+  enable: False
   ra: '03:22:41.734'
   dec: '-37:12:28.62'
   pixX : 200
   pixY : 125
   pixZ : 1
-  outputs: 'all'
+  outputs: 'all' #either 'all', 'stars', 'lines', 'data'
 gFit:  
-  enable: False
-  modName: 'g2'
+  enable: True
+  modName: 'g1'
   fixCentre: True
   fixSigma: True
   lambdaMin: 4750

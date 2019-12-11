@@ -283,25 +283,6 @@ class tplay:
         
         return fitResArr
 
-    def updateLineArray(self,cfg_par,lineArr,result,lineInfo,binIDName,counter):
-
-        redchi = result.redchi
-        success = result.success
-        ndata = result.ndata
-        nvarys = result.nvarys
-        nfev = result.nfev
-        success = result.success
-  
-        fitResArr['BIN_ID'][counter] = binIDName
-        fitResArr['fitSuccess'][counter] = success
-        fitResArr['redChi'][counter] = redchi
-        fitResArr['aic'][counter] = aic
-        fitResArr['nData'][counter] = bic
-        fitResArr['nVariables'][counter] = nvarys
-        fitResArr['nFev'][counter] = nfev
-        fitResArr['nData'][counter] = ndata
-        
-        return fitResArr
 
     def updateLineArray(self,cfg_par,lineArr,result,lineInfo,binIDName,counter):
         
@@ -320,9 +301,11 @@ class tplay:
             
             lineName = lineName+str(int(lineInfo['Wave'][ii]))
 
+            intR = fitRes['Wintln'+str(ii)]
+
             amp = fitRes['g1ln'+str(ii)+'_amplitude']
             ctr = fitRes['g1ln'+str(ii)+'_center']
-            sig = fitRes['g1ln'+str(ii)+'_sigma']
+            sig = fitRes['g1intln'+str(ii)]
             fwhm = fitRes['g1ln'+str(ii)+'_fwhm']
             height = fitRes['g1ln'+str(ii)+'_height']
 
@@ -346,7 +329,7 @@ class tplay:
 
                 amp = fitRes['g2ln'+str(ii)+'_amplitude']
                 ctr = fitRes['g2ln'+str(ii)+'_center']
-                sig = fitRes['g2ln'+str(ii)+'_sigma']
+                sig = fitRes['g2intln'+str(ii)]
                 fwhm = fitRes['g2ln'+str(ii)+'_fwhm']
                 height = fitRes['g2ln'+str(ii)+'_height']
 
@@ -370,7 +353,7 @@ class tplay:
 
                     amp = fitRes['g3ln'+str(ii)+'_amplitude']
                     ctr = fitRes['g3ln'+str(ii)+'_center']
-                    sig = fitRes['g3ln'+str(ii)+'_sigma']
+                    sig = fitRes['g3intln'+str(ii)]
                     fwhm = fitRes['g3ln'+str(ii)+'_fwhm']
                     height = fitRes['g3ln'+str(ii)+'_height']
 
