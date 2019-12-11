@@ -7,6 +7,13 @@ general:
   tableSpecName: 'FornaxE_VorSpectra.fits' # name of datacube (assumed stored in workdir)
   lineListName: 'lineList.txt'
   verbose: False
+starSub:
+  ra: '03:22:41.734'
+  dec: '-37:12:28.62'
+  pixX : 200
+  pixY : 125
+  pixZ : 1
+  outputs: 'all'
 gFit:  
   enable: False
   modName: 'g2'

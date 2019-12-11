@@ -231,9 +231,6 @@ class gplay:
         hh = f[0].header
         dd = f[0].data
         
-
-
-
         #define x-axis array
         lambdaMin = np.log(cfg_par['gFit']['lambdaMin'])
         lambdaMax = np.log(cfg_par['gFit']['lambdaMax'])

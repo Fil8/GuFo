@@ -224,7 +224,7 @@ class specplot:
         #    ncols=3, nrows=n_rows, figsize=(8.25, 11.67))
 
 
-        fig = plt.figure(figsize=(8.25, 11.67), constrained_layout=True)
+        fig = plt.figure(figsize=(8.25, 11.67), constrained_layout=False)
         fig.subplots_adjust(hspace=0.)
 
         gs_top = plt.GridSpec(nrows=n_rows+1, ncols=3,  figure=fig, top=0.95)

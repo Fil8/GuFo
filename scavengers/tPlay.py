@@ -104,8 +104,8 @@ class tplay:
         return lineInfo
 
     def openTablesPPXF(self,cfg_par,tableBin,tableSpec):
-        crPix1=200 # E 
-        crPix2=125
+        crPix1=cfg_par['starSub']['pixX']
+        crPix2=cfg_par['starSub']['pixY']
       
         tab = fits.open(tableBin)
         head = tab[0].header

@@ -52,6 +52,15 @@ class gufo:
             os.mkdir(runDir)
         self.cfg_par['general']['runNameDir'] = runDir
 
+        cubeDir = self.cfg_par['general']['runNameDir']+'cubes/'
+        if not os.path.exists(modNameDir):
+            os.mkdir(modNameDir)
+        self.cfg_par['general']['cubeDir'] = cubeDir
+
+        self.cfg_par['general']['outCube'] = cubeDir+'Cube.fits'
+        self.cfg_par['general']['outStars'] = cubeDir+'StarCube.fits'
+        self.cfg_par['general']['outLines'] = cubeDir+'LineCube.fits'
+
         outTableName = self.cfg_par['general']['runNameDir']+'gPlayOut.fits'
 
         self.cfg_par['general']['outTableName'] = outTableName
@@ -65,15 +74,13 @@ class gufo:
         momDir =self. cfg_par['general']['runNameDir']+'moments/'
         if not os.path.exists(momDir):
             os.mkdir(momDir)
-
         self.cfg_par['general']['momDir'] = momDir
 
 
-        modNameDir = self.cfg_par['general']['runNameDir']+'myMods/'
-        self.cfg_par['general']['modNameDir'] = modNameDir
+        modNameDir = self.cfg_par['general']['runNameDir']+'models/'
         if not os.path.exists(modNameDir):
             os.mkdir(modNameDir)
-        self.cfg_par['general']['modNameDir'] = momDir
+        self.cfg_par['general']['modNameDir'] = modNameDir
 
         return
 

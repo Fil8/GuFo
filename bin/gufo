@@ -6,7 +6,7 @@ import logging
 import time
 
 import gufo
-from scavengers import gPlay
+from scavengers import gPlay, starSub
 
 import argparse
 from  argparse import ArgumentParser
@@ -21,6 +21,7 @@ except pkg_resources.DistributionNotFound:
 
 
 gp = gPlay.gplay()
+ss = starSub.starsub()
 
 class MultilineFormatter(argparse.HelpFormatter):
     def _fill_text(self, text, width, indent):
@@ -34,8 +35,7 @@ class MultilineFormatter(argparse.HelpFormatter):
 
 def outFunction ():
         
-        print ('\n\t************* --- GuFo : ERROR --- **************')
-        print ('\t... you have not entered a config File ... \n')
+
         print ("""\nRun one of the following commands:\n
         gufo\t\t\t-gd <configFileName>:\tgenerate config file in working directory
         gufo\t\t\t-c  <configFileName>:\trun GuFo with modules enabled from config file
@@ -44,8 +44,7 @@ def outFunction ():
         gufo -mom\t\t-c  <configFileName>:\tmake moment maps of fitted lines
         gufo -lineRatios\t-c  <configFileName>:\testimate lineRatios, make lineRatio maps and BPT plots of fitted lines
                     """)
-        print ('\t************* --- GuFo : DONE  --- *************\n')
-        sys.exit(0)
+
         return 
 
 def main (argv):
@@ -71,6 +70,10 @@ def main (argv):
     add("-gd", "--generate_default",
         default=False,
         help='Generate a default configuration file (YAML format)')
+
+    add('-stS', '--starSub',
+        action='store_true',
+        help= 'make stat subtracted datacube from PPXF output')
 
     add('-gp', '--gPlay',
         action='store_true',
@@ -100,10 +103,8 @@ def main (argv):
 
         print ('\t\t  ... called for help ...\n')
         parser.print_help()
+        outFunction()
 
-        print ("""\nRun a command. This can be:\n
-gufo -gp\t tools to play with gaussian fits
-            """)
         print '\n\t************* --- GuFo : DONE --- **************\n'
 
         sys.exit(0)
@@ -141,10 +142,18 @@ gufo -gp\t tools to play with gaussian fits
         time_start_load = time.time()        
         print ('\n\t************* --- GuFo : gPlay --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
-        print gPar.cfg_par
         gp.gFit(gPar.cfg_par)
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
+
+   if args.starSub or gPar.cfg_par['starSub'].get('enable',False) == True:
+        time_start_load = time.time()        
+        print ('\n\t************* --- GuFo : make Datacubes --- **************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        ss.makeCubes(gPar.cfg_par)
+        print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
+        print('\n\t************* --- GuFo : DONE --- **************\n')
+
 
     elif args.gPlot or gPar.cfg_par['gPlot'].get('enable',False) == True:
         time_start_load = time.time()
@@ -171,8 +180,11 @@ gufo -gp\t tools to play with gaussian fits
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
     else:
+        print ('\n\t************* --- GuFo : ERROR --- **************')
+        print ('\t... you have not entered a config File ... \n')
         outFunction()
-
+        print ('\t************* --- GuFo : DONE  --- *************\n')
+        sys.exit(0)
 
 print ('\n\t************* ---      GuFo    --- *************')
 
