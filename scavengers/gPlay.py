@@ -369,8 +369,6 @@ class gplay:
                 #check if spectrum is not empty                   
                 if np.sum(y)>0:
 
-                    gMod,gPars = self.lineModDef(cfg_par,waveCut,y,lineInfo)
-
                     # identify voronoi bin
                     xVal = xAxis[i]
                     yVal = yAxis[j]
@@ -395,7 +393,7 @@ class gplay:
 
                         # FIT
                         result = load_modelresult(modNameDir+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
-
+                        print result
                         #plot Fit
                         if cfg_par['gPlot']['enable'] == True:
                             print 'i'
