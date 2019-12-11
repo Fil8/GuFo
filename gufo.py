@@ -53,8 +53,8 @@ class gufo:
         self.cfg_par['general']['runNameDir'] = runDir
 
         cubeDir = self.cfg_par['general']['runNameDir']+'cubes/'
-        if not os.path.exists(modNameDir):
-            os.mkdir(modNameDir)
+        if not os.path.exists(cubeDir):
+            os.mkdir(cubeDir)
         self.cfg_par['general']['cubeDir'] = cubeDir
 
         self.cfg_par['general']['outCube'] = cubeDir+'Cube.fits'
