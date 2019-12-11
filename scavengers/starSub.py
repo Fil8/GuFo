@@ -80,11 +80,11 @@ class starsub:
 
     def makeHeader(self,cfg_par,wave):
         
-        #workDir = cfg_par['general']['workdir']
-        #tab = fits.open(workDir+cfg_par['general']['tableBinName'])
-#
-        #head = tab[0].header
-        #fits.close()
+        workDir = cfg_par['general']['workdir']
+        tab = fits.open(workDir+cfg_par['general']['tableBinName'])
+        head = tab[0].header
+        fits.close()
+        pixelSize = head['PIXSIZE']/3600.
 
         # these are arbitrary but must correspond, I choose the centre of the galaxy(usually offset with fov)
         crPix3 =cfg_par['starSub']['pixZ']
@@ -108,7 +108,6 @@ class starsub:
 
         w = wcs.WCS(naxis=3)
 
-        pixelSize = head['PIXSIZE']/3600.
 
         # Set up an "Airy's zenithal" projection
         # Vector properties may be set with Python lists, or Numpy arrays
