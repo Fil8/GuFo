@@ -143,7 +143,7 @@ gufo -gp\t tools to play with gaussian fits
         gPar = gufo.gufo(args.cfgFile)
         print gPar.cfg_par
         gp.gFit(gPar.cfg_par)
-        print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load))/60.)
+        print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
     elif args.gPlot or gPar.cfg_par['gPlot'].get('enable',False) == True:
@@ -151,7 +151,7 @@ gufo -gp\t tools to play with gaussian fits
         print ('\n\t************* --- GuFo : gPlot --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
         gp.gPlot(gPar.cfg_par)
-        print("## plot fits ... Done ({0:.2f}m)".format((time.time()- time_start_load))/60.)
+        print("## plot fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
     
     elif args.moments or gPar.cfg_par['moments'].get('enable',False) == True:

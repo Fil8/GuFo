@@ -358,6 +358,7 @@ class gplay:
         binID, binArr, fitResArr, lineArr = tP.makeInputArrays(cfg_par,lineInfo, Xdim, Ydim)
        
         counter = 0
+        print 'culo'
         #for j in xrange(205,208):
         #    for i in xrange(250,252):
         for j in xrange(0,dd.shape[1]):
@@ -397,6 +398,7 @@ class gplay:
 
                         #plot Fit
                         if cfg_par['gPlot']['enable'] == True:
+                            print 'i'
                         #self.plotSpecFit(waveCut, y,result,noiseVec[idxMin:idxMax],i,j,lineInfo,vorBinInfo[index])
                             sP.plotLineZoom(cfg_par,waveCut, y,result,noiseVec[idxMin:idxMax],i,j,lineInfo,vorBinInfo[index])
                           
