@@ -207,7 +207,6 @@ class specplot:
         velExp = np.exp(vel)
         yBFit = result.best_fit
         yRes = result.residual
-        print result.residual
         yInFit = result.init_fit
         key = 'general'
         
@@ -496,8 +495,6 @@ class specplot:
         # Calculate axis limits and aspect ratio
         x_min = np.min(velPlot)
         x_max = np.max(velPlot)
-        print noise
-        print yRes
         if cfg_par['gPlot']['Res-fixed_scale']:
             y1_min = np.nanmin([-200.,np.nanmin(-noise)*1.1,np.nanmin(-yRes)*1.1])
             y1_max = np.nanmax([+200.,np.nanmax(+noise)*1.1,np.nanmax(+yRes)*1.1])
