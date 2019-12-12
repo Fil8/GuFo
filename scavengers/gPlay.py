@@ -419,6 +419,7 @@ class gplay:
                         noiseVec = noiseBin[binIDName][:]
 
                         # FIT
+                        print str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav'
                         result = load_modelresult(modNameDir+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
                         #plot Fit
                         if cfg_par['gPlot']['enable'] == True:
