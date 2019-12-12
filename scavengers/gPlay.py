@@ -368,10 +368,7 @@ class gplay:
         dd = f[0].data
         
 
-        modNameDir = cfg_par[key]['runNameDir']+'/myMods/'
-        cfg_par[key]['modNameDir'] = modNameDir
-        if not os.path.exists(modNameDir):
-            os.mkdir(modNameDir)
+        modNameDir = cfg_par[key]['modNameDir']
 
         #define x-axis array
         lambdaMin = np.log(cfg_par['gFit']['lambdaMin'])
