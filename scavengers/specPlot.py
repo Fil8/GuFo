@@ -207,6 +207,7 @@ class specplot:
         velExp = np.exp(vel)
         yBFit = result.best_fit
         yRes = result.residual
+        print result.residual
         yInFit = result.init_fit
         key = 'general'
         
