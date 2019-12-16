@@ -24,12 +24,12 @@ class momplay:
 
     def makeMoments(self,cfg_par):
 
-        workDir = cfg_par['general']['workdir']
+        workDir = cfg_par['general']['cubeDir']
 
         f = fits.open(workDir+cfg_par['general']['dataCubeName'])
         dd = f[0].header
 
-        lineInfo = tP.openLineList()
+        lineInfo = tP.openLineList(cfg_par)
 
         for ii in xrange(0,len(lineInfo['ID'])):
             lineName = str(lineInfo['Name'][ii])
@@ -39,15 +39,15 @@ class momplay:
 
             lineName = lineName+str(int(lineInfo['Wave'][ii]))
 
-            self.moments(lineName,dd,cfg_par['general']['outTableName'])
+            self.moments(cfg_par,lineName,dd,cfg_par['general']['outTableName'])
 
         return
 
 
-    def moments(self,lineName,header,outTableName):
+    def moments(self,cfg_par,lineName,header,outTableName):
 
         modName = cfg_par['gFit']['modName']
-        momModDir = momDir+modName+'/'
+        momModDir = cfg_par['general']['momDir']+modName+'/'
 
         if not os.path.exists(momModDir):
             os.mkdir(momModDir)
@@ -145,7 +145,7 @@ class momplay:
 
     def makeLineRatioMaps(self,cfg_par):
 
-        workDir = cfg_par['general']['workdir']
+        workDir = cfg_par['general']['cubeDir']
 
         f = fits.open(workDir+cfg_par['general']['dataCubeName'])
         dd = f[0].header
@@ -160,16 +160,16 @@ class momplay:
 
             #lineName = lineName+str(int(lineInfo['Wave'][ii]))
 
-        self.momLineRatio(dd,cfg_par['general']['outTableName'])
+        self.momLineRatio(cfg_par,dd,cfg_par['general']['outTableName'])
 
         return
 
 
-    def momLineRatio(self,header,outTableName):
+    def momLineRatio(self,cfg_par,header,outTableName):
 
 
         modName = cfg_par['gFit']['modName']
-        momModDir = cfg_par['general']['momDir']+modName+'/'
+        momModDir = cfg_par['general']['bptDir']+modName+'/'
 
         if not os.path.exists(momModDir):
             os.mkdir(momModDir)
@@ -195,13 +195,15 @@ class momplay:
         tabGen = hdul['BinInfo'].data
 
         numCols = len(lineBPT.dtype.names)
+
         if modName == 'g2':
             numCols = (numCols-1)/3
+            numCols +=1 
         if modName == 'g3':
             numCols = (numCols-1)/4
-        print numCols
+            numCols +=1 
 
-        for i in xrange(1,numCols+1):
+        for i in xrange(1,numCols):
             lineMapG1 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         
             if modName != 'g1':
@@ -216,6 +218,7 @@ class momplay:
 
                 match_bin = np.where(tabGen['BIN_ID']==lineBPT['BIN_ID'][j])[0]
                 for index in match_bin:
+                
                     lineMapG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i]
 
                     if modName != 'g1':                        

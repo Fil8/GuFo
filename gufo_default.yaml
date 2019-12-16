@@ -20,8 +20,9 @@ starSub:
 gFit:  
   enable: True
   modName: 'g1'
-  fixCentre: True
   fixSigma: True
+  fixCentre: True
+  sideCentre: False
   lambdaMin: 4750
   lambdaMax: 6800
   sigmaIn1: 50.

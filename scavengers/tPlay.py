@@ -301,6 +301,7 @@ class tplay:
             
             lineName = lineName+str(int(lineInfo['Wave'][ii]))
 
+
             intR = fitRes['Wintln'+str(ii)]
 
             amp = fitRes['g1ln'+str(ii)+'_amplitude']
@@ -407,7 +408,7 @@ class tplay:
 
         return
 
-    def binLineRatio(self,lineInfo):
+    def binLineRatio(self,cfg_par,lineInfo):
 
         lineNameID=[]
         modName = cfg_par['gFit']['modName']
@@ -551,14 +552,15 @@ class tplay:
 
         indexSFK = np.where(np.logical_and(np.logical_and(np.log10(t['G1-OIII5006/Hb4861']) < 0.61 / (np.log10(t['G1-NII6583/Ha6562']) - 0.05) + 1.3,
             np.log10(t['G1-OIII5006/Hb4861'])<3),
-            np.log10(t['G1-NII6583/Ha6562'])<1.))
+            np.log10(t['G1-NII6583/Ha6562'])<-0.05)
+            )
         indexSF = np.where(np.logical_and(np.logical_and(np.logical_and(np.log10(t['G1-OIII5006/Hb4861']) < 0.61 / (np.log10(t['G1-NII6583/Ha6562']) - 0.47) + 1.19, 
             np.log10(t['G1-OIII5006/Hb4861']) >= 0.61 / (np.log10(t['G1-NII6583/Ha6562']) - 0.05) + 1.3),
             np.log10(t['G1-OIII5006/Hb4861'])<3.),
-            np.log10(t['G1-NII6583/Ha6562'])<1.))
+            np.log10(t['G1-NII6583/Ha6562'])<0.47))
         indexAGN  = np.where(np.logical_and(np.logical_and(np.log10(t['G1-OIII5006/Hb4861']) >= 0.61 / (np.log10(t['G1-NII6583/Ha6562']) - 0.47) + 1.19,
             np.log10(t['G1-OIII5006/Hb4861'])<3.),
-            np.log10(t['G1-NII6583/Ha6562'])<1.))
+            np.log10(t['G1-NII6583/Ha6562'])<2.))
         
         LrOIII  = np.zeros(len(lines['BIN_ID']))*np.nan
         LrOIII[indexSFK] = 0.
@@ -568,19 +570,19 @@ class tplay:
 
         indexSF = np.where(np.logical_and.reduce((np.log10(t['G1-OIII5006/Hb4861']) < 0.72 / (np.log10(t['G1-SII6716/Ha6562']) - 0.32) + 1.30,
                             np.log10(t['G1-OIII5006/Hb4861'])<3.,
-                            np.log10(t['G1-SII6716/Ha6562'])<0.5,
+                            np.log10(t['G1-SII6716/Ha6562'])<0.32,
                             np.log10(t['G1-OIII5006/Hb4861'])>=-2.,
                             np.log10(t['G1-SII6716/Ha6562'])>=-2.)))
         indexSey = np.where(np.logical_and.reduce((np.log10(t['G1-OIII5006/Hb4861']) >= 0.72 / (np.log10(t['G1-SII6716/Ha6562']) - 0.32) + 1.30, 
             np.log10(t['G1-OIII5006/Hb4861']) > 1.89* np.log10(t['G1-SII6716/Ha6562']) + 0.76,
                             np.log10(t['G1-OIII5006/Hb4861'])<3.,
-                            np.log10(t['G1-SII6716/Ha6562'])<0.5,
+                            np.log10(t['G1-SII6716/Ha6562'])<1.,
                             np.log10(t['G1-OIII5006/Hb4861'])>=-2.,
                             np.log10(t['G1-SII6716/Ha6562'])>=-2.)))
         indexLIN = np.where(np.logical_and.reduce((np.log10(t['G1-OIII5006/Hb4861']) >= 0.72 / (np.log10(t['G1-SII6716/Ha6562']) - 0.32) + 1.30,
             np.log10(t['G1-OIII5006/Hb4861']) < 1.89*np.log10(t['G1-SII6716/Ha6562']) + 0.76,
                             np.log10(t['G1-OIII5006/Hb4861'])<3.,
-                            np.log10(t['G1-SII6716/Ha6562'])<0.5,
+                            np.log10(t['G1-SII6716/Ha6562'])<1.,
                             np.log10(t['G1-OIII5006/Hb4861'])>=-2.,
                             np.log10(t['G1-SII6716/Ha6562'])>=-2.)))
 
@@ -591,21 +593,21 @@ class tplay:
 
         indexSF = np.where(np.logical_and.reduce((np.log10(t['G1-OIII5006/Hb4861']) < 0.73 / (np.log10(t['G1-OI6300/Ha6562']) + 0.59) + 1.33,
             np.log10(t['G1-OIII5006/Hb4861'])<3.,
-            np.log10(t['G1-OI6300/Ha6562'])<1.,
+            np.log10(t['G1-OI6300/Ha6562'])<-0.59,
             np.log10(t['G1-OIII5006/Hb4861'])>=-2.,            
             np.log10(t['G1-OI6300/Ha6562'])>=-3.)))
         
         indexSey = np.where(np.logical_and.reduce((np.log10(t['G1-OIII5006/Hb4861']) >= 0.73 / (np.log10(t['G1-OI6300/Ha6562']) + 0.59) +1.33,
             np.log10(t['G1-OIII5006/Hb4861']) >= 1.18* np.log10(t['G1-OI6300/Ha6562']) + 1.30,
             np.log10(t['G1-OIII5006/Hb4861'])<3.,
-            np.log10(t['G1-OI6300/Ha6562'])<1.,
+            np.log10(t['G1-OI6300/Ha6562'])<2.,
             np.log10(t['G1-OIII5006/Hb4861'])>=-2.,            
             np.log10(t['G1-OI6300/Ha6562'])>=-3.)))
         
         indexLIN = np.where(np.logical_and.reduce((np.log10(t['G1-OIII5006/Hb4861']) >= 0.73 / (np.log10(t['G1-OI6300/Ha6562']) + 0.59)+1.33, 
             np.log10(t['G1-OIII5006/Hb4861']) < 1.18* np.log10(t['G1-OI6300/Ha6562']) + 1.30,
             np.log10(t['G1-OIII5006/Hb4861'])<3.,
-            np.log10(t['G1-OI6300/Ha6562'])<1.,
+            np.log10(t['G1-OI6300/Ha6562'])<2.,
             np.log10(t['G1-OIII5006/Hb4861'])>=-2.,            
             np.log10(t['G1-OI6300/Ha6562'])>=-3.)))
 

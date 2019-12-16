@@ -197,7 +197,7 @@ class specplot:
 
         plt.savefig(outPlot,
                     format='png') # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
-        plt.show()
+        #plt.show()
         plt.close()
            
         return 0

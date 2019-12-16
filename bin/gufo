@@ -6,7 +6,7 @@ import logging
 import time
 
 import gufo
-from scavengers import gPlay, starSub
+from scavengers import gPlay, starSub, momPlay, tPlay
 
 import argparse
 from  argparse import ArgumentParser
@@ -22,6 +22,9 @@ except pkg_resources.DistributionNotFound:
 
 gp = gPlay.gplay()
 ss = starSub.starsub()
+mom = momPlay.momplay()
+tP = tPlay.tplay()
+
 
 class MultilineFormatter(argparse.HelpFormatter):
     def _fill_text(self, text, width, indent):
@@ -92,7 +95,7 @@ def main (argv):
         default=False,
         help= 'bin to plot')
 
-    add('-mom', '--moments',
+    add('-mm', '--moments',
         action='store_true',
         help= 'tool to play with gaussian fits')
 
@@ -163,7 +166,7 @@ def main (argv):
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    elif args.gPlot or gPar.cfg_par['gPlot'].get('enable',False) == True:
+    if args.gPlot or gPar.cfg_par['gPlot'].get('enable',False) == True:
         time_start_load = time.time()
         print ('\n\t************* --- GuFo : gPlot --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
@@ -190,8 +193,8 @@ def main (argv):
         
         print ('\n\t************* --- GuFo : lineRatios --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
-        lineInfo = gp.openLineList(gPar.cfg_par)
-        tP.binLineRatio(lineInfo)
+        lineInfo = tP.openLineList(gPar.cfg_par)
+        tP.binLineRatio(gPar.cfg_par,lineInfo)
         mom.makeLineRatioMaps(gPar.cfg_par)
         print('\n\t************* --- GuFo : DONE --- **************\n')
 

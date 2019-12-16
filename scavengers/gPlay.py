@@ -83,12 +83,23 @@ class gplay:
         gName = cfg_par['gFit']['modName']
         for i in xrange(0,len(lineInfo['ID'])):
             
-            waveIn = cfg_par['general']['redshift']*lineInfo['Wave'][i]+lineInfo['Wave'][i]
+            if lineInfo['Wave'][i] == 6547.96:
+                kk = i
+            if lineInfo['Wave'][i] == 6716.31:
+                zz = i
+            else:
+                kk = 0
+                zz = 0
 
-            indexWave = int(np.where(abs(wave-waveIn)==abs(wave-waveIn).min())[0])
+            waveInRed = cfg_par['general']['redshift']*lineInfo['Wave'][i]+lineInfo['Wave'][i]
+
+            indexWaveInRed = int(np.where(abs(np.exp(wave)-waveInRed)==abs(np.exp(wave)-waveInRed).min())[0])
+            dLIn = dLambda[indexWaveInRed]
+            dLIn = np.log(waveInRed+dLIn/2.)-np.log(waveInRed-dLIn/2.)
+
+            indexWaveIn = int(np.where(abs(np.exp(wave)-lineInfo['Wave'][i]).min())[0])
+            waveIn = np.exp(wave[indexWaveIn])
             
-            dLIn = dLambda[indexWave]
-            dLIn = np.log(lineInfo['Wave'][i]+dLIn/2.)-np.log(lineInfo['Wave'][i]-dLIn/2.)
             #waveMin =  np.log(lineInfo['Wave'][i] - lineInfo['lineRangeAng'][i])
             #waveMax =  np.log(lineInfo['Wave'][i] + lineInfo['lineRangeAng'][i])
            
@@ -116,18 +127,32 @@ class gplay:
                 
                 pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
                 pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,
-                min=waveAmpIn1Min,max=waveAmpIn1Max)
+                min=waveAmpIn1Min,max=waveAmpIn1Max,vary=True)
                 pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=0,max=None)
+                
                 mod = gauss1
           
             else:
                 pars.update(gauss1.make_params())    
                 pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
-                pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,
-                        min=waveAmpIn1Min,max=waveAmpIn1Max)
-                pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=0,max=None)
+                if cfg_par['gFit']['fixCentre'] == True:
+                    cenDist = cvP.lambdaVRad(np.exp(pars['g1ln'+str(0)+'_'+'center']),lineInfo['Wave'][0])
+                    cenDistAng = np.log(cvP.vRadLambda(cenDist,lineInfo['Wave'][i]))
+                    pars.add(name='cenDistln'+str(i), value=cenDistAng,vary=False)
+                    pars['g1ln'+str(i)+'_'+'center'].set(expr='cenDistln'+str(i))
 
-                pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
+                pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=0,max=None)
+                
+                if lineInfo['Wave'][i] == 6583.34:
+                    ampMin = pars['g1ln'+str(kk)+'_'+'height'] * 1./cfg_par['gFit']['ampRatioNII']
+                    ampIn1 = np.max(y[indexMin:indexMax])
+                    pars['g1ln'+str(i)+'_'+'height'].set(value=ampIn1,min=ampMin,max=None)
+                    
+                if lineInfo['Wave'][i] == 6730.68:
+                    ampMin = pars['g1ln'+str(zz)+'_'+'height'] * cfg_par['gFit']['ampRatioSII']
+                    ampIn1 = np.max(y[indexMin:indexMax])
+                    pars['g1ln'+str(i)+'_'+'height'].set(value=ampIn1,min=ampMin,max=None)
+               
                 if cfg_par['gFit']['fixSigma'] == True:
                     pars.add(name = 'g1intln'+str(i), expr='g1intln'+str(0))  
                     pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
@@ -173,7 +198,7 @@ class gplay:
                     pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
                         min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i])
 
-                elif cfg_par['gFit']['fixCentre'] == True and i >0:
+                elif cfg_par['gFit']['posCentre'] == True and i >0:
                     pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
                         min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i],vary=True)
                     pars.add(name='g2ln'+str(i)+'Split_'+'center', expr='g2ln'+str(0)+'_'+'center - g1ln'+str(0)+'_'+'center')
@@ -182,6 +207,14 @@ class gplay:
                     pars.add(name='g2ln'+str(i)+'Neg_'+'center', value=cenIn2Neg,max=cenIn1,
                         min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i], vary=True)
                     pars['g2ln'+str(i)+'_'+'center'].set(expr='g2ln'+str(i)+'Pos_center if g2ln'+str(i)+'Split_center >= 0 else g2ln'+str(i)+'Neg_center' )                    
+                
+                elif cfg_par['gFit']['fixCentre'] == True and i >0:
+                    
+                    cenDist = cvP.lambdaVRad(np.exp(pars['g2ln'+str(0)+'_'+'center']),lineInfo['Wave'][0])
+                    cenDistAng = np.log(cvP.vRadLambda(cenDist,lineInfo['Wave'][i]))
+                    pars.add(name='cenDistln'+str(i), value=cenDistAng,vary=False)
+                    pars['g2ln'+str(i)+'_'+'center'].set(expr='cenDistln'+str(i))
+
                 else:
                     pars['g2ln'+str(i)+'_'+'center'].set(expr='g2ln'+str(0)+'_'+'center')                   
 
@@ -209,7 +242,6 @@ class gplay:
                     
                     elif cfg_par['gFit']['fixSigma'] == True:
                     #    pars['g3ln'+str(i)+'_'+'sigma'].set(expr='g3ln'+str(0)+'_'+'sigma')
-
                         pars.add(name = 'g3intln'+str(i)+'_'+'sigma', expr='g3intln'+str(0)+'_'+'sigma')  
                         pars['g3ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g3intln'+str(i)+'_'+'sigma,2))')
                     else:
@@ -229,11 +261,9 @@ class gplay:
                     pars['g3ln'+str(i)+'_'+'center'].set(value=cenIn3Pos,
                         min=waveAmpIn1Min-lineInfo['deltaVAng_13'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_13'][i])
                 
-                    if cfg_par['gFit']['fixCentre'] == True and i >0:
-
+                    if cfg_par['gFit']['posCentre'] == True and i >0:
                         pars['g3ln'+str(i)+'_'+'center'].set(value=cenIn3Pos,
                             min=waveAmpIn1Min-lineInfo['deltaVAng_13'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_13'][i],vary=True)
-                        
                         pars.add(name='g3ln'+str(i)+'Split_'+'center', expr='g3ln'+str(0)+'_'+'center - g1ln'+str(0)+'_'+'center')
                         pars.add(name='g3ln'+str(i)+'Pos_'+'center', value=cenIn3Pos,
                             max=waveAmpIn1Max+lineInfo['deltaVAng_13'][i],min=cenIn1, vary=True)
