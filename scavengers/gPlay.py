@@ -128,31 +128,43 @@ class gplay:
                 pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
                 pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,
                 min=waveAmpIn1Min,max=waveAmpIn1Max,vary=True)
+
+                pars.add(name='lineWave'+str(i),value=lineInfo['Wave'][i],vary=False)
+                pars.add(name='cenDist',expr ='((exp(g1ln'+str(i)+'_'+'center)-lineWave'+str(i)+')/lineWave'+str(0)+')*2.99792458e8/1e3',vary=False)
+
                 pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=0,max=None)
-                
                 mod = gauss1
           
             else:
                 pars.update(gauss1.make_params())    
-                pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
+                
                 if cfg_par['gFit']['fixCentre'] == True:
+                    pars.add(name='lineWave'+str(i),value=lineInfo['Wave'][i],vary=False)
+
+                    pars.add(name='cenDistAng'+str(i),expr ='log((cenDist*1e3*lineWave'+str(i)+'*1e-10)/2.99792458e8/1e-10+lineWave'+str(i)+')')
+
                     cenDist = cvP.lambdaVRad(np.exp(pars['g1ln'+str(0)+'_'+'center']),lineInfo['Wave'][0])
                     cenDistAng = np.log(cvP.vRadLambda(cenDist,lineInfo['Wave'][i]))
-                    pars.add(name='cenDistln'+str(i), value=cenDistAng,vary=False)
-                    pars['g1ln'+str(i)+'_'+'center'].set(expr='cenDistln'+str(i))
+                    #pars.add(name='cenDistln'+str(i), value=cenDistAng,vary=False)
+                    pars['g1ln'+str(i)+'_'+'center'].set(expr='cenDistAng'+str(i))
+                else:
+                    pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,
+                    min=waveAmpIn1Min,max=waveAmpIn1Max,vary=True) 
 
                 pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=0,max=None)
                 
                 if lineInfo['Wave'][i] == 6583.34:
                     ampMin = pars['g1ln'+str(kk)+'_'+'height'] * 1./cfg_par['gFit']['ampRatioNII']
                     ampIn1 = np.max(y[indexMin:indexMax])
-                    pars['g1ln'+str(i)+'_'+'height'].set(value=ampIn1,min=ampMin,max=None)
-                    
+                    pars['g1ln'+str(i)+'_'+'height'].set(value=ampIn1,min=ampMin,max=None,vary=True)
+
                 if lineInfo['Wave'][i] == 6730.68:
                     ampMin = pars['g1ln'+str(zz)+'_'+'height'] * cfg_par['gFit']['ampRatioSII']
                     ampIn1 = np.max(y[indexMin:indexMax])
-                    pars['g1ln'+str(i)+'_'+'height'].set(value=ampIn1,min=ampMin,max=None)
+                    pars['g1ln'+str(i)+'_'+'height'].set(value=ampIn1,min=ampMin,max=None,vary=True)
                
+
+                pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
                 if cfg_par['gFit']['fixSigma'] == True:
                     pars.add(name = 'g1intln'+str(i), expr='g1intln'+str(0))  
                     pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
@@ -354,7 +366,6 @@ class gplay:
                         # FIT
                         result = gMod.fit(y, gPars, x=waveCut)
                         save_modelresult(result, cfg_par['general']['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
-
                         fitResArr = tP.updateFitArray(cfg_par,fitResArr,result,binIDName,counter)
                         lineArr = tP.updateLineArray(cfg_par,lineArr,result,lineInfo,binIDName,counter)
 

@@ -309,7 +309,6 @@ class tplay:
             sig = fitRes['g1intln'+str(ii)]
             fwhm = fitRes['g1ln'+str(ii)+'_fwhm']
             height = fitRes['g1ln'+str(ii)+'_height']
-
             g1Ctr = cvP.lambdaVRad(np.exp(ctr),lineInfo['Wave'][ii])
             g1Sigma = cvP.lambdaVRad(np.exp(sig),lineInfo['Wave'][ii])
             g1FWHM = cvP.lambdaVRad(np.exp(fwhm),lineInfo['Wave'][ii])
