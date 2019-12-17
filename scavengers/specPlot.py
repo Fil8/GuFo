@@ -212,8 +212,7 @@ class specplot(object):
 
         velExp = np.exp(vel)
         yBFit = result.best_fit
-        print y
-        print yBFit
+
         if cfg_par['gPlot'].get('loadModel',None):
 
             yRes = yBFit-y
@@ -229,7 +228,6 @@ class specplot(object):
             os.mkdir(outPlotDir)
         #print singleVorBinInfo['BIN_ID']
         outPlot = outPlotDir+str(binName)+'_'+cfg_par['gFit']['modName']+'.png'       
-        print outPlot
         params = self.loadRcParamsZoom()
         plt.rcParams.update(params)
         # add one row for the plot with full channel width

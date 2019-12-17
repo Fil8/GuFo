@@ -506,12 +506,9 @@ class gplay(object):
         idxMin = int(np.where(abs(wave-lambdaMin)==abs(wave-lambdaMin).min())[0]) 
         idxMax = int(np.where(abs(wave-lambdaMax)==abs(wave-lambdaMax).min())[0])
 
-        print idxMin, idxMax
+
         idxTable = int(np.where(tabGen['BIN_ID'] == int(binID))[0][0])
         
-        print idxTable
-        print int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])
-
         y = dd[idxMin:idxMax,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]
 
         waveCut = wave[idxMin:idxMax]
