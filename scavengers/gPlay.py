@@ -8,7 +8,6 @@ from lmfit.model import save_modelresult
 from lmfit.model import load_modelresult
 
 
-from numba import njit, prange
 
 from astropy.io import ascii, fits
 from astropy.table import Table, Column
