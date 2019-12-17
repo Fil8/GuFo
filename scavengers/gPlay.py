@@ -8,6 +8,8 @@ from lmfit.model import save_modelresult
 from lmfit.model import load_modelresult
 
 
+from numba import njit, prange
+
 from astropy.io import ascii, fits
 from astropy.table import Table, Column
 import numpy as np
@@ -25,7 +27,7 @@ cvP = cvPlay.convert()
 sP = specPlot.specplot()
 tP = tPlay.tplay()
 
-class gplay:
+class gplay(object):
     
 
     def modDef(self,modName):
@@ -313,6 +315,8 @@ class gplay:
         hh = f[0].header
         dd = f[0].data
         
+
+
         #define x-axis array
         lambdaMin = np.log(cfg_par['gFit']['lambdaMin'])
         lambdaMax = np.log(cfg_par['gFit']['lambdaMax'])
@@ -330,8 +334,8 @@ class gplay:
         counter = 0
         #for j in xrange(205,208):
         #    for i in xrange(250,252):
-        for j in xrange(0,dd.shape[1]):
-            for i in xrange(0,dd.shape[2]):
+        for j in prange(0,dd.shape[1]):
+            for i in prange(0,dd.shape[2]):
                 y = dd[idxMin:idxMax,j,i]
 
                 waveCut = wave[idxMin:idxMax]
@@ -460,7 +464,9 @@ class gplay:
                         noiseVec = noiseBin[binIDName][:]
 
                         # FIT
-                        result = load_modelresult(modNameDir+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
+                        result = load_modelresult(cfg_par[key]['modNameDir']+'_'+cfg_par['gFit']['modName']+'.sav')
+                        cfg_par['gPlot']['loadModel'] = True
+
                         #plot Fit
                         if cfg_par['gPlot']['enable'] == True:
                         #self.plotSpecFit(waveCut, y,result,noiseVec[idxMin:idxMax],i,j,lineInfo,vorBinInfo[index])
@@ -475,13 +481,13 @@ class gplay:
 
     def plotSingleBin(self,cfg_par,binID):
 
-        lambdaMin = np.log(cfg_par['gFit']['lambdaMin'])
-        lambdaMax = np.log(cfg_par['gFit']['lambdaMax'])
-        idxMin = int(np.where(abs(wave-lambdaMin)==abs(wave-lambdaMin).min())[0]) 
-        idxMax = int(np.where(abs(wave-lambdaMax)==abs(wave-lambdaMax).min())[0])
+        key = 'general'
+        workDir = cfg_par[key]['workdir']
+        cubeDir = cfg_par[key]['cubeDir']
+
 
         #open datacube
-        f = fits.open(workDir+cfg_par[key]['dataCubeName'])
+        f = fits.open(cubeDir+cfg_par[key]['dataCubeName'])
         dd = f[0].data
         f.close()
         
@@ -492,22 +498,34 @@ class gplay:
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['tableBinName'],
             workDir+cfg_par[key]['tableSpecName'])
 
+        hdul = fits.open(cfg_par['general']['outTableName'])
+        tabGen = hdul['BinInfo'].data
 
-        idxTable = int(np.where(vorBinInfo['BIN_ID'] == str(binID)))
-        y = dd[idxMin:idxMax,vorBinInfo['Y'],vorBinInfo['X']]
+
+        lambdaMin = np.log(cfg_par['gFit']['lambdaMin'])
+        lambdaMax = np.log(cfg_par['gFit']['lambdaMax'])
+        idxMin = int(np.where(abs(wave-lambdaMin)==abs(wave-lambdaMin).min())[0]) 
+        idxMax = int(np.where(abs(wave-lambdaMax)==abs(wave-lambdaMax).min())[0])
+
+        print idxMin, idxMax
+        idxTable = int(np.where(tabGen['BIN_ID'] == int(binID))[0][0])
+        
+        print idxTable
+        print int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])
+
+        y = dd[idxMin:idxMax,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]
 
         waveCut = wave[idxMin:idxMax]
 
-        result = load_modelresult(modNameDir+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
+        result = load_modelresult(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
+        
+        cfg_par['gPlot']['loadModel'] = True
 
-        noiseVec = noiseBin[str(binID)][:]
+        noiseVec = noiseBin[int(binID)][:]
 
         #plot Fit
-        if cfg_par['gPlot']['enable'] == True:
-        #self.plotSpecFit(waveCut, y,result,noiseVec[idxMin:idxMax],i,j,lineInfo,vorBinInfo[index])
-            sP.plotLineZoom(cfg_par,waveCut, y,result,noiseVec[idxMin:idxMax],vorBinInfo['X'],vorBinInfo['Y'],lineInfo,vorBinInfo[index])
-
-
+        #self.plotSpecFit(waveCut, y,result,noiseVec[idxMin:idxMax],i,j,tab,vorBinInfo[index])
+        sP.plotLineZoom(cfg_par,waveCut, y,result,noiseVec[idxMin:idxMax],int(tabGen['PixX'][idxTable]),int(tabGen['PixY'][idxTable]),lineInfo,tabGen[:][idxTable])
 
         print('''\t+---------+\n\t bin Plotted\n\t+---------+''')
 

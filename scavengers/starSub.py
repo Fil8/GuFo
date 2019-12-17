@@ -7,7 +7,7 @@ from scavengers import cvPlay, tPlay
 cvP = cvPlay.convert()
 tP = tPlay.tplay()
 
-class starsub:
+class starsub(object):
 
     def makeCubes(self,cfg_par):
 

@@ -4,7 +4,7 @@ import numpy as np
 from astropy.io import ascii
 from scipy import interpolate
 
-class convert:
+class convert(object):
 
     def __init__(self):
 

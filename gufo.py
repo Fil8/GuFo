@@ -16,7 +16,7 @@ except pkg_resources.DistributionNotFound:
 ####################################################################################################
 
 
-class gufo:
+class gufo(object):
 
     def __init__(self,file=None):
 

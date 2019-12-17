@@ -14,6 +14,7 @@ import numpy.ma as ma
 import shutil
 
 
+
 import cvPlay
 import gufo as gf
 
@@ -21,8 +22,8 @@ import gufo as gf
 cvP = cvPlay.convert()
 
 
-class tplay:
-        
+class tplay(object):
+
     def openLineList(self,cfg_par):
         
         workDir = cfg_par['general']['workdir']
@@ -175,7 +176,6 @@ class tplay:
 
 
         return wave,xAxis,yAxis,pxSize,dataTab,dataSpec,dataStar
-
 
     def makeInputArrays(self,cfg_par,lineInfo, Xdim,Ydim):
 

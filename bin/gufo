@@ -154,7 +154,7 @@ def main (argv):
         print ('\n\t************* --- GuFo : make Datacubes --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
         ss.makeCubes(gPar.cfg_par)
-        print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
+        print("## fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
 
@@ -171,15 +171,15 @@ def main (argv):
         print ('\n\t************* --- GuFo : gPlot --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
         gp.gPlot(gPar.cfg_par)
-        print("## plot fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
+        print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
     elif args.gPlotSingle:
         time_start_load = time.time()
         print ('\n\t************* --- GuFo : gPlot single BIN --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
-        gp.gPlotSingle(gPar.cfg_par, gPar.binID)
-        print("## plot fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
+        gp.plotSingleBin(gPar.cfg_par, args.binID)
+        print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
     
     elif args.moments or gPar.cfg_par['moments'].get('enable',False) == True:

@@ -7,6 +7,12 @@ from lmfit import Model
 from lmfit.models import GaussianModel
 from lmfit.model import save_modelresult
 
+
+
+
+
+import matplotlib as mpl
+mpl.use('Agg')
 from matplotlib import pyplot as plt
 from matplotlib import rc
 from matplotlib import gridspec
@@ -20,7 +26,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import cvPlay
 cvP = cvPlay.convert()
 
-class specplot:
+class specplot(object):
 
 #----------------------#
 # rc param initialize
@@ -206,16 +212,24 @@ class specplot:
 
         velExp = np.exp(vel)
         yBFit = result.best_fit
-        yRes = result.residual
+        print y
+        print yBFit
+        if cfg_par['gPlot']['loadModel']:
+
+            yRes = yBFit-y
+            binName = singleVorBinInfo['BIN_ID']
+        else:
+            yRes = result.residual
+            binName = singleVorBinInfo['BIN_ID'][0]
         yInFit = result.init_fit
         key = 'general'
         
         outPlotDir = cfg_par['general']['outPlotDir']
         if not os.path.exists(outPlotDir):
             os.mkdir(outPlotDir)
-        
-        outPlot = outPlotDir+str(singleVorBinInfo['BIN_ID'][0])+'_'+cfg_par['gFit']['modName']+'.png'       
-
+        #print singleVorBinInfo['BIN_ID']
+        outPlot = outPlotDir+str(binName)+'_'+cfg_par['gFit']['modName']+'.png'       
+        print outPlot
         params = self.loadRcParamsZoom()
         plt.rcParams.update(params)
         # add one row for the plot with full channel width
@@ -258,7 +272,7 @@ class specplot:
             x_data_plot = cvP.lambdaVRad(x_data_plot,lineInfo['Wave'][i])
             y_data_plot = y[idxMin:idxMax]
             y_BFit_plot = result.best_fit[idxMin:idxMax]
-            y_Res_plot = result.residual[idxMin:idxMax]
+            y_Res_plot = yRes[idxMin:idxMax]
             y_sigma_plot = noise[idxMin:idxMax]
 
             # Calculate axis limits and aspect ratio
@@ -403,7 +417,13 @@ class specplot:
         
         velPlot = np.exp(vel)
         yBFit = result.best_fit
-        yRes = result.residual
+        if cfg_par['gPlot']['loadModel']:
+
+            yRes = yBFit-y
+            binName = singleVorBinInfo['BIN_ID']
+        else:
+            yRes = result.residual
+            binName = singleVorBinInfo['BIN_ID'][0]
         yInFit = result.init_fit
         key = 'general'
         
@@ -467,7 +487,7 @@ class specplot:
         xText = cfg_par['gFit']['lambdaMin']+50
 
 
-        ax1.text(xText, y1_max*0.90, r'BIN ID:\t'+str(singleVorBinInfo['BIN_ID'][0]), {'color': 'k', 'fontsize': 8})
+        ax1.text(xText, y1_max*0.90, r'BIN ID:\t'+str(binName), {'color': 'k', 'fontsize': 8})
         ax1.text(xText, y1_max*0.80, r'X,Y:\t'+str(xx)+','+str(yy), {'color': 'k', 'fontsize': 8})
 
         #ax1.text(xText, x_max*0.85, r'Success:\t'+successStr, {'color': 'b'})
