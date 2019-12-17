@@ -90,6 +90,10 @@ def main (argv):
         action='store_true',
         help= 'tool to plot fit results from a single bin')
 
+    add('-res', '--resPlot',
+        action='store_true',
+        help= 'tool to plot residuals of fit')
+
     add('-bin', '--binID',
         type = str,
         default=False,
@@ -181,7 +185,15 @@ def main (argv):
         gp.plotSingleBin(gPar.cfg_par, args.binID)
         print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
-    
+ 
+    elif args.resPlot or gPar.cfg_par['resPlot'].get('enable',False) == True:
+        time_start_load = time.time()
+        print ('\n\t************* --- GuFo : gPlot residuals --- **************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        mom.resLines(gPar.cfg_par)
+        print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
+        print('\n\t************* --- GuFo : DONE --- **************\n')
+
     elif args.moments or gPar.cfg_par['moments'].get('enable',False) == True:
         
         print ('\n\t************* --- GuFo : moments --- **************\n')

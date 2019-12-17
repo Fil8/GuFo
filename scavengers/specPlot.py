@@ -7,10 +7,6 @@ from lmfit import Model
 from lmfit.models import GaussianModel
 from lmfit.model import save_modelresult
 
-
-
-
-
 import matplotlib as mpl
 mpl.use('Agg')
 from matplotlib import pyplot as plt

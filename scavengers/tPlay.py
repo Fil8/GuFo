@@ -307,12 +307,14 @@ class tplay(object):
             amp = fitRes['g1ln'+str(ii)+'_amplitude']
             ctr = fitRes['g1ln'+str(ii)+'_center']
             sig = fitRes['g1intln'+str(ii)]
+
             fwhm = fitRes['g1ln'+str(ii)+'_fwhm']
             height = fitRes['g1ln'+str(ii)+'_height']
-            g1Ctr = cvP.lambdaVRad(np.exp(ctr),lineInfo['Wave'][ii])
-            g1Sigma = cvP.lambdaVRad(np.exp(sig),lineInfo['Wave'][ii])
-            g1FWHM = cvP.lambdaVRad(np.exp(fwhm),lineInfo['Wave'][ii])
+            
 
+            g1Ctr = cvP.lambdaVRad(np.exp(ctr),lineInfo['Wave'][ii])
+            g1Sigma = cvP.lambdaVRad(np.exp(ctr+sig),lineInfo['Wave'][ii])-g1Ctr
+            g1FWHM = cvP.lambdaVRad(np.exp(ctr+fwhm),lineInfo['Wave'][ii])-g1Ctr
             #amp_err = result.params[modName+'ln'+str(i)+'_amplitude'].stderr
             #sig_err = result.params[modName+'ln'+str(i)+'_sigma'].stderr
             #g1SigmaErr = self.lambdaVRad(np.exp(sig_err),lineInfo['Wave'][i])
@@ -334,8 +336,8 @@ class tplay(object):
                 height = fitRes['g2ln'+str(ii)+'_height']
 
                 g2Ctr = cvP.lambdaVRad(np.exp(ctr),lineInfo['Wave'][ii])
-                g2Sigma = cvP.lambdaVRad(np.exp(sig),lineInfo['Wave'][ii])
-                g2FWHM = cvP.lambdaVRad(np.exp(fwhm),lineInfo['Wave'][ii])
+                g2Sigma = cvP.lambdaVRad(np.exp(ctr+sig),lineInfo['Wave'][ii])-g2Ctr
+                g2FWHM = cvP.lambdaVRad(np.exp(ctr+fwhm),lineInfo['Wave'][ii])-g3Ctr
 
                 #amp_err = result.params[modName+'ln'+str(i)+'_amplitude'].stderr
                 #sig_err = result.params[modName+'ln'+str(i)+'_sigma'].stderr
@@ -358,8 +360,8 @@ class tplay(object):
                     height = fitRes['g3ln'+str(ii)+'_height']
 
                     g3Ctr = cvP.lambdaVRad(np.exp(ctr),lineInfo['Wave'][ii])
-                    g3Sigma = cvP.lambdaVRad(np.exp(sig),lineInfo['Wave'][ii])
-                    g3FWHM = cvP.lambdaVRad(np.exp(fwhm),lineInfo['Wave'][ii])
+                    g3Sigma = cvP.lambdaVRad(np.exp(ctr+sig),lineInfo['Wave'][ii])-g3Ctr
+                    g3FWHM = cvP.lambdaVRad(np.exp(ctr+fwhm),lineInfo['Wave'][ii])-g3Ctr
 
                     #amp_err = result.params[modName+'ln'+str(i)+'_amplitude'].stderr
                     #sig_err = result.params[modName+'ln'+str(i)+'_sigma'].stderr

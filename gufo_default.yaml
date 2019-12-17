@@ -42,4 +42,6 @@ moments:
   enable: False
 lineRatios:
   enable: False
+resPlot:
+  enable: True
 
