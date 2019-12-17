@@ -333,8 +333,8 @@ class gplay(object):
         counter = 0
         #for j in xrange(205,208):
         #    for i in xrange(250,252):
-        for j in prange(0,dd.shape[1]):
-            for i in prange(0,dd.shape[2]):
+        for j in xrange(0,dd.shape[1]):
+            for i in xrange(0,dd.shape[2]):
                 y = dd[idxMin:idxMax,j,i]
 
                 waveCut = wave[idxMin:idxMax]
