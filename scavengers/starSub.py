@@ -75,8 +75,8 @@ class starsub(object):
         #print(xxVecArr.shape)
 
         t = Table(vorBinInfo)
-        t.add_column(xxVecArr,index=-1)
-        t.add_column(yyVecArr,index=-1) 
+        t.add_column(xxVecArr,index=0)
+        t.add_column(yyVecArr,index=0) 
         #vorBinInfo = np.column_stack((vorBinInfo,xxVec,yyVec))
         #vorBinInfo = np.vstack([vorBinInfo,yyVecArr])
         print(vorBinInfo.dtype.names)
