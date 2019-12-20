@@ -45,13 +45,15 @@ class starsub(object):
             xx = np.where(indexX)[0]
             yy = np.where(indexY)[0]
 
-            xxVec.append(xx[0])
-            yyVec.append(yy[0])
+            print yy
 
             indexBin =  vorBinInfo['BIN_ID'][i]
             
             if indexBin>0 and xx and yy: 
-                       
+                   
+                xxVec.append(xx[0])
+                yyVec.append(yy[0])
+
                 tmp = np.array(dataSpec[indexBin][0][:])
                 tmp = tmp.tolist()
                 data[:,yy[0],xx[0]] = tmp
@@ -62,6 +64,7 @@ class starsub(object):
 
             else:
                 pass
+
         xxVecArr= Column(np.array(xxVec), name='PixX')
         yyVecArr= Column(np.array(yyVec), name='PixY')
 
