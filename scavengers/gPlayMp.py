@@ -9,7 +9,7 @@ from lmfit.model import save_modelresult
 from lmfit.model import load_modelresult
 
 import multiprocessing as mp
-from multiprocessing import shared_memory, Queue
+#from multiprocessing import shared_memory, Queue
 
 import ctypes
 
