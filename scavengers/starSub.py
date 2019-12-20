@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.8
+ 
 from astropy.io import fits
 from astropy import wcs
 import os
@@ -45,7 +47,7 @@ class starsub(object):
             xx = np.where(indexX)[0]
             yy = np.where(indexY)[0]
 
-            print yy
+            #print yy
 
             indexBin =  vorBinInfo['BIN_ID'][i]
             
