@@ -47,14 +47,13 @@ class starsub(object):
             xx = np.where(indexX)[0]
             yy = np.where(indexY)[0]
 
-            #print yy
-
+            xxVec.append(xx[0])
+            yyVec.append(yy[0])
             indexBin =  vorBinInfo['BIN_ID'][i]
             
             if indexBin>0 and xx and yy: 
                    
-                xxVec.append(xx[0])
-                yyVec.append(yy[0])
+
 
                 tmp = np.array(dataSpec[indexBin][0][:])
                 tmp = tmp.tolist()
