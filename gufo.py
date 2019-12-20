@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.8
 import os, sys
 import yaml
 
@@ -38,7 +38,7 @@ class gufo(object):
 
         self.cfg_par = yaml.load(cfg)
         if self.cfg_par['general']['verbose'] == True:
-            print yaml.dump(self.cfg_par)
+            print(yaml.dump(self.cfg_par))
         self.cfg_par['general']['gfitPath'] = GFIT_DIR
         self.set_dirs()
 

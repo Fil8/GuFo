@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.8
 import os, sys
 import yaml
 
@@ -263,8 +263,7 @@ class momplay:
 
             lineName = lineName+str(int(lineInfo['Wave'][ii]))            
 
-            res = np.zeros([resHead['NAXIS2'],resHead['NAXIS1']])
-
+            resG1 = np.zeros([resHead['NAXIS2'],resHead['NAXIS1']])
 
             resNameOut =momModDir+'res_'+lineName+'.fits'
 
@@ -272,22 +271,50 @@ class momplay:
 
                 cenKmsG1 = lines['g1_Centre_'+lineName][i]
                 sigKmsG1 = lines['g1_Sigma_'+lineName][i]
-
                 cenG1 = np.log(cvP.vRadLambda(cenKmsG1,lineInfo['Wave'][ii]))
                 leftG1 = np.log(cvP.vRadLambda(cenKmsG1-3.*sigKmsG1,lineInfo['Wave'][ii]))
                 rightG1 = np.log(cvP.vRadLambda(cenKmsG1+3.*sigKmsG1,lineInfo['Wave'][ii]))
 
                 idxLeft = int(np.where(abs(wave-leftG1)==abs(wave-leftG1).min())[0])
                 idxRight = int(np.where(abs(wave-rightG1)==abs(wave-rightG1).min())[0])
+            
+                if modName == 'g2':
+                    cenKmsG2 = lines['g2_Centre_'+lineName][i]
+                    sigKmsG2 = lines['g2_Sigma_'+lineName][i]
+            
+                    cenG2 = np.log(cvP.vRadLambda(cenKmsG2,lineInfo['Wave'][ii]))
+                    leftG2 = np.log(cvP.vRadLambda(cenKmsG2-3.*sigKmsG2,lineInfo['Wave'][ii]))
+                    rightG2 = np.log(cvP.vRadLambda(cenKmsG2+3.*sigKmsG2,lineInfo['Wave'][ii]))
+                    
+                    idxLeftG2 = int(np.where(abs(wave-leftG2)==abs(wave-leftG2).min())[0])
+                    idxRightG2 = int(np.where(abs(wave-rightG2)==abs(wave-rightG2).min())[0])
+                    
+                    idxLeft = np.min([idxLeft,idxLeftG2])
+                    idxRight = np.max([idxRight,idxRightG2])
+
+                    if modName =='g3':
+
+                        cenKmsG3 = lines['g3_Centre_'+lineName][i]
+                        sigKmsG3 = lines['g3_Sigma_'+lineName][i]
+                
+                        cenG2 = np.log(cvP.vRadLambda(cenKmsG1,lineInfo['Wave'][ii]))
+                        leftG2 = np.log(cvP.vRadLambda(cenKmsG1-3.*sigKmsG3,lineInfo['Wave'][ii]))
+                        rightG2 = np.log(cvP.vRadLambda(cenKmsG1+3.*sigKmsG3,lineInfo['Wave'][ii]))
+                        
+                        idxLeftG3 = int(np.where(abs(wave-leftG3)==abs(wave-leftG3).min())[0])
+                        idxRightG3 = int(np.where(abs(wave-rightG3)==abs(wave-rightG3).min())[0])
+                        
+                        idxLeft = np.min([idxLeft,idxLeftG3])
+                        idxRight = np.max([idxRight,idxRightG3])
 
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
                 result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
 
                 for index in match_bin:
 
-                   res[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.sum(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])],axis=0)
+                   resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.sum(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])],axis=0)
 
-            fits.writeto(resNameOut,res,header,overwrite=True)
+            fits.writeto(resNameOut,resG1,header,overwrite=True)
 
         return 0
 

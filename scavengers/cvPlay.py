@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-import string
+#!/usr/bin/env python3.8
+#import string
 import numpy as np
 from astropy.io import ascii
 from scipy import interpolate
@@ -46,7 +46,7 @@ class convert(object):
 
     def hms2deg(self,ra_hms):
         
-        ra = string.split(ra_hms, ':')
+        ra = str.split(ra_hms, ':')
 
         hh = float(ra[0])*15
         mm = (float(ra[1])/60)*15
@@ -59,7 +59,7 @@ class convert(object):
 
     # DMS -> degrees
     def dms2deg(self,dec_dms):
-        dec = string.split(dec_dms, ':')
+        dec = str.split(dec_dms, ':')
         
         dd = abs(float(dec[0]))
         mm = float(dec[1])/60

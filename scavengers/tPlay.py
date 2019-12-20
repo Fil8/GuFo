@@ -51,7 +51,7 @@ class tplay(object):
         lineRange = np.zeros([lenTable])
         cenRange = np.zeros([lenTable])
 
-        for i in xrange(0,lenTable):
+        for i in range(0,lenTable):
 
             lambdaRest = lineInfo['Wave'][i]
             
@@ -170,12 +170,13 @@ class tplay(object):
 
         pxSize = head['PIXSIZE']
 
+        noiseBin = dataSpec['ESPEC']
 
         tabStar = fits.open(tableStar)
         dataStar = tabStar[1].data
 
 
-        return wave,xAxis,yAxis,pxSize,dataTab,dataSpec,dataStar
+        return wave,xAxis,yAxis,pxSize,noiseBin,dataTab,dataSpec,dataStar
 
     def makeInputArrays(self,cfg_par,lineInfo, Xdim,Ydim):
 
@@ -192,7 +193,7 @@ class tplay(object):
         frmList = []
         lineNameList.append('BIN_ID')
         frmList.append('i4')
-        for i in xrange (0,len(lineInfo['ID'])):
+        for i in range (0,len(lineInfo['ID'])):
             lineName = str(lineInfo['Name'][i])+str(int(lineInfo['Wave'][i]))
             if '[' in lineName:
                 lineName = lineName.replace("[", "")
@@ -249,6 +250,76 @@ class tplay(object):
 
         return binID, binArr, fitResArr, lineArr
 
+    def makeInputArraysMP(self,cfg_par,lineInfo,vorBinInfo):
+
+        nam = tuple (['ID', 'BIN_ID', 'X', 'Y', 'PixX', 'PixY'])
+        binArr = np.zeros([len(vorBinInfo['ID'])], dtype={'names':nam,
+                          'formats':('i4', 'i4', 'i4', 'f8', 'f8', 'i4', 'i4')})
+        nam = tuple(['BIN_ID', 'fitSuccess', 'redChi', 'aic', 'bic', 'nData', 'nVariables', 'nFev'])
+        fitResArr = np.zeros([len(vorBinInfo['ID'])], dtype={'names':nam,
+                          'formats':( 'i4', '?', 'f8', 'f8', 'f8', 'i4', 'i4', 'i4')})
+
+        lineNameList = []
+        frmList = []
+        lineNameList.append('BIN_ID')
+        frmList.append('i4')
+        for i in range (0,len(lineInfo['ID'])):
+            lineName = str(lineInfo['Name'][i])+str(int(lineInfo['Wave'][i]))
+            if '[' in lineName:
+                lineName = lineName.replace("[", "")
+                lineName = lineName.replace("]", "")
+            
+
+            lineNameList.append(lineName)
+            frmList.append('i4')
+            lineNameList.append('g1_Amp_'+lineName)
+            frmList.append('f8')
+            lineNameList.append('g1_Height_'+lineName)
+            frmList.append('f8')
+            lineNameList.append('g1_Centre_'+lineName)
+            frmList.append('f8')
+            lineNameList.append('g1_Sigma_'+lineName)
+            frmList.append('f8')
+            lineNameList.append('g1_FWHM_'+lineName)
+            frmList.append('f8')
+
+            
+            if cfg_par['gFit']['modName'] == 'g2':
+                
+                lineNameList.append('g2_Amp_'+lineName)
+                frmList.append('f8')
+                lineNameList.append('g2_Height_'+lineName)
+                frmList.append('f8')
+                lineNameList.append('g2_Centre_'+lineName)
+                frmList.append('f8')
+                lineNameList.append('g2_Sigma_'+lineName)
+                frmList.append('f8')
+                lineNameList.append('g2_FWHM_'+lineName)
+                frmList.append('f8')
+
+            
+                if cfg_par['gFit']['modName'] == 'g3':
+
+                    lineNameList.append('g3_Amp_'+lineName)
+                    frmList.append('f8')
+                    lineNameList.append('g3_Height_'+lineName)
+                    frmList.append('f8')
+                    lineNameList.append('g3_Centre_'+lineName)
+                    frmList.append('f8')
+                    lineNameList.append('g3_Sigma_'+lineName)
+                    frmList.append('f8')
+                    lineNameList.append('g3_FWHM_'+lineName)
+                    frmList.append('f8')
+        
+        if cfg_par['gFit']['modName'] == 'g1':
+            lineArr = np.zeros([len(vorBinInfo['ID'])], dtype={'names':(lineNameList), 'formats':(frmList)})
+        elif cfg_par['gFit']['modName'] == 'g2':
+            lineArr = np.zeros([len(vorBinInfo['ID'])], dtype={'names':(lineNameList), 'formats':(frmList)})
+        elif cfg_par['gFit']['modName'] == 'g3':
+            lineArr = np.zeros([len(vorBinInfo['ID'])], dtype={'names':(lineNameList), 'formats':(frmList)})
+
+        return binArr, fitResArr, lineArr
+
 
     def updateBinArray(self,cfg_par,binArr,vorBinInfo,index,i,j,counter):
   
@@ -292,7 +363,7 @@ class tplay(object):
         modName = cfg_par['gFit']['modName']
         lineArr['BIN_ID'][counter] = binIDName
 
-        for ii in xrange(0,len(lineInfo['ID'])):
+        for ii in range(0,len(lineInfo['ID'])):
 
             lineName = str(lineInfo['Name'][ii])
             if '[' in lineName:
@@ -414,7 +485,7 @@ class tplay(object):
         lineNameID=[]
         modName = cfg_par['gFit']['modName']
 
-        for ii in xrange(0,len(lineInfo['ID'])):
+        for ii in range(0,len(lineInfo['ID'])):
 
             lineName = str(lineInfo['Name'][ii])
             if '[' in lineName:

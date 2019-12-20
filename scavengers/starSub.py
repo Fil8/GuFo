@@ -2,6 +2,7 @@ from astropy.io import fits
 from astropy import wcs
 import os
 import numpy as np
+from astropy.table import Table, Column
 
 from scavengers import cvPlay, tPlay
 cvP = cvPlay.convert()
@@ -13,8 +14,10 @@ class starsub(object):
 
         workDir = cfg_par['general']['workdir']
 
-        wave,xAxis,yAxis,pxSize, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['tableBinName'],
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['tableBinName'],
             workDir+cfg_par['general']['tableSpecName'],workDir+cfg_par['general']['tableStarName'])
+
+
 
         data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         Stars=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
@@ -27,9 +30,11 @@ class starsub(object):
         diffusion = 1e-5
         del header['LATPOLE']
         del header['LONPOLE']
-
+        xxVec = []
+        yyVec = []
+        
         #create AllSpectra datacube
-        for i in xrange(0,vorBinInfo['ID'].shape[0]):
+        for i in range(0,vorBinInfo['ID'].shape[0]):
             #print xAxis
             #print yAxis
             indexX = ((xAxis < (np.round(vorBinInfo['X'][i],1)+diffusion)) & 
@@ -39,6 +44,9 @@ class starsub(object):
 
             xx = np.where(indexX)[0]
             yy = np.where(indexY)[0]
+
+            xxVec.append(xx[0])
+            yyVec.append(yy[0])
 
             indexBin =  vorBinInfo['BIN_ID'][i]
             
@@ -51,9 +59,37 @@ class starsub(object):
                 tmp = np.array(dataStar[indexBin][1][:])
                 tmp = tmp.tolist()
                 Stars[:,yy[0],xx[0]] = tmp
-            
+
             else:
                 pass
+        xxVecArr= Column(np.array(xxVec), name='PixX')
+        yyVecArr= Column(np.array(yyVec), name='PixY')
+
+        #yyVecArr=np.array(yyVec,dtype={'names':('PixY')})
+        #print(vorBinInfo.shape)
+        #print(xxVecArr.shape)
+
+        t = Table(vorBinInfo)
+        t.add_column(xxVecArr,index=-1)
+        t.add_column(yyVecArr,index=-1) 
+        #vorBinInfo = np.column_stack((vorBinInfo,xxVec,yyVec))
+        #vorBinInfo = np.vstack([vorBinInfo,yyVecArr])
+        print(vorBinInfo.dtype.names)
+        tab = fits.open(workDir+cfg_par['general']['tableBinName'])
+        head = tab[0].header
+        #data = tab[0].data
+        #tab[1] = vorBinInfo    
+
+        empty_primary = fits.PrimaryHDU(header=head)           
+
+        #t2 = fits.BinTableHDU.from_columns(t,name='vorBinInfo')
+        hdul = fits.HDUList([empty_primary])      
+
+        hdul.append(fits.BinTableHDU(t.as_array(), name='vorBinInfo'))
+
+
+        #hdul.append(t2)  
+        hdul.writeto(workDir+cfg_par['general']['outVorTableName'],overwrite=True)
 
         Lines = np.subtract(data,Stars)
 

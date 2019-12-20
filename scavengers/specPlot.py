@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.8
 import os, sys
 from astropy.io import fits
 import numpy as np
@@ -161,7 +161,7 @@ class specplot(object):
         #        label='3-$\sigma$ uncertainty band')
         if cfg_par['gFit']['modName'] !='g1':
             comps = result.eval_components()
-            for i in xrange(0,len(lineInfo['ID'])):
+            for i in range(0,len(lineInfo['ID'])):
                 
                 ax1.plot(velPlot, comps['g1ln'+str(i)+'_'], 'g--')
             
@@ -210,12 +210,11 @@ class specplot(object):
         yBFit = result.best_fit
 
         if cfg_par['gPlot'].get('loadModel',None):
-
             yRes = yBFit-y
             binName = singleVorBinInfo['BIN_ID']
         else:
             yRes = result.residual
-            binName = singleVorBinInfo['BIN_ID'][0]
+            binName = singleVorBinInfo['BIN_ID']
         yInFit = result.init_fit
         key = 'general'
         
@@ -248,7 +247,7 @@ class specplot(object):
  
         #for plot_count in range(n_plots):
         k=0
-        for i in xrange(0,len(lineInfo['Wave'])):
+        for i in range(0,len(lineInfo['Wave'])):
 
 
             if i == 0:
@@ -333,7 +332,7 @@ class specplot(object):
             #        label='3-$\sigma$ uncertainty band')
             if cfg_par['gFit']['modName'] !='g1':
                 comps = result.eval_components()
-                for ii in xrange(0,len(lineInfo['ID'])):
+                for ii in range(0,len(lineInfo['ID'])):
 
                     ax.plot(x_data_plot, comps['g1ln'+str(ii)+'_'][idxMin:idxMax], 'g--')
                 
@@ -417,7 +416,7 @@ class specplot(object):
             binName = singleVorBinInfo['BIN_ID']
         else:
             yRes = result.residual
-            binName = singleVorBinInfo['BIN_ID'][0]
+            binName = singleVorBinInfo['BIN_ID']
         yInFit = result.init_fit
         key = 'general'
         
@@ -493,7 +492,7 @@ class specplot(object):
         #        label='3-$\sigma$ uncertainty band')
         if cfg_par['gFit']['modName'] !='g1':
             comps = result.eval_components()
-            for i in xrange(0,len(lineInfo['ID'])):
+            for i in range(0,len(lineInfo['ID'])):
                 
                 ax1.plot(velPlot, comps['g1ln'+str(i)+'_'], 'g--')
             

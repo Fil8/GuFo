@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.8
 
 import os
 import sys
@@ -7,6 +7,7 @@ import time
 
 import gufo
 from scavengers import gPlay, starSub, momPlay, tPlay
+from scavengers import gPlayMp
 
 import argparse
 from  argparse import ArgumentParser
@@ -42,9 +43,12 @@ def outFunction ():
         print ("""\nRun one of the following commands:\n
         gufo\t\t\t-gd <configFileName>:\tgenerate config file in working directory
         gufo\t\t\t-c  <configFileName>:\trun GuFo with modules enabled from config file
+        gufo -stS\t\t-c  <configFileName>:\tmake line cube from PPXF outputs
         gufo -gp\t\t-c  <configFileName>:\trun fit with parameters from config file and lineList file
+        gufo -gpMp\t\t-c  <configFileName>:\trun fit on multiprocess with parameters from config file and lineList file
         gufo -gPl\t\t-c  <configFileName>:\tplot fit results for each bin
         gufo -mom\t\t-c  <configFileName>:\tmake moment maps of fitted lines
+        gufo -res\t\t-c  <configFileName>:\tmake residual maps for each fitted line
         gufo -lineRatios\t-c  <configFileName>:\testimate lineRatios, make lineRatio maps and BPT plots of fitted lines
                     """)
 
@@ -82,6 +86,10 @@ def main (argv):
         action='store_true',
         help= 'tool to play with gaussian fits')
 
+    add('-gMp', '--gMpPlay',
+        action='store_true',
+        help= 'tool to play with gaussian fits on multiple cores')
+
     add('-gPl', '--gPlot',
         action='store_true',
         help= 'tool to plot fit results for each beam')
@@ -115,13 +123,13 @@ def main (argv):
     args, unknown = parser.parse_known_args()
 
     if args.help and len(argv) ==1 :
-        print '\n\t************* --- GuFo : Help --- **************\n'
+        print('\n\t************* --- GuFo : Help --- **************\n')
 
         print ('\t\t  ... called for help ...\n')
         parser.print_help()
         outFunction()
 
-        print '\n\t************* --- GuFo : DONE --- **************\n'
+        print('\n\t************* --- GuFo : DONE --- **************\n')
 
         sys.exit(0)
 
@@ -167,6 +175,14 @@ def main (argv):
         print ('\n\t************* --- GuFo : gPlay --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
         gp.gFit(gPar.cfg_par)
+        print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
+        print('\n\t************* --- GuFo : DONE --- **************\n')
+
+    elif args.gMpPlay or gPar.cfg_par['gFit'].get('enableMP',False) == True:
+        time_start_load = time.time()        
+        print ('\n\t************* --- GuFo : gPlay --- **************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        gPlayMp.main(gPar.cfg_par)
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.8
 import os, sys
 import yaml
 
@@ -6,7 +6,6 @@ from lmfit import Model
 from lmfit.models import GaussianModel
 from lmfit.model import save_modelresult
 from lmfit.model import load_modelresult
-
 
 
 from astropy.io import ascii, fits
@@ -26,8 +25,13 @@ cvP = cvPlay.convert()
 sP = specPlot.specplot()
 tP = tPlay.tplay()
 
+
 class gplay(object):
-    
+ 
+
+    def __init__(self):
+
+        self.C = 2.99792458e8   
 
     def modDef(self,modName):
 
@@ -82,7 +86,7 @@ class gplay(object):
         dLambda = cvP.specRes(cfg_par)
 
         gName = cfg_par['gFit']['modName']
-        for i in xrange(0,len(lineInfo['ID'])):
+        for i in range(0,len(lineInfo['ID'])):
             
             if lineInfo['Wave'][i] == 6547.96:
                 kk = i
@@ -307,7 +311,7 @@ class gplay(object):
         diffusion = 1e-5
         
         #open table for bins
-        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['tableBinName'],
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo  = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['outVorTableName'],
             workDir+cfg_par[key]['tableSpecName'])
         #open datacube
         f = fits.open(cfg_par[key]['cubeDir']+cfg_par[key]['dataCubeName'])
@@ -331,10 +335,10 @@ class gplay(object):
         binID, binArr, fitResArr, lineArr = tP.makeInputArrays(cfg_par,lineInfo, Xdim, Ydim)
        
         counter = 0
-        #for j in xrange(205,208):
-        #    for i in xrange(250,252):
-        for j in xrange(0,dd.shape[1]):
-            for i in xrange(0,dd.shape[2]):
+        #for j in range(205,208):
+        #    for i in range(250,252):
+        for j in range(0,dd.shape[1]):
+            for i in range(0,dd.shape[2]):
                 y = dd[idxMin:idxMax,j,i]
 
                 waveCut = wave[idxMin:idxMax]
@@ -393,6 +397,21 @@ class gplay(object):
     
         return 0
 
+
+ #   def create_shared_block(self,dd):
+
+#        smallD = np.zeros([dd.shape[1],dd.shape[2]])
+
+#        a = np.ones(shape=smallD.shape, dtype=np.int8)*np.nan  
+
+#        shm = shared_memory.SharedMemory(create=True, size=smallD.nbytes)
+#        np_array = np.ndarray(smallD.shape, dtype=np.int64, buffer=shm.buf)
+#        np_array[:] = a[:]  
+#        return shm, np_array
+    
+
+
+       
     def gPlot(self,cfg_par):
         
         key = 'general'
@@ -404,7 +423,7 @@ class gplay(object):
         diffusion = 1e-5
         
         #open table for bins
-        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['tableBinName'],
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['outVorTableName'],
             workDir+cfg_par[key]['tableSpecName'])
         #open datacube
         f = fits.open(cfg_par[key]['cubeDir']+cfg_par[key]['dataCubeName'])
@@ -429,10 +448,10 @@ class gplay(object):
         binID, binArr, fitResArr, lineArr = tP.makeInputArrays(cfg_par,lineInfo, Xdim, Ydim)
        
         counter = 0
-        #for j in xrange(205,208):
-        #    for i in xrange(250,252):
-        for j in xrange(0,dd.shape[1]):
-            for i in xrange(0,dd.shape[2]):
+        #for j in range(205,208):
+        #    for i in range(250,252):
+        for j in range(0,dd.shape[1]):
+            for i in range(0,dd.shape[2]):
                 y = dd[idxMin:idxMax,j,i]
 
                 waveCut = wave[idxMin:idxMax]
@@ -494,7 +513,7 @@ class gplay(object):
 
 
         #open table for bins
-        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['tableBinName'],
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['outVorTableName'],
             workDir+cfg_par[key]['tableSpecName'])
 
         hdul = fits.open(cfg_par['general']['outTableName'])
@@ -527,3 +546,7 @@ class gplay(object):
 
 
         return 0
+
+    #def __call__(self, cfg_par,dd,idxMin,idxMax,Xdim,Ydim,rank,nprocs,nsteps):   
+    #    return self.gFitMp(cfg_par,dd,idxMin,idxMax,Xdim,Ydim,rank,nprocs,nsteps)
+
