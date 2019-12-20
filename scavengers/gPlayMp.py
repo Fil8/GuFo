@@ -412,6 +412,7 @@ def main(cfg_par):
         binIDShare, array = create_shared_block(dd)
         
         nprocs = mp.cpu_count()
+        nprocs -= 2
         inputs = [(binIDShare.name,cfg_par,lineInfo,dd,rank, nprocs, 12) for rank in range(nprocs)]
         #print inputs 
         print('''\t+---------+\n\t going to process\n\t+---------+''')
