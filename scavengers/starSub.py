@@ -34,16 +34,16 @@ class starsub(object):
         del header['LONPOLE']
         xxVec = []
         yyVec = []
-        
         #create AllSpectra datacube
         for i in range(0,vorBinInfo['ID'].shape[0]):
             #print xAxis
             #print yAxis
-            indexX = ((xAxis < (np.round(vorBinInfo['X'][i],1)+diffusion)) & 
-                      ((np.round(vorBinInfo['X'][i],1)-diffusion) < xAxis))
-            indexY = ((yAxis < (np.round(vorBinInfo['Y'][i],1)+diffusion)) & 
-                      ((np.round(vorBinInfo['Y'][i],1)-diffusion) < yAxis))       
-
+            indexX = ((xAxis <= (np.round(vorBinInfo['X'][i],4)+diffusion)) & 
+                      ((np.round(vorBinInfo['X'][i],4)-diffusion) < xAxis))
+            
+            indexY = ((yAxis <= (np.round(vorBinInfo['Y'][i],4)+diffusion)) & 
+                      ((np.round(vorBinInfo['Y'][i],4)-diffusion) < yAxis))       
+            
             xx = np.where(indexX)[0]
             yy = np.where(indexY)[0]
 

@@ -163,6 +163,7 @@ class tplay(object):
 
         xAxis = (np.linspace(1, shapeX+1, shapeX+1)-head['CRPIX1']+1) *head['PIXSIZE']
         yAxis = (np.linspace(1, shapeY+1, shapeY+1)-head['CRPIX2']+1) *head['PIXSIZE']
+        
         tab = fits.open(tableSpec)
         dataSpec = tab[1].data
         specExp = tab[2].data

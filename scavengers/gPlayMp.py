@@ -30,12 +30,12 @@ cvP = cvPlay.convert()
 sP = specPlot.specplot()
 tP = tPlay.tplay()
 
-lock = mp.Lock()
+#lock = mp.Lock()
 
 
-def gFitMp(binIDShareName,cfg_par,lineInfo,dd,rank,nprocs,nsteps, def_params=(lock)):
+def gFitMp(cfg_par,lineInfo,dd,rank,nprocs,nsteps):
     
-    existing_shm = shared_memory.SharedMemory(name=binIDShareName)
+    #existing_shm = shared_memory.SharedMemory(name=binIDShareName)
 
     key = 'general'
 
@@ -131,11 +131,11 @@ def gFitMp(binIDShareName,cfg_par,lineInfo,dd,rank,nprocs,nsteps, def_params=(lo
                 if cfg_par['gPlot']['enable'] == True:
                 #self.plotSpecFit(waveCut, y,result,noiseVec[idxMin:idxMax],i,j,lineInfo,vorBinInfo[index])
                     sP.plotLineZoom(cfg_par,waveCut, y,result,noiseVec[idxMin:idxMax],i,j,lineInfo,vorBinInfo[index])
-            else:
+            #else:
         
-                    lock.release()
+                    #lock.release()
         
-            existing_shm.close()
+            #existing_shm.close()
 
             counter+=1
     
@@ -368,18 +368,18 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
     #pars.pretty_print()
     return mod,pars
 
-def create_shared_block(dd):
+# def create_shared_block(dd):
 
-    smallD = np.zeros([dd.shape[1],dd.shape[2]])
+#     smallD = np.zeros([dd.shape[1],dd.shape[2]])
 
-    a = np.ones(shape=smallD.shape, dtype=np.int8)
+#     a = np.ones(shape=smallD.shape, dtype=np.int8)
 
-    shm = shared_memory.SharedMemory(create=True, size=smallD.nbytes)
+#     shm = shared_memory.SharedMemory(create=True, size=smallD.nbytes)
     
-    np_array = np.ndarray(smallD.shape, dtype=np.int16, buffer=shm.buf)
-    np_array[:] = a[:]  
+#     np_array = np.ndarray(smallD.shape, dtype=np.int16, buffer=shm.buf)
+#     np_array[:] = a[:]  
     
-    return shm, np_array
+#     return shm, np_array
            
 def main(cfg_par):
 
@@ -409,11 +409,11 @@ def main(cfg_par):
     #lock = mp.Lock()
     #define x-axis array
 
-        binIDShare, array = create_shared_block(dd)
+        #binIDShare, array = create_shared_block(dd)
         
         nprocs = mp.cpu_count()
         nprocs -= 2
-        inputs = [(binIDShare.name,cfg_par,lineInfo,dd,rank, nprocs, 12) for rank in range(nprocs)]
+        inputs = [(cfg_par,lineInfo,dd,rank, nprocs, 12) for rank in range(nprocs)]
         #print inputs 
         print('''\t+---------+\n\t going to process\n\t+---------+''')
         
@@ -451,8 +451,8 @@ def main(cfg_par):
         result = [p.get() for p in multi_result]                
 
         #result = [p.get() for p in _process]                
-        binIDShare.close()
-        binIDShare.unlink()
+        #binIDShare.close()
+        #binIDShare.unlink()
 
         binArr = np.array(result[0][0])
         lineArr = np.array(result[0][1])
