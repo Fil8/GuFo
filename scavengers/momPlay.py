@@ -34,7 +34,7 @@ class momplay:
 
         lineInfo = tP.openLineList(cfg_par)
 
-        for ii in xrange(0,len(lineInfo['ID'])):
+        for ii in range(0,len(lineInfo['ID'])):
             lineName = str(lineInfo['Name'][ii])
             if '[' in lineName:
                 lineName = lineName.replace("[", "")
@@ -77,7 +77,9 @@ class momplay:
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
 
-        tabGen = hdul['BinInfo'].data
+        hduGen = fits.open(cfg_par['general']['workdir']+cfg_par['general']['outVorTableName'])
+        tabGen = hduGen[1].data
+
 
         mom0G1 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         mom1G1 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
@@ -96,7 +98,7 @@ class momplay:
                 mom2G3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
 
 
-        for i in xrange(0,len(lines['BIN_ID'])):
+        for i in range(0,len(lines['BIN_ID'])):
 
             match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
@@ -167,7 +169,8 @@ class momplay:
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
 
-        tabGen = hdul['BinInfo'].data
+        hduGen = fits.open(cfg_par['general']['workdir']+cfg_par['general']['outVorTableName'])
+        tabGen = hduGen[1].data
 
         resG1 = np.zeros([resHead['NAXIS3'],resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
     
@@ -188,9 +191,10 @@ class momplay:
             if modName == 'g3':
                 res0G3 = np.zeros([resHead['NAXIS3'],resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
 
-        for i in xrange(0,len(lines['BIN_ID'])):
+        for i in range(0,len(lines['BIN_ID'])):
 
             match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
+            print(match_bin)
 
             result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
 
@@ -242,11 +246,13 @@ class momplay:
 
         f = fits.open(cubeDir+cfg_par['general']['dataCubeName'])
         dd = f[0].data
-
+        header = f[0].header
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
 
-
+        hduGen = fits.open(cfg_par['general']['workdir']+cfg_par['general']['outVorTableName'])
+        tabGen = hduGen[1].data
+        
         lineInfo = tP.openLineList(cfg_par)
 
         tableSpec = workDir+cfg_par[key]['tableSpecName']
@@ -255,7 +261,7 @@ class momplay:
         specExp = tab[2].data
         wave = [item for t in specExp for item in t] 
 
-        for ii in xrange(0,len(lineInfo['ID'])):
+        for ii in range(0,len(lineInfo['ID'])):
             lineName = str(lineInfo['Name'][ii])
             if '[' in lineName:
                 lineName = lineName.replace("[", "")
@@ -267,7 +273,7 @@ class momplay:
 
             resNameOut =momModDir+'res_'+lineName+'.fits'
 
-            for i in xrange(0,len(lines['BIN_ID'])):
+            for i in range(0,len(lines['BIN_ID'])):
 
                 cenKmsG1 = lines['g1_Centre_'+lineName][i]
                 sigKmsG1 = lines['g1_Sigma_'+lineName][i]
@@ -308,6 +314,7 @@ class momplay:
                         idxRight = np.max([idxRight,idxRightG3])
 
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
+                print(match_bin)
                 result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
 
                 for index in match_bin:
@@ -327,7 +334,7 @@ class momplay:
 
         #lineInfo = self.openLineList()
 
-        #for ii in xrange(0,len(lineInfo['ID'])):
+        #for ii in range(0,len(lineInfo['ID'])):
         #    lineName = str(lineInfo['Name'][ii])
         #    if '[' in lineName:
         #        lineName = lineName.replace("[", "")
@@ -378,7 +385,7 @@ class momplay:
             numCols = (numCols-1)/4
             numCols +=1 
 
-        for i in xrange(1,numCols):
+        for i in range(1,numCols):
             lineMapG1 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         
             if modName != 'g1':
@@ -389,7 +396,7 @@ class momplay:
             
                 lineMapG3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
 
-            for j in xrange(0,len(lineBPT['BIN_ID'])):
+            for j in range(0,len(lineBPT['BIN_ID'])):
 
                 match_bin = np.where(tabGen['BIN_ID']==lineBPT['BIN_ID'][j])[0]
                 for index in match_bin:

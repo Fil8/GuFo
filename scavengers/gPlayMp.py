@@ -33,7 +33,7 @@ tP = tPlay.tplay()
 #lock = mp.Lock()
 
 
-def gFitMp(cfg_par,lineInfo,dd,rank,nprocs,nsteps):
+def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
     
     #existing_shm = shared_memory.SharedMemory(name=binIDShareName)
 
@@ -412,8 +412,8 @@ def main(cfg_par):
         #binIDShare, array = create_shared_block(dd)
         
         nprocs = mp.cpu_count()
-        nprocs -= 2
-        inputs = [(cfg_par,lineInfo,dd,rank, nprocs, 12) for rank in range(nprocs)]
+        #nprocs -= 2
+        inputs = [(cfg_par,lineInfo,dd,rank, nprocs) for rank in range(nprocs)]
         #print inputs 
         print('''\t+---------+\n\t going to process\n\t+---------+''')
         
@@ -429,7 +429,7 @@ def main(cfg_par):
         #for _process in processes:
         #    _process.join()
 
-        pool = mp.Pool(processes=nprocs-1)
+        pool = mp.Pool(processes=nprocs)
         #pathos = pp.ProcessPool(nprocs)
         
         #print(_process[0])
