@@ -398,7 +398,7 @@ class momplay:
             for j in range(0,len(tabGen['BIN_ID'])):
 
                 match_bin = np.where(tabGen['BIN_ID']==lineBPT['BIN_ID'][j])[0]
-                
+                print match_bin
                 for index in match_bin:
                 
                     lineMapG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i]
