@@ -180,7 +180,7 @@ def main (argv):
 
     elif args.gMpPlay or gPar.cfg_par['general'].get('enableMP',False) == True:
         time_start_load = time.time()        
-        print ('\n\t************* --- GuFo : gPlay --- **************\n')
+        print ('\n\t************* --- GuFo : MPgPlay --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
         gPlayMp.main(gPar.cfg_par)
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
