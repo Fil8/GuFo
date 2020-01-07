@@ -170,7 +170,7 @@ def main (argv):
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
 
-    if args.gPlay or gPar.cfg_par['gFit'].get('enable',False) == True:
+    if args.gPlay or gPar.cfg_par['gFit'].get('enable',False) == True and gPar.cfg_par['general'].get('enableMP',False) == False :
         time_start_load = time.time()        
         print ('\n\t************* --- GuFo : gPlay --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
