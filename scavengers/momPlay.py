@@ -373,7 +373,8 @@ class momplay:
         hdul = fits.open(cfg_par['general']['outTableName'])
         lineBPT = hdul['BPT_'+cfg_par['gFit']['modName']].data
 
-        tabGen = hdul['BinInfo'].data
+        hduGen = fits.open(cfg_par['general']['workdir']+cfg_par['general']['outVorTableName'])
+        tabGen = hduGen[1].data
 
         numCols = len(lineBPT.dtype.names)
 
