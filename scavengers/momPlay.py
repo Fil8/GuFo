@@ -194,7 +194,6 @@ class momplay:
         for i in range(0,len(lines['BIN_ID'])):
 
             match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
-            print(match_bin)
 
             result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
 
@@ -397,9 +396,9 @@ class momplay:
                 lineMapG3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
 
             for j in range(0,len(lineBPT['BIN_ID'])):
-
+                print(j)
                 match_bin = np.where(tabGen['BIN_ID']==lineBPT['BIN_ID'][j])[0]
-                print match_bin
+                print(match_bin)
                 for index in match_bin:
                 
                     lineMapG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i]
