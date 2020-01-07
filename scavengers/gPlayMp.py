@@ -72,14 +72,12 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
             match_bin = np.where(dataStar['BIN_ID'][ii]==vorBinInfo['BIN_ID'])[0]
 
             index = match_bin[0]
-
-
+        
             j = int(vorBinInfo['PixY'][index])
             i = int(vorBinInfo['PixX'][index])
-            
-            y = dd[idxMin:idxMax,int(vorBinInfo['PixY'][index]),int(vorBinInfo['PixY'][index])]
+            y = dd[idxMin:idxMax,j,i]
             waveCut = wave[idxMin:idxMax]
-            
+
             #check if spectrum is not empty                   
             if np.sum(y)>0:
 
@@ -380,8 +378,17 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
 #     np_array[:] = a[:]  
     
 #     return shm, np_array
+def log_result(result):
+    # This is called whenever foo_pool(i) returns a result.
+    # result_list is modified only by the main process, not the pool workers.
+    result = [p.get() for p in result]
+    #print(result)
+
+    #result_list.append(result)
+
            
 def main(cfg_par):
+    result_list = []
 
     #freeze_support()
     key = 'general'
@@ -410,9 +417,12 @@ def main(cfg_par):
     #define x-axis array
 
         #binIDShare, array = create_shared_block(dd)
-        
-        nprocs = mp.cpu_count()
+        if cfg_par[key]['nCores']:
+            nprocs = cfg_par[key]['nCores']
+        else:
+            nprocs = mp.cpu_count()
         #nprocs -= 2
+
         inputs = [(cfg_par,lineInfo,dd,rank, nprocs) for rank in range(nprocs)]
         #print inputs 
         print('''\t+---------+\n\t going to process\n\t+---------+''')
@@ -446,10 +456,19 @@ def main(cfg_par):
         #while not q.empty():
         #    print(q.get())
 
+        #:
+        #for inp in range(10):
 
-        multi_result = [pool.apply_async(gFitMp, inp) for inp in inputs]
-        result = [p.get() for p in multi_result]                
+        multi_result = [pool.apply_async(gFitMp, inp) for inp in inputs ]
+        #multi_result = [pool.apply_async(gFitMp, inputs[0]) ]
+        result = [p.get() for p in multi_result]
 
+        #print(result)
+        #sys.exit(0)
+
+        
+        #]                
+        #print(result.shape())
         #result = [p.get() for p in _process]                
         #binIDShare.close()
         #binIDShare.unlink()

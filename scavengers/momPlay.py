@@ -314,7 +314,6 @@ class momplay:
                         idxRight = np.max([idxRight,idxRightG3])
 
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
-                print(match_bin)
                 result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
 
                 for index in match_bin:

@@ -10,6 +10,8 @@ general:
   lineListName: 'lineList.txt'
   redshift: 0.00587
   verbose: False
+  enableMP: True
+  nCores: 4
 starSub:
   enable: False
   ra: '03:22:41.734'
@@ -20,7 +22,6 @@ starSub:
   outputs: 'all' #either 'all', 'stars', 'lines', 'data'
 gFit:  
   enable: False
-  enableMP: True
   modName: 'g1'
   fixSigma: True
   fixCentre: True
