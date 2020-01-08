@@ -281,7 +281,7 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
                 pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
                     min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i])
 
-            elif cfg_par['gFit']['posCentre'] == True and i >0:
+            elif cfg_par['gFit']['fixCentre'] == True and i >0:
                 pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
                     min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i],vary=True)
                 pars.add(name='g2ln'+str(i)+'Split_'+'center', expr='g2ln'+str(0)+'_'+'center - g1ln'+str(0)+'_'+'center')
@@ -344,7 +344,7 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
                 pars['g3ln'+str(i)+'_'+'center'].set(value=cenIn3Pos,
                     min=waveAmpIn1Min-lineInfo['deltaVAng_13'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_13'][i])
             
-                if cfg_par['gFit']['posCentre'] == True and i >0:
+                if cfg_par['gFit']['fixCentre'] == True and i >0:
                     pars['g3ln'+str(i)+'_'+'center'].set(value=cenIn3Pos,
                         min=waveAmpIn1Min-lineInfo['deltaVAng_13'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_13'][i],vary=True)
                     pars.add(name='g3ln'+str(i)+'Split_'+'center', expr='g3ln'+str(0)+'_'+'center - g1ln'+str(0)+'_'+'center')

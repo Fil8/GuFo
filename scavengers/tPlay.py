@@ -409,7 +409,7 @@ class tplay(object):
 
                 g2Ctr = cvP.lambdaVRad(np.exp(ctr),lineInfo['Wave'][ii])
                 g2Sigma = cvP.lambdaVRad(np.exp(ctr+sig),lineInfo['Wave'][ii])-g2Ctr
-                g2FWHM = cvP.lambdaVRad(np.exp(ctr+fwhm),lineInfo['Wave'][ii])-g3Ctr
+                g2FWHM = cvP.lambdaVRad(np.exp(ctr+fwhm),lineInfo['Wave'][ii])-g2Ctr
 
                 #amp_err = result.params[modName+'ln'+str(i)+'_amplitude'].stderr
                 #sig_err = result.params[modName+'ln'+str(i)+'_sigma'].stderr

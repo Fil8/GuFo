@@ -178,7 +178,7 @@ def main (argv):
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    elif args.gMpPlay or gPar.cfg_par['general'].get('enableMP',False) == True and gPar.cfg_par['gFit'].get('enable',False) == True or args.gPlay:
+    if args.gMpPlay or gPar.cfg_par['general'].get('enableMP',False) == True and gPar.cfg_par['gFit'].get('enable',False) == True or args.gPlay:
         time_start_load = time.time()        
         print ('\n\t************* --- GuFo : MPgPlay --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
@@ -186,7 +186,7 @@ def main (argv):
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    elif args.gPlot or gPar.cfg_par['gPlot'].get('enable',False) == True:
+    if args.gPlot or gPar.cfg_par['gPlot'].get('enable',False) == True:
         time_start_load = time.time()
         print ('\n\t************* --- GuFo : gPlot --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
@@ -194,7 +194,7 @@ def main (argv):
         print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    elif args.gPlotSingle:
+    if args.gPlotSingle:
         time_start_load = time.time()
         print ('\n\t************* --- GuFo : gPlot single BIN --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
@@ -226,7 +226,7 @@ def main (argv):
         mom.makeLineRatioMaps(gPar.cfg_par)
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    else:
+    if args.cfgFile is None:
         print ('\n\t************* --- GuFo : ERROR --- **************')
         print ('\t... you have not entered a config File ... \n')
         outFunction()
