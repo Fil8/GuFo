@@ -8,6 +8,7 @@ general:
   outVorTableName: 'FornaxE_GuFoVorTable.fits' # name of continuum image (assumed stored in workdir)
   dataCubeName:  'lineCube.fits' # outputs will be stored here
   lineListName: 'lineList.txt'
+  cleanTable: False
   redshift: 0.00587
   verbose: False
   enableMP: True
@@ -43,8 +44,10 @@ gPlot:
   deltaVRange: 2000.
 moments:
   enable: False
+  ampThresh: 1e-5
 lineRatios:
   enable: False
+  bptPlot: True
 resPlot:
   enable: True
 

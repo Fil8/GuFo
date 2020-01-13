@@ -484,7 +484,6 @@ class gplay(object):
                         # FIT
                         result = load_modelresult(cfg_par[key]['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
                         cfg_par['gPlot']['loadModel'] = True
-
                         #plot Fit
                         if cfg_par['gPlot']['enable'] == True:
                         #self.plotSpecFit(waveCut, y,result,noiseVec[idxMin:idxMax],i,j,lineInfo,vorBinInfo[index])

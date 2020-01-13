@@ -1,4 +1,5 @@
 #!/usr/bin/env python3.8
+
 import os, sys
 from astropy.io import fits
 import numpy as np
@@ -16,7 +17,8 @@ from matplotlib.ticker import LogFormatter
 from matplotlib.colors import LogNorm
 from matplotlib.colors import SymLogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
+from matplotlib.colors import ListedColormap
+import aplpy
 import cvPlay
 cvP = cvPlay.convert()
 
@@ -76,7 +78,7 @@ class BPTplot(object):
             modString = ['G1','G2','G3','ToT']
 
 
-        for i in xrange (0, len(modString)):
+        for i in range (0, len(modString)):
             y = np.log10(lineRatios[modString[i]+'-OIII5006/Hb4861'])
             x = np.log10(lineRatios[modString[i]+'-NII6583/Ha6562'])
             k = lineBPT[modString[i]+'-BPT_OIII']
@@ -103,11 +105,13 @@ class BPTplot(object):
         idxAGN = np.where(k==2.)
         idxKauf = np.where(k==0.)
         idxKew = np.where(k==1.)
+        idxBad = np.where(k==-1.)
 
 
-        ax1.scatter(x[idxAGN], y[idxAGN], c='red', marker='+', s=80, linewidths=4)
-        ax1.scatter(x[idxKew], y[idxKew], c='cyan', marker='+', s=80, linewidths=4)
-        ax1.scatter(x[idxKauf], y[idxKauf], c='blue', marker='+', s=80, linewidths=4)
+        ax1.scatter(x[idxAGN], y[idxAGN], c='red', marker='+', s=80, linewidths=4, label='AGN')
+        ax1.scatter(x[idxKew], y[idxKew], c='cyan', marker='+', s=80, linewidths=4, label='SF-Kewley')
+        ax1.scatter(x[idxKauf], y[idxKauf], c='blue', marker='+', s=80, linewidths=4, label ='SF-Kauffmann')
+        ax1.scatter(x[idxBad], y[idxBad], c='orange', marker='+', s=80, linewidths=4)
 
         kaX = np.log10(np.linspace(np.power(10,-1.),np.power(10,0.),1e4))
         kaY = 0.61 / (kaX - 0.05) + 1.3
@@ -141,6 +145,9 @@ class BPTplot(object):
         #        elif cfg_par['gFit']['modName'] !='g2':
         #            ax1.plot(velPlot, comps['g2ln'+str(i)+'_'], 'm--')    
         #            ax1.plot(velPlot, comps['g3ln'+str(i)+'_'], 'c--')    
+        ax1.legend = plt.legend(loc=1, prop={'size': 12})
+        ax1.legend.get_frame().set_edgecolor('black')
+        ax1.legend.get_frame().set_facecolor('white')
 
         outPlotDir = cfg_par['general']['bptDir']+cfg_par['gFit']['modName']+'/'
 
@@ -178,7 +185,7 @@ class BPTplot(object):
             modString = ['G1','G2','G3','ToT']
 
 
-        for i in xrange (0, len(modString)):
+        for i in range (0, len(modString)):
             y = np.log10(lineRatios[modString[i]+'-OIII5006/Hb4861'])
             x = np.log10(lineRatios[modString[i]+'-SII6716/Ha6562'])
             k = lineBPT[modString[i]+'-BPT_SII']
@@ -205,11 +212,13 @@ class BPTplot(object):
         idxLin = np.where(k==2.)
         idxSey = np.where(k==1.)
         idxKew = np.where(k==0.)
+        idxBad = np.where(k==-1.)
 
 
-        ax1.scatter(x[idxLin], y[idxLin], c='green', marker='+', s=80, linewidths=4)
-        ax1.scatter(x[idxKew], y[idxKew], c='blue', marker='+', s=80, linewidths=4)
-        ax1.scatter(x[idxSey], y[idxSey], c='red', marker='+', s=80, linewidths=4)
+        ax1.scatter(x[idxLin], y[idxLin], c='green', marker='+', s=80, linewidths=4, label='LINER')
+        ax1.scatter(x[idxKew], y[idxKew], c='blue', marker='+', s=80, linewidths=4, label='SF')
+        ax1.scatter(x[idxSey], y[idxSey], c='red', marker='+', s=80, linewidths=4, label='Seyfert')
+        ax1.scatter(x[idxBad], y[idxBad], c='orange', marker='+', s=80, linewidths=4)
 
         keX = np.log10(np.linspace(np.power(10,-2.),np.power(10,0.5),1e4))
         keY= 0.72 / (keX - 0.32) + 1.30
@@ -241,7 +250,9 @@ class BPTplot(object):
         #        elif cfg_par['gFit']['modName'] !='g2':
         #            ax1.plot(velPlot, comps['g2ln'+str(i)+'_'], 'm--')    
         #            ax1.plot(velPlot, comps['g3ln'+str(i)+'_'], 'c--')    
-
+        ax1.legend = plt.legend(loc=1, prop={'size': 12})
+        ax1.legend.get_frame().set_edgecolor('black')
+        ax1.legend.get_frame().set_facecolor('white')
         outPlotDir = cfg_par['general']['bptDir']+cfg_par['gFit']['modName']+'/'
 
         if not os.path.exists(outPlotDir):
@@ -278,7 +289,7 @@ class BPTplot(object):
             modString = ['G1','G2','G3','ToT']
 
 
-        for i in xrange (0, len(modString)):
+        for i in range (0, len(modString)):
             y = np.log10(lineRatios[modString[i]+'-OIII5006/Hb4861'])
             x = np.log10(lineRatios[modString[i]+'-OI6300/Ha6562'])
             k = lineBPT[modString[i]+'-BPT_OI']
@@ -305,11 +316,13 @@ class BPTplot(object):
         idxLin = np.where(k==2.)
         idxSey = np.where(k==1.)
         idxKew = np.where(k==0.)
+        idxBad = np.where(k==-1.)
 
 
-        ax1.scatter(x[idxLin], y[idxLin], c='green', marker='+', s=80, linewidths=4)
-        ax1.scatter(x[idxKew], y[idxKew], c='blue', marker='+', s=80, linewidths=4)
-        ax1.scatter(x[idxSey], y[idxSey], c='red', marker='+', s=80, linewidths=4)
+        ax1.scatter(x[idxLin], y[idxLin], c='green', marker='+', s=80, linewidths=4, label='LINER')
+        ax1.scatter(x[idxKew], y[idxKew], c='blue', marker='+', s=80, linewidths=4, label='SF')
+        ax1.scatter(x[idxSey], y[idxSey], c='red', marker='+', s=80, linewidths=4, label= 'Seyfert')
+        ax1.scatter(x[idxBad], y[idxBad], c='orange', marker='+', s=80, linewidths=4)
 
 
         kaX = np.log10(np.linspace(np.power(10,-3.),np.power(10,-0.595),1e4))
@@ -343,7 +356,10 @@ class BPTplot(object):
         #        elif cfg_par['gFit']['modName'] !='g2':
         #            ax1.plot(velPlot, comps['g2ln'+str(i)+'_'], 'm--')    
         #            ax1.plot(velPlot, comps['g3ln'+str(i)+'_'], 'c--')    
-
+        ax1.legend = plt.legend(loc=1, prop={'size': 12})
+        ax1.legend.get_frame().set_edgecolor('black')
+        ax1.legend.get_frame().set_facecolor('white')
+        
         outPlotDir = cfg_par['general']['bptDir']+cfg_par['gFit']['modName']+'/'
 
         if not os.path.exists(outPlotDir):
@@ -356,3 +372,68 @@ class BPTplot(object):
         plt.close()
            
         return 0
+
+    def bptIM(self, cfg_par,outBPT):
+        params = self.loadRcParams()
+        plt.rcParams.update(params)
+        fig = plt.figure()
+
+        if os.path.basename(outBPT) == 'BPT-G1-BPT_OIII.fits':
+            CustomCmap = ListedColormap(['magenta','orange','blue','cyan','red'])
+        else:
+            CustomCmap = ListedColormap(['magenta','orange','blue','red','green'])
+
+        #img = plt.imshow(f22, cmap="afmhot_r",vmin=0,vmax=21)
+        #plt.gca().set_visible(False)
+        #cax = plt.axes([0.912, 0.124, 0.015, 0.755])
+        #cbar = plt.colorbar(cax=cax,ticks =  [0,5,10,15,20],
+        #                    orientation='vertical', format='%.1d')
+        #ax = cbar.ax
+        #ax.text(3.9,0.5,r'H$_2$/H$_{\rm I}$',rotation=90)
+        #ax.text(4.1,0.6,r'Jy beam$^{-1}$ m s$^{-1}$',rotation=90)
+
+
+        #FA_radeg = 50.673825
+        #FA_decdeg = -37.204227
+        #BeamRa = 50.694035
+        #BeamDec = -37.220974
+        f1 = aplpy.FITSFigure(outBPT, figure=fig)
+        f1.set_theme('publication')
+
+        f1.frame.set_linewidth(2)
+
+        #f1.recenter(FA_radeg,FA_decdeg,width=0.05,height=0.05)
+        f1.show_colorscale(aspect='equal', cmap=CustomCmap,stretch = 'linear',vmin=-1,vmax=2)
+
+
+        #f1.show_contour(imageName,levels=[1, 5, 8, 11, 15], colors='black')
+        #f1.show_contour(imageName,levels=[1e-3, 1e-2, 1e-1,5e-1], colors='black')
+
+
+        #f1.show_ellipses(BeamRa, BeamDec, h22['BMAJ'], h22['BMIN'], angle=h22['BPA'], edgecolor='black',linewidth=2 )
+
+
+        f1.axis_labels.set_font( weight='book',size='medium', 
+                                 stretch='normal', family='serif', 
+                                 style='normal', variant='normal')
+        f1.axis_labels.set_xtext('RA (J2000)')
+        f1.axis_labels.set_ytext('Dec (J2000)')
+        f1.tick_labels.set_xformat('hh:mm:ss')
+        f1.tick_labels.set_yformat('dd:mm')
+        f1.tick_labels.set_font( weight='book', size='small',
+                                 stretch='normal', family='serif', 
+                                 style='normal', variant='normal') 
+        f1.ticks.set_color('k')
+        f1.ticks.set_length(6)  # points
+        f1.ticks.set_linewidth(2)  # points
+        f1.ticks.set_minor_frequency(3)
+        f1.ticks.show()
+
+        outBPT= str.split(outBPT, '.fits')[0]
+        outBPT = outBPT+'.pdf'
+        print(outBPT)
+        fig.savefig(outBPT,format='pdf',dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
+
+
+        #print('BMAJ\t{0:f}'.format(h22['BMAJ']*3600.))
+        #print('BMIN\t{0:f}'.format(h22['BMIN']*3600.))

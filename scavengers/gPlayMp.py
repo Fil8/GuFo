@@ -36,7 +36,6 @@ tP = tPlay.tplay()
 def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
     
     #existing_shm = shared_memory.SharedMemory(name=binIDShareName)
-
     key = 'general'
 
     workDir = cfg_par[key]['workdir']

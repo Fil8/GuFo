@@ -16,11 +16,11 @@ import numpy.ma as ma
 import shutil
 
 
-import tPlay,cvPlay
+import tPlay,cvPlay,bptPlot
 
 tP = tPlay.tplay()
 cvP = cvPlay.convert()
-
+bpt = bptPlot.BPTplot()
 
 
 class momplay:
@@ -97,16 +97,16 @@ class momplay:
                 mom1G3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
                 mom2G3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
 
-
         for i in range(0,len(lines['BIN_ID'])):
 
             match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
             for index in match_bin:
                 mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]
-                mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
-                mom2G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_sigma_'+lineName][i]
-                binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
+                if lines['g1_Amp_'+lineName][i] > float(cfg_par['moments']['ampThresh']):
+                    mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
+                    mom2G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_sigma_'+lineName][i]
+                    binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
 
                 if modName != 'g1':
                     mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Amp_'+lineName][i]
@@ -120,7 +120,7 @@ class momplay:
 
         binHead['SPECSYS'] = 'topocent'
         binHead['BUNIT'] = 'Flux'
-        fits.writeto(momModDir+'binMap.fits',binMap, binHead,overwrite=True)
+        fits.writeto(momModDir+'binMap_'+lineName+'.fits',binMap, binHead,overwrite=True)
 
 
         mom0Head['SPECSYS'] = 'topocent'
@@ -366,9 +366,13 @@ class momplay:
             del header['CRPIX3'] 
         if 'NAXIS3' in header:
             del header['NAXIS3']
+        if 'WCSAXES' in header:
+            del header['WCSAXES']
+        if 'CRDER3' in header:
+            del header['CRDER3']
 
         lineMapHead = header.copy()
-        
+
         hdul = fits.open(cfg_par['general']['outTableName'])
         lineBPT = hdul['BPT_'+cfg_par['gFit']['modName']].data
 
@@ -412,6 +416,7 @@ class momplay:
 
 
             lineMapHead['BUNIT'] = 'Flux'
+            outBPT = momModDir+'BPT-'+str(lineBPT.dtype.names[i])+'.fits'
             fits.writeto(momModDir+'BPT-'+str(lineBPT.dtype.names[i])+'.fits',lineMapG1,lineMapHead,overwrite=True)
             
             if modName != 'g1':
@@ -420,5 +425,7 @@ class momplay:
 
                 if modName == 'g3':
                     fits.writeto(momModDir+'BPT-'+str(lineBPT.dtype.names[i+numCols+2])+'.fits',lineMapG3,lineMapHead,overwrite=True)
+
+            bpt.bptIM(cfg_par,outBPT)
 
         return

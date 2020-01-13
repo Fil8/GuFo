@@ -208,13 +208,13 @@ class specplot(object):
 
         velExp = np.exp(vel)
         yBFit = result.best_fit
-
-        if cfg_par['gPlot'].get('loadModel',None):
+        if cfg_par['gPlot'].get('loadModel',None)==True:
             yRes = yBFit-y
             binName = singleVorBinInfo['BIN_ID']
         else:
             yRes = result.residual
             binName = singleVorBinInfo['BIN_ID']
+
         yInFit = result.init_fit
         key = 'general'
         
@@ -411,12 +411,12 @@ class specplot(object):
         velPlot = np.exp(vel)
         yBFit = result.best_fit
         if cfg_par['gPlot'].get('loadModel',None):
-
             yRes = yBFit-y
             binName = singleVorBinInfo['BIN_ID']
         else:
             yRes = result.residual
-            binName = singleVorBinInfo['BIN_ID']
+            binName = singleVorBinInfo['BIN_ID'][0]
+
         yInFit = result.init_fit
         key = 'general'
         

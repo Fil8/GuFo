@@ -14,6 +14,7 @@ scavengers/__init__.py
 scavengers/bptPlot.py
 scavengers/cvPlay.py
 scavengers/gPlay.py
+scavengers/gPlayMp.py
 scavengers/momPlay.py
 scavengers/specPlot.py
 scavengers/starSub.py

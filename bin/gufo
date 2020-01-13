@@ -7,7 +7,7 @@ import time
 
 import gufo
 from scavengers import gPlay, starSub, momPlay, tPlay
-from scavengers import gPlayMp
+from scavengers import gPlayMp, bptPlot
 
 import argparse
 from  argparse import ArgumentParser
@@ -25,7 +25,7 @@ gp = gPlay.gplay()
 ss = starSub.starsub()
 mom = momPlay.momplay()
 tP = tPlay.tplay()
-
+bpt = bptPlot.BPTplot()
 
 class MultilineFormatter(argparse.HelpFormatter):
     def _fill_text(self, text, width, indent):
@@ -102,10 +102,18 @@ def main (argv):
         action='store_true',
         help= 'tool to plot residuals of fit')
 
+    add('-bpt', '--bptPlots',
+        action='store_true',
+        help= 'tool to draw BPT plots')
+
     add('-bin', '--binID',
         type = str,
         default=False,
         help= 'bin to plot')
+
+    add('-clT', '--clTbl',
+        action='store_true',
+        help= 'clean fit table from moments and lineratios')
 
     add('-mm', '--moments',
         action='store_true',
@@ -169,6 +177,12 @@ def main (argv):
         print("## fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
+    if args.clTbl or gPar.cfg_par['general'].get('cleanTable',False) == True:
+        
+        print ('\n\t************* --- GuFo : clean Table --- **************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        tP.cleanTable(gPar.cfg_par)
+        print('\n\t************* --- GuFo : DONE --- **************\n') 
 
     if args.gPlay or gPar.cfg_par['gFit'].get('enable',False) == True and gPar.cfg_par['general'].get('enableMP',False) == False :
         time_start_load = time.time()        
@@ -186,7 +200,7 @@ def main (argv):
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    if args.gPlot or gPar.cfg_par['gPlot'].get('enable',False) == True:
+    if args.gPlot or gPar.cfg_par['gPlot'].get('enable',False) == True and gPar.cfg_par['gFit'].get('enable',False) == False:
         time_start_load = time.time()
         print ('\n\t************* --- GuFo : gPlot --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
@@ -224,6 +238,14 @@ def main (argv):
         lineInfo = tP.openLineList(gPar.cfg_par)
         tP.binLineRatio(gPar.cfg_par,lineInfo)
         mom.makeLineRatioMaps(gPar.cfg_par)
+        print('\n\t************* --- GuFo : DONE --- **************\n')    
+  
+    if args.bptPlots or gPar.cfg_par['lineRatios'].get('bptPlot',False) == True:    
+        
+        print ('\n\t************* --- GuFo : BPT plots --- **************\n')
+        bpt.bptOIII(gPar.cfg_par)
+        bpt.bptSII(gPar.cfg_par)
+        bpt.bptOI(gPar.cfg_par)
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
     if args.cfgFile is None:
