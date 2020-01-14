@@ -82,7 +82,6 @@ class gufo(object):
             os.mkdir(bptDir)
         self.cfg_par['general']['bptDir'] = bptDir
 
-
         modNameDir = self.cfg_par['general']['runNameDir']+'models/'
         if not os.path.exists(modNameDir):
             os.mkdir(modNameDir)

@@ -33,21 +33,25 @@ class momplay:
         dd = f[0].header
 
         lineInfo = tP.openLineList(cfg_par)
-
         for ii in range(0,len(lineInfo['ID'])):
+
             lineName = str(lineInfo['Name'][ii])
+
             if '[' in lineName:
                 lineName = lineName.replace("[", "")
                 lineName = lineName.replace("]", "")
 
             lineName = lineName+str(int(lineInfo['Wave'][ii]))
+            lineThresh = float(lineInfo['ampThresh'][ii])
 
-            self.moments(cfg_par,lineName,dd,cfg_par['general']['outTableName'])
+            print('\n\t *********** --- Moments: '+lineName+' --- ***********\n')
+
+            self.moments(cfg_par,lineName,dd,cfg_par['general']['outTableName'],lineThresh)
 
         return
 
 
-    def moments(self,cfg_par,lineName,header,outTableName):
+    def moments(self,cfg_par,lineName,header,outTableName,lineThresh):
 
         modName = cfg_par['gFit']['modName']
         momModDir = cfg_par['general']['momDir']+modName+'/'
@@ -103,7 +107,8 @@ class momplay:
 
             for index in match_bin:
                 mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]
-                if lines['g1_Amp_'+lineName][i] > float(cfg_par['moments']['ampThresh']):
+                
+                if lines['g1_Amp_'+lineName][i] > lineThresh:
                     mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
                     mom2G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_sigma_'+lineName][i]
                     binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
@@ -382,10 +387,10 @@ class momplay:
         numCols = len(lineBPT.dtype.names)
 
         if modName == 'g2':
-            numCols = (numCols-1)/3
+            numCols = int((numCols-1)/3)
             numCols +=1 
         if modName == 'g3':
-            numCols = (numCols-1)/4
+            numCols = int((numCols-1)/4)
             numCols +=1 
 
         for i in range(1,numCols):
@@ -398,34 +403,42 @@ class momplay:
             if modName == 'g3':
             
                 lineMapG3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
-
+            
             for j in range(0,len(lineBPT['BIN_ID'])):
                 match_bin = np.where(tabGen['BIN_ID']==lineBPT['BIN_ID'][j])[0]
 
                 for index in match_bin:
-                
                     lineMapG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i]
 
-                    if modName != 'g1':                        
-                        lineMapToT[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i+numCols*2]
-                        lineMapG2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i+numCols]
+                    if modName != 'g1': 
+
+                        lineMapToT[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i+numCols*2-2]
+                        lineMapG2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i+numCols-1]
 
                         if modName == 'g3':
-                            lineMapG3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i+numCols+2]
-
-
+                            lineMapG3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i+numCols+2] #TOREVIEW!!!!
 
             lineMapHead['BUNIT'] = 'Flux'
             outBPT = momModDir+'BPT-'+str(lineBPT.dtype.names[i])+'.fits'
             fits.writeto(momModDir+'BPT-'+str(lineBPT.dtype.names[i])+'.fits',lineMapG1,lineMapHead,overwrite=True)
             
             if modName != 'g1':
-                fits.writeto(momModDir+'BPT-'+str(lineBPT.dtype.names[i+numCols])+'.fits',lineMapG2,lineMapHead,overwrite=True)
-                fits.writeto(momModDir+'BPT-'+str(lineBPT.dtype.names[i+numCols*2])+'.fits',lineMapToT,lineMapHead,overwrite=True)
+                outBPTg2 = momModDir+'BPT-'+str(lineBPT.dtype.names[i+numCols-1])+'.fits'
+                outBPTtot = momModDir+'BPT-'+str(lineBPT.dtype.names[i+numCols*2-2])+'.fits'
+
+                fits.writeto(outBPTg2,lineMapG2,lineMapHead,overwrite=True)
+                fits.writeto(outBPTtot,lineMapToT,lineMapHead,overwrite=True)
 
                 if modName == 'g3':
+                    outBPTg3 = momModDir+'BPT-'+str(lineBPT.dtype.names[i+numCols+2])+'.fits'
                     fits.writeto(momModDir+'BPT-'+str(lineBPT.dtype.names[i+numCols+2])+'.fits',lineMapG3,lineMapHead,overwrite=True)
 
-            bpt.bptIM(cfg_par,outBPT)
+            if cfg_par['lineRatios']['bptMap'] == True:
+                bpt.bptIM(cfg_par,outBPT)
+                if modName != 'g1':
+                    bpt.bptIM(cfg_par,outBPTg2)
+                    bpt.bptIM(cfg_par,outBPTtot)
+                elif modName=='g3':
+                    bpt.bptIM(cfg_par,outBPTg3)
 
         return

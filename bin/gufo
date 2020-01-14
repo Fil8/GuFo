@@ -49,7 +49,8 @@ def outFunction ():
         gufo -gPl\t\t-c  <configFileName>:\tplot fit results for each bin
         gufo -mom\t\t-c  <configFileName>:\tmake moment maps of fitted lines
         gufo -res\t\t-c  <configFileName>:\tmake residual maps for each fitted line
-        gufo -lineRatios\t-c  <configFileName>:\testimate lineRatios, make lineRatio maps and BPT plots of fitted lines
+        gufo -lr\t-c  <configFileName>:\testimate lineRatios, make lineRatio maps and BPT plots of fitted lines
+        gufo -clT\t\t-c  <configFileName>:\clean table leaving only fit results
                     """)
 
         return 
@@ -102,9 +103,13 @@ def main (argv):
         action='store_true',
         help= 'tool to plot residuals of fit')
 
-    add('-bpt', '--bptPlots',
+    add('-bptPl', '--bptPlots',
         action='store_true',
         help= 'tool to draw BPT plots')
+
+    add('-bptMp', '--bptMaps',
+        action='store_true',
+        help= 'tool to draw BPT maps')
 
     add('-bin', '--binID',
         type = str,
@@ -226,7 +231,7 @@ def main (argv):
 
     if args.moments or gPar.cfg_par['moments'].get('enable',False) == True:
         
-        print ('\n\t************* --- GuFo : moments --- **************\n')
+        print ('\n\t *********** --- GuFo : moments --- ************\n')
         gPar = gufo.gufo(args.cfgFile)
         mom.makeMoments(gPar.cfg_par)
         print('\n\t************* --- GuFo : DONE --- **************\n')
@@ -246,6 +251,12 @@ def main (argv):
         bpt.bptOIII(gPar.cfg_par)
         bpt.bptSII(gPar.cfg_par)
         bpt.bptOI(gPar.cfg_par)
+        print('\n\t************* --- GuFo : DONE --- **************\n')
+
+    if args.bptMaps and gPar.cfg_par['lineRatios'].get('bptMap',False) == True:    
+        
+        print ('\n\t************* --- GuFo : BPT maps --- **************\n')
+        bpt.bptIM(gPar.cfg_par,outBPT)
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
     if args.cfgFile is None:

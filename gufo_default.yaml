@@ -48,6 +48,8 @@ moments:
 lineRatios:
   enable: False
   bptPlot: True
+  bptMap: True
+  plotFormat: png
 resPlot:
   enable: True
 
