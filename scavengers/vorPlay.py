@@ -147,7 +147,7 @@ class vorplay(object):
         """
         # Pass a function for the SNR calculation to the Voronoi-binning algorithm,
         # in order to account for spatial correlations in the noise
-        sn_func_covariances = functools.partial( sn_func, covar_vor=covar_vor )
+        sn_func_covariances = functools.partial(self.sn_func, covar_vor=covar_vor )
 
         try:
             print('\n\t *********** --- GuFo: VorBinning --- ***********\n')
