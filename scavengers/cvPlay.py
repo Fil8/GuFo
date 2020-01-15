@@ -1,5 +1,5 @@
-#!/usr/bin/env python3.8
-#import string
+#!/usr/bin/env python3.6
+
 import numpy as np
 from astropy.io import ascii
 from scipy import interpolate

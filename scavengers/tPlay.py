@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.6
 import os, sys
 import yaml
 
@@ -135,13 +135,13 @@ class tplay(object):
 
         xAxis = (np.linspace(1, shapeX+1, shapeX+1)-head['CRPIX1']+1) *head['PIXSIZE']
         yAxis = (np.linspace(1, shapeY+1, shapeY+1)-head['CRPIX2']+1) *head['PIXSIZE']
+        
         tab = fits.open(tableSpec)
+        tab.info()
         dataSpec = tab[1].data
         specExp = tab[2].data
         wave = [item for t in specExp for item in t] 
-
         noiseBin = dataSpec['ESPEC']
-
         pxSize = head['PIXSIZE']/3600.
 
         return wave,xAxis,yAxis,pxSize,noiseBin,dataTab

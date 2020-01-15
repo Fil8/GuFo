@@ -1,8 +1,9 @@
 ipython==5.8.0
-numpy
+numpy==1.16.0
 scipy
 matplotlib
 lmfit
 pyaml
 astropy
 aplpy
+vorbin

@@ -16,6 +16,8 @@ scavengers/cvPlay.py
 scavengers/gPlay.py
 scavengers/gPlayMp.py
 scavengers/momPlay.py
+scavengers/momPlot.py
 scavengers/specPlot.py
 scavengers/starSub.py
 scavengers/tPlay.py
+scavengers/vorPlay.py

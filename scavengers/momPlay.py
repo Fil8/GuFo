@@ -1,4 +1,5 @@
-#!/usr/bin/env python3.8
+#!/usr/bin/env python3.6
+
 import os, sys
 import yaml
 
@@ -182,8 +183,8 @@ class momplay:
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['tableBinName'],
             workDir+cfg_par[key]['tableSpecName'])
 
-        hdul = fits.open(cfg_par['general']['outTableName'])
-        tabGen = hdul['BinInfo'].data
+        #hdul = fits.open(cfg_par['general']['outTableName'])
+        #tabGen = hdul['BinInfo'].data
 
         lambdaMin = np.log(cfg_par['gFit']['lambdaMin'])
         lambdaMax = np.log(cfg_par['gFit']['lambdaMax'])
@@ -203,10 +204,8 @@ class momplay:
             result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
 
             for index in match_bin:
-
                 yy = dd[idxMin:idxMax,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
                 residuals = result.best_fit-yy
-
                 resG1[idxMin:idxMax,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = residuals
 
 
@@ -231,6 +230,7 @@ class momplay:
             self.resCube(cfg_par)
         else:
             pass
+        
         f = fits.open(resName)
         resCube = f[0].data
         resHead = f[0].header
@@ -272,7 +272,9 @@ class momplay:
                 lineName = lineName.replace("]", "")
 
             lineName = lineName+str(int(lineInfo['Wave'][ii]))            
-
+            
+            print('\n\t *********** --- Residuals: '+lineName+' --- ***********\n')
+            
             resG1 = np.zeros([resHead['NAXIS2'],resHead['NAXIS1']])
 
             resNameOut =momModDir+'res_'+lineName+'.fits'
@@ -318,11 +320,10 @@ class momplay:
                         idxRight = np.max([idxRight,idxRightG3])
 
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
-                result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
-
+                #result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
+                
                 for index in match_bin:
-
-                   resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.sum(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])],axis=0)
+                    resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.sum(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])],axis=0)
 
             fits.writeto(resNameOut,resG1,header,overwrite=True)
 

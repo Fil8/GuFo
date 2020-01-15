@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.8
+#!/usr/bin/env python3.6
  
 from astropy.io import fits
 from astropy import wcs
@@ -19,12 +19,11 @@ class starsub(object):
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['tableBinName'],
             workDir+cfg_par['general']['tableSpecName'],workDir+cfg_par['general']['tableStarName'])
 
-
-
         data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         Stars=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         Lines=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
-
+        noiseCube=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
+        
         header = self.makeHeader(cfg_par, wave, pxSize)
 
         hdu = fits.PrimaryHDU(data=data,header=header)
@@ -53,11 +52,14 @@ class starsub(object):
             
             if indexBin>0 and xx and yy: 
                    
-
-
-                tmp = np.array(dataSpec[indexBin][0][:])
-                tmp = tmp.tolist()
+                tmpD = np.array(dataSpec[indexBin][0][:])
+                tmp = tmpD.tolist()
                 data[:,yy[0],xx[0]] = tmp
+                
+                tmpN = np.array(dataSpec[indexBin][1][:])
+                tmpN = tmpD/tmpN
+                tmpN = tmpN.tolist()                
+                noiseCube[:,yy[0],xx[0]] = tmpN
 
                 tmp = np.array(dataStar[indexBin][1][:])
                 tmp = tmp.tolist()
@@ -101,6 +103,7 @@ class starsub(object):
         
         if outputs == 'lines':
             fits.writeto(cfg_par['general']['outLines'],Lines,header,overwrite=True)
+            fits.writeto(cfg_par['general']['outNoise'],noiseCube,header,overwrite=True)
             print('''\t+---------+\n\t Line Cube saved\n\t+---------+''')     
             return 
         else: 
@@ -112,6 +115,7 @@ class starsub(object):
                 fits.writeto(cfg_par['general']['outCube'],data,header,overwrite=True)
                 print('''\t+---------+\n\t Data Cube saved\n\t+---------+''')                 
             elif outputs=='all':
+                fits.writeto(cfg_par['general']['outNoise'],noiseCube,header,overwrite=True)
                 fits.writeto(cfg_par['general']['outLines'],Lines,header,overwrite=True)
                 fits.writeto(cfg_par['general']['outStars'],Stars,header,overwrite=True)
                 fits.writeto(cfg_par['general']['outCube'],data,header,overwrite=True)

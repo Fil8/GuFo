@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.8
+#!/usr/bin/env python3.6
 
 import os
 import sys
@@ -7,7 +7,7 @@ import time
 
 import gufo
 from scavengers import gPlay, starSub, momPlay, tPlay
-from scavengers import gPlayMp, bptPlot
+from scavengers import gPlayMp, bptPlot, vorPlay
 
 import argparse
 from  argparse import ArgumentParser
@@ -26,6 +26,8 @@ ss = starSub.starsub()
 mom = momPlay.momplay()
 tP = tPlay.tplay()
 bpt = bptPlot.BPTplot()
+vor = vorPlay.vorplay()
+
 
 class MultilineFormatter(argparse.HelpFormatter):
     def _fill_text(self, text, width, indent):
@@ -47,10 +49,12 @@ def outFunction ():
         gufo -gp\t\t-c  <configFileName>:\trun fit with parameters from config file and lineList file
         gufo -gpMp\t\t-c  <configFileName>:\trun fit on multiprocess with parameters from config file and lineList file
         gufo -gPl\t\t-c  <configFileName>:\tplot fit results for each bin
+        gufo -gPs\t-bin <binNum>\t-c  <configFileName>:\tplot fit results for binNum
         gufo -mom\t\t-c  <configFileName>:\tmake moment maps of fitted lines
         gufo -res\t\t-c  <configFileName>:\tmake residual maps for each fitted line
         gufo -lr\t-c  <configFileName>:\testimate lineRatios, make lineRatio maps and BPT plots of fitted lines
-        gufo -clT\t\t-c  <configFileName>:\clean table leaving only fit results
+        gufo -clT\t\t-c  <configFileName>:\tclean table leaving only fit results
+        gufo -vor\t\t-c  <configFileName>:\tvorBIn table leaving only fit results
                     """)
 
         return 
@@ -86,6 +90,10 @@ def main (argv):
     add('-gp', '--gPlay',
         action='store_true',
         help= 'tool to play with gaussian fits')
+
+    add('-vor', '--vorPlay',
+        action='store_true',
+        help= 'tool to voronoi bin line cube')
 
     add('-gMp', '--gMpPlay',
         action='store_true',
@@ -189,6 +197,14 @@ def main (argv):
         tP.cleanTable(gPar.cfg_par)
         print('\n\t************* --- GuFo : DONE --- **************\n') 
 
+    if args.vorPlay or gPar.cfg_par['vorBin'].get('enable',False) == True:
+        time_start_load = time.time()        
+        print ('\n\t************* --- GuFo : vorBin --- **************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        vor.vorBin(gPar.cfg_par)
+        print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
+        print('\n\t************* --- GuFo : DONE --- **************\n')
+
     if args.gPlay or gPar.cfg_par['gFit'].get('enable',False) == True and gPar.cfg_par['general'].get('enableMP',False) == False :
         time_start_load = time.time()        
         print ('\n\t************* --- GuFo : gPlay --- **************\n')
@@ -217,6 +233,7 @@ def main (argv):
         time_start_load = time.time()
         print ('\n\t************* --- GuFo : gPlot single BIN --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
+        print(args.binID)
         gp.plotSingleBin(gPar.cfg_par, args.binID)
         print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')

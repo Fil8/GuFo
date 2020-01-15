@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.8
+#!/usr/bin/env python3.6
 import os, sys
 import yaml
 
@@ -61,6 +61,8 @@ class gufo(object):
         self.cfg_par['general']['outCube'] = cubeDir+'Cube.fits'
         self.cfg_par['general']['outStars'] = cubeDir+'StarCube.fits'
         self.cfg_par['general']['outLines'] = cubeDir+'LineCube.fits'
+        self.cfg_par['general']['outNoise'] = cubeDir+'noiseCube.fits'
+        self.cfg_par['general']['outVorLines'] = cubeDir+'LineVorCube.fits'
 
         outTableName = self.cfg_par['general']['runNameDir']+'gPlayOut.fits'
 

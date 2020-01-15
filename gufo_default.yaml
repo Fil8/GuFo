@@ -13,6 +13,10 @@ general:
   verbose: False
   enableMP: True
   nCores: 4
+vorBin:
+  enable: False
+  snr: 4
+  covarNoise: 0.0
 starSub:
   enable: False
   ra: '03:22:41.734'

@@ -1,4 +1,5 @@
-#!/usr/bin/env python3.8
+#!/usr/bin/env python3.6
+
 import os, sys
 from astropy.io import fits
 import numpy as np

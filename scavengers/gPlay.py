@@ -1,4 +1,5 @@
-#!/usr/bin/env python3.8
+#!/usr/bin/env python3.6
+
 import os, sys
 import yaml
 
@@ -480,7 +481,7 @@ class gplay(object):
  
                         binID[j,i] = binIDName
                         noiseVec = noiseBin[binIDName][:]
-
+                        noiseVec[idxMin:idxMax] -= np.nanmean(noiseVec[idxMin:idxMax])
                         # FIT
                         result = load_modelresult(cfg_par[key]['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
                         cfg_par['gPlot']['loadModel'] = True
@@ -508,6 +509,11 @@ class gplay(object):
         dd = f[0].data
         f.close()
         
+        #open datacube
+        f = fits.open(cfg_par[key]['outNoise'])
+        nn = f[0].data
+        f.close()
+
         lineInfo = tP.openLineList(cfg_par)
 
 
@@ -535,11 +541,15 @@ class gplay(object):
         
         cfg_par['gPlot']['loadModel'] = True
 
-        noiseVec = noiseBin[int(binID)][:]
+        noiseVec = nn[idxMin:idxMax,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]
+        print(noiseVec)
+        #noiseVec[idxMin:idxMax] -= np.nanmedian(noiseVec[idxMin:idxMax])
+        #print(np.nanmean(noiseVec[idxMin:idxMax]),noiseVec[idxMin:idxMax])
+        #print(np.nanmean(y),y)
 
         #plot Fit
         #self.plotSpecFit(waveCut, y,result,noiseVec[idxMin:idxMax],i,j,tab,vorBinInfo[index])
-        sP.plotLineZoom(cfg_par,waveCut, y,result,noiseVec[idxMin:idxMax],int(tabGen['PixX'][idxTable]),int(tabGen['PixY'][idxTable]),lineInfo,tabGen[:][idxTable])
+        sP.plotLineZoom(cfg_par,waveCut, y,result,noiseVec,int(tabGen['PixX'][idxTable]),int(tabGen['PixY'][idxTable]),lineInfo,tabGen[:][idxTable])
 
         print('''\t+---------+\n\t bin Plotted\n\t+---------+''')
 
