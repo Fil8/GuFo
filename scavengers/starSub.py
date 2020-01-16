@@ -180,7 +180,7 @@ class starsub(object):
                 for j in range(0,len(yy)):
                     for i in range(0,len(xx)):
 
-                        tmpD = np.array(dataSpec[indexBin][0][:])
+                        tmpD = np.array(dd[:,yy[j],xx[i]])
                         #tmp = tmpD.tolist()
                         data[:,yy[j],xx[i]] = tmpD
                         
