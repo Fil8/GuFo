@@ -145,7 +145,7 @@ class starsub(object):
         hh = f[0].header
         dd = f[0].data
 
-        wave = hh['CRVAL3']+(np.arange(dd[0]))*hh['CD3_3']
+        wave = hh['CRVAL3']+(np.arange(dd.shape[0]))*hh['CD3_3']
         wave = wave / (1+cfg_par['general']['redshift'])     
         idx = np.where( np.logical_and( wave >= cfg_par['starSub']['waveMin'], wave <= cfg_par['starSub']['waveMax'] ) )[0]
    
