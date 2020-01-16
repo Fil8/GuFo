@@ -129,7 +129,6 @@ class starsub(object):
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['tableBinName'],
             workDir+cfg_par['general']['tableSpecName'],workDir+cfg_par['general']['tableStarName'])
 
-        idx = np.where( np.logical_and( wave >= cfg_par['starSub']['waveMin'], wave <= cfg_par['starSub']['waveMax'] ) )[0]
 
 
         dataSub=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
@@ -145,6 +144,11 @@ class starsub(object):
         f = fits.open(cfg_par['general']['inputCube'])
         hh = f[0].header
         dd = f[0].data
+
+        wave = hh['CRVAL3']+(np.arange(dd[0]))*hh['CD3_3']
+        wave = wave / (1+cfg_par['general']['redshift'])     
+        idx = np.where( np.logical_and( wave >= cfg_par['starSub']['waveMin'], wave <= cfg_par['starSub']['waveMax'] ) )[0]
+   
         dd = dd[idx,:,:]
         print(dd.shape,data.shape)
 

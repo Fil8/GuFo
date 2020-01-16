@@ -40,6 +40,8 @@ class gufo(object):
         if self.cfg_par['general']['verbose'] == True:
             print(yaml.dump(self.cfg_par))
         self.cfg_par['general']['gfitPath'] = GFIT_DIR
+        self.cfg_par['general']['C'] = self.C
+
         self.set_dirs()
 
         cfg.close()
