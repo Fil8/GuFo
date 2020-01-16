@@ -169,15 +169,15 @@ class starsub(object):
             if indexBin>0 and xx and yy: 
 
                 tmpS = np.array(dataStar[indexBin][1][:])
-                tmpS = tmpS.tolist()
+                #tmpS = tmpS.tolist()
                 
                 
                 for j in range(0,len(yy)):
                     for i in range(0,len(xx)):
 
                         tmpD = np.array(dd[:,yy[j],xx[i]])
-                        tmp = tmpD.tolist()
-                        data[:,yy[j],xx[i]] = tmp
+                        #tmp = tmpD.tolist()
+                        data[:,yy[j],xx[i]] = tmpD
                         
                         starsScale=np.multiply(tmpS,(np.divide(np.nanmedian(tmp),np.nanmedian(tmpS))))
                         dataSub[:,yy[j],xx[i]] = np.subtract(tmp,starScale)
