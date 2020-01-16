@@ -23,6 +23,8 @@ starSub:
   ra: '03:22:41.734'
   dec: '-37:12:28.62'
   scaleFlux: True
+  waveMin: 4750.
+  waveMax: 6800.
   pixX : 200
   pixY : 125
   pixZ : 1
