@@ -142,6 +142,7 @@ class starsub(object):
         f = fits.open(cfg_par['general']['inputCube'])
         hh = f[0].header
         dd = f[0].data
+        print(dd.shape,data.shape)
 
 
         diffusion = 1e-5
