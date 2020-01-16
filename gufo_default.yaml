@@ -6,6 +6,7 @@ general:
   tableSpecName: 'FornaxE_VorSpectra.fits' # name of datacube (assumed stored in workdir)
   tableStarName:  'FornaxE_ppxf-bestfit.fits'
   outVorTableName: 'FornaxE_GuFoVorTable.fits' # name of continuum image (assumed stored in workdir)
+  inputCube:  'FornaxE_Small.fits' # outputs will be stored here
   dataCubeName:  'lineCube.fits' # outputs will be stored here
   lineListName: 'lineList.txt'
   cleanTable: False
@@ -21,6 +22,7 @@ starSub:
   enable: False
   ra: '03:22:41.734'
   dec: '-37:12:28.62'
+  scaleFlux: True
   pixX : 200
   pixY : 125
   pixZ : 1

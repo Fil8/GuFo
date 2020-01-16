@@ -58,10 +58,18 @@ class gufo(object):
             os.mkdir(cubeDir)
         self.cfg_par['general']['cubeDir'] = cubeDir
 
-        self.cfg_par['general']['outCube'] = cubeDir+'Cube.fits'
-        self.cfg_par['general']['outStars'] = cubeDir+'StarCube.fits'
-        self.cfg_par['general']['outLines'] = cubeDir+'LineCube.fits'
-        self.cfg_par['general']['outNoise'] = cubeDir+'noiseCube.fits'
+        
+        if gPar.cfg_par['starSub'].get('scaleFlux',False) == True:
+            self.cfg_par['general']['outCube'] = cubeDir+'CubePix.fits'
+            self.cfg_par['general']['outStars'] = cubeDir+'StarCubePix.fits'
+            self.cfg_par['general']['outLines'] = cubeDir+'LineCubePix.fits'
+            self.cfg_par['general']['outNoise'] = cubeDir+'noiseCubePix.fits'
+        elif gPar.cfg_par['starSub'].get('scaleFlux',False) == False:
+            self.cfg_par['general']['outCube'] = cubeDir+'CubeVor.fits'
+            self.cfg_par['general']['outStars'] = cubeDir+'StarCubeVor.fits'
+            self.cfg_par['general']['outLines'] = cubeDir+'LineCubeVor.fits'
+            self.cfg_par['general']['outNoise'] = cubeDir+'noiseCubeVor.fits'
+
         self.cfg_par['general']['outVorLines'] = cubeDir+'LineVorCube.fits'
 
         outTableName = self.cfg_par['general']['runNameDir']+'gPlayOut.fits'

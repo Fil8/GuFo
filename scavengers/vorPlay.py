@@ -87,13 +87,22 @@ class vorplay(object):
                 noise[j,i] = np.divide(np.nansum([stdLeft[j,i], stdRight[j,i]]),2.)       
 
         snr = np.divide(peak,noise)
-        
+        #
 
-        #snr = np.reshape(snr,[dd.shape[0],dd.shape[1]*dd.shape[2]])
-        #noise = np.reshape(noise,[dd.shape[0],dd.shape[1]*dd.shape[2]])
-        spec = np.reshape(dd,[dd.shape[0],dd.shape[1]*dd.shape[2]])
-        signal = np.nanmedian(spec,axis=0)
+        snr = np.reshape(snr,[dd.shape[1]*dd.shape[2]])
+        noise = np.reshape(noise,[dd.shape[1]*dd.shape[2]])
+        spec = np.reshape(dd[indexMin:indexMax],[indexMax-indexMin,dd.shape[1]*dd.shape[2]])
+        x, y  = np.meshgrid(xAxis,yAxis)
+        x     = np.reshape(x,[dd.shape[1]*dd.shape[2]])
+        y     = np.reshape(y,[dd.shape[1]*dd.shape[2]])
 
+        # Removing obviously defective pixels: Remove spaxel with any nan or negative values
+        idx_good = np.where( np.median(spec, axis=0) > 0.0 )[0]
+        spec     = spec[:,idx_good]
+        noise    = noise[idx_good]
+        x        = x[idx_good]
+        y        = y[idx_good]
+        signal   = np.nanmax(spec,axis=0)
         #sys.exit(0)       
         #noise = np.nanmean([np.sum(np.nanstd(spec[idxWaveLeftInf:idxWaveLeftSup,:]),np.nanstd(spec[idxWaveRightInf:idxWaveRightSup,:]))])
         #estimate the errors with the der_snr algorithm
@@ -104,8 +113,8 @@ class vorplay(object):
         # Storing eveything into a structure
         #cube = {'x':xAxis, 'y':yAxis, 'wave':wave, 'spec':spec, 'error':espec, 'snr':snr,
         #'signal':signal, 'noise':noise, 'velscale':velscale, 'pixelsize':pxSize}    
-
-        binNum = self.define_voronoi_bins(cfg_par, xAxis, yAxis, signal,noise, pxSize,
+        print(np.nanmean(signal),np.nanmin(signal),np.nanmin(noise))
+        binNum = self.define_voronoi_bins(cfg_par, x, y, signal,noise, pxSize,
             snr, cfg_par['vorBin']['snr'], cfg_par['vorBin']['covarNoise'])
 
         return
