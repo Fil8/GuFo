@@ -136,7 +136,7 @@ class starsub(object):
         
         header = self.makeHeader(cfg_par, wave, pxSize)
 
-        hdu = fits.PrimaryHDU(data=data,header=header)
+        hdu = fits.PrimaryHDU(data=dataSub,header=header)
 
         f = fits.open(cfg_par['general']['inputCube'])
         hh = f[0].header
