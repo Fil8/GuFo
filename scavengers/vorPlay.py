@@ -202,7 +202,7 @@ class vorplay(object):
         binNum_long[idx_outside] = -1 * binNum_outside
 
         # Save bintable: data for *ALL* spectra inside and outside of the Voronoi region!
-        save_table(rootname, outdir, x, y, signal, snr, binNum_long, ubins, xNode, yNode, sn, nPixels, pixelsize)
+        save_table(x, y, signal, snr, binNum_long, ubins, xNode, yNode, sn, nPixels, pixelsize)
 
         return(binNum)
 
@@ -234,12 +234,12 @@ class vorplay(object):
 
         return( binNum, xNode, yNode, sn, nPixels )
 
-    def save_table(self, rootname, outdir, x, y, signal, snr, binNum_new, ubins, xNode, yNode, sn, nPixels, pixelsize):
+    def save_table(self, x, y, signal, snr, binNum_new, ubins, xNode, yNode, sn, nPixels, pixelsize):
         """ 
         Save all relevant information about the Voronoi binning to disk. In
         particular, this allows to later match spaxels and their corresponding bins. 
         """
-        outfits_table = outdir+rootname+'_tableLineVor.fits'
+        outfits_table = cfg_par['general']['outVorLineName']
 
         # Expand data to spaxel level
         xNode_new = np.zeros( len(x) )
@@ -268,7 +268,7 @@ class vorplay(object):
         tbhdu.writeto(outfits_table, overwrite=True)
         fits.setval(outfits_table, "PIXSIZE", value=pixelsize)
 
-        print("Writing: "+rootname+'_tableLineVor.fits')
+        print("Writing: "+outfits_table)
 
 
     def apply_voronoi_bins(self, binNum, spec, espec, rootname, outdir, velscale, wave, flag):

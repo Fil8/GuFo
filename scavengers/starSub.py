@@ -6,11 +6,49 @@ import os
 import numpy as np
 from astropy.table import Table, Column
 
+from ppxf.ppxf_util import log_rebin
+
 from scavengers import cvPlay, tPlay
 cvP = cvPlay.convert()
 tP = tPlay.tplay()
 
 class starsub(object):
+
+    def run_logrebinning(self, bin_data, velscale, nbins, wave ):
+        """
+        Calls the log-rebinning routine of pPXF (see Cappellari & Emsellem 2004;
+        ui.adsabs.harvard.edu/?#abs/2004PASP..116..138C;
+        ui.adsabs.harvard.edu/?#abs/2017MNRAS.466..798C).
+        """
+        # Setup arrays
+        lamRange = np.array([np.amin(wave),np.amax(wave)])
+        sspNew, logLam, _ = log_rebin(lamRange, bin_data[:,0], velscale=velscale)
+        log_bin_data = np.zeros([len(logLam),nbins])
+
+        # Do log-rebinning 
+        for i in range(0, nbins):
+            log_bin_data[:,i] = self.corefunc_logrebin(lamRange, bin_data[:,i], velscale, len(logLam), i, nbins)
+
+        return(log_bin_data)
+
+
+    def corefunc_logrebin(self, lamRange, bin_data, velscale, npix, iterate, nbins):
+        """
+        Calls the log-rebinning routine of pPXF (see Cappellari & Emsellem 2004;
+        ui.adsabs.harvard.edu/?#abs/2004PASP..116..138C;
+        ui.adsabs.harvard.edu/?#abs/2017MNRAS.466..798C). 
+
+        TODO: Should probably be merged with run_logrebinning. 
+        """
+        try:
+            sspNew, logLam, _ = log_rebin(lamRange, bin_data, velscale=velscale)
+            pipeline.printProgress(iterate+1, nbins, barLength = 50)
+            return(sspNew)
+
+        except:
+            out = np.zeros(npix); out[:] = np.nan
+            return(out)
+
 
     def makeCubesVorBin(self,cfg_par):
 
@@ -129,6 +167,7 @@ class starsub(object):
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['tableBinName'],
             workDir+cfg_par['general']['tableSpecName'],workDir+cfg_par['general']['tableStarName'])
 
+        lineInfo = tP.openLineList(cfg_par)
 
 
         dataSub=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
@@ -144,14 +183,25 @@ class starsub(object):
         f = fits.open(cfg_par['general']['inputCube'])
         hh = f[0].header
         dd = f[0].data
+        
+        
 
-        wave = hh['CRVAL3']+(np.arange(dd.shape[0]))*hh['CD3_3']
-        wave = wave / (1+cfg_par['general']['redshift'])     
-        idx = np.where( np.logical_and( wave >= cfg_par['starSub']['waveMin'], wave <= cfg_par['starSub']['waveMax'] ) )[0]
+        waveCube = hh['CRVAL3']+(np.arange(dd.shape[0]))*hh['CD3_3']
+        waveCube = waveCube / (1+cfg_par['general']['redshift'])     
+
+        idx = np.where( np.logical_and( waveCube >= cfg_par['starSub']['waveMin'], waveCube <= cfg_par['starSub']['waveMax'] ) )[0]
    
         dd = dd[idx,:,:]
-        print(dd.shape,data.shape)
 
+        spec = np.reshape(dd,[dd,dd.shape[1]*dd.shape[2]])
+        idx_good = np.where( np.median(spec, axis=0) > 0.0 )[0]
+        spec     = spec[:,idx_good]
+
+        waveCube = waveCube[idx]
+        velscale  = (wave[1]-wave[0])*(cfg_par['general']['C']*1e-3)/np.mean(wave)
+        log_spec, logLam = self.run_logrebinning(spec, velscale, yAxis.shape[0]*xAxis.shape[0], waveCube )
+        log_spec.reshape(log_spec,[len(wave),yAxis.shape[0],xAxis.shape[0]])
+        print(log_spec.shape,data.shape)
 
         diffusion = 1e-5
         del header['LATPOLE']
@@ -184,7 +234,7 @@ class starsub(object):
                 for j in range(0,len(yy)):
                     for i in range(0,len(xx)):
 
-                        tmpD = np.array(dd[:,yy[j],xx[i]])
+                        tmpD = np.array(log_spec[:,yy[j],xx[i]])
                         #tmp = tmpD.tolist()
                         data[:,yy[j],xx[i]] = tmpD
                         
