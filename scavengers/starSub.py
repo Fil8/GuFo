@@ -130,8 +130,9 @@ class starsub(object):
             workDir+cfg_par['general']['tableSpecName'],workDir+cfg_par['general']['tableStarName'])
 
         dataSub=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
+        data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
+
         Stars=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
-        Lines=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         noiseCube=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         
         header = self.makeHeader(cfg_par, wave, pxSize)
