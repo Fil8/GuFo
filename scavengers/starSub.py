@@ -168,7 +168,7 @@ class starsub(object):
             if indexBin>0 and xx and yy: 
 
                 tmpS = np.array(dataStar[indexBin][1][:])
-                tmpS = tmp.tolist()
+                tmpS = tmpS.tolist()
                 
                 
                 for j in range(0,len(yy)):
