@@ -59,12 +59,14 @@ class gufo(object):
         self.cfg_par['general']['cubeDir'] = cubeDir
 
         
-        if gPar.cfg_par['starSub'].get('scaleFlux',False) == True:
+        if self.cfg_par['starSub'].get('scaleFlux',False) == True:
+            self.cfg_par['general']['inputCube'] = cubeDir+self.cfg_par['general']['inputCube']
+
             self.cfg_par['general']['outCube'] = cubeDir+'CubePix.fits'
             self.cfg_par['general']['outStars'] = cubeDir+'StarCubePix.fits'
             self.cfg_par['general']['outLines'] = cubeDir+'LineCubePix.fits'
             self.cfg_par['general']['outNoise'] = cubeDir+'noiseCubePix.fits'
-        elif gPar.cfg_par['starSub'].get('scaleFlux',False) == False:
+        elif self.cfg_par['starSub'].get('scaleFlux',False) == False:
             self.cfg_par['general']['outCube'] = cubeDir+'CubeVor.fits'
             self.cfg_par['general']['outStars'] = cubeDir+'StarCubeVor.fits'
             self.cfg_par['general']['outLines'] = cubeDir+'LineCubeVor.fits'
