@@ -146,6 +146,7 @@ class tplay(object):
 
         return wave,xAxis,yAxis,pxSize,noiseBin,dataTab
 
+
     def openPPXFforSubtraction(self,cfg_par,tableBin,tableSpec,tableStar):
         
         crPix1=cfg_par['starSub']['pixX']

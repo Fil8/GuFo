@@ -59,22 +59,27 @@ class gufo(object):
         if not os.path.exists(cubeDir):
             os.mkdir(cubeDir)
         self.cfg_par['general']['cubeDir'] = cubeDir
-
-        
+   
         if self.cfg_par['starSub'].get('scaleFlux',False) == True:
             self.cfg_par['general']['inputCube'] = cubeDir+self.cfg_par['general']['inputCube']
-
-            self.cfg_par['general']['outCube'] = cubeDir+'CubePix.fits'
-            self.cfg_par['general']['outStars'] = cubeDir+'StarCubePix.fits'
-            self.cfg_par['general']['outLines'] = cubeDir+'LineCubePix.fits'
-            self.cfg_par['general']['outNoise'] = cubeDir+'noiseCubePix.fits'
+            if self.cfg_par['starSub'].get('scaleHow',None) == 'mean':
+                nameEnd = 'PixMean.fits'
+            elif self.cfg_par['starSub'].get('scaleHow',None) == 'median':
+                nameEnd = 'PixMed.fits'
+            self.cfg_par['general']['outCube'] = cubeDir+'Cube'+nameEnd
+            self.cfg_par['general']['outStars'] = cubeDir+'StarCube'+nameEnd
+            self.cfg_par['general']['outLines'] = cubeDir+'LineCube'+nameEnd
+            self.cfg_par['general']['outNoise'] = cubeDir+'noiseCube'+nameEnd
         elif self.cfg_par['starSub'].get('scaleFlux',False) == False:
             self.cfg_par['general']['outCube'] = cubeDir+'CubeVor.fits'
-            self.cfg_par['general']['outStars'] = cubeDir+'StarCubeVor.fits'
-            self.cfg_par['general']['outLines'] = cubeDir+'LineCubeVor.fits'
-            self.cfg_par['general']['outNoise'] = cubeDir+'noiseCubeVor.fits'
+            self.cfg_par['general']['outStars'] = cubeDir+'StarVor.fits'
+            self.cfg_par['general']['outLines'] = cubeDir+'CubeVor.fits'
+            self.cfg_par['general']['outNoise'] = cubeDir+'noiseVor.fits'
 
-        self.cfg_par['general']['outVorLines'] = cubeDir+'LineVorCube.fits'
+        if self.cfg_par['vorBin'].get('enable',False) == True:
+            self.cfg_par['general']['outVorSpectra'] = self.cfg_par['general']['workdir']+'LineVorSpectra.fits'
+            self.cfg_par['general']['outVorLines'] = cubeDir+'LineVorCube.fits'
+            self.cfg_par['general']['outVorLineTableName'] = self.cfg_par['general']['workdir']+'GuFoLineVorTable.fits'
 
         outTableName = self.cfg_par['general']['runNameDir']+'gPlayOut.fits'
 

@@ -6,10 +6,11 @@ from astropy.table import Table, Column
 from vorbin.voronoi_2d_binning import voronoi_2d_binning
 import functools
 
-from scavengers import tPlay, cvPlay
+from scavengers import tPlay, cvPlay, starSub
 
 tP = tPlay.tplay()
 cvP = cvPlay.convert()
+ss = starSub.starsub()
 
 class vorplay(object):
     """
@@ -42,7 +43,7 @@ class vorplay(object):
         velscale  = (wave[1]-wave[0])*cvel/np.mean(wave)
         #sys.exit(0)
         #open datacube
-        f = fits.open(cfg_par['general']['outLines'])
+        f = fits.open(cfg_par['general']['cubeDir']+cfg_par['general']['dataCubeName'])
         hh = f[0].header
         dd = f[0].data
         #s     = np.shape(dd)
@@ -92,6 +93,7 @@ class vorplay(object):
         snr = np.reshape(snr,[dd.shape[1]*dd.shape[2]])
         noise = np.reshape(noise,[dd.shape[1]*dd.shape[2]])
         spec = np.reshape(dd[indexMin:indexMax],[indexMax-indexMin,dd.shape[1]*dd.shape[2]])
+        specFull = np.reshape(dd,[dd.shape[0],dd.shape[1]*dd.shape[2]])
         x, y  = np.meshgrid(xAxis,yAxis)
         x     = np.reshape(x,[dd.shape[1]*dd.shape[2]])
         y     = np.reshape(y,[dd.shape[1]*dd.shape[2]])
@@ -99,10 +101,14 @@ class vorplay(object):
         # Removing obviously defective pixels: Remove spaxel with any nan or negative values
         idx_good = np.where( np.median(spec, axis=0) > 0.0 )[0]
         spec     = spec[:,idx_good]
+        specFull     = specFull[:,idx_good]
+
         noise    = noise[idx_good]
         x        = x[idx_good]
         y        = y[idx_good]
         signal   = np.nanmax(spec,axis=0)
+        
+        print(spec.shape)
         #sys.exit(0)       
         #noise = np.nanmean([np.sum(np.nanstd(spec[idxWaveLeftInf:idxWaveLeftSup,:]),np.nanstd(spec[idxWaveRightInf:idxWaveRightSup,:]))])
         #estimate the errors with the der_snr algorithm
@@ -113,9 +119,14 @@ class vorplay(object):
         # Storing eveything into a structure
         #cube = {'x':xAxis, 'y':yAxis, 'wave':wave, 'spec':spec, 'error':espec, 'snr':snr,
         #'signal':signal, 'noise':noise, 'velscale':velscale, 'pixelsize':pxSize}    
-        print(np.nanmean(signal),np.nanmin(signal),np.nanmin(noise))
+        #print(np.nanmean(signal),np.nanmin(signal),np.nanmin(noise))
         binNum = self.define_voronoi_bins(cfg_par, x, y, signal,noise, pxSize,
             snr, cfg_par['vorBin']['snr'], cfg_par['vorBin']['covarNoise'])
+
+        self.apply_voronoi_bins(binNum, specFull, noise,velscale, wave, 'lin')
+
+        ss.makeCubesVorLine(gPar.cfg_par)
+
 
         return
 
@@ -164,7 +175,6 @@ class vorplay(object):
             binNum, xNode, yNode, xBar, yBar, sn, nPixels, _ = voronoi_2d_binning(x, y,
                 signal, noise, target_snr, plot=False, quiet=True, pixelsize=pixelsize,
                 sn_func=sn_func_covariances )
-            sys.exit(0)
         
             # Handle common exceptions
         except ValueError as e:
@@ -172,17 +182,15 @@ class vorplay(object):
             # Sufficient SNR and no binning needed
             if str(e) == 'All pixels have enough S/N and binning is not needed': 
 
-                pipeline.prettyOutput_Warning("Defining the Voronoi bins")
                 print("             "+"The Voronoi-binning routine of Cappellari & Copin (2003) returned the following error:")
                 print("             "+str(e)+"\n")
-                pipeline.prettyOutput_Warning("Analysis will continue without Voronoi-binning!")
-                print("             "+str(len(idx_inside))+" spaxels will be treated as Voronoi-bins.")
+                #print("             "+str(len(idx_inside))+" spaxels will be treated as Voronoi-bins.")
                 
                 logging.warning("Defining the Voronoi bins failed. The Voronoi-binning routine of Cappellari & Copin "+\
                                 "(2003) returned the following error: \n"+str(e))
-                logging.info("Analysis will continue without Voronoi-binning! "+str(len(idx_inside))+" spaxels will be treated as Voronoi-bins.")
+                #logging.info("Analysis will continue without Voronoi-binning! "+str(len(idx_inside))+" spaxels will be treated as Voronoi-bins.")
 
-                binNum, xNode, yNode, sn, nPixels = noBinning( x, y, snr, idx_inside )
+                binNum, xNode, yNode, sn, nPixels = self.noBinning( x, y, snr, idx_inside )
 
             # Any uncaught exceptions
             else:
@@ -190,19 +198,19 @@ class vorplay(object):
                 return( True )
 
         # Find the nearest Voronoi bin for the pixels outside the Voronoi region
-        binNum_outside = find_nearest_voronoibin( x, y, idx_outside, xNode, yNode )
+        #binNum_outside = find_nearest_voronoibin( x, y, idx_outside, xNode, yNode )
 
         # Generate extended binNum-list: 
         #   Positive binNum indicate the Voronoi bin of the spaxel (for spaxels inside the Voronoi region)
         #   Negative binNum indicate the nearest Voronoi bin of the spaxel (for spaxels outside of the Voronoi region)
-        ubins = np.unique(binNum)
-        nbins = len(ubins)
-        binNum_long = np.zeros( len(x) ); binNum_long[:] = np.nan
-        binNum_long[idx_inside]  = binNum
-        binNum_long[idx_outside] = -1 * binNum_outside
+        #ubins = np.unique(binNum)
+        #nbins = len(ubins)
+        #binNum_long = np.zeros( len(x) ); binNum_long[:] = np.nan
+        #binNum_long[idx_inside]  = binNum
+        #binNum_long[idx_outside] = -1 * binNum_outside
 
         # Save bintable: data for *ALL* spectra inside and outside of the Voronoi region!
-        save_table(x, y, signal, snr, binNum_long, ubins, xNode, yNode, sn, nPixels, pixelsize)
+        self.save_table(cfg_par, x, y, signal, snr, binNum, np.unique(binNum), xNode, yNode, sn, nPixels, pixelsize)
 
         return(binNum)
 
@@ -221,7 +229,7 @@ class vorplay(object):
 
         return(closest)
 
-    def noBinning(x, y, snr, idx_inside):
+    def noBinning(self, x, y, snr, idx_inside):
         """ 
         In case no Voronoi-binning is required/possible, treat spaxels in the input
         data as Voronoi bins, in order to continue the analysis. 
@@ -234,12 +242,12 @@ class vorplay(object):
 
         return( binNum, xNode, yNode, sn, nPixels )
 
-    def save_table(self, x, y, signal, snr, binNum_new, ubins, xNode, yNode, sn, nPixels, pixelsize):
+    def save_table(self,cfg_par, x, y, signal, snr, binNum_new, ubins, xNode, yNode, sn, nPixels, pixelsize):
         """ 
         Save all relevant information about the Voronoi binning to disk. In
         particular, this allows to later match spaxels and their corresponding bins. 
         """
-        outfits_table = cfg_par['general']['outVorLineName']
+        outfits_table = cfg_par['general']['workdir']+cfg_par['general']['outVorLineName']
 
         # Expand data to spaxel level
         xNode_new = np.zeros( len(x) )
@@ -271,16 +279,16 @@ class vorplay(object):
         print("Writing: "+outfits_table)
 
 
-    def apply_voronoi_bins(self, binNum, spec, espec, rootname, outdir, velscale, wave, flag):
+    def apply_voronoi_bins(self,cfg_par, binNum, spec, espec, velscale, wave):
         """
         The constructed Voronoi-binning is applied to the underlying spectra. The
         resulting Voronoi-binned spectra are saved to disk. 
         """
         # Apply Voronoi bins
-        print("Applying the Voronoi bins to "+flag+"-data")
-        bin_data, bin_error, bin_flux = voronoi_binning( binNum, spec, espec )
+        print("Applying the Voronoi bins to data")
+        bin_data, bin_error, bin_flux = self.voronoi_binning( binNum, spec, espec )
         # Save Voronoi binned spectra
-        save_vorspectra(rootname, outdir, bin_data, bin_error, velscale, wave, flag)
+        self.save_vorspectra(cfg_par, bin_data, bin_error, velscale, wave)
         return(None)
 
 
@@ -289,6 +297,7 @@ class vorplay(object):
         ubins     = np.unique(binNum)
         nbins     = len(ubins)
         npix      = spec.shape[0]
+        print(npix,nbins)
         bin_data  = np.zeros([npix,nbins])
         bin_error = np.zeros([npix,nbins])
         bin_flux  = np.zeros(nbins)
@@ -309,14 +318,12 @@ class vorplay(object):
 
         return(bin_data, bin_error, bin_flux)
 
-    def save_vorspectra(self, rootname, outdir, log_spec, log_error, velscale, logLam, flag):
+    def save_vorspectra(self, cfg_par, log_spec, log_error, velscale, logLam):
         """ Voronoi-binned spectra and error spectra are saved to disk. """
-        if flag == 'log':
-            outfits_spectra  = outdir+rootname+'_VorSpectra.fits'
-            pipeline.prettyOutput_Running("Writing: "+rootname+'_VorSpectra.fits')
-        elif flag == 'lin':
-            outfits_spectra  = outdir+rootname+'_VorSpectra_linear.fits'
-            pipeline.prettyOutput_Running("Writing: "+rootname+'_VorSpectra_linear.fits')
+        #if flag == 'log':
+        #    outfits_spectra  = outdir+rootname+'_LineVorSpectra.fits'
+        #elif flag == 'lin':
+        outfits_spectra  = cfg_par['general']['outVorSpectra']
 
         npix = len(log_spec)
 
@@ -346,8 +353,8 @@ class vorplay(object):
         fits.setval(outfits_spectra,'CRVAL1',  value=logLam[0])
         fits.setval(outfits_spectra,'CDELT1',  value=logLam[1]-logLam[0])
 
-        if flag == 'log':
-            pipeline.prettyOutput_Done("Writing: "+rootname+'_VorSpectra.fits')
-        elif flag == 'lin':
-            pipeline.prettyOutput_Done("Writing: "+rootname+'_VorSpectra_linear.fits')
-        logging.info("Wrote: "+outfits_spectra)
+        #if flag == 'log':
+        #    pipeline.prettyOutput_Done("Writing: "+rootname+'_VorSpectra.fits')
+        #elif flag == 'lin':
+        #    pipeline.prettyOutput_Done("Writing: "+rootname+'_VorSpectra_linear.fits')
+        #logging.info("Wrote: "+outfits_spectra)

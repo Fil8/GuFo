@@ -4,6 +4,7 @@ general:
   runName: 'run'
   tableBinName: 'FornaxE_table.fits' # name of continuum image (assumed stored in workdir)
   tableSpecName: 'FornaxE_VorSpectra.fits' # name of datacube (assumed stored in workdir)
+  tableAllSpecName: 'FornaxE_AllSpectra.fits' # name of datacube (assumed stored in workdir)
   tableStarName:  'FornaxE_ppxf-bestfit.fits'
   outVorTableName: 'FornaxE_GuFoVorTable.fits' # name of continuum image (assumed stored in workdir)
   inputCube:  'FornaxE_Small.fits' # outputs will be stored here
