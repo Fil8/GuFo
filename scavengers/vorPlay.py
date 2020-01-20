@@ -108,7 +108,6 @@ class vorplay(object):
         y        = y[idx_good]
         signal   = np.nanmax(spec,axis=0)
         
-        print(spec.shape)
         #sys.exit(0)       
         #noise = np.nanmean([np.sum(np.nanstd(spec[idxWaveLeftInf:idxWaveLeftSup,:]),np.nanstd(spec[idxWaveRightInf:idxWaveRightSup,:]))])
         #estimate the errors with the der_snr algorithm
@@ -262,6 +261,7 @@ class vorplay(object):
             nPixels_new[idx] = nPixels[i]
 
         cols = []
+        print(np.arange(len(x)),binNum_new)
         cols.append(fits.Column(name='ID',        format='J',   array=np.arange(len(x)) ))
         cols.append(fits.Column(name='BIN_ID',    format='J',   array=binNum_new        ))
         cols.append(fits.Column(name='X',         format='D',   array=x                 ))
@@ -286,6 +286,7 @@ class vorplay(object):
         """
         # Apply Voronoi bins
         print("Applying the Voronoi bins to data")
+        idx_inside = np.where( binNum == ubins[i] )[0]
         bin_data, bin_error, bin_flux = self.voronoi_binning( binNum, spec, espec )
         # Save Voronoi binned spectra
         self.save_vorspectra(cfg_par, bin_data, bin_error, velscale, wave)
@@ -297,6 +298,7 @@ class vorplay(object):
         ubins     = np.unique(binNum)
         nbins     = len(ubins)
         npix      = spec.shape[0]
+        print('Npix,NBins')
         print(npix,nbins)
         bin_data  = np.zeros([npix,nbins])
         bin_error = np.zeros([npix,nbins])

@@ -118,7 +118,6 @@ class starsub(object):
         t.add_column(yyVecArr,index=0) 
         #vorBinInfo = np.column_stack((vorBinInfo,xxVec,yyVec))
         #vorBinInfo = np.vstack([vorBinInfo,yyVecArr])
-        print(vorBinInfo.dtype.names)
         tab = fits.open(workDir+cfg_par['general']['tableBinName'])
         head = tab[0].header
         #data = tab[0].data
@@ -170,10 +169,8 @@ class starsub(object):
         lineInfo = tP.openLineList(cfg_par)
 
         dataSpec = np.array(dataSpec['SPEC'][:])
-        print(dataSpec.shape)
         #dataSpec = np.reshape(dataSpec.T,[dataSpec.shape[1],yAxis.shape[0],xAxis.shape[0]])
         
-        print(dataSpec[0,:])
         dataSub=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
 
@@ -203,13 +200,11 @@ class starsub(object):
         waveCube = waveCube[idx]
         velscale  = (wave[1]-wave[0])*(cfg_par['general']['C']*1e-3)/np.mean(wave)
         #log_spec, logLam = self.run_logrebinning(spec, velscale,dd.shape[1]*dd.shape[2], waveCube )
-        print(dataSpec.shape,data.shape)
         diffusion = 1e-5
         del header['LATPOLE']
         del header['LONPOLE']
         xxVec = []
         yyVec = []
-        print(vorBinInfo['ID'].shape[0])
         #create AllSpectra datacube
         for i in range(0,vorBinInfo['ID'].shape[0]):
             #print xAxis
@@ -266,7 +261,6 @@ class starsub(object):
         t.add_column(yyVecArr,index=0) 
         #vorBinInfo = np.column_stack((vorBinInfo,xxVec,yyVec))
         #vorBinInfo = np.vstack([vorBinInfo,yyVecArr])
-        print(vorBinInfo.dtype.names)
         tab = fits.open(workDir+cfg_par['general']['tableBinName'])
         head = tab[0].header
         #data = tab[0].data
@@ -376,7 +370,6 @@ class starsub(object):
         t.add_column(yyVecArr,index=0) 
         #vorBinInfo = np.column_stack((vorBinInfo,xxVec,yyVec))
         #vorBinInfo = np.vstack([vorBinInfo,yyVecArr])
-        print(vorBinInfo.dtype.names)
         tab = fits.open(workDir+cfg_par['general']['tableBinName'])
         head = tab[0].header
         #data = tab[0].data
