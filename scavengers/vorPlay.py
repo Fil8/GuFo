@@ -119,10 +119,12 @@ class vorplay(object):
         #cube = {'x':xAxis, 'y':yAxis, 'wave':wave, 'spec':spec, 'error':espec, 'snr':snr,
         #'signal':signal, 'noise':noise, 'velscale':velscale, 'pixelsize':pxSize}    
         #print(np.nanmean(signal),np.nanmin(signal),np.nanmin(noise))
+        
+        print(specFull.shape, noise.shape)
         binNum = self.define_voronoi_bins(cfg_par, x, y, signal,noise, pxSize,
             snr, cfg_par['vorBin']['snr'], cfg_par['vorBin']['covarNoise'])
 
-        self.apply_voronoi_bins( cfg_par, binNum, specFull, noise,velscale, wave)
+        self.apply_voronoi_bins( cfg_par, binNum, specFull, noise, velscale, wave)
         ss.makeCubesVorLine(gPar.cfg_par)
 
 
