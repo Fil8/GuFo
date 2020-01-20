@@ -119,7 +119,7 @@ class vorplay(object):
         #cube = {'x':xAxis, 'y':yAxis, 'wave':wave, 'spec':spec, 'error':espec, 'snr':snr,
         #'signal':signal, 'noise':noise, 'velscale':velscale, 'pixelsize':pxSize}    
         #print(np.nanmean(signal),np.nanmin(signal),np.nanmin(noise))
-        
+#        noise = np.array([spec[:,0],noise])
         print(specFull.shape, noise.shape)
         binNum = self.define_voronoi_bins(cfg_par, x, y, signal,noise, pxSize,
             snr, cfg_par['vorBin']['snr'], cfg_par['vorBin']['covarNoise'])
@@ -311,10 +311,10 @@ class vorplay(object):
             valbin = len(k)
             if valbin == 1:
                av_spec     = spec[:,k]
-               av_err_spec = error[:,k]
+               av_err_spec = error[k]
             else:
                av_spec     = np.nansum(spec[:,k],axis=1)
-               av_err_spec = np.sqrt(np.sum(error[:,k],axis=1))
+               av_err_spec = np.sqrt(np.sum(error[k]))
         
             bin_data[:,i]  = np.ravel(av_spec)
             bin_error[:,i] = np.ravel(av_err_spec)
