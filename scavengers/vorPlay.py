@@ -295,7 +295,7 @@ class vorplay(object):
 
     def voronoi_binning(self, binNum, spec, error ):
         """ Spectra belonging to the same Voronoi-bin are added. """
-        ubins     = np.unique(binNum[1])
+        ubins     = np.unique(binNum,axis=1)
         nbins     = len(ubins)
         npix      = spec.shape[0]
         print('Npix,NBins')
