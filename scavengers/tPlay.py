@@ -798,6 +798,8 @@ class tplay(object):
         LrOIII[indexSF] = 1.
         LrOIII[indexAGN] = 2.
 
+
+
         LrOIII[indexBadFit] = -1.
         #LrOIII[indexBadFit2] = -2.
 
@@ -1015,5 +1017,11 @@ class tplay(object):
         hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
 
         
+        return
+
+    def binCarolloDist(self,cfg_par,lineInfo):
+
+        
+
         return
 

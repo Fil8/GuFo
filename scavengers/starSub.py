@@ -311,10 +311,9 @@ class starsub(object):
         #wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec  = tP.openTablesPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['outVorLineName'],
         #    cfg_par['general']['outVorSpectra'])
 
-        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['outVorLineName'],
-            cfg_par['general']['outVorSpectra'],workDir+cfg_par['general']['tableStarName'])
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,cfg_par['general']['outVorLineName'],
+            cfg_par['general']['outVorSpectra'],workDir+cfg_par['general']['tableStarName']
 
-        
         print(xAxis.shape,len(wave))
         data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         Stars=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
