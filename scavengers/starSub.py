@@ -309,7 +309,7 @@ class starsub(object):
         workDir = cfg_par['general']['workdir']
         
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec  = tP.openTablesPPXF(cfg_par,workDir+cfg_par['general']['outVorTableName'],
-            workDir+cfg_par['general']['outVorSpectra'])
+            cfg_par['general']['outVorSpectra'])
 
         data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         Stars=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
