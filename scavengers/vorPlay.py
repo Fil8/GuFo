@@ -286,7 +286,7 @@ class vorplay(object):
         """
         # Apply Voronoi bins
         print("Applying the Voronoi bins to data")
-        idx_inside = np.where( binNum == ubins[i] )[0]
+        #idx_inside = np.where( binNum == ubins[i] )[0]
         bin_data, bin_error, bin_flux = self.voronoi_binning( binNum, spec, espec )
         # Save Voronoi binned spectra
         self.save_vorspectra(cfg_par, bin_data, bin_error, velscale, wave)
