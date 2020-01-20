@@ -125,7 +125,7 @@ class vorplay(object):
             snr, cfg_par['vorBin']['snr'], cfg_par['vorBin']['covarNoise'])
 
         self.apply_voronoi_bins( cfg_par, binNum, specFull, noise, velscale, wave)
-        ss.makeCubesVorLine(gPar.cfg_par)
+        ss.makeCubesVorLine(cfg_par)
 
 
         return
