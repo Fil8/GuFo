@@ -122,7 +122,7 @@ class vorplay(object):
         binNum = self.define_voronoi_bins(cfg_par, x, y, signal,noise, pxSize,
             snr, cfg_par['vorBin']['snr'], cfg_par['vorBin']['covarNoise'])
 
-        self.apply_voronoi_bins(binNum, specFull, noise,velscale, wave, 'lin')
+        self.apply_voronoi_bins(cfg_par, binNum, specFull, noise,velscale, wave, 'lin')
 
         ss.makeCubesVorLine(gPar.cfg_par)
 
@@ -295,7 +295,7 @@ class vorplay(object):
 
     def voronoi_binning(self, binNum, spec, error ):
         """ Spectra belonging to the same Voronoi-bin are added. """
-        ubins     = np.unique(binNum,axis=1)
+        ubins     = np.unique(binNum)
         nbins     = len(ubins)
         npix      = spec.shape[0]
         print('Npix,NBins')
