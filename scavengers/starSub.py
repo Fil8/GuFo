@@ -308,8 +308,12 @@ class starsub(object):
         key = 'general'
         workDir = cfg_par['general']['workdir']
         
-        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec  = tP.openTablesPPXF(cfg_par,workDir+cfg_par['general']['outVorTableName'],
-            cfg_par['general']['outVorSpectra'])
+        #wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec  = tP.openTablesPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['outVorLineName'],
+        #    cfg_par['general']['outVorSpectra'])
+
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['outVorLineName'],
+            workDir+cfg_par['general']['outVorSpectra'],workDir+cfg_par['general']['tableStarName'])
+
 
         data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         Stars=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
@@ -353,43 +357,42 @@ class starsub(object):
                 tmpN = tmpN.tolist()                
                 noiseCube[:,yy[0],xx[0]] = tmpN
 
-                tmp = np.array(dataStar[indexBin][1][:])
-                tmp = tmp.tolist()
-                Stars[:,yy[0],xx[0]] = tmp
+                #tmp = np.array(dataStar[indexBin][1][:])
+                #tmp = tmp.tolist()
+                #Stars[:,yy[0],xx[0]] = tmp
 
             else:
                 pass
 
-        xxVecArr= Column(np.array(xxVec), name='PixX')
-        yyVecArr= Column(np.array(yyVec), name='PixY')
+        #xxVecArr= Column(np.array(xxVec), name='PixX')
+        #yyVecArr= Column(np.array(yyVec), name='PixY')
 
         #yyVecArr=np.array(yyVec,dtype={'names':('PixY')})
         #print(vorBinInfo.shape)
         #print(xxVecArr.shape)
 
-        t = Table(vorBinInfo)
-        t.add_column(xxVecArr,index=0)
-        t.add_column(yyVecArr,index=0) 
+        #t = Table(vorBinInfo)
+        #t.add_column(xxVecArr,index=0)
+        #t.add_column(yyVecArr,index=0) 
+        
         #vorBinInfo = np.column_stack((vorBinInfo,xxVec,yyVec))
         #vorBinInfo = np.vstack([vorBinInfo,yyVecArr])
-        tab = fits.open(workDir+cfg_par['general']['tableBinName'])
-        head = tab[0].header
+        #tab = fits.open(workDir+cfg_par['general']['tableBinName'])
+        #head = tab[0].header
         #data = tab[0].data
         #tab[1] = vorBinInfo    
 
-        empty_primary = fits.PrimaryHDU(header=head)           
+        #empty_primary = fits.PrimaryHDU(header=head)           
 
         #t2 = fits.BinTableHDU.from_columns(t,name='vorBinInfo')
-        hdul = fits.HDUList([empty_primary])      
+        #hdul = fits.HDUList([empty_primary])      
 
-        hdul.append(fits.BinTableHDU(t.as_array(), name='vorBinInfo'))
-
+        #hdul.append(fits.BinTableHDU(t.as_array(), name='vorBinInfo'))
 
         #hdul.append(t2)  
-        hdul.writeto(workDir+cfg_par['general']['outVorLineTableName'],overwrite=True)
+        #hdul.writeto(workDir+cfg_par['general']['outVorLineTableName'],overwrite=True)
 
-        outputs = cfg_par['starSub']['outputs']        
-        fits.writeto(cfg_par['general']['outVorLines'],Lines,header,overwrite=True)
+        fits.writeto(cfg_par['general']['outVorLines'],data,header,overwrite=True)
             #fits.writeto(cfg_par['general']['outNoise'],noiseCube,header,overwrite=True)
         print('''\t+---------+\n\t Line Cube saved\n\t+---------+''')     
         return 
