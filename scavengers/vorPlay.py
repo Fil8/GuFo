@@ -213,7 +213,8 @@ class vorplay(object):
         print(np.unique(binNum))
         print(len(np.where(binNum==0)[0]))
         self.save_table(cfg_par, x, y, signal, snr, binNum, np.unique(binNum), xNode, yNode, sn, nPixels, pixelsize)
-
+        print(np.unique(binNum))
+        print(len(np.where(binNum==0)[0]))
         return(binNum)
 
     def find_nearest_voronoibin(self,x, y, idx_outside, xNode, yNode):
