@@ -121,8 +121,8 @@ class vorplay(object):
         #print(np.nanmean(signal),np.nanmin(signal),np.nanmin(noise))
 #        noise = np.array([spec[:,0],noise])
         print(specFull.shape, noise.shape)
-        #binNum = self.define_voronoi_bins(cfg_par, x, y, signal,noise, pxSize,
-        #    snr, cfg_par['vorBin']['snr'], cfg_par['vorBin']['covarNoise'])
+        binNum = self.define_voronoi_bins(cfg_par, x, y, signal,noise, pxSize,
+            snr, cfg_par['vorBin']['snr'], cfg_par['vorBin']['covarNoise'])
 
         #self.apply_voronoi_bins( cfg_par, binNum, specFull, noise, velscale, wave)
         ss.makeCubesVorLine(cfg_par)
@@ -273,6 +273,7 @@ class vorplay(object):
         cols.append(fits.Column(name='YBIN',      format='D',   array=yNode_new         ))
         cols.append(fits.Column(name='SNRBIN',    format='D',   array=sn_new            ))
         cols.append(fits.Column(name='NSPAX',     format='J',   array=nPixels_new       ))
+        print(np.where(cols['ID']==0)[0])
         tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(cols))
         tbhdu.writeto(outfits_table, overwrite=True)
         fits.setval(outfits_table, "PIXSIZE", value=pixelsize)
