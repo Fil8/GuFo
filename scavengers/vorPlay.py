@@ -295,11 +295,12 @@ class vorplay(object):
 
     def voronoi_binning(self, binNum, spec, error ):
         """ Spectra belonging to the same Voronoi-bin are added. """
-        ubins     = np.unique(binNum)
+        ubins     = np.unique(binNum[1])
         nbins     = len(ubins)
         npix      = spec.shape[0]
         print('Npix,NBins')
         print(npix,nbins)
+        print(binNum.shape)
         bin_data  = np.zeros([npix,nbins])
         bin_error = np.zeros([npix,nbins])
         bin_flux  = np.zeros(nbins)
