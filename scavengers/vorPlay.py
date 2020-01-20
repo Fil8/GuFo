@@ -122,8 +122,7 @@ class vorplay(object):
         binNum = self.define_voronoi_bins(cfg_par, x, y, signal,noise, pxSize,
             snr, cfg_par['vorBin']['snr'], cfg_par['vorBin']['covarNoise'])
 
-        self.apply_voronoi_bins(cfg_par, binNum, specFull, noise,velscale, wave, 'lin')
-
+        self.apply_voronoi_bins( cfg_par, binNum, specFull, noise,velscale, wave)
         ss.makeCubesVorLine(gPar.cfg_par)
 
 
@@ -279,7 +278,7 @@ class vorplay(object):
         print("Writing: "+outfits_table)
 
 
-    def apply_voronoi_bins(self,cfg_par, binNum, spec, espec, velscale, wave):
+    def apply_voronoi_bins(self, cfg_par, binNum, spec, espec, velscale, wave):
         """
         The constructed Voronoi-binning is applied to the underlying spectra. The
         resulting Voronoi-binned spectra are saved to disk. 
