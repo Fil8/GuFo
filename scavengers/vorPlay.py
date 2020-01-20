@@ -210,6 +210,8 @@ class vorplay(object):
         #binNum_long[idx_outside] = -1 * binNum_outside
 
         # Save bintable: data for *ALL* spectra inside and outside of the Voronoi region!
+        print(np.unique(binNum))
+        print(len(np.where(binNum==0)[0]))
         self.save_table(cfg_par, x, y, signal, snr, binNum, np.unique(binNum), xNode, yNode, sn, nPixels, pixelsize)
 
         return(binNum)
