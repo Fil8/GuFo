@@ -273,7 +273,7 @@ class vorplay(object):
         cols.append(fits.Column(name='YBIN',      format='D',   array=yNode_new         ))
         cols.append(fits.Column(name='SNRBIN',    format='D',   array=sn_new            ))
         cols.append(fits.Column(name='NSPAX',     format='J',   array=nPixels_new       ))
-        print(np.where(cols[0]==0)[0])
+        print(np.sort(cols[0]))
         tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(cols))
         tbhdu.writeto(outfits_table, overwrite=True)
         fits.setval(outfits_table, "PIXSIZE", value=pixelsize)
