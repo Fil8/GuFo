@@ -165,6 +165,7 @@ class starsub(object):
 
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['tableBinName'],
             workDir+cfg_par['general']['tableAllSpecName'],workDir+cfg_par['general']['tableStarName'])
+        
 
         lineInfo = tP.openLineList(cfg_par)
 
@@ -304,10 +305,11 @@ class starsub(object):
 
     def makeCubesVorLine(self,cfg_par):
 
+        key = 'general'
         workDir = cfg_par['general']['workdir']
-
-        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openTablesPPXF(cfg_par,workDir+cfg_par['general']['outVorLineName'],
-            workDir+cfg_par['general']['outVorSpectra'],workDir+cfg_par['general']['tableStarName'])
+        
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec  = tP.openTablesPPXF(cfg_par,workDir+cfg_par['general']['outVorTableName'],
+            workDir+cfg_par['general']['outVorSpectra'])
 
         data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         Stars=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
