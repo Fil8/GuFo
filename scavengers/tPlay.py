@@ -133,8 +133,8 @@ class tplay(object):
 
         shapeY = (yMax-yMin)/head['PIXSIZE']
 
-        xAxis = (np.linspace(1, shapeX+1, shapeX+1)-head['CRPIX1']+1) *head['PIXSIZE']
-        yAxis = (np.linspace(1, shapeY+1, shapeY+1)-head['CRPIX2']+1) *head['PIXSIZE']
+        xAxis = np.arange(xMin, xMax,head['PIXSIZE'])
+        yAxis = np.arange(yMin, yMax,head['PIXSIZE'])
         
         tab = fits.open(tableSpec)
         tab.info()
@@ -209,9 +209,9 @@ class tplay(object):
 
         shapeY = (yMax-yMin)/head['PIXSIZE']
 
-        xAxis = (np.linspace(1, shapeX+1, shapeX+1)-head['CRPIX1']+2) *head['PIXSIZE']
-        yAxis = (np.linspace(1, shapeY+1, shapeY+1)-head['CRPIX2']+2) *head['PIXSIZE']
-
+        xAxis = np.arange(xMin, xMax,head['PIXSIZE'])
+        yAxis = np.arange(yMin, yMax,head['PIXSIZE'])
+        print(xAxis,yAxis)
         tab = fits.open(tableSpec)
         dataSpec = tab[1].data
         specExp = tab[2].data

@@ -44,6 +44,7 @@ class vorplay(object):
         #sys.exit(0)
         #open datacube
         f = fits.open(cfg_par['general']['outLines'])
+        print(cfg_par['general']['outLines'])
         hh = f[0].header
         dd = f[0].data
         #s     = np.shape(dd)

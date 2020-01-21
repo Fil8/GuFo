@@ -69,9 +69,9 @@ class gufo(object):
                 elif self.cfg_par['starSub'].get('scaleHow',None) == 'median':
                     nameEnd = 'PixMed.fits'
                 self.cfg_par['general']['outCube'] = cubeDir+'CubePix'+nameEnd
-                self.cfg_par['general']['outStars'] = cubeDir+'StarCubePix'+nameEnd
-                self.cfg_par['general']['outLines'] = cubeDir+'LineCubePix'+nameEnd
-                self.cfg_par['general']['outNoise'] = cubeDir+'noiseCubePix'+nameEnd
+                self.cfg_par['general']['outStars'] = cubeDir+'StarCube'+nameEnd
+                self.cfg_par['general']['outLines'] = cubeDir+'LineCube'+nameEnd
+                self.cfg_par['general']['outNoise'] = cubeDir+'noiseCube'+nameEnd
             
             elif self.cfg_par['starSub'].get('scaleFlux',False) == False:
                 self.cfg_par['general']['outCube'] = cubeDir+'CubeCubeVor.fits'
@@ -85,8 +85,8 @@ class gufo(object):
                     nameEnd = 'PixMean.fits'
                 elif self.cfg_par['starSub'].get('scaleHow',None) == 'median':
                     nameEnd = 'PixMed.fits'
-                self.cfg_par['general']['outLines'] = cubeDir+'LineCubePix'+nameEnd
-                self.cfg_par['general']['outNoise'] = cubeDir+'noiseCubePix'+nameEnd
+                self.cfg_par['general']['outLines'] = cubeDir+'LineCube'+nameEnd
+                self.cfg_par['general']['outNoise'] = cubeDir+'noiseCube'+nameEnd
             elif self.cfg_par['starSub'].get('scaleFlux',False) == False:
                 self.cfg_par['general']['outLines'] = cubeDir+'LineCubeVor.fits'
                 self.cfg_par['general']['outNoise'] = cubeDir+'noiseCubeVor.fits'

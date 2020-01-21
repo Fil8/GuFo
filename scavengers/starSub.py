@@ -391,8 +391,8 @@ class starsub(object):
         #hdul.append(t2)  
         #hdul.writeto(workDir+cfg_par['general']['outVorLineTableName'],overwrite=True)
 
-        fits.writeto(cfg_par['general']['outLines'],data,header,overwrite=True)
-        fits.writeto(cfg_par['general']['outNoise'],noiseCube,header,overwrite=True)
+        fits.writeto(cfg_par['general']['outVorLines'],data,header,overwrite=True)
+        fits.writeto(cfg_par['general']['outVorNoise'],noiseCube,header,overwrite=True)
         print('''\t+---------+\n\t Line Cube saved\n\t+---------+''')     
         return 
     
