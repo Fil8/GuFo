@@ -255,7 +255,7 @@ class vorplay(object):
         Save all relevant information about the Voronoi binning to disk. In
         particular, this allows to later match spaxels and their corresponding bins. 
         """
-        outfits_table = cfg_par['general']['outVorLineName']
+        outfits_table = cfg_par['general']['outVorLineTableName']
 
         # Expand data to spaxel level
         xNode_new = np.zeros( len(x) )
