@@ -182,7 +182,7 @@ class starsub(object):
 
         hdu = fits.PrimaryHDU(data=dataSub,header=header)
 
-        f = fits.open(cfg_par['general']['inputCube'])
+        f = fits.open(workDir+cfg_par['general']['inputCube'])
         hh = f[0].header
         dd = f[0].data
 
@@ -276,7 +276,7 @@ class starsub(object):
 
 
         #hdul.append(t2)  
-        hdul.writeto(workDir+cfg_par['general']['outVorTableName'],overwrite=True)
+        hdul.writeto(cfg_par['general']['outVorTableName'],overwrite=True)
 
         #Lines = np.subtract(data,Stars)
 
@@ -311,9 +311,9 @@ class starsub(object):
         #wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec  = tP.openTablesPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['outVorLineName'],
         #    cfg_par['general']['outVorSpectra'])
 
-        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineName'],
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
             cfg_par['general']['outVorSpectra'])
-        print(vorBinInfo['X'])
+
         data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         noiseCube=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         
@@ -327,7 +327,7 @@ class starsub(object):
         xxVec = []
         yyVec = []
         #create AllSpectra datacube
-        print(xAxis,yAxis)
+
         for i in range(0,vorBinInfo['ID'].shape[0]):
             #print xAxis
             #print yAxis
@@ -391,7 +391,7 @@ class starsub(object):
         #hdul.append(t2)  
         #hdul.writeto(workDir+cfg_par['general']['outVorLineTableName'],overwrite=True)
 
-        fits.writeto(cfg_par['general']['outVorLines'],data,header,overwrite=True)
+        fits.writeto(cfg_par['general']['outLines'],data,header,overwrite=True)
         fits.writeto(cfg_par['general']['outNoise'],noiseCube,header,overwrite=True)
         print('''\t+---------+\n\t Line Cube saved\n\t+---------+''')     
         return 

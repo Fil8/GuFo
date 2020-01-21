@@ -36,14 +36,14 @@ class vorplay(object):
         #diffusion = 1e-5
         
         #open table for bins
-        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo  = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['outVorTableName'],
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo  = tP.openTablesPPXF(cfg_par,cfg_par[key]['outVorTableName'],
             workDir+cfg_par[key]['tableSpecName'])
         pxSize *=3600.
         cvel      = 299792.458
         velscale  = (wave[1]-wave[0])*cvel/np.mean(wave)
         #sys.exit(0)
         #open datacube
-        f = fits.open(cfg_par['general']['cubeDir']+cfg_par['general']['dataCubeName'])
+        f = fits.open(cfg_par['general']['outLines'])
         hh = f[0].header
         dd = f[0].data
         #s     = np.shape(dd)

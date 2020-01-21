@@ -1,15 +1,12 @@
 general:
   __helpstr: General INPUT parameters for gaussFit
-  workdir: '/Users/maccagni/Projects/MFS/FornaxA/MUSE/cubes/results/FornaxE_4750-6800-v100/'
-  runName: 'run'
+  workdir: '/Users/maccagni/Projects/MFS/FornaxA/MUSE/cubes/results/FornaxE_4750-6800-v402/'
+  runName: 'runMP'
+  inputCube:  'FornaxESmall.fits' # outputs will be stored here
   tableBinName: 'FornaxE_table.fits' # name of continuum image (assumed stored in workdir)
   tableSpecName: 'FornaxE_VorSpectra.fits' # name of datacube (assumed stored in workdir)
-  tableAllSpecName: 'FornaxE_AllSpectra.fits' # name of datacube (assumed stored in workdir)
+  tableAllSpecName: 'FornaxE_AllSpectra.fits'
   tableStarName:  'FornaxE_ppxf-bestfit.fits'
-  outVorTableName: 'FornaxE_GuFoVorTable.fits' # name of continuum image (assumed stored in workdir)
-  outLineVorTableName: 'FornaxE_GuFoLineVorTable.fits' 
-  inputCube:  'FornaxE_Small.fits' # outputs will be stored here
-  dataCubeName:  'lineCube.fits' # outputs will be stored here
   lineListName: 'lineList.txt'
   cleanTable: False
   redshift: 0.00587
