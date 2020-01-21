@@ -38,7 +38,7 @@ class vorplay(object):
         #open table for bins
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo  = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['outVorTableName'],
             workDir+cfg_par[key]['tableSpecName'])
-        
+        pxSize *=3600.
         cvel      = 299792.458
         velscale  = (wave[1]-wave[0])*cvel/np.mean(wave)
         #sys.exit(0)
@@ -106,8 +106,15 @@ class vorplay(object):
         noise    = noise[idx_good]
         x        = x[idx_good]
         y        = y[idx_good]
-        signal   = np.nanmax(spec,axis=0)
+        signal   = np.nanmean(spec,axis=0)
         
+        #apply SNR threshold
+
+        #idx_snr = np.where( np.abs(snr - 0.2) < 2. )[0]
+        #meanmin_signal = np.mean( signal[idx_snr] )
+        #idx_inside  = np.where( signal >= meanmin_signal )[0]
+        #idx_outside = np.where( signal < meanmin_signal )[0]        
+
         #sys.exit(0)       
         #noise = np.nanmean([np.sum(np.nanstd(spec[idxWaveLeftInf:idxWaveLeftSup,:]),np.nanstd(spec[idxWaveRightInf:idxWaveRightSup,:]))])
         #estimate the errors with the der_snr algorithm
@@ -120,14 +127,11 @@ class vorplay(object):
         #'signal':signal, 'noise':noise, 'velscale':velscale, 'pixelsize':pxSize}    
         #print(np.nanmean(signal),np.nanmin(signal),np.nanmin(noise))
 #        noise = np.array([spec[:,0],noise])
-        print(specFull.shape, noise.shape)
         binNum = self.define_voronoi_bins(cfg_par, x, y, signal,noise, pxSize,
             snr, cfg_par['vorBin']['snr'], cfg_par['vorBin']['covarNoise'])
 
         self.apply_voronoi_bins( cfg_par, binNum, specFull, noise, velscale, wave)
-        ss.makeCubesVorLine(cfg_par)
-
-
+    
         return
 
     def sn_func(self,index, signal=None, noise=None, covar_vor=0.00 ):
@@ -212,6 +216,7 @@ class vorplay(object):
         # Save bintable: data for *ALL* spectra inside and outside of the Voronoi region!
         print(np.unique(binNum))
         print(len(np.where(binNum==0)[0]))
+        print(len(x))
         self.save_table(cfg_par, x, y, signal, snr, binNum, np.unique(binNum), xNode, yNode, sn, nPixels, pixelsize)
         print(np.unique(binNum))
         print(len(np.where(binNum==0)[0]))
@@ -257,6 +262,8 @@ class vorplay(object):
         yNode_new = np.zeros( len(x) )
         sn_new = np.zeros( len(x) )
         nPixels_new = np.zeros( len(x) )
+        print(np.nansum(nPixels))
+        print('NspaxelSumAbove')
         for i in range( len(ubins) ):
             idx = np.where( ubins[i] == np.abs(binNum_new) )[0]
             xNode_new[idx] = xNode[i]
@@ -265,13 +272,13 @@ class vorplay(object):
             nPixels_new[idx] = nPixels[i]
 
         cols = []
-        print(np.arange(len(x)),binNum_new)
+        print(np.arange(len(x)),len(binNum_new),len(snr),len(signal))
         cols.append(fits.Column(name='ID',        format='J',   array=np.arange(len(x)) ))
         cols.append(fits.Column(name='BIN_ID',    format='J',   array=binNum_new        ))
         cols.append(fits.Column(name='X',         format='D',   array=x                 ))
         cols.append(fits.Column(name='Y',         format='D',   array=y                 ))
         cols.append(fits.Column(name='FLUX',      format='D',   array=signal            ))
-        cols.append(fits.Column(name='SNR',       format='D',   array=snr               ))
+        #cols.append(fits.Column(name='SNR',       format='D',   array=snr               ))
         cols.append(fits.Column(name='XBIN',      format='D',   array=xNode_new         ))
         cols.append(fits.Column(name='YBIN',      format='D',   array=yNode_new         ))
         cols.append(fits.Column(name='SNRBIN',    format='D',   array=sn_new            ))
@@ -283,7 +290,7 @@ class vorplay(object):
         fits.setval(outfits_table, "PIXSIZE", value=pixelsize)
 
         print("Writing: "+outfits_table)
-
+        return
 
     def apply_voronoi_bins(self, cfg_par, binNum, spec, espec, velscale, wave):
         """

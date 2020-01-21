@@ -79,6 +79,7 @@ class gufo(object):
         if self.cfg_par['vorBin'].get('enable',False) == True:
             self.cfg_par['general']['outVorSpectra'] = self.cfg_par['general']['workdir']+'LineVorSpectra.fits'
             self.cfg_par['general']['outVorLines'] = cubeDir+'LineVorCube.fits'
+            self.cfg_par['general']['outVorNoise'] = cubeDir+'NoiseVorCube.fits'
             self.cfg_par['general']['outVorLineName'] = self.cfg_par['general']['workdir']+'GuFoLineVorTable.fits'
 
         outTableName = self.cfg_par['general']['runNameDir']+'gPlayOut.fits'

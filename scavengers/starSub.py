@@ -311,13 +311,10 @@ class starsub(object):
         #wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec  = tP.openTablesPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['outVorLineName'],
         #    cfg_par['general']['outVorSpectra'])
 
-        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,cfg_par['general']['outVorLineName'],
-            cfg_par['general']['outVorSpectra'],workDir+cfg_par['general']['tableStarName'])
-
-        print(xAxis.shape[0],len(wave))
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineName'],
+            cfg_par['general']['outVorSpectra'])
+        print(vorBinInfo['X'])
         data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
-        Stars=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
-        Lines=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         noiseCube=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         
         header = self.makeHeader(cfg_par, wave, pxSize)
@@ -330,9 +327,12 @@ class starsub(object):
         xxVec = []
         yyVec = []
         #create AllSpectra datacube
+        print(xAxis,yAxis)
         for i in range(0,vorBinInfo['ID'].shape[0]):
             #print xAxis
             #print yAxis
+            indexBin =  vorBinInfo['BIN_ID'][i]
+
             indexX = ((xAxis <= (np.round(vorBinInfo['X'][i],4)+diffusion)) & 
                       ((np.round(vorBinInfo['X'][i],4)-diffusion) < xAxis))
             
@@ -341,11 +341,10 @@ class starsub(object):
             
             xx = np.where(indexX)[0]
             yy = np.where(indexY)[0]
+            #print(indexBin,xx,yy,vorBinInfo['X'][i],vorBinInfo['Y'][i],indexX)
 
             xxVec.append(xx[0])
             yyVec.append(yy[0])
-            indexBin =  vorBinInfo['BIN_ID'][i]
-            
             if indexBin>0 and xx and yy: 
                    
                 tmpD = np.array(dataSpec[indexBin][0][:])
@@ -393,7 +392,7 @@ class starsub(object):
         #hdul.writeto(workDir+cfg_par['general']['outVorLineTableName'],overwrite=True)
 
         fits.writeto(cfg_par['general']['outVorLines'],data,header,overwrite=True)
-            #fits.writeto(cfg_par['general']['outNoise'],noiseCube,header,overwrite=True)
+        fits.writeto(cfg_par['general']['outNoise'],noiseCube,header,overwrite=True)
         print('''\t+---------+\n\t Line Cube saved\n\t+---------+''')     
         return 
     

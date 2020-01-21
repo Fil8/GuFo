@@ -205,6 +205,8 @@ def main (argv):
         print ('\n\t************* --- GuFo : vorBin --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
         vor.vorBin(gPar.cfg_par)
+        print ('\n\t************* --- GuFo : vorLineCube --- **************\n')
+        ss.makeCubesVorLine(gPar.cfg_par)
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 

@@ -187,6 +187,42 @@ class tplay(object):
 
         return wave,xAxis,yAxis,pxSize,noiseBin,dataTab,dataSpec,dataStar
 
+    def openVorLineOutput(self,cfg_par,tableBin,tableSpec):
+        
+        crPix1=cfg_par['starSub']['pixX']
+        crPix2=cfg_par['starSub']['pixY']
+      
+        tab = fits.open(tableBin)
+        head = tab[0].header
+        headTab = tab[1].header
+        dataTab = tab[1].data    
+        head['CRPIX1'] = crPix1
+        head['CRPIX2'] = crPix2 
+        head['PIXSIZE'] = head['PIXSIZE']
+        xMin = np.min(dataTab['X'])
+        xMax = np.max(dataTab['X'])
+
+        shapeX = (xMax-xMin)/head['PIXSIZE']
+
+        yMin = np.min(dataTab['Y'])
+        yMax = np.max(dataTab['Y'])
+
+        shapeY = (yMax-yMin)/head['PIXSIZE']
+
+        xAxis = (np.linspace(1, shapeX+1, shapeX+1)-head['CRPIX1']+2) *head['PIXSIZE']
+        yAxis = (np.linspace(1, shapeY+1, shapeY+1)-head['CRPIX2']+2) *head['PIXSIZE']
+
+        tab = fits.open(tableSpec)
+        dataSpec = tab[1].data
+        specExp = tab[2].data
+        wave = [item for t in specExp for item in t] 
+
+        pxSize = head['PIXSIZE']/3600.
+
+        noiseBin = dataSpec['ESPEC']
+
+        return wave,xAxis,yAxis,pxSize,noiseBin,dataTab,dataSpec
+
     def makeInputArrays(self,cfg_par,lineInfo, Xdim,Ydim):
 
         binID = np.zeros([Ydim,Xdim],dtype=int)
@@ -1021,7 +1057,7 @@ class tplay(object):
 
     def binCarolloDist(self,cfg_par,lineInfo):
 
-        
+
 
         return
 
