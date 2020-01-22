@@ -5,6 +5,7 @@ from astropy.io import fits
 from astropy.table import Table, Column
 from vorbin.voronoi_2d_binning import voronoi_2d_binning
 import functools
+import scipy.spatial.distance as dist
 
 from scavengers import tPlay, cvPlay, starSub
 
@@ -88,8 +89,8 @@ class vorplay(object):
                 stdRight[j,i] = np.nanstd(dd[idxWaveRightInf:idxWaveRightSup,j,i])
                 noise[j,i] = np.divide(np.nansum([stdLeft[j,i], stdRight[j,i]]),2.)       
 
+        print(np.sum(peak),np.sum(noise))
         snr = np.divide(peak,noise)
-        #
 
         snr = np.reshape(snr,[dd.shape[1]*dd.shape[2]])
         noise = np.reshape(noise,[dd.shape[1]*dd.shape[2]])
@@ -100,20 +101,20 @@ class vorplay(object):
         y     = np.reshape(y,[dd.shape[1]*dd.shape[2]])
 
         # Removing obviously defective pixels: Remove spaxel with any nan or negative values
-        idx_good = np.where( np.median(spec, axis=0) > 0.0 )[0]
-        spec     = spec[:,idx_good]
-        specFull     = specFull[:,idx_good]
+        #idx_good = np.where( np.median(spec, axis=0) > 0.0 )[0]
+        #spec     = spec[:,idx_good]
+        #specFull     = specFull[:,idx_good]
 
-        noise    = noise[idx_good]
-        x        = x[idx_good]
-        y        = y[idx_good]
+        #noise    = noise[idx_good]
+        #x        = x[idx_good]
+        #y        = y[idx_good]
         signal   = np.nanmean(spec,axis=0)
-        
+        print(signal.shape)
         #apply SNR threshold
-
-        #idx_snr = np.where( np.abs(snr - 0.2) < 2. )[0]
-        #meanmin_signal = np.mean( signal[idx_snr] )
-        #idx_inside  = np.where( signal >= meanmin_signal )[0]
+        print(np.nansum(snr))
+        idx_inside = np.where( snr >= 1. )[0]
+        idx_outside = np.where( snr < 1. )[0]
+        
         #idx_outside = np.where( signal < meanmin_signal )[0]        
 
         #sys.exit(0)       
@@ -129,9 +130,9 @@ class vorplay(object):
         #print(np.nanmean(signal),np.nanmin(signal),np.nanmin(noise))
 #        noise = np.array([spec[:,0],noise])
         binNum = self.define_voronoi_bins(cfg_par, x, y, signal,noise, pxSize,
-            snr, cfg_par['vorBin']['snr'], cfg_par['vorBin']['covarNoise'])
+            snr, cfg_par['vorBin']['snr'], cfg_par['vorBin']['covarNoise'],idx_inside,idx_outside)
 
-        self.apply_voronoi_bins( cfg_par, binNum, specFull, noise, velscale, wave)
+        self.apply_voronoi_bins( cfg_par, binNum, specFull[:,idx_inside], noise[:,idx_inside], velscale, wave)
     
         return
 
@@ -158,7 +159,7 @@ class vorplay(object):
         return(sn)
 
 
-    def define_voronoi_bins(self, cfg_par, x, y, signal, noise, pixelsize, snr, target_snr, covar_vor):
+    def define_voronoi_bins(self, cfg_par, x, y, signal, noise, pixelsize, snr, target_snr, covar_vor,idx_inside,idx_outside):
         """
         This function applies the Voronoi-binning algorithm of Cappellari & Copin
         2003 (ui.adsabs.harvard.edu/?#abs/2003MNRAS.342..345C) to the data. It can
@@ -177,8 +178,11 @@ class vorplay(object):
         try:
             print('\n\t *********** --- GuFo: VorBinning --- ***********\n')
             # Do the Voronoi binning
-            binNum, xNode, yNode, xBar, yBar, sn, nPixels, _ = voronoi_2d_binning(x, y,
-                signal, noise, target_snr, plot=False, quiet=True, pixelsize=pixelsize,
+            print(snr.shape,idx_inside.shape)
+            print(len(x),len(signal),len(noise))
+
+            binNum, xNode, yNode, xBar, yBar, sn, nPixels, _ = voronoi_2d_binning(x[idx_inside], y[idx_inside],
+                signal[idx_inside], noise[idx_inside], target_snr, plot=False, quiet=True, pixelsize=pixelsize,
                 sn_func=sn_func_covariances )
         
             # Handle common exceptions
@@ -208,17 +212,22 @@ class vorplay(object):
         # Generate extended binNum-list: 
         #   Positive binNum indicate the Voronoi bin of the spaxel (for spaxels inside the Voronoi region)
         #   Negative binNum indicate the nearest Voronoi bin of the spaxel (for spaxels outside of the Voronoi region)
-        #ubins = np.unique(binNum)
-        #nbins = len(ubins)
-        #binNum_long = np.zeros( len(x) ); binNum_long[:] = np.nan
-        #binNum_long[idx_inside]  = binNum
-        #binNum_long[idx_outside] = -1 * binNum_outside
+        binNum_outside = self.find_nearest_voronoibin( x, y, idx_outside, xNode, yNode )
+
+        # Generate extended binNum-list: 
+        #   Positive binNum indicate the Voronoi bin of the spaxel (for spaxels inside the Voronoi region)
+        #   Negative binNum indicate the nearest Voronoi bin of the spaxel (for spaxels outside of the Voronoi region)
+        ubins =np.unique(binNum)
+        nbins = len(ubins)
+        binNum_long = np.zeros( len(x) ); binNum_long[:] = np.nan
+        binNum_long[idx_inside]  = binNum
+        binNum_long[idx_outside] = -1 * binNum_outside
 
         # Save bintable: data for *ALL* spectra inside and outside of the Voronoi region!
         print(np.unique(binNum))
         print(len(np.where(binNum==0)[0]))
         print(len(x))
-        self.save_table(cfg_par, x, y, signal, snr, binNum, np.unique(binNum), xNode, yNode, sn, nPixels, pixelsize)
+        self.save_table(cfg_par, x, y, signal, snr, binNum_long, np.unique(ubins), xNode, yNode, sn, nPixels, pixelsize)
         print(np.unique(binNum))
         print(len(np.where(binNum==0)[0]))
         return(binNum)
@@ -279,7 +288,7 @@ class vorplay(object):
         cols.append(fits.Column(name='X',         format='D',   array=x                 ))
         cols.append(fits.Column(name='Y',         format='D',   array=y                 ))
         cols.append(fits.Column(name='FLUX',      format='D',   array=signal            ))
-        #cols.append(fits.Column(name='SNR',       format='D',   array=snr               ))
+        cols.append(fits.Column(name='SNR',       format='D',   array=snr               ))
         cols.append(fits.Column(name='XBIN',      format='D',   array=xNode_new         ))
         cols.append(fits.Column(name='YBIN',      format='D',   array=yNode_new         ))
         cols.append(fits.Column(name='SNRBIN',    format='D',   array=sn_new            ))

@@ -210,7 +210,7 @@ class tplay(object):
         shapeY = (yMax-yMin)/head['PIXSIZE']
 
         xAxis = np.arange(xMin, xMax,head['PIXSIZE'])
-        yAxis = np.arange(yMin, yMax,head['PIXSIZE'])
+        yAxis = np.arange(yMin, yMax+head['PIXSIZE'],head['PIXSIZE'])
         print(xAxis,yAxis)
         tab = fits.open(tableSpec)
         dataSpec = tab[1].data

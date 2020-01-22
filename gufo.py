@@ -95,7 +95,7 @@ class gufo(object):
             self.cfg_par['general']['outVorSpectra'] = self.cfg_par['general']['workdir']+'GuFo_LineVorSpectra.fits'
             self.cfg_par['general']['outVorLineTableName'] = self.cfg_par['general']['workdir']+'GuFo_LineVorTable.fits'
             self.cfg_par['general']['outVorLines'] = cubeDir+'LineVor.fits'
-            self.cfg_par['general']['outNoise'] = cubeDir+'NoiseVor.fits'
+            self.cfg_par['general']['outVorNoise'] = cubeDir+'NoiseVor.fits'
 
 
 
