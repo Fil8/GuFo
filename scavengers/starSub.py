@@ -314,8 +314,8 @@ class starsub(object):
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
             cfg_par['general']['outVorSpectra'])
 
-        data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
-        noiseCube=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
+        data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])*np.nan
+        noiseCube=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])*np.nan
         
         header = self.makeHeader(cfg_par, wave, pxSize)
 
@@ -348,7 +348,7 @@ class starsub(object):
 
 
 
-            if  xx and yy and vorBinInfo['SNR'][i]>0.0:
+            if  xx and yy and vorBinInfo['BIN_ID'][i]>0.0:
                 
                 tmpD = np.array(dataSpec[indexBin][0][:])
                 tmp = tmpD.tolist()
@@ -365,8 +365,12 @@ class starsub(object):
 
             else:
                 pass
-        idx = np.where(data==0.0)[0]
-        data[idx] = np.nan
+        
+        #idx = np.where(data==0.0)[0]
+        #data[idx] = np.nan
+        
+
+
         #xxVecArr= Column(np.array(xxVec), name='PixX')
         #yyVecArr= Column(np.array(yyVec), name='PixY')
 
