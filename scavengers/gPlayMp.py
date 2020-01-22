@@ -400,8 +400,9 @@ def main(cfg_par):
     diffusion = 1e-5
     
     #open table for bins
-    wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['outVorTableName'],
-        workDir+cfg_par[key]['tableSpecName'])
+    wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
+        cfg_par['general']['outVorSpectra'])
+
     #open datacube
     f = fits.open(cfg_par['general']['outVorLines'])
     hh = f[0].header
