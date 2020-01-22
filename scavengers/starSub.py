@@ -331,7 +331,7 @@ class starsub(object):
         for i in range(0,vorBinInfo['ID'].shape[0]):
             #print xAxis
             #print yAxis
-            indexBin =  vorBinInfo['BIN_ID'][i]
+            indexBin =  np.abs(vorBinInfo['BIN_ID'][i])
 
             indexX = ((xAxis <= (np.round(vorBinInfo['X'][i],4)+diffusion)) & 
                       ((np.round(vorBinInfo['X'][i],4)-diffusion) < xAxis))
@@ -345,8 +345,11 @@ class starsub(object):
 
             xxVec.append(xx[0])
             yyVec.append(yy[0])
-            if indexBin>0 and xx and yy: 
-                   
+
+
+
+            if  xx and yy and vorBinInfo['SNR'][i]>0.0:
+                
                 tmpD = np.array(dataSpec[indexBin][0][:])
                 tmp = tmpD.tolist()
                 data[:,yy[0],xx[0]] = tmp
@@ -362,7 +365,8 @@ class starsub(object):
 
             else:
                 pass
-
+        idx = np.iszero(data)
+        data[idx] = np.nan
         #xxVecArr= Column(np.array(xxVec), name='PixX')
         #yyVecArr= Column(np.array(yyVec), name='PixY')
 

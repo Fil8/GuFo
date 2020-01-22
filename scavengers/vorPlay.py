@@ -284,7 +284,7 @@ class vorplay(object):
             nPixels_new[idx] = nPixels[i]
 
         cols = []
-        print(np.arange(len(x)),len(binNum_new),len(snr),len(signal))
+
         cols.append(fits.Column(name='ID',        format='J',   array=np.arange(len(x)) ))
         cols.append(fits.Column(name='BIN_ID',    format='J',   array=binNum_new        ))
         cols.append(fits.Column(name='X',         format='D',   array=x                 ))
@@ -295,8 +295,7 @@ class vorplay(object):
         cols.append(fits.Column(name='YBIN',      format='D',   array=yNode_new         ))
         cols.append(fits.Column(name='SNRBIN',    format='D',   array=sn_new            ))
         cols.append(fits.Column(name='NSPAX',     format='J',   array=nPixels_new       ))
-        print(cols[0])
-        print(cols)
+
         tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(cols))
         tbhdu.writeto(outfits_table, overwrite=True)
         fits.setval(outfits_table, "PIXSIZE", value=pixelsize)
