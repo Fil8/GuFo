@@ -44,9 +44,8 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
     lineInfo = tP.openLineList(cfg_par)
     diffusion = 1e-5
     
-    #open table for bins
-    wave,xAxis,yAxis,pxSize,noiseBin,vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par[key]['outVorTableName'],
-        workDir+cfg_par[key]['tableSpecName'],workDir+cfg_par['general']['tableStarName'])
+    wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
+        cfg_par['general']['outVorSpectra'])
 
     lambdaMin = np.log(cfg_par['gFit']['lambdaMin'])
     lambdaMax = np.log(cfg_par['gFit']['lambdaMax'])
@@ -404,7 +403,7 @@ def main(cfg_par):
     wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['outVorTableName'],
         workDir+cfg_par[key]['tableSpecName'])
     #open datacube
-    f = fits.open(cfg_par[key]['cubeDir']+cfg_par[key]['dataCubeName'])
+    f = fits.open(cfg_par['general']['outVorLines'])
     hh = f[0].header
     dd = f[0].data
     

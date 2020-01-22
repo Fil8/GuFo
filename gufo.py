@@ -91,11 +91,11 @@ class gufo(object):
                 self.cfg_par['general']['outLines'] = cubeDir+'LineCubeVor.fits'
                 self.cfg_par['general']['outNoise'] = cubeDir+'noiseCubeVor.fits'
 
-        if self.cfg_par['vorBin'].get('enable',False) == True:
-            self.cfg_par['general']['outVorSpectra'] = self.cfg_par['general']['workdir']+'GuFo_LineVorSpectra.fits'
-            self.cfg_par['general']['outVorLineTableName'] = self.cfg_par['general']['workdir']+'GuFo_LineVorTable.fits'
-            self.cfg_par['general']['outVorLines'] = cubeDir+'LineVor.fits'
-            self.cfg_par['general']['outVorNoise'] = cubeDir+'NoiseVor.fits'
+        
+        self.cfg_par['general']['outVorSpectra'] = self.cfg_par['general']['workdir']+'GuFo_LineVorSpectra.fits'
+        self.cfg_par['general']['outVorLineTableName'] = self.cfg_par['general']['workdir']+'GuFo_LineVorTable.fits'
+        self.cfg_par['general']['outVorLines'] = cubeDir+'LineVor.fits'
+        self.cfg_par['general']['outVorNoise'] = cubeDir+'NoiseVor.fits'
 
         outTableName = self.cfg_par['general']['runNameDir']+'gPlayOut.fits'
 
