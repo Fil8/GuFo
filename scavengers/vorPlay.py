@@ -108,7 +108,9 @@ class vorplay(object):
         #noise    = noise[idx_good]
         #x        = x[idx_good]
         #y        = y[idx_good]
-        signal   = np.nanmean(spec,axis=0)
+        #signal   = np.nanmean(spec,axis=0)
+        signal   = np.reshape(peak,[dd.shape[1]*dd.shape[2]])
+
         print(signal.shape)
         #apply SNR threshold
         print(np.nansum(snr))
@@ -131,8 +133,8 @@ class vorplay(object):
 #        noise = np.array([spec[:,0],noise])
         binNum = self.define_voronoi_bins(cfg_par, x, y, signal,noise, pxSize,
             snr, cfg_par['vorBin']['snr'], cfg_par['vorBin']['covarNoise'],idx_inside,idx_outside)
-
-        self.apply_voronoi_bins( cfg_par, binNum, specFull[:,idx_inside], noise[:,idx_inside], velscale, wave)
+        print(specFull.shape,noise.shape,idx_inside.shape)
+        self.apply_voronoi_bins( cfg_par, binNum, specFull[:,idx_inside], noise[idx_inside], velscale, wave)
     
         return
 
