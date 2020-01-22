@@ -365,7 +365,7 @@ class starsub(object):
 
             else:
                 pass
-        idx = np.iszero(data)
+        idx = np.where(data==0.0)[0]
         data[idx] = np.nan
         #xxVecArr= Column(np.array(xxVec), name='PixX')
         #yyVecArr= Column(np.array(yyVec), name='PixY')
