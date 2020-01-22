@@ -106,7 +106,7 @@ class vorplay(object):
         #noise    = noise[idx_good]
         #x        = x[idx_good]
         #y        = y[idx_good]
-        signal   = np.nanpeak(spec,axis=0)
+        signal   = np.nanmedian(spec,axis=0)
         #signal   = np.reshape(peak,[dd.shape[1]*dd.shape[2]])
 
         #apply SNR threshold
