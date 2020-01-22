@@ -366,7 +366,33 @@ class starsub(object):
         
         #idx = np.where(data==0.0)[0]
         #data[idx] = np.nan
-        
+        xxVecArr= Column(np.array(xxVec), name='PixX')
+        yyVecArr= Column(np.array(yyVec), name='PixY')
+
+        #yyVecArr=np.array(yyVec,dtype={'names':('PixY')})
+        #print(vorBinInfo.shape)
+        #print(xxVecArr.shape)
+
+        t = Table(vorBinInfo)
+        t.add_column(xxVecArr,index=0)
+        t.add_column(yyVecArr,index=0) 
+        #vorBinInfo = np.column_stack((vorBinInfo,xxVec,yyVec))
+        #vorBinInfo = np.vstack([vorBinInfo,yyVecArr])
+        tab = fits.open(workDir+cfg_par['general']['tableBinName'])
+        head = tab[0].header
+        #data = tab[0].data
+        #tab[1] = vorBinInfo    
+
+        empty_primary = fits.PrimaryHDU(header=head)           
+
+        #t2 = fits.BinTableHDU.from_columns(t,name='vorBinInfo')
+        hdul = fits.HDUList([empty_primary])      
+
+        hdul.append(fits.BinTableHDU(t.as_array(), name='vorBinInfo'))
+
+
+        #hdul.append(t2)  
+        hdul.writeto(cfg_par['general']['outVorLineTableName'],overwrite=True)        
 
 
         #xxVecArr= Column(np.array(xxVec), name='PixX')
