@@ -60,15 +60,17 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
     Xdim = int(dd.shape[2])
         
 
+    ubins = np.unique(vorBinInfo['BIN_ID'])
+
     counter = 0
 
     binArr, fitResArr, lineArr = tP.makeInputArraysMP(cfg_par,lineInfo, vorBinInfo)
     #for j in range(205,208):
     #    for i in range(250,252):
-    for ii in range(rank,len(dataStar['BIN_ID']), nprocs):
+    for ii in range(rank,len(ubins), nprocs):
         #for i in range(rank, nsteps, nprocs):
             #0,dd.shape[2]):
-            match_bin = np.where(dataStar['BIN_ID'][ii]==vorBinInfo['BIN_ID'])[0]
+            match_bin = np.where(ubins[ii]==vorBinInfo['BIN_ID'])[0]
 
             index = match_bin[0]
         
