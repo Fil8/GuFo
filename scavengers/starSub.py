@@ -348,7 +348,7 @@ class starsub(object):
 
 
 
-            if  xx and yy and vorBinInfo['BIN_ID'][i]>0.0:
+            if  xx and yy and vorBinInfo['FLUX'][i]>0.0:
                 
                 tmpD = np.array(dataSpec[indexBin][0][:])
                 tmp = tmpD.tolist()

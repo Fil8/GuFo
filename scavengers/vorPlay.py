@@ -45,7 +45,6 @@ class vorplay(object):
         #sys.exit(0)
         #open datacube
         f = fits.open(cfg_par['general']['outLines'])
-        print(cfg_par['general']['outLines'])
         hh = f[0].header
         dd = f[0].data
         #s     = np.shape(dd)
@@ -89,7 +88,6 @@ class vorplay(object):
                 stdRight[j,i] = np.nanstd(dd[idxWaveRightInf:idxWaveRightSup,j,i])
                 noise[j,i] = np.divide(np.nansum([stdLeft[j,i], stdRight[j,i]]),2.)       
 
-        print(np.sum(peak),np.sum(noise))
         snr = np.divide(peak,noise)
 
         snr = np.reshape(snr,[dd.shape[1]*dd.shape[2]])
@@ -111,11 +109,9 @@ class vorplay(object):
         #signal   = np.nanmean(spec,axis=0)
         signal   = np.reshape(peak,[dd.shape[1]*dd.shape[2]])
 
-        print(signal.shape)
         #apply SNR threshold
-        print(np.nansum(snr))
-        idx_inside = np.where( snr >= 1. )[0]
-        idx_outside = np.where( snr < 1. )[0]
+        idx_inside = np.where( snr >= float(cfg_par['vorBin']['minSNR']) )[0]
+        idx_outside = np.where( snr < float(cfg_par['vorBin']['minSNR']) )[0]
         
         #idx_outside = np.where( signal < meanmin_signal )[0]        
 
@@ -133,7 +129,6 @@ class vorplay(object):
 #        noise = np.array([spec[:,0],noise])
         binNum = self.define_voronoi_bins(cfg_par, x, y, signal,noise, pxSize,
             snr, cfg_par['vorBin']['snr'], cfg_par['vorBin']['covarNoise'],idx_inside,idx_outside)
-        print(specFull.shape,noise.shape,idx_inside.shape)
         self.apply_voronoi_bins( cfg_par, binNum, specFull[:,idx_inside], noise[idx_inside], velscale, wave)
     
         return
@@ -180,8 +175,6 @@ class vorplay(object):
         try:
             print('\n\t *********** --- GuFo: VorBinning --- ***********\n')
             # Do the Voronoi binning
-            print(snr.shape,idx_inside.shape)
-            print(len(x),len(signal),len(noise))
 
             binNum, xNode, yNode, xBar, yBar, sn, nPixels, _ = voronoi_2d_binning(x[idx_inside], y[idx_inside],
                 signal[idx_inside], noise[idx_inside], target_snr, plot=False, quiet=True, pixelsize=pixelsize,
@@ -226,12 +219,7 @@ class vorplay(object):
         binNum_long[idx_outside] = -1 * binNum_outside
 
         # Save bintable: data for *ALL* spectra inside and outside of the Voronoi region!
-        print(np.unique(binNum))
-        print(len(np.where(binNum==0)[0]))
-        print(len(x))
         self.save_table(cfg_par, x, y, signal, snr, binNum_long, np.unique(ubins), xNode, yNode, sn, nPixels, pixelsize)
-        print(np.unique(binNum))
-        print(len(np.where(binNum==0)[0]))
         return(binNum)
 
     def find_nearest_voronoibin(self,x, y, idx_outside, xNode, yNode):
@@ -274,8 +262,6 @@ class vorplay(object):
         yNode_new = np.zeros( len(x) )
         sn_new = np.zeros( len(x) )
         nPixels_new = np.zeros( len(x) )
-        print(np.nansum(nPixels))
-        print('NspaxelSumAbove')
         for i in range( len(ubins) ):
             idx = np.where( ubins[i] == np.abs(binNum_new) )[0]
             xNode_new[idx] = xNode[i]
@@ -323,9 +309,6 @@ class vorplay(object):
         ubins     = np.unique(binNum)
         nbins     = len(ubins)
         npix      = spec.shape[0]
-        print('Npix,NBins')
-        print(npix,nbins)
-        print(binNum.shape)
         bin_data  = np.zeros([npix,nbins])
         bin_error = np.zeros([npix,nbins])
         bin_flux  = np.zeros(nbins)

@@ -171,7 +171,6 @@ class tplay(object):
 
         xAxis = np.arange(xMin, xMax,head['PIXSIZE'])
         yAxis = np.arange(yMin, yMax,head['PIXSIZE'])
-        print(xAxis,yAxis)
         tab = fits.open(tableSpec)
         dataSpec = tab[1].data
         specExp = tab[2].data
@@ -211,7 +210,6 @@ class tplay(object):
 
         xAxis = np.arange(xMin, xMax,head['PIXSIZE'])
         yAxis = np.arange(yMin, yMax+head['PIXSIZE'],head['PIXSIZE'])
-        print(xAxis,yAxis)
         tab = fits.open(tableSpec)
         dataSpec = tab[1].data
         specExp = tab[2].data
