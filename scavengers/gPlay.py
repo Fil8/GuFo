@@ -510,7 +510,7 @@ class gplay(object):
         f.close()
         
         #open datacube
-        f = fits.open(cfg_par[key]['outNoise'])
+        f = fits.open(cfg_par[key]['outVorNoise'])
         nn = f[0].data
         f.close()
 
