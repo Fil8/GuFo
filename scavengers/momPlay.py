@@ -53,7 +53,7 @@ class momplay:
 
 
     def moments(self,cfg_par,lineName,header,outTableName,lineThresh):
-
+        print(lineThresh)
         modName = cfg_par['gFit']['modName']
         momModDir = cfg_par['general']['momDir']+modName+'/'
 
@@ -103,26 +103,28 @@ class momplay:
                 mom2G3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
 
         for i in range(0,len(lines['BIN_ID'])):
+            if lines['BIN_ID']< 0:
+                continue
+            else:
+                match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
-            match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
-
-            for index in match_bin:
-                mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]
-                
-                if lines['g1_Amp_'+lineName][i] > lineThresh:
-                    mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
-                    mom2G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_sigma_'+lineName][i]
-                    binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
-
-                if modName != 'g1':
-                    mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Amp_'+lineName][i]
-                    mom1G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Centre_'+lineName][i]
-                    mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_sigma_'+lineName][i]
+                for index in match_bin:
+                    mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]
                     
-                    if modName == 'g3':
-                        mom0G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Amp_'+lineName][i]
-                        mom1G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Centre_'+lineName][i]
-                        mom2G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_sigma_'+lineName][i]
+                    if lines['g1_Amp_'+lineName][i] > lineThresh:
+                        mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
+                        mom2G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_sigma_'+lineName][i]
+                        binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
+
+                    if modName != 'g1':
+                        mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Amp_'+lineName][i]
+                        mom1G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Centre_'+lineName][i]
+                        mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_sigma_'+lineName][i]
+                        
+                        if modName == 'g3':
+                            mom0G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Amp_'+lineName][i]
+                            mom1G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Centre_'+lineName][i]
+                            mom2G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_sigma_'+lineName][i]
 
         binHead['SPECSYS'] = 'topocent'
         binHead['BUNIT'] = 'Flux'
