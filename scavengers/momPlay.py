@@ -30,7 +30,7 @@ class momplay:
 
         workDir = cfg_par['general']['cubeDir']
 
-        f = fits.open(workDir+cfg_par['general']['dataCubeName'])
+        f = fits.open(cfg_par['general']['dataCubeName'])
         dd = f[0].header
 
         lineInfo = tP.openLineList(cfg_par)
@@ -82,7 +82,7 @@ class momplay:
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
 
-        hduGen = fits.open(cfg_par['general']['workdir']+cfg_par['general']['outVorTableName'])
+        hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
 
 
@@ -168,20 +168,21 @@ class momplay:
         if not os.path.exists(momModDir):
             os.mkdir(momModDir)
 
-        f = fits.open(cubeDir+cfg_par['general']['dataCubeName'])
+        f = fits.open(cfg_par['general']['dataCubeName'])
         dd = f[0].data
         resHead = f[0].header
         
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
 
-        hduGen = fits.open(cfg_par['general']['workdir']+cfg_par['general']['outVorTableName'])
+        hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
 
         resG1 = np.zeros([resHead['NAXIS3'],resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
     
-        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['tableBinName'],
-            workDir+cfg_par[key]['tableSpecName'])
+
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
+            cfg_par['general']['outVorSpectra'])
 
         #hdul = fits.open(cfg_par['general']['outTableName'])
         #tabGen = hdul['BinInfo'].data
@@ -248,13 +249,13 @@ class momplay:
         if 'NAXIS3' in resHead:
             del resHead['NAXIS3']
 
-        f = fits.open(cubeDir+cfg_par['general']['dataCubeName'])
+        f = fits.open(cfg_par['general']['dataCubeName'])
         dd = f[0].data
         header = f[0].header
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
 
-        hduGen = fits.open(cfg_par['general']['workdir']+cfg_par['general']['outVorTableName'])
+        hduGen = fits.open(cfg_par['general']['workdir']+cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
         
         lineInfo = tP.openLineList(cfg_par)
@@ -333,7 +334,7 @@ class momplay:
 
         workDir = cfg_par['general']['cubeDir']
 
-        f = fits.open(workDir+cfg_par['general']['dataCubeName'])
+        f = fits.open(cfg_par['general']['dataCubeName'])
         dd = f[0].header
 
         #lineInfo = self.openLineList()
@@ -382,7 +383,7 @@ class momplay:
         hdul = fits.open(cfg_par['general']['outTableName'])
         lineBPT = hdul['BPT_'+cfg_par['gFit']['modName']].data
 
-        hduGen = fits.open(cfg_par['general']['workdir']+cfg_par['general']['outVorTableName'])
+        hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
 
         numCols = len(lineBPT.dtype.names)

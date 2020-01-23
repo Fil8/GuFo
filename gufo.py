@@ -97,6 +97,9 @@ class gufo(object):
         self.cfg_par['general']['outVorLines'] = cubeDir+'LineVor.fits'
         self.cfg_par['general']['outVorNoise'] = cubeDir+'NoiseVor.fits'
 
+        if not self.cfg_par['general'].get('dataCubeName',None):
+           self.cfg_par['general']['dataCubeName'] =  self.cfg_par['general']['outVorLines'] 
+
         outTableName = self.cfg_par['general']['runNameDir']+'gPlayOut.fits'
 
         self.cfg_par['general']['outTableName'] = outTableName

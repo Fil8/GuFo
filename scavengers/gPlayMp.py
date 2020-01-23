@@ -60,7 +60,9 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
         
 
     ubins = np.unique(vorBinInfo['BIN_ID'])
-
+    #for i in range(0,len(ubins)):
+    #    print(ubins[i])
+    #sys.exit(0)
     counter = 0
 
     binArr, fitResArr, lineArr = tP.makeInputArraysMP(cfg_par,lineInfo, vorBinInfo)
@@ -79,7 +81,7 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
             waveCut = wave[idxMin:idxMax]
 
             #check if spectrum is not empty                   
-            if np.sum(y)>0:
+            if np.nansum(y)>0:
 
                 gMod,gPars = lineModDefMp(cfg_par,waveCut,y,lineInfo)
 
@@ -95,6 +97,8 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
                     binArr = tP.updateBinArray(cfg_par,binArr,vorBinInfo,index,i,j,counter)
                     binIDName = vorBinInfo['BIN_ID'][index]     
                 else:
+                    print(vorBinInfo['BIN_ID'][index])
+                    sys.exit(0)
                     fitResArr = np.delete(fitResArr,counter,0)
                     lineArr = np.delete(lineArr,counter,0)  
                     counter+=1
