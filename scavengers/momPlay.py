@@ -255,7 +255,7 @@ class momplay:
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
 
-        hduGen = fits.open(cfg_par['general']['workdir']+cfg_par['general']['outVorLineTableName'])
+        hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
         
         lineInfo = tP.openLineList(cfg_par)
