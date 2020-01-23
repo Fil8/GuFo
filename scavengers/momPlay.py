@@ -109,9 +109,10 @@ class momplay:
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
                 for index in match_bin:
-                    mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]
                     
                     if lines['g1_Amp_'+lineName][i] > lineThresh:
+                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]
+
                         mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
                         mom2G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_sigma_'+lineName][i]
                         binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
