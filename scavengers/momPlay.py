@@ -103,9 +103,9 @@ class momplay:
                 mom2G3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
 
         for i in range(0,len(lines['BIN_ID'])):
-            if lines['BIN_ID'][i]< 0:
-                continue
-            else:
+            #if lines['BIN_ID'][i]< 0:
+            #    continue
+            #else:
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
                 for index in match_bin:
