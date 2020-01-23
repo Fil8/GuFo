@@ -505,7 +505,7 @@ class gplay(object):
 
 
         #open datacube
-        f = fits.open(cubeDir+cfg_par[key]['dataCubeName'])
+        f = fits.open(cfg_par[key]['dataCubeName'])
         dd = f[0].data
         f.close()
         
