@@ -518,8 +518,9 @@ class gplay(object):
 
 
         #open table for bins
-        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo = tP.openTablesPPXF(cfg_par,workDir+cfg_par[key]['outVorTableName'],
-            workDir+cfg_par[key]['tableSpecName'])
+
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
+            cfg_par['general']['outVorSpectra'])
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         tabGen = hdul['BinInfo'].data
