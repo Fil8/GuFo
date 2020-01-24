@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.6
 
-import os
+import os, glob
 import sys
 import logging
 import time
@@ -278,7 +278,9 @@ def main (argv):
     if args.bptMaps or gPar.cfg_par['lineRatios'].get('bptMap',False) == True:    
         
         print ('\n\t************* --- GuFo : BPT maps --- **************\n')
-        bpt.bptIM(gPar.cfg_par,outBPT)
+        outBPT = glob.glob(gPar.cfg_par['general']['bptDir']+"*.fits")
+        for i in outBPT:
+            bpt.bptIM(gPar.cfg_par,gPar.cfg_par['general']['bptDir']+i)
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
     if args.cfgFile is None:
