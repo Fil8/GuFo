@@ -353,7 +353,7 @@ class starsub(object):
                 data[:,yy[0],xx[0]] = tmp
                 
                 tmpN = np.array(dataSpec[indexBin][1][:])
-                tmpN = tmpD/tmpN
+                #tmpN = tmpD/tmpN
                 tmpN = tmpN.tolist()                
                 noiseCube[:,yy[0],xx[0]] = tmpN
 

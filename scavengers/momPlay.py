@@ -327,7 +327,7 @@ class momplay:
                 #result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
                 
                 for index in match_bin:
-                    resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.sum(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])],axis=0)
+                    resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.sum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])],axis=0))
 
             fits.writeto(resNameOut,resG1,header,overwrite=True)
 
