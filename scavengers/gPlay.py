@@ -534,7 +534,7 @@ class gplay(object):
         idxTable = int(np.where(tabGen['BIN_ID'] == int(binID))[0][0])
         
         y = dd[idxMin:idxMax,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]
-
+        print(np.nansum(y))
         waveCut = wave[idxMin:idxMax]
 
         if os.path.exists(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav'):
