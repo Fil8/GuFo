@@ -278,10 +278,11 @@ def main (argv):
     if args.bptMaps or gPar.cfg_par['lineRatios'].get('bptMap',False) == True:    
         
         print ('\n\t************* --- GuFo : BPT maps --- **************\n')
-        outBPT = glob.glob(gPar.cfg_par['general']['bptDir']+"*.fits")
+        print(gPar.cfg_par['general']['bptDir']+gPar.cfg_par['gFit']['modName'])
+        outBPT = glob.glob(gPar.cfg_par['general']['bptDir']+gPar.cfg_par['gFit']['modName']+"/*.fits")
         print(outBPT)
         for i in outBPT:
-            bpt.bptIM(gPar.cfg_par,gPar.cfg_par['general']['bptDir']+i)
+            bpt.bptIM(gPar.cfg_par,i)
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
     if args.cfgFile is None:
