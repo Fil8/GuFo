@@ -410,9 +410,7 @@ class gplay(object):
 #        np_array[:] = a[:]  
 #        return shm, np_array
     
-
-
-       
+  
     def gPlot(self,cfg_par):
         
         key = 'general'
@@ -538,7 +536,12 @@ class gplay(object):
 
         waveCut = wave[idxMin:idxMax]
 
-        result = load_modelresult(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
+        if os.path.exists(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav'):
+            result = load_modelresult(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
+        else:
+            gMod,gPars = self.lineModDef(cfg_par,waveCut,y,lineInfo)
+            result = gMod.fit(y, gPars, x=waveCut)
+            save_modelresult(result, cfg_par['general']['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
         
         cfg_par['gPlot']['loadModel'] = True
 
