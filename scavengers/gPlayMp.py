@@ -83,60 +83,60 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
             y = dd[idxMin:idxMax,j,i]
             waveCut = wave[idxMin:idxMax]
 
-            #check if spectrum is not empty                   
-            #if np.nansum(y)>0:
+                #check if spectrum is not empty                   
+                #if np.nansum(y)>0:
             if not np.isnan(y).all():
                 gMod,gPars = lineModDefMp(cfg_par,waveCut,y,lineInfo)
 
-            # identify voronoi bin
-            #xVal = xAxis[i]
-            #yVal = yAxis[j]
-            
-            #index = np.where((vorBinInfo['X'] < (xVal+pxSize/2.+diffusion)) & 
-            #((xVal-pxSize/2.-diffusion) < vorBinInfo['X']) & (vorBinInfo['Y'] < (yVal+pxSize/2.+diffusion)) & 
-            #((yVal-pxSize/2.-diffusion) < vorBinInfo['Y']))
-            
-            if np.sum(index)>0: 
-                binArr = tP.updateBinArray(cfg_par,binArr,vorBinInfo,index,i,j,counter)
-                binIDName = vorBinInfo['BIN_ID'][index]     
-            else:
-                print(vorBinInfo['BIN_ID'][index])
-                sys.exit(0)
-                fitResArr = np.delete(fitResArr,counter,0)
-                lineArr = np.delete(lineArr,counter,0)  
-                counter+=1
-                continue
-            
-            #print(binIDName,rank)
+                # identify voronoi bin
+                #xVal = xAxis[i]
+                #yVal = yAxis[j]
+                
+                #index = np.where((vorBinInfo['X'] < (xVal+pxSize/2.+diffusion)) & 
+                #((xVal-pxSize/2.-diffusion) < vorBinInfo['X']) & (vorBinInfo['Y'] < (yVal+pxSize/2.+diffusion)) & 
+                #((yVal-pxSize/2.-diffusion) < vorBinInfo['Y']))
+                
+                if np.sum(index)>0: 
+                    binArr = tP.updateBinArray(cfg_par,binArr,vorBinInfo,index,i,j,counter)
+                    binIDName = vorBinInfo['BIN_ID'][index]     
+                else:
+                    print(vorBinInfo['BIN_ID'][index])
+                    sys.exit(0)
+                    fitResArr = np.delete(fitResArr,counter,0)
+                    lineArr = np.delete(lineArr,counter,0)  
+                    counter+=1
+                    continue
+                
+                #print(binIDName,rank)
 
-            #binIDShare = np.ndarray((Ydim, Xdim), dtype=np.int16, buffer=existing_shm.buf)
-            #print(np.sum(binIDShare))
-            #lock.acquire()    
-            #print('inBin')
-            #check if it is first time in bin
-            
-            #if int(binIDName) not in binIDShare[:,:] and np.sum(index)>0:
-            #binIDShare[j,i] = binIDName
-            #print('io')
-            #print(binIDShare[j,i], str(rank))
+                #binIDShare = np.ndarray((Ydim, Xdim), dtype=np.int16, buffer=existing_shm.buf)
+                #print(np.sum(binIDShare))
+                #lock.acquire()    
+                #print('inBin')
+                #check if it is first time in bin
+                
+                #if int(binIDName) not in binIDShare[:,:] and np.sum(index)>0:
+                #binIDShare[j,i] = binIDName
+                #print('io')
+                #print(binIDShare[j,i], str(rank))
 
-            # Always release the lock!
-            #lock.release()
+                # Always release the lock!
+                #lock.release()
 
-            noiseVec = noiseBin[binIDName][:]
+                noiseVec = noiseBin[binIDName][:]
 
-            # FIT
-            result = gMod.fit(y, gPars, x=waveCut)
-            
-            save_modelresult(result, cfg_par['general']['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
-            fitResArr = tP.updateFitArray(cfg_par,fitResArr,result,binIDName,counter)
-            lineArr = tP.updateLineArray(cfg_par,lineArr,result,lineInfo,binIDName,counter)
-            
-            #plot Fit
-            if cfg_par['gPlot']['enable'] == True:
-            #self.plotSpecFit(waveCut, y,result,noiseVec[idxMin:idxMax],i,j,lineInfo,vorBinInfo[index])
-                sP.plotLineZoom(cfg_par,waveCut, y,result,noiseVec[idxMin:idxMax],i,j,lineInfo,vorBinInfo[index])
-        #else:
+                # FIT
+                result = gMod.fit(y, gPars, x=waveCut)
+                
+                save_modelresult(result, cfg_par['general']['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
+                fitResArr = tP.updateFitArray(cfg_par,fitResArr,result,binIDName,counter)
+                lineArr = tP.updateLineArray(cfg_par,lineArr,result,lineInfo,binIDName,counter)
+                
+                #plot Fit
+                if cfg_par['gPlot']['enable'] == True:
+                #self.plotSpecFit(waveCut, y,result,noiseVec[idxMin:idxMax],i,j,lineInfo,vorBinInfo[index])
+                    sP.plotLineZoom(cfg_par,waveCut, y,result,noiseVec[idxMin:idxMax],i,j,lineInfo,vorBinInfo[index])
+            #else:
         
                     #lock.release()
         
