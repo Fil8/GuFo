@@ -279,6 +279,7 @@ def main (argv):
         
         print ('\n\t************* --- GuFo : BPT maps --- **************\n')
         outBPT = glob.glob(gPar.cfg_par['general']['bptDir']+"*.fits")
+        print(outBPT)
         for i in outBPT:
             bpt.bptIM(gPar.cfg_par,gPar.cfg_par['general']['bptDir']+i)
         print('\n\t************* --- GuFo : DONE --- **************\n')
