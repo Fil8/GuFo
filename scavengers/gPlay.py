@@ -520,7 +520,7 @@ class gplay(object):
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
             cfg_par['general']['outVorSpectra'])
 
-        hdul = fits.open(cfg_par['general']['outTableName'])
+        hdul = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hdul['BinInfo'].data
 
 
