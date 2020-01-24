@@ -500,6 +500,7 @@ class gplay(object):
         key = 'general'
         workDir = cfg_par[key]['workdir']
         cubeDir = cfg_par[key]['cubeDir']
+        
 
 
         #open datacube
@@ -541,7 +542,7 @@ class gplay(object):
         else:
             gMod,gPars = self.lineModDef(cfg_par,waveCut,y,lineInfo)
             result = gMod.fit(y, gPars, x=waveCut)
-            save_modelresult(result, cfg_par['general']['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
+            save_modelresult(result, cfg_par['general']['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
         
         cfg_par['gPlot']['loadModel'] = True
 
