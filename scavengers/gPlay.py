@@ -521,7 +521,7 @@ class gplay(object):
             cfg_par['general']['outVorSpectra'])
 
         hdul = fits.open(cfg_par['general']['outVorLineTableName'])
-        tabGen = hdul[0].data
+        tabGen = hdul[1].data
 
 
         lambdaMin = np.log(cfg_par['gFit']['lambdaMin'])
