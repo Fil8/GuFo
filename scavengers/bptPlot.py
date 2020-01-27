@@ -92,10 +92,10 @@ class BPTplot(object):
 
 
             # Calculate axis limits and aspect ratio
-            xMin = -10.
-            xMax = 10.
-            yMin = -10.
-            yMax = 10
+            xMin = -2.
+            xMax = 2.
+            yMin = -2.
+            yMax = 2.
 
             # Set axis limits
             ax1.set_xlim(xMin, xMax)
@@ -110,6 +110,7 @@ class BPTplot(object):
             idxKew = np.where(k==1.)
             idxBad = np.where(k==-1.)
 
+            #print((idxAGN),(idxKew),(idxKauf),(idxBad))
 
             ax1.scatter(x[idxAGN], y[idxAGN], c='red', marker='+', s=80, linewidths=4, label='AGN')
             ax1.scatter(x[idxKew], y[idxKew], c='cyan', marker='+', s=80, linewidths=4, label='SF-Kewley')
@@ -180,10 +181,10 @@ class BPTplot(object):
 
 
             # Calculate axis limits and aspect ratio
-            xMin = -10.
-            xMax = 10.
-            yMin = -10.
-            yMax = 10
+            xMin = -2.
+            xMax = 2.
+            yMin = -2.
+            yMax = 2.
 
             # Set axis limits
             ax1.set_xlim(xMin, xMax)
@@ -198,6 +199,7 @@ class BPTplot(object):
             idxKew = np.where(k==0.)
             idxBad = np.where(k==-1.)
 
+            #print((idxLin),(idxSey),(idxKew),(idxBad))
 
             ax1.scatter(x[idxLin], y[idxLin], c='green', marker='+', s=80, linewidths=4, label='LINER')
             ax1.scatter(x[idxKew], y[idxKew], c='blue', marker='+', s=80, linewidths=4, label='SF')
@@ -264,10 +266,10 @@ class BPTplot(object):
 
 
             # Calculate axis limits and aspect ratio
-            xMin = -10.
-            xMax = 10.
-            yMin = -10.
-            yMax = 10
+            xMin = -3.
+            xMax = 0.5
+            yMin = -2.
+            yMax = 2
 
             # Set axis limits
             ax1.set_xlim(xMin, xMax)
@@ -282,6 +284,7 @@ class BPTplot(object):
             idxKew = np.where(k==0.)
             idxBad = np.where(k==-1.)
 
+            #print((idxLin),(idxSey),(idxKew),(idxBad))
 
             ax1.scatter(x[idxLin], y[idxLin], c='green', marker='+', s=80, linewidths=4, label='LINER')
             ax1.scatter(x[idxKew], y[idxKew], c='blue', marker='+', s=80, linewidths=4, label='SF')
@@ -333,6 +336,14 @@ class BPTplot(object):
 
         f1.show_colorscale(aspect='equal', cmap=CustomCmap,stretch = 'linear',vmin=-1,vmax=2)
 
+        f=fits.open(outBPT)
+        dd=f[0].data
+        idxLin = np.where(dd==2.)
+        idxSey = np.where(dd==1.)
+        idxKew = np.where(dd==0.)
+        idxBad = np.where(dd==-1.)
+        #print(outBPT)
+        #print(idxLin,idxSey,idxKew,idxBad)
 
         #f1.show_contour(imageName,levels=[1, 5, 8, 11, 15], colors='black')
         #f1.show_contour(imageName,levels=[1e-3, 1e-2, 1e-1,5e-1], colors='black')

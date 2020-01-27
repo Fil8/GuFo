@@ -53,7 +53,7 @@ class momplay:
 
 
     def moments(self,cfg_par,lineName,header,outTableName,lineThresh):
-        print(lineThresh)
+
         modName = cfg_par['gFit']['modName']
         momModDir = cfg_par['general']['momDir']+modName+'/'
 
