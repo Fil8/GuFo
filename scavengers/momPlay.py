@@ -238,7 +238,6 @@ class momplay:
         f = fits.open(resName)
         resCube = f[0].data
         resHead = f[0].header
-
         if 'CUNIT3' in resHead:
             del resHead['CUNIT3']
         if 'CTYPE3' in resHead:
@@ -326,7 +325,8 @@ class momplay:
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
                 #result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
                 print(lines['BIN_ID'][i])
-  
+                print(resCube[idxMinLeft:idxMaxRight,172,172])
+                sys.exit(0)
                 for index in match_bin:
                     #resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.sum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0)
                     resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
