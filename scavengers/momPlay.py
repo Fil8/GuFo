@@ -335,8 +335,9 @@ class momplay:
                     resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.std(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
                     if lines['BIN_ID'][i]==1576:
 
+                        print(resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
                         print('culo')
-                        print(resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] )
+
                         sys.exit(0)
                 
             fits.writeto(resNameOut,resG1,header,overwrite=True)
