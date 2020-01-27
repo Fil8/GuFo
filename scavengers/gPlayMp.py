@@ -63,7 +63,6 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
     #for i in range(0,len(ubins)):
     #    print(ubins[i])
     #
-    sys.exit(0)
     counter = 0
 
     binArr, fitResArr, lineArr = tP.makeInputArraysMP(cfg_par,lineInfo, vorBinInfo)
