@@ -278,8 +278,8 @@ class momplay:
             
             print('\n\t *********** --- Residuals: '+lineName+' --- ***********\n')
             
-            resG1Abs = np.zeros([resHead['NAXIS2'],resHead['NAXIS1']])
-            resG1Std = np.zeros([resHead['NAXIS2'],resHead['NAXIS1']])
+            resG1Abs = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+            resG1Std = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
 
             resNameOutAbs =momModDir+'resAbs_'+lineName+'.fits'
             resNameOutStd =momModDir+'resStd_'+lineName+'.fits'
