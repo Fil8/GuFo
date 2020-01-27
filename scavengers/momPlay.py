@@ -336,8 +336,8 @@ class momplay:
                     resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0)
                     resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
                     
-                    if resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] ==0.:
-                        print(lines['BIN_ID'][i],tabGen['PixY'][index],tabGen['PixX'][index])
+                    #if resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] ==0.:
+                    #    print(lines['BIN_ID'][i],tabGen['PixY'][index],tabGen['PixX'][index])
                 
             fits.writeto(resNameOutAbs,resG1Abs,header,overwrite=True)
             fits.writeto(resNameOutStd,resG1Std,header,overwrite=True)
