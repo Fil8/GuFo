@@ -280,7 +280,8 @@ class momplay:
             
             resG1 = np.zeros([resHead['NAXIS2'],resHead['NAXIS1']])
 
-            resNameOut =momModDir+'res_'+lineName+'.fits'
+            resNameOutAbs =momModDir+'resAbs_'+lineName+'.fits'
+            resNameOutStd =momModDir+'resStd_'+lineName+'.fits'
 
             for i in range(0,len(lines['BIN_ID'])):
 
@@ -331,11 +332,13 @@ class momplay:
                 #print(resCube[idxLeft:idxRight,172,172])
                 #sys.exit(0)
                 for index in match_bin:
-                    #resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.sum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0)
-                    resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
-
+                    resG1Abs[int(lines['BIN_ID'][i]),int(tabGen['PixX'][index])] = np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0)
+                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
+                    if resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] ==0.:
+                        print(lines['BIN_ID'][i],tabGen['PixY'][index],tabGen['PixX'][index])
                 
-            fits.writeto(resNameOut,resG1,header,overwrite=True)
+            fits.writeto(resNameOutAbs,resG1Abs,header,overwrite=True)
+            fits.writeto(resNameOutStd,resG1Std,header,overwrite=True)
 
         return 0
 
