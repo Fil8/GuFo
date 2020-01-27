@@ -287,8 +287,8 @@ class momplay:
                 cenKmsG1 = lines['g1_Centre_'+lineName][i]
                 sigKmsG1 = lines['g1_Sigma_'+lineName][i]
                 cenG1 = np.log(cvP.vRadLambda(cenKmsG1,lineInfo['Wave'][ii]))
-                leftG1 = np.log(cvP.vRadLambda(cenKmsG1-3.*sigKmsG1,lineInfo['Wave'][ii]))
-                rightG1 = np.log(cvP.vRadLambda(cenKmsG1+3.*sigKmsG1,lineInfo['Wave'][ii]))
+                leftG1 = np.log(cvP.vRadLambda(cenKmsG1-6.*sigKmsG1,lineInfo['Wave'][ii]))
+                rightG1 = np.log(cvP.vRadLambda(cenKmsG1+6.*sigKmsG1,lineInfo['Wave'][ii]))
 
                 idxLeft = int(np.where(abs(wave-leftG1)==abs(wave-leftG1).min())[0])
                 idxRight = int(np.where(abs(wave-rightG1)==abs(wave-rightG1).min())[0])
