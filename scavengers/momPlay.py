@@ -333,7 +333,11 @@ class momplay:
                 for index in match_bin:
                     #resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.sum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0)
                     resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.std(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
+                    if lines['BIN_ID'][i]==1576:
 
+                        print('culo')
+                        print(resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] )
+                        sys.exit(0)
                 
             fits.writeto(resNameOut,resG1,header,overwrite=True)
 
