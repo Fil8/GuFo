@@ -329,7 +329,7 @@ class momplay:
   
                 for index in match_bin:
                     #resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.sum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0)
-                    resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.std(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
+                    resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
                     if lines['BIN_ID'][i]==1576:
 
                         print(resG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
