@@ -60,8 +60,6 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
         
 
     ubins = np.unique(vorBinInfo['BIN_ID'])
-    idx = np.where(ubins==3110)
-    print(ubins[idx],idx)
     #for i in range(0,len(ubins)):
     #    print(ubins[i])
     #
@@ -100,8 +98,6 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
                     binArr = tP.updateBinArray(cfg_par,binArr,vorBinInfo,index,i,j,counter)
                     binIDName = vorBinInfo['BIN_ID'][index]     
                 else:
-                    print(vorBinInfo['BIN_ID'][index])
-                    sys.exit(0)
                     fitResArr = np.delete(fitResArr,counter,0)
                     lineArr = np.delete(lineArr,counter,0)  
                     counter+=1
