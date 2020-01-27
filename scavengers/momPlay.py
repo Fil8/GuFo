@@ -335,11 +335,7 @@ class momplay:
                 for index in match_bin:
                     resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0)
                     resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
-                    
-                    if int(tabGen['PixY'][index])==174 and int(tabGen['PixX'][index]) ==84.:
-                        print(lines['BIN_ID'][i],tabGen['PixY'][index],tabGen['PixX'][index])
-                        print(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])      
-                        sys.exit(0)        
+                       
             fits.writeto(resNameOutAbs,resG1Abs,header,overwrite=True)
             fits.writeto(resNameOutStd,resG1Std,header,overwrite=True)
 
