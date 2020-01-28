@@ -33,6 +33,9 @@ class momplay:
         f = fits.open(cfg_par['general']['dataCubeName'])
         dd = f[0].header
 
+        g = fits.open(cfg_par['general']['noiseCubeName'])
+        nn = f[0].data
+
         lineInfo = tP.openLineList(cfg_par)
         for ii in range(0,len(lineInfo['ID'])):
 
@@ -43,16 +46,16 @@ class momplay:
                 lineName = lineName.replace("]", "")
 
             lineName = lineName+str(int(lineInfo['Wave'][ii]))
-            lineThresh = float(lineInfo['ampThresh'][ii])
+            lineThresh = float(lineInfo['SNThresh'][ii])
 
             print('\n\t *********** --- Moments: '+lineName+' --- ***********\n')
 
-            self.moments(cfg_par,lineName,dd,cfg_par['general']['outTableName'],lineThresh)
+            self.moments(cfg_par,lineName,dd,nn,cfg_par['general']['outTableName'],lineThresh)
 
         return
 
 
-    def moments(self,cfg_par,lineName,header,outTableName,lineThresh):
+    def moments(self,cfg_par,lineName,header,noise,outTableName,lineThresh):
 
         modName = cfg_par['gFit']['modName']
         momModDir = cfg_par['general']['momDir']+modName+'/'
@@ -109,8 +112,8 @@ class momplay:
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
                 for index in match_bin:
-                    
-                    if lines['g1_Amp_'+lineName][i] > lineThresh:
+                    thresHold = lines['g1_Amp_'+lineName][i]/nn[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                    if thresHold >= lineThresh:
                         mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]
 
                         mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]

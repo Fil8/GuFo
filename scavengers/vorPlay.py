@@ -56,6 +56,7 @@ class vorplay(object):
         velRangeSup = cvP.vRadLambda(3000,
                 lineInfo['Wave'][0])-lineInfo['Wave'][0] 
         print(velRangeInf,velRangeSup)
+        
         waveLeftSup = np.log(lineInfo['Wave'][0]-velRangeSup)
         #print(waveLeftSup, lineInfo['Wave'][0], velRangeSup)
         idxWaveLeftSup = int(np.where(abs(wave-waveLeftSup)==abs(wave-waveLeftSup).min())[0])

@@ -67,7 +67,7 @@ class gufo(object):
 
 
         if self.cfg_par['starSub'].get('enable',False) == True:
-            self.cfg_par['general']['outVorTableName'] = self.cfg_par['general']['workdir']+'GuFo_LineTable.fits'
+            self.cfg_par['general']['outVorTableName'] = self.cfg_par['general']['tableDir']+'GuFo_LineTable.fits'
             if self.cfg_par['starSub'].get('scaleFlux',False) == True:
             
                 if self.cfg_par['starSub'].get('scaleHow',None) == 'mean':
@@ -105,6 +105,8 @@ class gufo(object):
 
         if not self.cfg_par['general'].get('dataCubeName',None):
            self.cfg_par['general']['dataCubeName'] =  self.cfg_par['general']['outVorLines'] 
+        if not self.cfg_par['general'].get('noiseCubeName',None):
+           self.cfg_par['general']['noiseCubeName'] =  self.cfg_par['general']['outVorNoise'] 
 
         outTableName = self.cfg_par['general']['runNameDir']+'gPlayOut.fits'
 
