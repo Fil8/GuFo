@@ -85,15 +85,23 @@ class vorplay(object):
             for i in range(0,dd.shape[2]):
                 if cfg_par['vorBin']['method'] == 'peak':
                     peak[j,i] = np.nanmax(dd[indexMin:indexMax,j,i])
+                    stdLeft[j,i] = np.nanstd(dd[idxWaveLeftInf:idxWaveLeftSup,j,i])
+                    stdRight[j,i] = np.nanstd(dd[idxWaveRightInf:idxWaveRightSup,j,i])
+                    noise[j,i] = np.divide(np.nansum([stdLeft[j,i], stdRight[j,i]]),2.)       
+
                 elif cfg_par['vorBin']['method'] == 'mean':
                     peak[j,i] = np.nanmean(dd[indexMin:indexMax,j,i])
+                    stdLeft[j,i] = np.divide(np.nanstd(dd[idxWaveLeftInf:idxWaveLeftSup,j,i]),np.sqrt(idxWaveLeftSup-idxWaveLeftInf))
+                    stdRight[j,i] = np.divide(np.nanstd(dd[idxWaveRightInf:idxWaveRightSup,j,i]),np.sqrt(idxWaveRightSup-idxWaveRightInf))
+                    noise[j,i] = np.divide(np.nansum([stdLeft[j,i], stdRight[j,i]]),2.)       
+
                 elif cfg_par['vorBin']['method'] == 'sum':
                     peak[j,i] = np.nansum(dd[indexMin:indexMax,j,i])
-
-                stdLeft[j,i] = np.nanstd(dd[idxWaveLeftInf:idxWaveLeftSup,j,i])
-                stdRight[j,i] = np.nanstd(dd[idxWaveRightInf:idxWaveRightSup,j,i])
-                noise[j,i] = np.divide(np.nansum([stdLeft[j,i], stdRight[j,i]]),2.)       
-
+                    stdLeft[j,i] = np.nanstd(dd[idxWaveLeftInf:idxWaveLeftSup,j,i])
+                    stdRight[j,i] =np.nanstd(dd[idxWaveRightInf:idxWaveRightSup,j,i])
+                    noise[j,i] = np.divide(np.nansum([stdLeft[j,i], stdRight[j,i]]),2.)       
+                    noise[j,i] = np.multiply(noise[j,i],np.sqrt(indexMax-indexMin))
+        
         snr = np.divide(peak,noise)
 
         snr = np.reshape(snr,[dd.shape[1]*dd.shape[2]])
