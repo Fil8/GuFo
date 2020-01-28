@@ -83,7 +83,13 @@ class vorplay(object):
 
         for j in range(0,dd.shape[1]):
             for i in range(0,dd.shape[2]):
-                peak[j,i] = np.nansum(dd[indexMin:indexMax,j,i])
+                if cfg_par['vorBin']['method'] == 'peak':
+                    peak[j,i] = np.nanmax(dd[indexMin:indexMax,j,i])
+                elif cfg_par['vorBin']['method'] == 'mean':
+                    peak[j,i] = np.nanmean(dd[indexMin:indexMax,j,i])
+                elif cfg_par['vorBin']['method'] == 'sum':
+                    peak[j,i] = np.nansum(dd[indexMin:indexMax,j,i])
+
                 stdLeft[j,i] = np.nanstd(dd[idxWaveLeftInf:idxWaveLeftSup,j,i])
                 stdRight[j,i] = np.nanstd(dd[idxWaveRightInf:idxWaveRightSup,j,i])
                 noise[j,i] = np.divide(np.nansum([stdLeft[j,i], stdRight[j,i]]),2.)       
