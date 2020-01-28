@@ -70,10 +70,10 @@ class vorplay(object):
         idxWaveRightInf = int(np.where(abs(wave-waveRightInf)==abs(wave-waveRightInf).min())[0])
 
         #find peak of HbetaLine
-        waveAmpIn1Min = np.log(lineInfo['Wave'][0]-2*lineInfo['cenRangeAng'][0])
+        waveAmpIn1Min = np.log(lineInfo['Wave'][0]-lineInfo['cenRangeAng'][0])
         indexMin = int(np.where(abs(wave-waveAmpIn1Min)==abs(wave-waveAmpIn1Min).min())[0]) 
 
-        waveAmpIn1Max = np.log(lineInfo['Wave'][0]+2*lineInfo['cenRangeAng'][0])
+        waveAmpIn1Max = np.log(lineInfo['Wave'][0]+lineInfo['cenRangeAng'][0])
         indexMax = int(np.where(abs(wave-waveAmpIn1Max)==abs(wave-waveAmpIn1Max).min())[0])
         
         peak = np.empty([dd.shape[1],dd.shape[2]])
