@@ -51,11 +51,11 @@ class vorplay(object):
         #spec  = np.reshape(dd,[s[0],s[1]*s[2]])
         
         #estimate the noise around the Hbeta line
-        velRangeInf = cvP.vRadLambda(15000,
+        velRangeInf = cvP.vRadLambda(10000,
                 lineInfo['Wave'][0])-lineInfo['Wave'][0] 
-        velRangeSup = cvP.vRadLambda(4000,
+        velRangeSup = cvP.vRadLambda(3000,
                 lineInfo['Wave'][0])-lineInfo['Wave'][0] 
-
+        print(velRangeInf,velRangeSup)
         waveLeftSup = np.log(lineInfo['Wave'][0]-velRangeSup)
         #print(waveLeftSup, lineInfo['Wave'][0], velRangeSup)
         idxWaveLeftSup = int(np.where(abs(wave-waveLeftSup)==abs(wave-waveLeftSup).min())[0])
