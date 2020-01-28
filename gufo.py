@@ -59,7 +59,13 @@ class gufo(object):
         if not os.path.exists(cubeDir):
             os.mkdir(cubeDir)
         self.cfg_par['general']['cubeDir'] = cubeDir
-   
+ 
+        tableDir = self.cfg_par['general']['runNameDir']+'tables/'
+        if not os.path.exists(tableDir):
+            os.mkdir(tableDir)
+        self.cfg_par['general']['tableDir'] = tableDir
+
+
         if self.cfg_par['starSub'].get('enable',False) == True:
             self.cfg_par['general']['outVorTableName'] = self.cfg_par['general']['workdir']+'GuFo_LineTable.fits'
             if self.cfg_par['starSub'].get('scaleFlux',False) == True:
@@ -79,7 +85,7 @@ class gufo(object):
                 self.cfg_par['general']['outLines'] = cubeDir+'LineCubeVor.fits'
                 self.cfg_par['general']['outNoise'] = cubeDir+'noiseCubeVor.fits'
         else: 
-            self.cfg_par['general']['outVorTableName'] = self.cfg_par['general']['workdir']+'GuFo_LineTable.fits'
+            self.cfg_par['general']['outVorTableName'] = self.cfg_par['general']['tableDir']+'GuFo_LineTable.fits'
             if self.cfg_par['starSub'].get('scaleFlux',False) == True:
                 if self.cfg_par['starSub'].get('scaleHow',None) == 'mean':
                     nameEnd = 'PixMean.fits'
@@ -92,8 +98,8 @@ class gufo(object):
                 self.cfg_par['general']['outNoise'] = cubeDir+'noiseCubeVor.fits'
 
         
-        self.cfg_par['general']['outVorSpectra'] = self.cfg_par['general']['workdir']+'GuFo_LineVorSpectra.fits'
-        self.cfg_par['general']['outVorLineTableName'] = self.cfg_par['general']['workdir']+'GuFo_LineVorTable.fits'
+        self.cfg_par['general']['outVorSpectra'] = self.cfg_par['general']['tableDir']+'GuFo_LineVorSpectra.fits'
+        self.cfg_par['general']['outVorLineTableName'] = self.cfg_par['general']['tableDir']+'GuFo_LineVorTable.fits'
         self.cfg_par['general']['outVorLines'] = cubeDir+'LineVor.fits'
         self.cfg_par['general']['outVorNoise'] = cubeDir+'NoiseVor.fits'
 
