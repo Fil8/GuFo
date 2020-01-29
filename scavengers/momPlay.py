@@ -112,7 +112,7 @@ class momplay:
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
                 for index in match_bin:
-                    thresHold = lines['g1_Amp_'+lineName][i]/nn[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                    thresHold = lines['g1_Amp_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
                     if thresHold >= lineThresh:
                         mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]
 
