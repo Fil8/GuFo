@@ -104,16 +104,18 @@ class momplay:
                 mom0G3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
                 mom1G3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
                 mom2G3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
-
         for i in range(0,len(lines['BIN_ID'])):
             #if lines['BIN_ID'][i]< 0:
             #    continue
             #else:
+                print(lines['BIN_ID'][i])
+
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
                 for index in match_bin:
                     thresHold = lines['g1_Amp_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
-                    print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i])
+                    
+                    print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
                     if thresHold >= lineThresh:
                         mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]
 
