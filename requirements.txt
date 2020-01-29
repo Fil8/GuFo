@@ -1,4 +1,4 @@
-ipython==5.8.0
+ipython
 numpy==1.16.4
 wheel
 scipy

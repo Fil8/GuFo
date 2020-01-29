@@ -49,13 +49,17 @@ class momplay:
             lineThresh = float(lineInfo['SNThresh'][ii])
 
             print('\n\t *********** --- Moments: '+lineName+' --- ***********\n')
-
-            self.moments(cfg_par,lineName,dd,nn,cfg_par['general']['outTableName'],lineThresh)
+            
+            if ii==0:
+                doBinMap=True
+            else:
+                doBinMap=False
+            self.moments(cfg_par,lineName,dd,nn,cfg_par['general']['outTableName'],lineThresh,doBinMap)
 
         return
 
 
-    def moments(self,cfg_par,lineName,header,noise,outTableName,lineThresh):
+    def moments(self,cfg_par,lineName,header,noise,outTableName,lineThresh,doBinMap):
 
         modName = cfg_par['gFit']['modName']
         momModDir = cfg_par['general']['momDir']+modName+'/'
@@ -93,7 +97,8 @@ class momplay:
         mom1G1 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         mom2G1 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
 
-        binMap = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
+        if doBinMap==True:
+            binMap = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         
         if modName != 'g1':
             mom0Tot = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
@@ -104,6 +109,7 @@ class momplay:
                 mom0G3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
                 mom1G3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
                 mom2G3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
+        
         for i in range(0,len(lines['BIN_ID'])):
             #if lines['BIN_ID'][i]< 0:
             #    continue
@@ -112,29 +118,33 @@ class momplay:
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
                 for index in match_bin:
-                    thresHold = lines['g1_Height_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                    thresHold = lines['g1_SN_'+lineName][i]
                     
                     #print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
                     if thresHold >= lineThresh:
-                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i]
+                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX']
 
                         mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
                         mom2G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_sigma_'+lineName][i]
-                        binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
-
-                    if modName != 'g1':
-                        mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Height_'+lineName][i]/0.3989423*lines['g2_Sigma_'+lineName][i]
-                        mom1G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Centre_'+lineName][i]
-                        mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_sigma_'+lineName][i]
+                        
+                        if doBinMap==True:
+                            binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
+                        
+                        if modName != 'g1':
+                            mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Amp_'+lineName][i]/tabGen['NSPAX']
+                            mom1G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Centre_'+lineName][i]
+                            mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_sigma_'+lineName][i]
                         
                         if modName == 'g3':
-                            mom0G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Height_'+lineName][i]/0.3989423*lines['g3_Sigma_'+lineName][i]
+                            mom0G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Amp_'+lineName][i]/tabGen['NSPAX']
                             mom1G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Centre_'+lineName][i]
                             mom2G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_sigma_'+lineName][i]
+        
+        if doBinMap==True:
 
-        binHead['SPECSYS'] = 'topocent'
-        binHead['BUNIT'] = 'Flux'
-        fits.writeto(momModDir+'binMap_'+lineName+'.fits',binMap, binHead,overwrite=True)
+            binHead['SPECSYS'] = 'topocent'
+            binHead['BUNIT'] = 'Flux'
+            fits.writeto(momModDir+'binMapMom0_'+lineName+'.fits',binMap, binHead,overwrite=True)
 
 
         mom0Head['SPECSYS'] = 'topocent'
