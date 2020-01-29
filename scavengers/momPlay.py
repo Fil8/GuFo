@@ -113,7 +113,7 @@ class momplay:
 
                 for index in match_bin:
                     thresHold = lines['g1_Amp_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
-                    print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
+                    print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i])
                     if thresHold >= lineThresh:
                         mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]
 
