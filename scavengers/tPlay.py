@@ -435,7 +435,7 @@ class tplay(object):
             #cen_err = result.params[modName+'ln'+str(i)+'_center'].stderr  
             #g1CtrErr = self.lambdaVRad(np.exp(cen_err),lineInfo['Wave'][i])
             lineArr[lineName][counter] = int(lineInfo['Wave'][ii])     
-            lineArr['g1_Amp_'+lineName][counter] = amp
+            lineArr['g1_Amp_'+lineName][counter] = height/0.3989423*g1Sigma
             lineArr['g1_Height_'+lineName][counter] = height
             lineArr['g1_Centre_'+lineName][counter] = g1Ctr
             lineArr['g1_Sigma_'+lineName][counter] = g1Sigma
@@ -459,7 +459,7 @@ class tplay(object):
                 #cen_err = result.params[modName+'ln'+str(i)+'_center'].stderr  
                 #g1CtrErr = self.lambdaVRad(np.exp(cen_err),lineInfo['Wave'][i])
           
-                lineArr['g2_Amp_'+lineName][counter] = amp
+                lineArr['g2_Amp_'+lineName][counter] = height/0.3989423*g2Sigma
                 lineArr['g2_Height_'+lineName][counter] = height
                 lineArr['g2_Centre_'+lineName][counter] = g2Ctr
                 lineArr['g2_Sigma_'+lineName][counter] = g2Sigma
@@ -483,7 +483,7 @@ class tplay(object):
                     #cen_err = result.params[modName+'ln'+str(i)+'_center'].stderr  
                     #g1CtrErr = self.lambdaVRad(np.exp(cen_err),lineInfo['Wave'][i])
               
-                    lineArr['g3_Amp_'+lineName][counter] = amp
+                    lineArr['g3_Amp_'+lineName][counter] = height/0.3989423*g3Sigma
                     lineArr['g3_Height_'+lineName][counter] = height
                     lineArr['g3_Centre_'+lineName][counter] = g3Ctr
                     lineArr['g3_Sigma_'+lineName][counter] = g3Sigma
