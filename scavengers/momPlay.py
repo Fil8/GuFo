@@ -53,7 +53,7 @@ class momplay:
             if ii==0:
                 doBinMap=True
             else:
-                doBinMap=False
+                doBinMap=True
             self.moments(cfg_par,lineName,dd,nn,cfg_par['general']['outTableName'],lineThresh,doBinMap)
 
         return
