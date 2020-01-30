@@ -8,6 +8,7 @@ import functools
 import scipy.spatial.distance as dist
 
 from scavengers import tPlay, cvPlay, starSub
+from scavengers import util as pretty
 
 tP = tPlay.tplay()
 cvP = cvPlay.convert()
@@ -188,7 +189,7 @@ class vorplay(object):
         sn_func_covariances = functools.partial(self.sn_func, covar_vor=covar_vor )
 
         try:
-            print('\n\t *********** --- GuFo: VorBinning --- ***********\n')
+            #print('\n\t *********** --- GuFo: VorBinning --- ***********\n')
             # Do the Voronoi binning
 
             binNum, xNode, yNode, xBar, yBar, sn, nPixels, _ = voronoi_2d_binning(x[idx_inside], y[idx_inside],
@@ -310,9 +311,10 @@ class vorplay(object):
         resulting Voronoi-binned spectra are saved to disk. 
         """
         # Apply Voronoi bins
-        print("Applying the Voronoi bins to data")
-        #idx_inside = np.where( binNum == ubins[i] )[0]
+        pretty.prettyOutput_Running("Applying the Voronoi bins to "+cfg_par['general']['inputCube'])
         bin_data, bin_error, bin_flux = self.voronoi_binning( binNum, spec, espec )
+        pretty.prettyOutput_Done("Applying the Voronoi bins to "+cfg_par['general']['inputCube'], progressbar=True)
+        #idx_inside = np.where( binNum == ubins[i] )[0]
         # Save Voronoi binned spectra
         self.save_vorspectra(cfg_par, bin_data, bin_error, velscale, wave)
         

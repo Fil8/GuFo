@@ -8,6 +8,7 @@ import time
 import gufo
 from scavengers import gPlay, starSub, momPlay, tPlay
 from scavengers import gPlayMp, bptPlot, vorPlay
+from scavengers import util as pretty
 
 import argparse
 from  argparse import ArgumentParser
@@ -46,7 +47,7 @@ def outFunction ():
         gufo\t\t\t-gd <configFileName>:\tgenerate config file in working directory
         gufo\t\t\t-c  <configFileName>:\trun GuFo with modules enabled from config file
         gufo -stS\t\t-c  <configFileName>:\tmake line cube from PPXF outputs
-        gufo -gp\t\t-c  <configFileName>:\trun fit with parameters from config file and lineList file
+        gufo -gp\t\t-c  <configFileName>:\trun fit with parameters from config file and lineList file (outdated)
         gufo -gpMp\t\t-c  <configFileName>:\trun fit on multiprocess with parameters from config file and lineList file
         gufo -gPl\t\t-c  <configFileName>:\tplot fit results for each bin
         gufo -gPs\t-bin <binNum>\t-c  <configFileName>:\tplot fit results for binNum
@@ -54,8 +55,9 @@ def outFunction ():
         gufo -res\t\t-c  <configFileName>:\tmake residual maps for each fitted line
         gufo -lr\t-c  <configFileName>:\testimate lineRatios, make lineRatio maps and BPT plots of fitted lines
         gufo -clT\t\t-c  <configFileName>:\tclean table leaving only fit results
-        gufo -vor\t\t-c  <configFileName>:\tvorBIn table leaving only fit results
-                    """)
+        gufo -vor\t\t-c  <configFileName>:\tvoronoi binning of output of PPXF (star subtracted datacube) 
+        gufo -stS\t\t-c  <configFileName>:\tmake stellar subtracted datacube (output of PPXF is a table)
+            """)
 
         return 
 
@@ -181,7 +183,7 @@ def main (argv):
     #time.time() - time_start_load))
     else:
         outFunction()
-    print(gPar.cfg_par)
+
     if args.starSub or gPar.cfg_par['starSub'].get('enable',False) == True:
         time_start_load = time.time()        
         print ('\n\t************* --- GuFo : make Datacubes --- **************\n')
@@ -193,17 +195,10 @@ def main (argv):
         print("## fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    if args.clTbl or gPar.cfg_par['general'].get('cleanTable',False) == True:
-        
-        print ('\n\t************* --- GuFo : clean Table --- **************\n')
-        gPar = gufo.gufo(args.cfgFile)
-        tP.cleanTable(gPar.cfg_par)
-        print('\n\t************* --- GuFo : DONE --- **************\n') 
-
     if args.vorPlay or gPar.cfg_par['vorBin'].get('enable',False) == True:
         time_start_load = time.time()        
-        print ('\n\t************* --- GuFo : vorBin --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
+        pretty.prettyOutput_Running('\n\t *********** --- GuFo: VorBin --- ***********\n')
         vor.vorBin(gPar.cfg_par)
         print ('\n\t************* --- GuFo : vorLineCube --- **************\n')
         ss.makeCubesVorLine(gPar.cfg_par)
@@ -238,14 +233,19 @@ def main (argv):
         time_start_load = time.time()
         print ('\n\t************* --- GuFo : gPlot single BIN --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
-        print(args.binID)
+        gPar.cfg_par['general']['cleanTable'] = False
+        gPar.cfg_par['starSub']['enable'] = False
+        gPar.cfg_par['vorBin']['enable'] = False
+        gPar.cfg_par['gFit']['enable'] = False
+        gPar.cfg_par['lineRatios']['enable'] = False
+        gPar.cfg_par['moments']['enable']
         gp.plotSingleBin(gPar.cfg_par, args.binID)
         print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
  
-    if args.resPlot or gPar.cfg_par['resPlot'].get('enable',False) == True:
+    if args.resPlot or gPar.cfg_par['residuals'].get('enable',False) == True:
         time_start_load = time.time()
-        print ('\n\t************* --- GuFo : gPlot residuals --- **************\n')
+        print ('\n\t************* --- GuFo : residuals --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
         mom.resLines(gPar.cfg_par)
         print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
@@ -255,6 +255,8 @@ def main (argv):
         
         print ('\n\t *********** --- GuFo : moments --- ************\n')
         gPar = gufo.gufo(args.cfgFile)
+        gPar.cfg_par['general']['cleanTable'] = True
+        tP.cleanTable(gPar.cfg_par)        
         mom.makeMoments(gPar.cfg_par)
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
@@ -262,14 +264,19 @@ def main (argv):
         
         print ('\n\t************* --- GuFo : lineRatios --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
+        gPar.cfg_par['general']['cleanTable'] = True
+        tP.cleanTable(gPar.cfg_par)   
+
         lineInfo = tP.openLineList(gPar.cfg_par)
         tP.binLineRatio(gPar.cfg_par,lineInfo)
         mom.makeLineRatioMaps(gPar.cfg_par)
         print('\n\t************* --- GuFo : DONE --- **************\n')    
   
     if args.bptPlots or gPar.cfg_par['lineRatios'].get('bptPlot',False) == True:    
-        
         print ('\n\t************* --- GuFo : BPT plots --- **************\n')
+        gPar.cfg_par['lineRatios'].get('bptMap',False) == True
+        gPar.cfg_par['general']['cleanTable'] = True
+        tP.cleanTable(gPar.cfg_par)
         bpt.bptOIII(gPar.cfg_par)
         bpt.bptSII(gPar.cfg_par)
         bpt.bptOI(gPar.cfg_par)
@@ -279,11 +286,21 @@ def main (argv):
         
         print ('\n\t************* --- GuFo : BPT maps --- **************\n')
         print(gPar.cfg_par['general']['bptDir']+gPar.cfg_par['gFit']['modName'])
+        gPar.cfg_par['general']['cleanTable'] = True
+        tP.cleanTable(gPar.cfg_par)
+
         outBPT = glob.glob(gPar.cfg_par['general']['bptDir']+gPar.cfg_par['gFit']['modName']+"/*.fits")
         print(outBPT)
         for i in outBPT:
             bpt.bptIM(gPar.cfg_par,i)
         print('\n\t************* --- GuFo : DONE --- **************\n')
+
+    if args.clTbl or gPar.cfg_par['general'].get('cleanTable',False) == True:
+        
+        print ('\n\t************* --- GuFo : clean Table --- **************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        tP.cleanTable(gPar.cfg_par)
+        print('\n\t************* --- GuFo : DONE --- **************\n') 
 
     if args.cfgFile is None:
         print ('\n\t************* --- GuFo : ERROR --- **************')

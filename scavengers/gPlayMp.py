@@ -12,6 +12,8 @@ import multiprocessing as mp
 #from multiprocessing import shared_memory, Queue
 
 import ctypes
+from tqdm import tqdm
+
 
 from astropy.io import ascii, fits
 from astropy.table import Table, Column
@@ -25,16 +27,17 @@ import cvPlay
 import specPlot
 import tPlay
 
+import util as pretty
+
 #gf = gufo()
 cvP = cvPlay.convert()
 sP = specPlot.specplot()
 tP = tPlay.tplay()
 
 #lock = mp.Lock()
-
-
-def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
+def workerGFitMp(cfg_par,dd,rank,nprocs):
     
+
     #existing_shm = shared_memory.SharedMemory(name=binIDShareName)
     key = 'general'
 
@@ -46,19 +49,7 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
     
     wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
         cfg_par['general']['outVorSpectra'])
-
-    lambdaMin = np.log(cfg_par['gFit']['lambdaMin'])
-    lambdaMax = np.log(cfg_par['gFit']['lambdaMax'])
-
-
-    idxMin = int(np.where(abs(wave-lambdaMin)==abs(wave-lambdaMin).min())[0]) 
-    idxMax = int(np.where(abs(wave-lambdaMax)==abs(wave-lambdaMax).min())[0])
-
-    #dd.shape[2]=12
-    Ydim = int(dd.shape[1])
-    Xdim = int(dd.shape[2])
         
-
     ubins = np.unique(vorBinInfo['BIN_ID'])
     #for i in range(0,len(ubins)):
     #    print(ubins[i])
@@ -69,6 +60,24 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
     #for j in range(205,208):
     #    for i in range(250,252):
     for ii in range(rank,len(ubins), nprocs):
+        
+        counter,binArr,fitResArr,lineArr = gFitMp(cfg_par,lineInfo,vorBinInfo,wave,dd,noiseBin,counter,ii,ubins,binArr,
+            fitResArr,lineArr)
+
+    match_indices = np.where(binArr['BIN_ID'] == 0.0)[0]
+    binArr = np.delete(binArr,match_indices,0)                                
+    match_indices = np.where(fitResArr['BIN_ID'] == 0.0)[0]
+    fitResArr = np.delete(fitResArr,match_indices,0)                                
+    match_indices = np.where(lineArr['BIN_ID'] == 0)[0]
+    lineArr = np.delete(lineArr,match_indices,0)    
+
+    return binArr, lineArr, fitResArr  
+
+
+def gFitMp(cfg_par,lineInfo,vorBinInfo,wave,dd,noiseBin,counter,ii,ubins,binArr,fitResArr,lineArr):
+
+            #pretty.printProgress( ii, len(ubins), barLength=50 )
+
         #for i in range(rank, nsteps, nprocs):
             #0,dd.shape[2]):
             match_bin = np.where(ubins[ii]==vorBinInfo['BIN_ID'])[0]
@@ -77,8 +86,22 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
         
             j = int(vorBinInfo['PixY'][index])
             i = int(vorBinInfo['PixX'][index])
+
+            lambdaMin = np.log(cfg_par['gFit']['lambdaMin'])
+            lambdaMax = np.log(cfg_par['gFit']['lambdaMax'])
+
+
+            idxMin = int(np.where(abs(wave-lambdaMin)==abs(wave-lambdaMin).min())[0]) 
+            idxMax = int(np.where(abs(wave-lambdaMax)==abs(wave-lambdaMax).min())[0])
+
+            #dd.shape[2]=12
+            Ydim = int(dd.shape[1])
+            Xdim = int(dd.shape[2])
+
             y = dd[idxMin:idxMax,j,i]
             waveCut = wave[idxMin:idxMax]
+
+
 
                 #check if spectrum is not empty                   
                 #if np.nansum(y)>0:
@@ -100,7 +123,8 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
                     fitResArr = np.delete(fitResArr,counter,0)
                     lineArr = np.delete(lineArr,counter,0)  
                     counter+=1
-                    continue
+                    return counter,binArr,fitResArr,lineArr
+
                 
                 #print(binIDName,rank)
 
@@ -138,15 +162,9 @@ def gFitMp(cfg_par,lineInfo,dd,rank,nprocs):
             #existing_shm.close()
 
             counter+=1
-    
-    match_indices = np.where(binArr['BIN_ID'] == 0.0)[0]
-    binArr = np.delete(binArr,match_indices,0)                                
-    match_indices = np.where(fitResArr['BIN_ID'] == 0.0)[0]
-    fitResArr = np.delete(fitResArr,match_indices,0)                                
-    match_indices = np.where(lineArr['BIN_ID'] == 0)[0]
-    lineArr = np.delete(lineArr,match_indices,0)    
+            
+            return counter,binArr,fitResArr,lineArr
 
-    return binArr, lineArr, fitResArr
 
 
 def lineModDefMp(cfg_par,wave,y,lineInfo):
@@ -398,8 +416,8 @@ def main(cfg_par):
     workDir = cfg_par[key]['workdir']
     
     #open line lineList
-    lineInfo = tP.openLineList(cfg_par)
-    diffusion = 1e-5
+    #lineInfo = tP.openLineList(cfg_par)
+    #diffusion = 1e-5
     
     #open table for bins
     wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
@@ -426,7 +444,7 @@ def main(cfg_par):
             nprocs = mp.cpu_count()
         #nprocs -= 2
 
-        inputs = [(cfg_par,lineInfo,dd,rank, nprocs) for rank in range(nprocs)]
+        inputs = [(cfg_par,dd,rank, nprocs) for rank in range(nprocs)]
         #print inputs 
         print('''\t+---------+\n\t going to process\n\t+---------+''')
         
@@ -461,10 +479,14 @@ def main(cfg_par):
 
         #:
         #for inp in range(10):
+        pbar = tqdm(total=100)
 
-        multi_result = [pool.apply_async(gFitMp, inp) for inp in inputs ]
+    # tqdm.write(str(a))
+        for i in range(pbar.total):
+            
+            multi_result = [pool.apply_async(workerGFitMp, inp, callback=pretty.update) for inp in inputs ]
         #multi_result = [pool.apply_async(gFitMp, inputs[0]) ]
-        result = [p.get() for p in multi_result]
+            result = [p.get() for p in multi_result]
 
         #print(result)
         #sys.exit(0)

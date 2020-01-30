@@ -19,6 +19,11 @@ except pkg_resources.DistributionNotFound:
 class gufo(object):
 
     def __init__(self,file=None):
+        '''
+        Set paths and constants
+        Load config file
+        Call self.set_dirs()
+        '''
 
         #self.rootdir = os.getcwd()+'/'
         self.C = 2.99792458e8
