@@ -9,3 +9,4 @@ astropy
 aplpy
 vorbin
 ppxf==6.7.15
+tqdm
