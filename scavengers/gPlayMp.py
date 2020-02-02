@@ -9,7 +9,8 @@ from lmfit.model import save_modelresult
 from lmfit.model import load_modelresult
 
 import multiprocessing as mp
-#from multiprocessing import shared_memory, Queue
+
+from multiprocessing import Queue, Manager, Process
 
 import ctypes
 from tqdm import tqdm
@@ -72,6 +73,18 @@ def workerGFitMp(cfg_par,dd,rank,nprocs):
     lineArr = np.delete(lineArr,match_indices,0)    
 
     return binArr, lineArr, fitResArr  
+
+def show_prog(q, total_bytes):
+    prog = tqdm(total=total_bytes, desc="Total", unit='B', unit_scale=True)
+    while 1:
+        try:
+            to_add = q.get(timeout=1)
+            prog.n += to_add
+            prog.update(0)
+            if prog.n >= total_bytes:
+                break
+        except:
+            continue
 
 
 def gFitMp(cfg_par,lineInfo,vorBinInfo,wave,dd,noiseBin,counter,ii,ubins,binArr,fitResArr,lineArr):
@@ -165,6 +178,12 @@ def gFitMp(cfg_par,lineInfo,vorBinInfo,wave,dd,noiseBin,counter,ii,ubins,binArr,
             
             return counter,binArr,fitResArr,lineArr
 
+
+def update(i, ans):
+    # note: input comes from async `wrapMyFunc`
+    print(i,ans)
+    res[i] = ans  # put answer into correct index of result list
+    pbar.update()
 
 
 def lineModDefMp(cfg_par,wave,y,lineInfo):
@@ -476,21 +495,32 @@ def main(cfg_par):
         #    p.join()
         #while not q.empty():
         #    print(q.get())
-
+        #manager = Manager()
+        #queue = manager.Queue()
         #:
         #for inp in range(10):
-        pbar = tqdm(total=100)
 
     # tqdm.write(str(a))
-        for i in range(pbar.total):
-            
-            multi_result = [pool.apply_async(workerGFitMp, inp, callback=pretty.update) for inp in inputs ]
-        #multi_result = [pool.apply_async(gFitMp, inputs[0]) ]
-            result = [p.get() for p in multi_result]
+        #for i in range(pbar.total):
+        #pbar = tqdm(total=len(inputs))
+        #:
+        multi_result = [pool.apply_async(workerGFitMp, args=(inp)) for inp in inputs]
+        
+        result = [p.get() for p in multi_result]
 
+        #progress = Process(target=show_prog, args=(queue, final_bytes))
+
+        #progress.start()
+
+        #multi_result = [pool.apply_async(gFitMp, inputs[0]) ]
+        #tqdm.write('scheduled')
         #print(result)
         #sys.exit(0)
-
+        
+        #pool.close()
+        #pool.start()
+        #pool.join()
+        #progress.join()
         
         #]                
         #print(result.shape())

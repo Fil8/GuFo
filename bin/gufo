@@ -276,7 +276,6 @@ def main (argv):
         print ('\n\t************* --- GuFo : BPT plots --- **************\n')
         gPar.cfg_par['lineRatios'].get('bptMap',False) == True
         gPar.cfg_par['general']['cleanTable'] = True
-        tP.cleanTable(gPar.cfg_par)
         bpt.bptOIII(gPar.cfg_par)
         bpt.bptSII(gPar.cfg_par)
         bpt.bptOI(gPar.cfg_par)
@@ -287,8 +286,6 @@ def main (argv):
         print ('\n\t************* --- GuFo : BPT maps --- **************\n')
         print(gPar.cfg_par['general']['bptDir']+gPar.cfg_par['gFit']['modName'])
         gPar.cfg_par['general']['cleanTable'] = True
-        tP.cleanTable(gPar.cfg_par)
-
         outBPT = glob.glob(gPar.cfg_par['general']['bptDir']+gPar.cfg_par['gFit']['modName']+"/*.fits")
         print(outBPT)
         for i in outBPT:

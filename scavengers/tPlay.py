@@ -446,7 +446,7 @@ class tplay(object):
             #g1CtrErr = self.lambdaVRad(np.exp(cen_err),lineInfo['Wave'][i])
             lineArr[lineName][counter] = int(lineInfo['Wave'][ii])     
             
-            lineArr['g1_Amp_'+lineName][counter] = height/0.3989423*g1Sigma
+            lineArr['g1_Amp_'+lineName][counter] = height/0.3989423*sig
             lineArr['g1_Height_'+lineName][counter] = height
             lineArr['g1_Centre_'+lineName][counter] = g1Ctr
             lineArr['g1_Sigma_'+lineName][counter] = g1Sigma

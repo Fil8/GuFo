@@ -1,4 +1,6 @@
 import sys
+from tqdm import tqdm
+
 # ==============================================================================
 #                          P R E T T Y   O U T P U T
 # ==============================================================================
@@ -15,8 +17,7 @@ PURPOSE:
     (ui.adsabs.harvard.edu/?#abs/2003MNRAS.342..345C). 
 """
 
-def update(*a):
-    pbar.update()
+
 
 def printProgress(iteration, total, prefix = '', suffix = '', decimals = 2, barLength = 80, color = 'g'):
     """
