@@ -330,6 +330,8 @@ class tplay(object):
             frmList.append('f8')
             lineNameList.append('g1_Sigma_'+lineName)
             frmList.append('f8')
+            lineNameList.append('g1_Sigfit_'+lineName)
+            frmList.append('f8')
             lineNameList.append('g1_FWHM_'+lineName)
             frmList.append('f8')
             lineNameList.append('g1_SN_'+lineName)
@@ -430,7 +432,7 @@ class tplay(object):
 
             amp = fitRes['g1ln'+str(ii)+'_amplitude']
             ctr = fitRes['g1ln'+str(ii)+'_center']
-            sig = fitRes['g1intln'+str(ii)]
+            sig = fitRes['g1intln'+str(ii)+'_sigma']
 
             fwhm = fitRes['g1ln'+str(ii)+'_fwhm']
             height = fitRes['g1ln'+str(ii)+'_height']
