@@ -432,7 +432,7 @@ class tplay(object):
 
             amp = fitRes['g1ln'+str(ii)+'_amplitude']
             ctr = fitRes['g1ln'+str(ii)+'_center']
-            sig = fitRes['g1intln'+str(ii)+'_sigma']
+            sig = fitRes['g1ln'+str(ii)+'_sigma']
 
             fwhm = fitRes['g1ln'+str(ii)+'_fwhm']
             height = fitRes['g1ln'+str(ii)+'_height']

@@ -38,6 +38,7 @@ class momplay:
 
         lineInfo = tP.openLineList(cfg_par)
         for ii in range(0,len(lineInfo['ID'])):
+        #for ii in range(0,1):
 
             lineName = str(lineInfo['Name'][ii])
 

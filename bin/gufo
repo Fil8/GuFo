@@ -258,6 +258,7 @@ def main (argv):
         gPar.cfg_par['general']['cleanTable'] = True
         tP.cleanTable(gPar.cfg_par)        
         mom.makeMoments(gPar.cfg_par)
+        gPar.cfg_par['general']['cleanTable'] = False
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
     if args.lineRatios or gPar.cfg_par['lineRatios'].get('enable',False) == True:
@@ -266,6 +267,7 @@ def main (argv):
         gPar = gufo.gufo(args.cfgFile)
         gPar.cfg_par['general']['cleanTable'] = True
         tP.cleanTable(gPar.cfg_par)   
+        gPar.cfg_par['general']['cleanTable'] = False
 
         lineInfo = tP.openLineList(gPar.cfg_par)
         tP.binLineRatio(gPar.cfg_par,lineInfo)
@@ -279,6 +281,8 @@ def main (argv):
         bpt.bptOIII(gPar.cfg_par)
         bpt.bptSII(gPar.cfg_par)
         bpt.bptOI(gPar.cfg_par)
+        gPar.cfg_par['general']['cleanTable'] = False
+
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
     if args.bptMaps or gPar.cfg_par['lineRatios'].get('bptMap',False) == True:    
@@ -290,6 +294,8 @@ def main (argv):
         print(outBPT)
         for i in outBPT:
             bpt.bptIM(gPar.cfg_par,i)
+        gPar.cfg_par['general']['cleanTable'] = False
+
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
     if args.clTbl or gPar.cfg_par['general'].get('cleanTable',False) == True:
