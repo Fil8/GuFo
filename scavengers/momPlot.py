@@ -94,6 +94,8 @@ class MOMplot(object):
         f1.ticks.show()
 
         outMom = os.path.basename(imageName)
+        print(imageName)
+
         outMom= str.split(imageName, '.fits')[0]  
         modName = cfg_par['gFit']['modName']
         
@@ -102,7 +104,7 @@ class MOMplot(object):
         if os.path.exists(cfg_par['general']['momDir']+modName+'/plots/') == False:
             os.mkdir(cfg_par['general']['momDir']+modName+'/plots/')
 
-        fig.savefig(outMom,format=cfg_par['lineRatios']['plotFormat'])
+        fig.savefig(outMom,format=cfg_par['moments']['plotFormat'])
                 #if pdf, dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
 
         return 0
@@ -147,7 +149,6 @@ class MOMplot(object):
         f1.ticks.show()
 
         outMom = os.path.basename(imageName)
-        print(imageName)
         outMom= str.split(imageName, '.fits')[0]  
         modName = cfg_par['gFit']['modName']
         
@@ -156,7 +157,7 @@ class MOMplot(object):
         if os.path.exists(cfg_par['general']['momDir']+modName+'/plots/') == False:
             os.mkdir(cfg_par['general']['momDir']+modName+'/plots/')
 
-        fig.savefig(outMom,format=cfg_par['lineRatios']['plotFormat'])
+        fig.savefig(outMom,format=cfg_par['moments']['plotFormat'])
                 #if pdf, dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
 
         return 0
