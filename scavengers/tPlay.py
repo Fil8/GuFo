@@ -642,7 +642,7 @@ class tplay(object):
             lines['g1_Amp_'+'SII6716'][fltSII] = np.nan
             
             idxSII2 = np.where(lineNameID=='SII6730')[0]
-            fltSII = np.where(lines['g1_Amp_'+'Hb4861']<float(lineInfo['SNThresh'][idxSII2])
+            fltSII = np.where(lines['g1_Amp_'+'Hb4861']<float(lineInfo['SNThresh'][idxSII2]))
             lines['g1_Amp_'+'SII6730'][fltSII] = np.nan
 
             idxHa = np.where(lineNameID=='Ha6562')[0]           
