@@ -459,7 +459,7 @@ class momplay:
         hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
 
-        hbetaMap = fits.open(momModDir+'mom0_+'modName+'-Hb4861.fits')
+        hbetaMap = fits.open(momModDir+'mom0_'+modName+'-Hb4861.fits')
         hbetaData = hbetaMap[0].data
 
         numCols = len(lineBPT.dtype.names)
