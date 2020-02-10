@@ -189,6 +189,14 @@ def main (argv):
     else:
         outFunction()
 
+
+    if args.clTbl or gPar.cfg_par['general'].get('cleanTable',False) == True:
+        
+        print ('\n\t************* --- GuFo : clean Table --- **************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        tP.cleanTable(gPar.cfg_par)
+        print('\n\t************* --- GuFo : DONE --- **************\n') 
+
     if args.starSub or gPar.cfg_par['starSub'].get('enable',False) == True:
         time_start_load = time.time()        
         print ('\n\t************* --- GuFo : make Datacubes --- **************\n')
@@ -272,7 +280,7 @@ def main (argv):
         gPar = gufo.gufo(args.cfgFile)
         gPar.cfg_par['general']['cleanTable'] = True
         
-        
+
 
         mom.makeMoments(gPar.cfg_par)
         gPar.cfg_par['general']['cleanTable'] = False
@@ -316,12 +324,7 @@ def main (argv):
 
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    if args.clTbl or gPar.cfg_par['general'].get('cleanTable',False) == True:
-        
-        print ('\n\t************* --- GuFo : clean Table --- **************\n')
-        gPar = gufo.gufo(args.cfgFile)
-        tP.cleanTable(gPar.cfg_par)
-        print('\n\t************* --- GuFo : DONE --- **************\n') 
+
 
     if args.cfgFile is None:
         print ('\n\t************* --- GuFo : ERROR --- **************')
