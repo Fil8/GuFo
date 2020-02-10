@@ -459,6 +459,9 @@ class momplay:
         hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
 
+        hbetaMap = fits.open(momModDir+'mom0_+'modName+'-Hb4861.fits')
+        hbetaData = hbetaMap[0].data
+
         numCols = len(lineBPT.dtype.names)
 
         if modName == 'g2':
@@ -483,7 +486,8 @@ class momplay:
                 match_bin = np.where(tabGen['BIN_ID']==lineBPT['BIN_ID'][j])[0]
 
                 for index in match_bin:
-                    lineMapG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i]
+                    if ~np.isnan(hbetaData[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]):
+                        lineMapG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i]
 
                     if modName != 'g1': 
 
