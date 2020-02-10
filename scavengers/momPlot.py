@@ -96,7 +96,7 @@ class MOMplot(object):
         outMom = os.path.basename(imageName)
         print(imageName)
 
-        outMom= str.split(imageName, '.fits')[0]  
+        outMom= str.split(outMom, '.fits')[0]  
         modName = cfg_par['gFit']['modName']
         
         outMom = cfg_par['general']['momDir']+modName+'/plots/'+outMom+'.'+cfg_par['moments']['plotFormat']
@@ -149,7 +149,7 @@ class MOMplot(object):
         f1.ticks.show()
 
         outMom = os.path.basename(imageName)
-        outMom= str.split(imageName, '.fits')[0]  
+        outMom= str.split(outMom, '.fits')[0]  
         modName = cfg_par['gFit']['modName']
         
         outMom = cfg_par['general']['momDir']+modName+'/plots/'+outMom+'.'+cfg_par['moments']['plotFormat']
