@@ -266,12 +266,14 @@ def main (argv):
         gPar.cfg_par['general']['cleanTable'] = False
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    if args.momPlot or gPar.cfg_par['moments'].get('enable',False) == True:
+    if args.momPlot or gPar.cfg_par['moments'].get('plot',False) == True:
         
         print ('\n\t *********** --- GuFo : moments --- ************\n')
         gPar = gufo.gufo(args.cfgFile)
         gPar.cfg_par['general']['cleanTable'] = True
-        tP.cleanTable(gPar.cfg_par)        
+        
+        
+
         mom.makeMoments(gPar.cfg_par)
         gPar.cfg_par['general']['cleanTable'] = False
         print('\n\t************* --- GuFo : DONE --- **************\n')

@@ -182,6 +182,9 @@ class momplay:
             binHead['BUNIT'] = 'Flux'
             fits.writeto(momModDir+'binMapMom0_'+lineName+'.fits',binMap, binHead,overwrite=True)
 
+        del mom0Head['CRDER3']
+        del mom1Head['CRDER3']
+        del mom2Head['CRDER3']
 
         mom0Head['WCSAXES'] = 2
 
