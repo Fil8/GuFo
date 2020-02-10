@@ -429,7 +429,7 @@ class momplay:
 
 
         modName = cfg_par['gFit']['modName']
-        momModDir = cfg_par['general']['bptDir']+modName+'/'
+        bptDir = cfg_par['general']['bptDir']+modName+'/'
 
         if not os.path.exists(momModDir):
             os.mkdir(momModDir)
@@ -498,19 +498,19 @@ class momplay:
                             lineMapG3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i+numCols+2] #TOREVIEW!!!!
 
             lineMapHead['BUNIT'] = 'Flux'
-            outBPT = momModDir+'BPT-'+str(lineBPT.dtype.names[i])+'.fits'
-            fits.writeto(momModDir+'BPT-'+str(lineBPT.dtype.names[i])+'.fits',lineMapG1,lineMapHead,overwrite=True)
+            outBPT = bptDir+'BPT-'+str(lineBPT.dtype.names[i])+'.fits'
+            fits.writeto(bptDir+'BPT-'+str(lineBPT.dtype.names[i])+'.fits',lineMapG1,lineMapHead,overwrite=True)
             
             if modName != 'g1':
-                outBPTg2 = momModDir+'BPT-'+str(lineBPT.dtype.names[i+numCols-1])+'.fits'
-                outBPTtot = momModDir+'BPT-'+str(lineBPT.dtype.names[i+numCols*2-2])+'.fits'
+                outBPTg2 = bptDir+'BPT-'+str(lineBPT.dtype.names[i+numCols-1])+'.fits'
+                outBPTtot = bptDir+'BPT-'+str(lineBPT.dtype.names[i+numCols*2-2])+'.fits'
 
                 fits.writeto(outBPTg2,lineMapG2,lineMapHead,overwrite=True)
                 fits.writeto(outBPTtot,lineMapToT,lineMapHead,overwrite=True)
 
                 if modName == 'g3':
-                    outBPTg3 = momModDir+'BPT-'+str(lineBPT.dtype.names[i+numCols+2])+'.fits'
-                    fits.writeto(momModDir+'BPT-'+str(lineBPT.dtype.names[i+numCols+2])+'.fits',lineMapG3,lineMapHead,overwrite=True)
+                    outBPTg3 = bptDir+'BPT-'+str(lineBPT.dtype.names[i+numCols+2])+'.fits'
+                    fits.writeto(bptDir+'BPT-'+str(lineBPT.dtype.names[i+numCols+2])+'.fits',lineMapG3,lineMapHead,overwrite=True)
 
             if cfg_par['lineRatios']['bptMap'] == True:
                 bpt.bptIM(cfg_par,outBPT)
