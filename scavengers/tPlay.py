@@ -638,11 +638,11 @@ class tplay(object):
         if 'SII6716' in lineNameID and 'Ha6562' in lineNameID:
             
             idxSII1 = np.where(lineNameID=='SII6716')[0]
-            fltSII = np.where((lines['g1_Amp_'+'Hb4861']<float(lineInfo['SNThresh'][idxSII1]))
+            fltSII = np.where(lines['g1_Amp_'+'Hb4861']<float(lineInfo['SNThresh'][idxSII1]))
             lines['g1_Amp_'+'SII6716'][fltSII] = np.nan
             
             idxSII2 = np.where(lineNameID=='SII6730')[0]
-            fltSII = np.where((lines['g1_Amp_'+'Hb4861']<float(lineInfo['SNThresh'][idxSII2]))
+            fltSII = np.where(lines['g1_Amp_'+'Hb4861']<float(lineInfo['SNThresh'][idxSII2])
             lines['g1_Amp_'+'SII6730'][fltSII] = np.nan
 
             idxHa = np.where(lineNameID=='Ha6562')[0]           
