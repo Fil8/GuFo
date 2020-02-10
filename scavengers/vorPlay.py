@@ -56,7 +56,6 @@ class vorplay(object):
                 lineInfo['Wave'][0])-lineInfo['Wave'][0] 
         velRangeSup = cvP.vRadLambda(3000,
                 lineInfo['Wave'][0])-lineInfo['Wave'][0] 
-        print(velRangeInf,velRangeSup)
         
         waveLeftSup = np.log(lineInfo['Wave'][0]-velRangeSup)
         #print(waveLeftSup, lineInfo['Wave'][0], velRangeSup)

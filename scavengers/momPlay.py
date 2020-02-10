@@ -37,7 +37,7 @@ class momplay:
         nn = f[0].data
 
         lineInfo = tP.openLineList(cfg_par)
-        for ii in range(0,len(lineInfo['ID'])):
+        for ii in range(1,len(lineInfo['ID'])):
         #for ii in range(0,1):
 
             lineName = str(lineInfo['Name'][ii])
@@ -119,11 +119,13 @@ class momplay:
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
                 for index in match_bin:
-                    thresHold = lines['g1_SN_'+lineName][i]
+                    
+                    thresHold = lines['g1_Amp_Hb4861'][i]/tabGen['NSPAX'][index]
                     #thresHold = lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
                     #print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
+                    #print(thresHold,lineThresh)
                     if thresHold >= lineThresh:
-                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]
+                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = thresHold
 #                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Height_'+lineName][i]/tabGen['NSPAX'][index]
 
                         mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
@@ -141,6 +143,9 @@ class momplay:
                             mom0G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Amp_'+lineName][i]/tabGen['NSPAX'][index]
                             mom1G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Centre_'+lineName][i]
                             mom2G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_sigma_'+lineName][i]
+                    #else#:
+                    #    print(mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
+                    #    print(int(tabGen['PixY'][index]),int(tabGen['PixX'][index]))
         
         if doBinMap==True:
 
