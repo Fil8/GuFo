@@ -431,8 +431,7 @@ class momplay:
         modName = cfg_par['gFit']['modName']
         bptDir = cfg_par['general']['bptDir']+modName+'/'
 
-        if not os.path.exists(momModDir):
-            os.mkdir(momModDir)
+
 
         if 'CUNIT3' in header:
             del header['CUNIT3']
