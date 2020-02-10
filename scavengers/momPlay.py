@@ -430,6 +430,7 @@ class momplay:
 
         modName = cfg_par['gFit']['modName']
         bptDir = cfg_par['general']['bptDir']+modName+'/'
+        momModDir = cfg_par['general']['momDir']+modName+'/'
 
 
 
