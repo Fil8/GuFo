@@ -588,6 +588,7 @@ class tplay(object):
             
             idxOIII = np.where(lineNameID=='OIII5006')[0]
             fltOIII = np.where(lines['g1_SN_'+'OIII5006']<float(lineInfo['SNThresh'][idxOIII]))
+            print(fltOIII)
             print(lines['g1_Amp_'+'OIII5006'],lines['g1_Amp_'+'Hb4861'])
             lines['g1_Amp_'+'OIII5006'][fltOIII] = np.nan
             
