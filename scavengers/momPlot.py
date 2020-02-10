@@ -100,7 +100,7 @@ class MOMplot(object):
         outMom = cfg_par['general']['momDir']+modName+'/plots/'+outMom+'.'+cfg_par['moments']['plotFormat']
         
         if os.path.exists(cfg_par['general']['momDir']+modName+'/plots/') == False:
-            os.mkdir(cfg_par['general']['bptDir']+modName+'/plots/')
+            os.mkdir(cfg_par['general']['momDir']+modName+'/plots/')
 
         fig.savefig(outMom,format=cfg_par['lineRatios']['plotFormat'])
                 #if pdf, dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
@@ -153,7 +153,7 @@ class MOMplot(object):
         outMom = cfg_par['general']['momDir']+modName+'/plots/'+outMom+'.'+cfg_par['moments']['plotFormat']
         
         if os.path.exists(cfg_par['general']['momDir']+modName+'/plots/') == False:
-            os.mkdir(cfg_par['general']['bptDir']+modName+'/plots/')
+            os.mkdir(cfg_par['general']['momDir']+modName+'/plots/')
 
         fig.savefig(outMom,format=cfg_par['lineRatios']['plotFormat'])
                 #if pdf, dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
