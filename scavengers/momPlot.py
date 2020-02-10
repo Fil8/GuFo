@@ -61,7 +61,7 @@ class MOMplot(object):
         plt.rcParams.update(params)
         fig = plt.figure()
 
-        f1 = aplpy.FITSFigure(outBPT, figure=fig)
+        f1 = aplpy.FITSFigure(imageName, figure=fig)
         f1.set_theme('publication')
 
         f1.frame.set_linewidth(2)
@@ -114,7 +114,7 @@ class MOMplot(object):
         plt.rcParams.update(params)
         fig = plt.figure()
 
-        f1 = aplpy.FITSFigure(outBPT, figure=fig)
+        f1 = aplpy.FITSFigure(imageName, figure=fig)
         f1.set_theme('publication')
 
         f1.frame.set_linewidth(2)
