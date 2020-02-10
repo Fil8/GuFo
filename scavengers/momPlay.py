@@ -17,12 +17,12 @@ import numpy.ma as ma
 import shutil
 
 
-import tPlay,cvPlay,bptPlot
+import tPlay,cvPlay,bptPlot,momPlot
 
 tP = tPlay.tplay()
 cvP = cvPlay.convert()
 bpt = bptPlot.BPTplot()
-
+mPl = momPlot.MOMplot()
 
 class momplay:
 
@@ -32,9 +32,6 @@ class momplay:
 
         f = fits.open(cfg_par['general']['dataCubeName'])
         dd = f[0].header
-
-        g = fits.open(cfg_par['general']['noiseCubeName'])
-        nn = f[0].data
 
         lineInfo = tP.openLineList(cfg_par)
         for ii in range(0,len(lineInfo['ID'])):
@@ -48,6 +45,7 @@ class momplay:
 
             lineName = lineName+str(int(lineInfo['Wave'][ii]))
             lineThresh = float(lineInfo['SNThresh'][ii])
+            cenRange = float(lineInfo['cenRange'][ii])
 
             print('\n\t *********** --- Moments: '+lineName+' --- ***********\n')
             
@@ -55,12 +53,43 @@ class momplay:
                 doBinMap=True
             else:
                 doBinMap=True
-            self.moments(cfg_par,lineName,dd,nn,cfg_par['general']['outTableName'],lineThresh,doBinMap)
+            
+            self.moments(cfg_par,lineName,dd,cfg_par['general']['outTableName'],lineThresh,doBinMap,cenRange)
 
         return
 
+    def makeMomPlots(self,cfg_par):
 
-    def moments(self,cfg_par,lineName,header,noise,outTableName,lineThresh,doBinMap):
+        workDir = cfg_par['general']['cubeDir']
+        modName = cfg_par['gFit']['modName']
+        momModDir = cfg_par['general']['momDir']+modName+'/'
+
+        lineInfo = tP.openLineList(cfg_par)
+        for ii in range(0,len(lineInfo['ID'])):
+        #for ii in range(0,1):
+
+            lineName = str(lineInfo['Name'][ii])
+
+            if '[' in lineName:
+                lineName = lineName.replace("[", "")
+                lineName = lineName.replace("]", "")
+
+            lineName = lineName+str(int(lineInfo['Wave'][ii]))
+            lineThresh = float(lineInfo['SNThresh'][ii])
+            cenRange = float(lineInfo['cenRange'][ii])
+
+            print('\n\t *********** --- Plot Moms: '+lineName+' --- ***********\n')
+            
+            mom0Name = momModDir+'mom0_g1-'+lineName+'.fits'          
+            mom1Name = momModDir+'mom1_g1-'+lineName+'.fits'
+            
+            mPl.mom0Plot(cfg_par, mom0Name)
+
+            mPl.mom1Plot(cfg_par, mom1Name, cenRange)
+
+        return
+
+    def moments(self,cfg_par,lineName,header,outTableName,lineThresh,doBinMap,cenRange):
 
         modName = cfg_par['gFit']['modName']
         momModDir = cfg_par['general']['momDir']+modName+'/'
@@ -157,10 +186,14 @@ class momplay:
         mom0Head['SPECSYS'] = 'topocent'
         mom0Head['BUNIT'] = 'Jy/beam.km/s'
         fits.writeto(momModDir+'mom0_g1-'+lineName+'.fits',mom0G1,mom0Head,overwrite=True)
+        
+        mPl.mom0Plot(cfg_par,momModDir+'mom0_g1-'+lineName+'.fits')
 
         mom1Head['SPECSYS'] = 'topocent'
         mom1Head['BUNIT'] = 'km/s'
         fits.writeto(momModDir+'mom1_g1-'+lineName+'.fits',mom1G1,mom1Head,overwrite=True)
+
+        mPl.mom0Plot(cfg_par,momModDir+'mom1_g1-'+lineName+'.fits',cenRange)
 
         mom2Head['SPECSYS'] = 'topocent'
         mom2Head['BUNIT'] = 'km/s'

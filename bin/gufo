@@ -52,6 +52,7 @@ def outFunction ():
         gufo -gPl\t\t-c  <configFileName>:\tplot fit results for each bin
         gufo -gPs\t-bin <binNum>\t-c  <configFileName>:\tplot fit results for binNum
         gufo -mom\t\t-c  <configFileName>:\tmake moment maps of fitted lines
+        gufo -momPl\t\t-c  <configFileName>:\t plot moment maps from fits files
         gufo -res\t\t-c  <configFileName>:\tmake residual maps for each fitted line
         gufo -lr\t-c  <configFileName>:\testimate lineRatios, make lineRatio maps and BPT plots of fitted lines
         gufo -clT\t\t-c  <configFileName>:\tclean table leaving only fit results
@@ -134,6 +135,10 @@ def main (argv):
         action='store_true',
         help= 'tool to play with gaussian fits')
 
+    add('-mPl', '--momPlot',
+        action='store_true',
+        help= 'tool to play with gaussian fits')
+    
     add('-lr', '--lineRatios',
         action='store_true',
         help= 'tool to play with gaussian fits')
@@ -260,6 +265,17 @@ def main (argv):
         mom.makeMoments(gPar.cfg_par)
         gPar.cfg_par['general']['cleanTable'] = False
         print('\n\t************* --- GuFo : DONE --- **************\n')
+
+    if args.momPlot or gPar.cfg_par['moments'].get('enable',False) == True:
+        
+        print ('\n\t *********** --- GuFo : moments --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        gPar.cfg_par['general']['cleanTable'] = True
+        tP.cleanTable(gPar.cfg_par)        
+        mom.makeMoments(gPar.cfg_par)
+        gPar.cfg_par['general']['cleanTable'] = False
+        print('\n\t************* --- GuFo : DONE --- **************\n')
+
 
     if args.lineRatios or gPar.cfg_par['lineRatios'].get('enable',False) == True:
         
