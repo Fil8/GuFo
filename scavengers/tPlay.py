@@ -548,7 +548,7 @@ class tplay(object):
         hdul = fits.open(cfg_par['general']['outTableName'])
 
         if cfg_par['gFit']['modName'] == 'g1':
-            hdl = fits.HDUList([hdul[0],hdul[1],hdul[6],hdul[7]])
+            hdl = fits.HDUList([hdul[0],hdul[1],hdul[2],hdul[3]])
         elif cfg_par['gFit']['modName'] == 'g2':
             hdl = fits.HDUList([hdul[0],hdul[1],hdul[2],hdul[3],hdul[4],hdul[5]])
 
