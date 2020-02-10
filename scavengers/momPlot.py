@@ -147,6 +147,7 @@ class MOMplot(object):
         f1.ticks.show()
 
         outMom = os.path.basename(imageName)
+        print(imageName)
         outMom= str.split(imageName, '.fits')[0]  
         modName = cfg_par['gFit']['modName']
         
