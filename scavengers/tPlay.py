@@ -583,7 +583,6 @@ class tplay(object):
         #tot = np.column_stack((binColumn))
         lineNameID = np.array(lineNameID)
         
-        lines['g1_Amp_'+'Hb4861']/tabGen['NSPAX'][index]
         
         if 'OIII5006' in lineNameID and 'Hb4861' in lineNameID:
             
