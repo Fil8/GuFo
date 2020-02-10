@@ -594,6 +594,7 @@ class tplay(object):
             idxHb = np.where(lineNameID=='Hb4861')[0]
             fltHb = np.where(lines['g1_Amp_'+'Hb4861']<float(lineInfo['SNThresh'][idxHb]))
             lines['g1_Amp_'+'Hb4861'][fltHb] = np.nan
+            print(lines['g1_Amp_'+'OIII5006'],lines['g1_Amp_'+'Hb4861'])
 
             lrOHbG1 = np.divide(lines['g1_Amp_'+'OIII5006'],lines['g1_Amp_'+'Hb4861'])
             tot = np.column_stack((tot,lrOHbG1))
