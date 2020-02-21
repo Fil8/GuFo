@@ -486,7 +486,7 @@ def main(cfg_par):
         #for _process in processes:
         #    _process.join()
 
-        pool = mp.Pool(processes=nprocs)
+        pool = mp.Pool(4)
         #pathos = pp.ProcessPool(nprocs)
         
         #print(_process[0])
