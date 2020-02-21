@@ -10,7 +10,8 @@ from lmfit.model import load_modelresult
 
 import pickle4MPplay
 import multiprocessing as mp
-
+ctx = mp.get_context()
+ctx.reducer = pickle4MPplay.Pickle4Reducer()
 from multiprocessing import Queue, Manager, Process
 
 
@@ -450,8 +451,7 @@ def main(cfg_par):
     hh = f[0].header
     dd = f[0].data
     
-    ctx = mp.get_context()
-    ctx.reducer = pickle4MPplay.Pickle4Reducer()
+
 
     if mp.current_process().name == "MainProcess":
 
