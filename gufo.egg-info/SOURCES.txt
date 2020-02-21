@@ -20,4 +20,5 @@ scavengers/momPlot.py
 scavengers/specPlot.py
 scavengers/starSub.py
 scavengers/tPlay.py
+scavengers/util.py
 scavengers/vorPlay.py

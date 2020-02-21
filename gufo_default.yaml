@@ -61,6 +61,8 @@ lineRatios:
   enable: False
   bptPlot: False
   bptMap: False
+  cDist: True
+  cDistPlot: True
   plotFormat: png 
 residuals:
   enable: False

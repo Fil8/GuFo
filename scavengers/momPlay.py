@@ -37,13 +37,15 @@ class momplay:
         for ii in range(0,len(lineInfo['ID'])):
         #for ii in range(0,1):
 
-            lineName = str(lineInfo['Name'][ii])
+            lineNameStr = str(lineInfo['Name'][ii])
 
-            if '[' in lineName:
-                lineName = lineName.replace("[", "")
+            if '[' in lineNameStr:
+                lineName = lineNameStr.replace("[", "")
                 lineName = lineName.replace("]", "")
+                lineName = lineName+str(int(lineInfo['Wave'][ii]))
+            else:
+                lineName = lineNameStr+str(int(lineInfo['Wave'][ii]))
 
-            lineName = lineName+str(int(lineInfo['Wave'][ii]))
             lineThresh = float(lineInfo['SNThresh'][ii])
             cenRange = float(lineInfo['cenRange'][ii])
 
@@ -54,7 +56,7 @@ class momplay:
             else:
                 doBinMap=True
             
-            self.moments(cfg_par,lineName,dd,cfg_par['general']['outTableName'],lineThresh,doBinMap,cenRange)
+            self.moments(cfg_par,lineName,lineNameStr,dd,cfg_par['general']['outTableName'],lineThresh,doBinMap,cenRange)
 
         return
 
@@ -68,10 +70,10 @@ class momplay:
         for ii in range(0,len(lineInfo['ID'])):
         #for ii in range(0,1):
 
-            lineName = str(lineInfo['Name'][ii])
+            lineNameStr = str(lineInfo['Name'][ii])
 
             if '[' in lineName:
-                lineName = lineName.replace("[", "")
+                lineName = lineNameStr.replace("[", "")
                 lineName = lineName.replace("]", "")
 
             lineName = lineName+str(int(lineInfo['Wave'][ii]))
@@ -83,13 +85,13 @@ class momplay:
             mom0Name = momModDir+'mom0_g1-'+lineName+'.fits'          
             mom1Name = momModDir+'mom1_g1-'+lineName+'.fits'
             
-            mPl.mom0Plot(cfg_par, mom0Name)
+            mPl.mom0Plot(cfg_par, mom0Name,lineNameStr,lineThresh)
 
-            mPl.mom1Plot(cfg_par, mom1Name, cenRange)
+            mPl.mom1Plot(cfg_par, mom1Name,lineNameStr,lineThresh, vRange=[-cenRange,cenRange])
 
         return
 
-    def moments(self,cfg_par,lineName,header,outTableName,lineThresh,doBinMap,cenRange):
+    def moments(self,cfg_par,lineName,lineNameStr,header,outTableName,lineThresh,doBinMap,cenRange):
 
         modName = cfg_par['gFit']['modName']
         momModDir = cfg_par['general']['momDir']+modName+'/'
@@ -117,7 +119,10 @@ class momplay:
 
 
         hdul = fits.open(cfg_par['general']['outTableName'])
+
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
+        
+        ampSpax = np.empty(len(lines['g1_Amp_'+lineName]))
 
         hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
@@ -150,11 +155,12 @@ class momplay:
                 for index in match_bin:
                     
                     thresHold = lines['g1_Amp_Hb4861'][i]/tabGen['NSPAX'][index]
+                    ampSpax[i] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]
                     #thresHold = lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
                     #print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
                     #print(thresHold,lineThresh)
                     if thresHold >= lineThresh:
-                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]
+                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[i]
 #                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Height_'+lineName][i]/tabGen['NSPAX'][index]
 
                         mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
@@ -192,14 +198,14 @@ class momplay:
         mom0Head['BUNIT'] = 'Jy/beam.km/s'
         fits.writeto(momModDir+'mom0_g1-'+lineName+'.fits',mom0G1,mom0Head,overwrite=True)
         
-        mPl.mom0Plot(cfg_par,momModDir+'mom0_g1-'+lineName+'.fits')
+        mPl.mom0Plot(cfg_par, momModDir+'mom0_g1-'+lineName+'.fits',lineNameStr,lineThresh)
 
         mom1Head['WCSAXES'] = 2
         mom1Head['SPECSYS'] = 'topocent'
         mom1Head['BUNIT'] = 'km/s'
         fits.writeto(momModDir+'mom1_g1-'+lineName+'.fits',mom1G1,mom1Head,overwrite=True)
 
-        mPl.mom1Plot(cfg_par,momModDir+'mom1_g1-'+lineName+'.fits',cenRange)
+        mPl.mom1Plot(cfg_par, momModDir+'mom1_g1-'+lineName+'.fits',lineNameStr,lineThresh, vRange=[-cenRange,cenRange])
 
         mom2Head['WCSAXES'] = 2
         mom2Head['SPECSYS'] = 'topocent'
@@ -216,6 +222,22 @@ class momplay:
                 fits.writeto(momModDir+'mom1_g3-'+lineName+'.fits',mom1G3,mom1Head,overwrite=True)
                 fits.writeto(momModDir+'mom2_g3-'+lineName+'.fits',mom2G3,mom2Head,overwrite=True)
                 fits.writeto(momModDir+'mom0_tot-'+lineName+'.fits',mom0G1+mom0G2+mom0G3,mom0Head,overwrite=True)
+
+
+        t=Table(lines)
+        if modName+'-AmpSpax_'+lineName not in lines.dtype.names: 
+            t.add_column(Column(ampSpax,name=modName+'-AmpSpax_'+lineName))
+        else:
+            t.replace_column(modName+'-AmpSpax_'+lineName,Column(ampSpax,name=modName+'-AmpSpax_'+lineName))        
+        
+        if cfg_par['gFit']['modName'] == 'g1':
+            hdl = fits.HDUList([hdul[0],hdul['BININFO'],hdul['FitRes_g1']])
+        elif cfg_par['gFit']['modName'] == 'g2':
+            hdl = fits.HDUList([hdul[0],hdul['BININFO'],hdul['FitRes_g1'],hdul['LineRes_g1'],hdul['FitRes_g2']])
+
+        hdl.append(fits.BinTableHDU(t.as_array(), name='LineRes_'+modName))
+        hdl.writeto(cfg_par['general']['outTableName'],overwrite=True)
+
 
         return
 
@@ -312,6 +334,8 @@ class momplay:
             del resHead['CRPIX3'] 
         if 'NAXIS3' in resHead:
             del resHead['NAXIS3']
+        if 'CRDER3'in resHead:
+            del resHead['CRDER3']
 
         f = fits.open(cfg_par['general']['dataCubeName'])
         dd = f[0].data
@@ -347,6 +371,9 @@ class momplay:
             resNameOutStd =momModDir+'resStd_'+lineName+'.fits'
 
             for i in range(0,len(lines['BIN_ID'])):
+
+                amp = lines['g1-AmpSpax_'+lineName][i]
+                
 
                 cenKmsG1 = lines['g1_Centre_'+lineName][i]
                 sigKmsG1 = lines['g1_Sigma_'+lineName][i]
@@ -395,11 +422,13 @@ class momplay:
                 #print(resCube[idxLeft:idxRight,172,172])
                 #sys.exit(0)
                 for index in match_bin:
-                    resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0)
-                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
-                       
-            fits.writeto(resNameOutAbs,resG1Abs,header,overwrite=True)
-            fits.writeto(resNameOutStd,resG1Std,header,overwrite=True)
+                    resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0),amp)
+                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
+            
+            resHead['WCSAXES'] = 2
+                      
+            fits.writeto(resNameOutAbs,resG1Abs,resHead,overwrite=True)
+            fits.writeto(resNameOutStd,resG1Std,resHead,overwrite=True)
 
         return 0
 
@@ -427,12 +456,9 @@ class momplay:
 
     def momLineRatio(self,cfg_par,header,outTableName):
 
-
         modName = cfg_par['gFit']['modName']
         bptDir = cfg_par['general']['bptDir']+modName+'/'
         momModDir = cfg_par['general']['momDir']+modName+'/'
-
-
 
         if 'CUNIT3' in header:
             del header['CUNIT3']
@@ -519,5 +545,127 @@ class momplay:
                     bpt.bptIM(cfg_par,outBPTtot)
                 elif modName=='g3':
                     bpt.bptIM(cfg_par,outBPTg3)
+
+        return
+
+    def momCDist(self,cfg_par):
+
+        f = fits.open(cfg_par['general']['dataCubeName'])
+        header = f[0].header
+        f.close()
+        modName = cfg_par['gFit']['modName']
+        bptDir = cfg_par['general']['bptDir']+modName+'/'
+        momModDir = cfg_par['general']['momDir']+modName+'/'
+
+        if 'CUNIT3' in header:
+            del header['CUNIT3']
+        if 'CTYPE3' in header:
+            del header['CTYPE3']
+        if 'CDELT3' in header:
+            del header['CDELT3']
+        if 'CRVAL3' in header:  
+            del header['CRVAL3']
+        if 'CRPIX3' in header:
+            del header['CRPIX3'] 
+        if 'NAXIS3' in header:
+            del header['NAXIS3']
+        if 'WCSAXES' in header:
+            del header['WCSAXES']
+        if 'CRDER3' in header:
+            del header['CRDER3']
+
+        lineMapHead = header.copy()
+
+        hdul = fits.open(cfg_par['general']['outTableName'])
+        lineBPT = hdul['BPT_'+cfg_par['gFit']['modName']].data
+
+        hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
+        tabGen = hduGen[1].data
+
+        hbetaMap = fits.open(momModDir+'mom0_'+modName+'-Hb4861.fits')
+        hbetaData = hbetaMap[0].data
+
+        numCols = len(lineBPT.dtype.names)
+
+        if modName == 'g2':
+            numCols = int((numCols-1)/3)
+            numCols +=1 
+        if modName == 'g3':
+            numCols = int((numCols-1)/4)
+            numCols +=1 
+
+        lineMapG1 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
+    
+        if modName != 'g1':
+            lineMapToT = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
+            lineMapG2 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
+        
+        if modName == 'g3':
+        
+            lineMapG3 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
+        
+        for j in range(0,len(lineBPT['BIN_ID'])):
+            match_bin = np.where(tabGen['BIN_ID']==lineBPT['BIN_ID'][j])[0]
+
+            for index in match_bin:
+                if ~np.isnan(hbetaData[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]):
+                    
+                    lineMapG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j]['cDist-OIII']
+
+                if modName != 'g1': 
+                    
+                    print('\n\t************* --- GuFo : ERROR --- **************\n')
+                    print('\n\t******** --- G2 not implemented --- **********\n')
+                    sys.exit(0)
+
+                    lineMapToT[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i+numCols*2-2]
+                    lineMapG2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i+numCols-1]
+
+                    if modName == 'g3':
+                        lineMapG3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j][i+numCols+2] #TOREVIEW!!!!
+
+        lineMapHead['BUNIT'] = 'cDistance'
+        outBPT = bptDir+'cDist-OIII.fits'
+        fits.writeto(outBPT,lineMapG1,lineMapHead,overwrite=True)
+            
+        if modName != 'g1':
+            
+            print('\n\t************* --- GuFo : ERROR --- **************\n')
+            print('\n\t******** --- G2 not implemented --- **********\n')
+            sys.exit(0)
+            outBPTg2 = bptDir+'BPT-'+str(lineBPT.dtype.names[i+numCols-1])+'.fits'
+            outBPTtot = bptDir+'BPT-'+str(lineBPT.dtype.names[i+numCols*2-2])+'.fits'
+
+            fits.writeto(outBPTg2,lineMapG2,lineMapHead,overwrite=True)
+            fits.writeto(outBPTtot,lineMapToT,lineMapHead,overwrite=True)
+
+            if modName == 'g3':
+
+                print('\n\t************* --- GuFo : ERROR --- **************\n')
+                print('\n\t******** --- G2 not implemented --- **********\n')
+                sys.exit(0)
+
+                outBPTg3 = bptDir+'BPT-'+str(lineBPT.dtype.names[i+numCols+2])+'.fits'
+                fits.writeto(bptDir+'BPT-'+str(lineBPT.dtype.names[i+numCols+2])+'.fits',lineMapG3,lineMapHead,overwrite=True)
+
+        if cfg_par['lineRatios']['cDistPlot'] == True:
+            
+            bpt.cDistIM(cfg_par,outBPT)
+
+            if modName != 'g1':
+
+                print('\n\t************* --- GuFo : ERROR --- **************\n')
+                print('\n\t******** --- G2 not implemented --- **********\n')
+                sys.exit(0)
+
+                bpt.cDistIM(cfg_par,outBPTg2)
+                bpt.cDistIM(cfg_par,outBPTtot)
+            elif modName=='g3':
+
+                print('\n\t************* --- GuFo : ERROR --- **************\n')
+                print('\n\t******** --- G2 not implemented --- **********\n')
+                sys.exit(0)
+
+                bpt.cDistIM(cfg_par,outBPTg3)
 
         return

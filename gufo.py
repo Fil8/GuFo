@@ -34,7 +34,7 @@ class gufo(object):
         
         GFIT_DIR = GFIT_PATH+'/gufo/'
 
-        file_default = GFIT_DIR + 'gPlay_default.yaml'
+        file_default = GFIT_DIR + 'gufo_default.yaml'
 
         if file != None:
             cfg = open(file)
@@ -51,7 +51,7 @@ class gufo(object):
 
         cfg.close()
 
-        return
+        return 
 
     def set_dirs(self):
 
@@ -69,7 +69,6 @@ class gufo(object):
         if not os.path.exists(tableDir):
             os.mkdir(tableDir)
         self.cfg_par['general']['tableDir'] = tableDir
-
 
         if self.cfg_par['starSub'].get('enable',False) == True:
             self.cfg_par['general']['outVorTableName'] = self.cfg_par['general']['tableDir']+'GuFo_LineTable.fits'
@@ -123,12 +122,17 @@ class gufo(object):
         
         self.cfg_par['general']['outPlotDir'] = outPlotDir
 
-        momDir =self. cfg_par['general']['runNameDir']+'moments/'
+        momDir =self.cfg_par['general']['runNameDir']+'moments/'
         if not os.path.exists(momDir):
             os.mkdir(momDir)
         self.cfg_par['general']['momDir'] = momDir
 
-        bptDir =self. cfg_par['general']['runNameDir']+'bpt/'
+        momModDir =self.cfg_par['general']['momDir']+self.cfg_par['gFit']['modName']+'/'
+        if not os.path.exists(momModDir):
+            os.mkdir(momModDir)
+        self.cfg_par['general']['momModDir'] = momModDir
+
+        bptDir =self.cfg_par['general']['runNameDir']+'bpt/'
         if not os.path.exists(bptDir):
             os.mkdir(bptDir)
         self.cfg_par['general']['bptDir'] = bptDir

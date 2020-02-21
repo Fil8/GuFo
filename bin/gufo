@@ -104,7 +104,7 @@ def main (argv):
 
     add('-gPl', '--gPlot',
         action='store_true',
-        help= 'tool to plot fit results for each beam')
+        help= 'tool to plot fit results for each bin')
 
     add('-gPs', '--gPlotSingle',
         action='store_true',
@@ -127,6 +127,11 @@ def main (argv):
         default=False,
         help= 'bin to plot')
 
+    add('-dF', '--doFit',
+        action = 'store_true',
+        default=False,
+        help= 'fit single bin')
+
     add('-clT', '--clTbl',
         action='store_true',
         help= 'clean fit table from moments and lineratios')
@@ -142,6 +147,10 @@ def main (argv):
     add('-lr', '--lineRatios',
         action='store_true',
         help= 'tool to play with gaussian fits')
+
+    add('-cD', '--cDist',
+        action='store_true',
+        help= 'compute carollo distance')
 
     add('-c', '--cfgFile',
         type=str,
@@ -252,15 +261,11 @@ def main (argv):
         gPar.cfg_par['gFit']['enable'] = False
         gPar.cfg_par['lineRatios']['enable'] = False
         gPar.cfg_par['moments']['enable']
-        gp.plotSingleBin(gPar.cfg_par, args.binID)
-        print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
-        print('\n\t************* --- GuFo : DONE --- **************\n')
- 
-    if args.resPlot or gPar.cfg_par['residuals'].get('enable',False) == True:
-        time_start_load = time.time()
-        print ('\n\t************* --- GuFo : residuals --- **************\n')
-        gPar = gufo.gufo(args.cfgFile)
-        mom.resLines(gPar.cfg_par)
+        if args.doFit:
+            doFit=True
+        else:
+            doFit=False
+        gp.plotSingleBin(gPar.cfg_par, args.binID,doFit=doFit)
         print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
@@ -274,18 +279,22 @@ def main (argv):
         gPar.cfg_par['general']['cleanTable'] = False
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
+    if args.resPlot or gPar.cfg_par['residuals'].get('enable',False) == True:
+        time_start_load = time.time()
+        print ('\n\t************* --- GuFo : residuals --- **************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        mom.resLines(gPar.cfg_par)
+        print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
+        print('\n\t************* --- GuFo : DONE --- **************\n')
+
     if args.momPlot or gPar.cfg_par['moments'].get('plot',False) == True:
         
         print ('\n\t *********** --- GuFo : moments --- ************\n')
         gPar = gufo.gufo(args.cfgFile)
         gPar.cfg_par['general']['cleanTable'] = True
-        
-
-
         mom.makeMoments(gPar.cfg_par)
         gPar.cfg_par['general']['cleanTable'] = False
         print('\n\t************* --- GuFo : DONE --- **************\n')
-
 
     if args.lineRatios or gPar.cfg_par['lineRatios'].get('enable',False) == True:
         
@@ -324,7 +333,13 @@ def main (argv):
 
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-
+    if args.cDist or gPar.cfg_par['lineRatios'].get('cDist',False) == True:    
+        print ('\n\t************* --- GuFo : Carollo Distance --- **************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        tP.carolloDistOIII(gPar.cfg_par)
+        mom.momCDist(gPar.cfg_par)
+        bpt.bptCDist(gPar.cfg_par)
+        print('\n\t************* --- GuFo : DONE --- **************\n')
 
     if args.cfgFile is None:
         print ('\n\t************* --- GuFo : ERROR --- **************')

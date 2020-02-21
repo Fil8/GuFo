@@ -41,7 +41,9 @@ class convert(object):
         xnew = np.linspace(np.min(x),np.max(x),1e4)
         ynew = interpolate.splev(xnew, tck, der=0)
         dVlambda = 1./ynew *xnew
-        return dVlambda
+
+        return dVlambda/(2.*np.sqrt(2.*np.log(2.)))
+        #return dVlambda
 
 
     def hms2deg(self,ra_hms):

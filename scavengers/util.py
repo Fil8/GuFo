@@ -1,4 +1,6 @@
-import sys
+import sys, os
+import yaml
+
 from tqdm import tqdm
 
 # ==============================================================================
@@ -17,6 +19,128 @@ PURPOSE:
     (ui.adsabs.harvard.edu/?#abs/2003MNRAS.342..345C). 
 """
 
+
+def loadCfg(file=None):
+    #self.rootdir = os.getcwd()+'/'
+    C = 2.99792458e8
+
+    # get directories
+    GFIT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.append(os.path.join(GFIT_PATH, 'gufo'))
+
+    GFIT_DIR = GFIT_PATH+'/gufo/'
+
+    file_default = GFIT_DIR + 'gufo_default.yaml'
+
+    if file != None:
+        cfg = open(file)
+    else:
+        cfg = open(file_default)
+
+    cfg_par = yaml.load(cfg)
+    if cfg_par['general']['verbose'] == True:
+        print(yaml.dump(cfg_par))
+    cfg_par['general']['gfitPath'] = GFIT_DIR
+    cfg_par['general']['C'] = C
+
+    #set_dirs()
+
+    cfg.close()
+
+    return cfg_par
+
+
+def set_dirs(cfg_par):
+
+    runDir = cfg_par['general']['workdir']+cfg_par['general']['runName']+'/'
+    if not os.path.exists(runDir):
+        os.mkdir(runDir)
+    cfg_par['general']['runNameDir'] = runDir
+
+    cubeDir = cfg_par['general']['runNameDir']+'cubes/'
+    if not os.path.exists(cubeDir):
+        os.mkdir(cubeDir)
+    cfg_par['general']['cubeDir'] = cubeDir
+
+    tableDir = cfg_par['general']['runNameDir']+'tables/'
+    if not os.path.exists(tableDir):
+        os.mkdir(tableDir)
+    cfg_par['general']['tableDir'] = tableDir
+
+
+    if cfg_par['starSub'].get('enable',False) == True:
+        cfg_par['general']['outVorTableName'] = cfg_par['general']['tableDir']+'GuFo_LineTable.fits'
+        if cfg_par['starSub'].get('scaleFlux',False) == True:
+        
+            if cfg_par['starSub'].get('scaleHow',None) == 'mean':
+                nameEnd = 'PixMean.fits'
+            elif cfg_par['starSub'].get('scaleHow',None) == 'median':
+                nameEnd = 'PixMed.fits'
+            cfg_par['general']['outCube'] = cubeDir+'CubePix'+nameEnd
+            cfg_par['general']['outStars'] = cubeDir+'StarCube'+nameEnd
+            cfg_par['general']['outLines'] = cubeDir+'LineCube'+nameEnd
+            cfg_par['general']['outNoise'] = cubeDir+'noiseCube'+nameEnd
+        
+        elif cfg_par['starSub'].get('scaleFlux',False) == False:
+            cfg_par['general']['outCube'] = cubeDir+'CubeCubeVor.fits'
+            cfg_par['general']['outStars'] = cubeDir+'StarCubeVor.fits'
+            cfg_par['general']['outLines'] = cubeDir+'LineCubeVor.fits'
+            cfg_par['general']['outNoise'] = cubeDir+'noiseCubeVor.fits'
+    else: 
+        cfg_par['general']['outVorTableName'] = cfg_par['general']['tableDir']+'GuFo_LineTable.fits'
+        if cfg_par['starSub'].get('scaleFlux',False) == True:
+            if cfg_par['starSub'].get('scaleHow',None) == 'mean':
+                nameEnd = 'PixMean.fits'
+            elif cfg_par['starSub'].get('scaleHow',None) == 'median':
+                nameEnd = 'PixMed.fits'
+            cfg_par['general']['outLines'] = cubeDir+'LineCube'+nameEnd
+            cfg_par['general']['outNoise'] = cubeDir+'noiseCube'+nameEnd
+        elif cfg_par['starSub'].get('scaleFlux',False) == False:
+            cfg_par['general']['outLines'] = cubeDir+'LineCubeVor.fits'
+            cfg_par['general']['outNoise'] = cubeDir+'noiseCubeVor.fits'
+
+    
+    cfg_par['general']['outVorSpectra'] = cfg_par['general']['tableDir']+'GuFo_LineVorSpectra.fits'
+    cfg_par['general']['outVorLineTableName'] = cfg_par['general']['tableDir']+'GuFo_LineVorTable.fits'
+    cfg_par['general']['outVorLines'] = cubeDir+'LineVor.fits'
+    cfg_par['general']['outVorNoise'] = cubeDir+'NoiseVor.fits'
+
+    if not cfg_par['general'].get('dataCubeName',None):
+       cfg_par['general']['dataCubeName'] =  cfg_par['general']['outVorLines'] 
+    if not cfg_par['general'].get('noiseCubeName',None):
+       cfg_par['general']['noiseCubeName'] =  cfg_par['general']['outVorNoise'] 
+
+    outTableName = cfg_par['general']['runNameDir']+'gPlayOut.fits'
+
+    cfg_par['general']['outTableName'] = outTableName
+
+    outPlotDir = cfg_par['general']['runNameDir']+'spectra/'
+    if not os.path.exists(outPlotDir):
+        os.mkdir(outPlotDir)
+    
+    cfg_par['general']['outPlotDir'] = outPlotDir
+
+    momDir =cfg_par['general']['runNameDir']+'moments/'
+    if not os.path.exists(momDir):
+        os.mkdir(momDir)
+    cfg_par['general']['momDir'] = momDir
+
+    momModDir =cfg_par['general']['momDir']+cfg_par['gFit']['modName']+'/'
+    if not os.path.exists(momModDir):
+        os.mkdir(momModDir)
+    cfg_par['general']['momModDir'] = momModDir
+
+    bptDir =cfg_par['general']['runNameDir']+'bpt/'
+    if not os.path.exists(bptDir):
+        os.mkdir(bptDir)
+    cfg_par['general']['bptDir'] = bptDir
+
+    modNameDir = cfg_par['general']['runNameDir']+'models/'
+    if not os.path.exists(modNameDir):
+        os.mkdir(modNameDir)
+    cfg_par['general']['modNameDir'] = modNameDir
+
+    return cfg_par
 
 
 def printProgress(iteration, total, prefix = '', suffix = '', decimals = 2, barLength = 80, color = 'g'):
