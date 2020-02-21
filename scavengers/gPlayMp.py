@@ -8,9 +8,11 @@ from lmfit.models import GaussianModel
 from lmfit.model import save_modelresult
 from lmfit.model import load_modelresult
 
+import pickle4MPplay
 import multiprocessing as mp
 
 from multiprocessing import Queue, Manager, Process
+
 
 import ctypes
 from tqdm import tqdm
@@ -23,7 +25,7 @@ import numpy.ma as ma
 
 import shutil
 
-import gufo as gf
+#import gufo as gf
 import cvPlay
 import specPlot
 import tPlay
@@ -34,6 +36,7 @@ import util as pretty
 cvP = cvPlay.convert()
 sP = specPlot.specplot()
 tP = tPlay.tplay()
+
 
 #lock = mp.Lock()
 def workerGFitMp(cfg_par,dd,rank,nprocs):
@@ -447,6 +450,9 @@ def main(cfg_par):
     hh = f[0].header
     dd = f[0].data
     
+    ctx = mp.get_context()
+    ctx.reducer = pickle4reducer.Pickle4Reducer()
+
     if mp.current_process().name == "MainProcess":
 
     #binIDShare_base = mp.Array(ctypes.c_int, dd.shape[1]*dd.shape[2])

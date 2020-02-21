@@ -190,7 +190,7 @@ class gplay(object):
                     #min=sigmaIn1/10.,max=sigmaIn1*10.,vary=True)
                     #pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
                     pars['g1ln'+str(i)+'_'+'sigma'].set(value=sigmaIn1,
-                        min=sigmaIn1/10.,max=sigmaIn1*100.,vary=True)    
+                        min=sigmaIn1,max=sigmaIn1*100.,vary=True)    
 
                 mod += gauss1            
             
@@ -204,7 +204,7 @@ class gplay(object):
                     sigmaIn2 = pars['g1ln'+str(i)+'_'+'sigma'] +lineInfo['deltaSigmaAng_12'][i]
                 #    pars['g2ln'+str(i)+'_'+'sigma'].set(value=sigmaIn2,min=sigmaIn2/5.,max=sigmaIn2*5.)
                     pars.add('g2intln'+str(i), value=sigmaIn2,
-                    min=sigmaIn2/1.,max=sigmaIn2*100.,vary=True)
+                    min=sigmaIn2,max=sigmaIn2*100.,vary=True)
                     pars['g2ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g2intln'+str(i)+',2))')
                 elif cfg_par['gFit']['fixSigma'] == True:
                     #pars['g2ln'+str(i)+'_'+'sigma'].set(expr='g2ln'+str(0)+'_'+'sigma')
