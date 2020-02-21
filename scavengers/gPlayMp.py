@@ -486,7 +486,7 @@ def main(cfg_par):
         #for _process in processes:
         #    _process.join()
 
-        pool = mp.Pool(4)
+        pool = mp.Pool(processes=nprocs)
         #pathos = pp.ProcessPool(nprocs)
         
         #print(_process[0])
@@ -511,7 +511,7 @@ def main(cfg_par):
         #for i in range(pbar.total):
         #pbar = tqdm(total=len(inputs))
         #:
-        multi_result = [pool.apply_async(workerGFitMp, args=(inp)) for inp in inputs]
+        multi_result = [pool.apply_async(workerGFitMp, args=(inp), chunksize=1000) for inp in inputs]
         
         result = [p.get() for p in multi_result]
 
