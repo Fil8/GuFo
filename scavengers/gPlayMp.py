@@ -10,10 +10,11 @@ from lmfit.model import load_modelresult
 
 import pickle4MPplay
 import multiprocessing as mp
-ctx = mp.get_context()
-ctx.reducer = pickle4MPplay.Pickle4Reducer()
 from multiprocessing import Queue, Manager, Process
 
+ctx = mp.get_context()
+ctx.reducer = pickle4MPplay.Pickle4Reducer()
+multiprocessing.context._default_context.reducer = pickle4MPplay.Pickle4Reducer()
 
 import ctypes
 from tqdm import tqdm
