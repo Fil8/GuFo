@@ -192,7 +192,7 @@ def update(i, ans):
 
 
 
-def lineModDefMp(self,cfg_par,wave,y,lineInfo):
+def lineModDefMp(cfg_par,wave,y,lineInfo):
 
     dLambda = cvP.specRes(cfg_par)
 
