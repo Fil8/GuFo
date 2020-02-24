@@ -152,7 +152,7 @@ class MOMplot(object):
 
   def mom1Plot(self,cfg_par,imageName,lineName,lineThresh,
     vRange=None,contourColors='black',nameFigLabel=None,overlayContours=False,
-    contName=None,contLevels=None,contValues=None,contColors=None):
+    contName=None,contLevels=None,contValues=None,linenameStr=None,contColors=None):
 
     objCoordsRA = cfg_par['moments']['centreRA']
     objCoordsDec = cfg_par['moments']['centreDec']

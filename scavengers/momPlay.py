@@ -87,7 +87,7 @@ class momplay:
             
             mPl.mom0Plot(cfg_par, mom0Name,lineNameStr,lineThresh)
 
-            mPl.mom1Plot(cfg_par, mom1Name,lineNameStr,lineThresh, vRange=[-cenRange,cenRange])
+            mPl.mom1Plot(cfg_par, mom1Name,lineNameStr,lineThresh, vRange=[-cenRange,cenRange],lineName)
 
         return
 
@@ -205,7 +205,7 @@ class momplay:
         mom1Head['BUNIT'] = 'km/s'
         fits.writeto(momModDir+'mom1_g1-'+lineName+'.fits',mom1G1,mom1Head,overwrite=True)
 
-        mPl.mom1Plot(cfg_par, momModDir+'mom1_g1-'+lineName+'.fits',lineNameStr,lineThresh, vRange=[-cenRange,cenRange])
+        mPl.mom1Plot(cfg_par, momModDir+'mom1_g1-'+lineName+'.fits',lineNameStr,lineThresh, vRange=[-cenRange,cenRange], lineName)
 
         mom2Head['WCSAXES'] = 2
         mom2Head['SPECSYS'] = 'topocent'
