@@ -87,7 +87,7 @@ class momplay:
             
             mPl.mom0Plot(cfg_par, mom0Name,lineNameStr,lineThresh)
 
-            mPl.mom1Plot(cfg_par, mom1Name,lineNameStr,lineThresh,,lineName, vRange=[-cenRange,cenRange])
+            mPl.mom1Plot(cfg_par, mom1Name,lineNameStr,lineThresh,lineName, vRange=[-cenRange,cenRange])
 
         return
 
