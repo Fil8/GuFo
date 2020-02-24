@@ -458,7 +458,7 @@ class momplay:
     def momLineRatio(self,cfg_par,header,outTableName):
 
         modName = cfg_par['gFit']['modName']
-        bptDir = cfg_par['general']['bptDir']+modName+'/'
+        bptDir = cfg_par['general']['bptDir']+'/'
         momModDir = cfg_par['general']['momDir']+modName+'/'
 
         if 'CUNIT3' in header:
