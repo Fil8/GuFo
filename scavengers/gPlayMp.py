@@ -191,7 +191,8 @@ def update(i, ans):
     pbar.update()
 
 
-def lineModDefMp(cfg_par,wave,y,lineInfo):
+
+def lineModDef(self,cfg_par,wave,y,lineInfo):
 
     dLambda = cvP.specRes(cfg_par)
 
@@ -209,9 +210,10 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
         waveInRed = cfg_par['general']['redshift']*lineInfo['Wave'][i]+lineInfo['Wave'][i]
 
         indexWaveInRed = int(np.where(abs(np.exp(wave)-waveInRed)==abs(np.exp(wave)-waveInRed).min())[0])
+        
         dLIn = dLambda[indexWaveInRed]
         dLIn = np.log(waveInRed+dLIn/2.)-np.log(waveInRed-dLIn/2.)
-
+        
         indexWaveIn = int(np.where(abs(np.exp(wave)-lineInfo['Wave'][i]).min())[0])
         waveIn = np.exp(wave[indexWaveIn])
         
@@ -235,11 +237,16 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
 
 
         if i == 0:
+
             pars = gauss1.make_params()
             pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
-            pars.add(name = 'g1intln'+str(i), value=sigmaIn1,
-                min=sigmaIn1/5.,max=sigmaIn1*5.,vary=True)
+            pars.add(name = 'g1intln'+str(i), value=dLIn,vary=True,min=dLIn)
+
+                #min=sigmaIn1/10.,max=1000.,vary=True)
             
+            #pars['g1ln'+str(i)+'_'+'sigma'].set(value=sigmaIn1,
+            #    min=sigmaIn1/10.,max=sigmaIn1*10.,vary=True)
+                
             pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
             pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,
             min=waveAmpIn1Min,max=waveAmpIn1Max,vary=True)
@@ -251,6 +258,7 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
             mod = gauss1
       
         else:
+
             pars.update(gauss1.make_params())    
             
             if cfg_par['gFit']['fixCentre'] == True:
@@ -268,28 +276,32 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
 
             pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=0,max=None)
             
-            if lineInfo['Wave'][i] == 6583.34:
-                ampMin = pars['g1ln'+str(kk)+'_'+'height'] * 1./cfg_par['gFit']['ampRatioNII']
-                ampIn1 = np.max(y[indexMin:indexMax])
-                pars['g1ln'+str(i)+'_'+'height'].set(value=ampIn1,min=ampMin,max=None,vary=True)
+            #if lineInfo['Wave'][i] == 6583.34:
+            #    ampMin = pars['g1ln'+str(kk)+'_'+'height'] * 1./cfg_par['gFit']['ampRatioNII']
+            #    ampIn1 = np.max(y[indexMin:indexMax])
+            #    pars['g1ln'+str(i)+'_'+'height'].set(value=ampIn1,min=ampMin,max=None,vary=True)
 
-            if lineInfo['Wave'][i] == 6730.68:
-                ampMin = pars['g1ln'+str(zz)+'_'+'height'] * cfg_par['gFit']['ampRatioSII']
-                ampIn1 = np.max(y[indexMin:indexMax])
-                pars['g1ln'+str(i)+'_'+'height'].set(value=ampIn1,min=ampMin,max=None,vary=True)
+            #if lineInfo['Wave'][i] == 6730.68:
+            #    ampMin = pars['g1ln'+str(zz)+'_'+'height'] * cfg_par['gFit']['ampRatioSII']
+            #    ampIn1 = np.max(y[indexMin:indexMax])
+            #    pars['g1ln'+str(i)+'_'+'height'].set(value=ampIn1,min=ampMin,max=None,vary=True)
            
 
             pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
             if cfg_par['gFit']['fixSigma'] == True:
+                #print('fixSigma')
+                #print(pars['g1ln'+str(0)+'_'+'sigma'])
+
                 pars.add(name = 'g1intln'+str(i), expr='g1intln'+str(0))  
                 pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
-            else:
-                pars.add(name = 'g1intln'+str(i), value=sigmaIn1,
-                min=sigmaIn1/5.,max=sigmaIn1*5.,vary=True)
-                pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
+                #pars['g1ln'+str(i)+'_'+'sigma'].set(expr='g1ln'+str(0)+'_'+'sigma')
 
-#                    pars['g1ln'+str(i)+'_'+'sigma'].set(value=sigmaIn1,
-#                    min=sigmaIn1/5.,max=sigmaIn1*5.)    
+            else:
+                #pars.add(name = 'g1intln'+str(i), value=sigmaIn1,
+                #min=sigmaIn1/10.,max=sigmaIn1*10.,vary=True)
+                #pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
+                pars['g1ln'+str(i)+'_'+'sigma'].set(value=sigmaIn1,
+                    min=sigmaIn1,max=sigmaIn1*100.,vary=True)    
 
             mod += gauss1            
         
@@ -298,55 +310,73 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
             Gmod = GaussianModel()
             gauss2 = GaussianModel(prefix='g2ln'+str(i)+'_')
             pars.update(gauss2.make_params())
+            cenIn2Pos = cenIn1 + lineInfo['deltaVAng_12'][i]
+
+            ampIn2 = ampIn1*cfg_par['gFit']['dltAmp12']      
+            pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn2,min=0,max=None)
 
             if i == 0:
                 sigmaIn2 = pars['g1ln'+str(i)+'_'+'sigma'] +lineInfo['deltaSigmaAng_12'][i]
             #    pars['g2ln'+str(i)+'_'+'sigma'].set(value=sigmaIn2,min=sigmaIn2/5.,max=sigmaIn2*5.)
-                pars.add('g2intln'+str(i), value=sigmaIn2,
-                min=sigmaIn2/5.,max=sigmaIn2*5.,vary=True)
-                pars['g2ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g2intln'+str(i)+',2))')
-            elif cfg_par['gFit']['fixSigma'] == True:
-                #pars['g2ln'+str(i)+'_'+'sigma'].set(expr='g2ln'+str(0)+'_'+'sigma')
-                pars.add(name = 'g2intln'+str(i), expr='g2intln'+str(0))  
-                pars['g2ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g2intln'+str(i)+',2))')
-            else:
-                pars.add(name= 'g2intln'+str(i), value=sigmaIn2,
-                min=sigmaIn2/5.,max=sigmaIn2*5.,vary=True)
+                pars.add('g2intln'+str(i), value=dLIn,
+                min=dLIn*1.00001,vary=True)
                 pars['g2ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g2intln'+str(i)+',2))')
 
-#                else:
-#                    pars['g2ln'+str(i)+'_'+'sigma'].set(value=sigmaIn2,min=sigmaIn2/5.,max=sigmaIn2*5.)
-            
-            ampIn2 = ampIn1*cfg_par['gFit']['dltAmp12']               
-            cenIn2Pos = cenIn1 + lineInfo['deltaVAng_12'][i]
-            cenIn2Neg = cenIn1 - lineInfo['deltaVAng_12'][i]
-
-            if i == 0:
                 pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
                     min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i])
 
-            elif cfg_par['gFit']['fixCentre'] == True and i >0:
-                pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
-                    min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i],vary=True)
-                pars.add(name='g2ln'+str(i)+'Split_'+'center', expr='g2ln'+str(0)+'_'+'center - g1ln'+str(0)+'_'+'center')
-                pars.add(name='g2ln'+str(i)+'Pos_'+'center', value=cenIn2Pos,
-                    max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i],min=cenIn1, vary=True)
-                pars.add(name='g2ln'+str(i)+'Neg_'+'center', value=cenIn2Neg,max=cenIn1,
-                    min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i], vary=True)
-                pars['g2ln'+str(i)+'_'+'center'].set(expr='g2ln'+str(i)+'Pos_center if g2ln'+str(i)+'Split_center >= 0 else g2ln'+str(i)+'Neg_center' )                    
+                pars.add(name='lineWave'+str(i),value=lineInfo['Wave'][i],vary=False)
             
-            elif cfg_par['gFit']['fixCentre'] == True and i >0:
-                
-                cenDist = cvP.lambdaVRad(np.exp(pars['g2ln'+str(0)+'_'+'center']),lineInfo['Wave'][0])
-                cenDistAng = np.log(cvP.vRadLambda(cenDist,lineInfo['Wave'][i]))
-                pars.add(name='cenDistln'+str(i), value=cenDistAng,vary=False)
-                pars['g2ln'+str(i)+'_'+'center'].set(expr='cenDistln'+str(i))
+                pars.add(name='cenDistg2',expr ='((exp(g2ln'+str(i)+'_'+'center)-lineWave'+str(i)+')/lineWave'+str(0)+')*2.99792458e8/1e3',vary=False)
+
 
             else:
-                pars['g2ln'+str(i)+'_'+'center'].set(expr='g2ln'+str(0)+'_'+'center')                   
+                if cfg_par['gFit']['fixSigma'] == True:
+                    #pars['g2ln'+str(i)+'_'+'sigma'].set(expr='g2ln'+str(0)+'_'+'sigma')
+                    pars.add(name = 'g2intln'+str(i), expr='g2intln'+str(0))  
+                    pars['g2ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g2intln'+str(i)+',2))')
+                #else:
+                #    pars.add(name= 'g2intln'+str(i), value=sigmaIn2,
+                #    min=sigmaIn2/5.,max=sigmaIn2*5.,vary=True)
+                #    pars['g2ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g2intln'+str(i)+',2))')
 
-            pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn2,min=0,max=None)
-            
+    #                else:
+    #                    pars['g2ln'+str(i)+'_'+'sigma'].set(value=sigmaIn2,min=sigmaIn2/5.,max=sigmaIn2*5.)
+                
+
+
+                #cenIn2Neg = cenIn1 - lineInfo['deltaVAng_12'][i]
+
+                #cenIn2Pos = cenIn1
+                #cenIn2Neg = cenIn1 - lineInfo['deltaVAng_12'][i]
+
+
+                #if i == 0:
+                #    pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
+                #        min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i],vary=True)
+
+                # elif cfg_par['gFit']['fixCentre'] == True and i >0:
+                #     pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
+                #         min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i],vary=True)
+                #     pars.add(name='g2ln'+str(i)+'Split_'+'center', expr='g2ln'+str(0)+'_'+'center - g1ln'+str(0)+'_'+'center')
+                #     pars.add(name='g2ln'+str(i)+'Pos_'+'center', value=cenIn2Pos,
+                #         max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i],min=cenIn1, vary=True)
+                #     pars.add(name='g2ln'+str(i)+'Neg_'+'center', value=cenIn2Neg,max=cenIn1,
+                #         min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i], vary=True)
+                #     pars['g2ln'+str(i)+'_'+'center'].set(expr='g2ln'+str(i)+'Pos_center if g2ln'+str(i)+'Split_center >= 0 else g2ln'+str(i)+'Neg_center' )                    
+                
+                if cfg_par['gFit']['fixCentre'] == True:
+                    pars.add(name='lineWave'+str(i),value=lineInfo['Wave'][i],vary=False)
+
+                    pars.add(name='cenDistAngg2'+str(i),expr ='log((cenDistg2*1e3*lineWave'+str(i)+'*1e-10)/2.99792458e8/1e-10+lineWave'+str(i)+')')
+                   
+                    cenDist = cvP.lambdaVRad(np.exp(pars['g2ln'+str(0)+'_'+'center']),lineInfo['Wave'][0])
+                    cenDistAng = np.log(cvP.vRadLambda(cenDist,lineInfo['Wave'][i]))
+                    pars.add(name='cenDistln'+str(i), value=cenDistAng,vary=False)
+                    pars['g2ln'+str(i)+'_'+'center'].set(expr='cenDistAngg2'+str(i))
+
+                #else:
+                #    pars['g2ln'+str(i)+'_'+'center'].set(expr='g2ln'+str(0)+'_'+'center')                                    
 
             mod += gauss2
 
@@ -362,8 +392,7 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
                 
                 if i == 0:
                     sigmaIn3 = pars['g1ln'+str(i)+'_'+'sigma'] + lineInfo['deltaSigmaAng_13'][i]
-                    pars.add(name = 'g3intln'+str(i)+'_'+'sigma', value=sigmaIn3,
-                        min=sigmaIn3/5.,max=sigmaIn3*5.,vary=True)               
+                    pars.add(name = 'g3intln'+str(i)+'_'+'sigma', value=dLIn,min=dLIn,vary=True)               
                     pars['g3ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g3intln'+str(i)+'_'+'sigma,2))')
                     #pars['g3ln'+str(i)+'_'+'sigma'].set(value=sigmaIn3,min=sigmaIn3/5.,max=sigmaIn3*5.)
                 
@@ -385,27 +414,28 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
                 cenIn3Pos = cenIn1 + lineInfo['deltaVAng_13'][i]
                 cenIn3Neg = cenIn1 - lineInfo['deltaVAng_13'][i]
                 
-                pars['g3ln'+str(i)+'_'+'center'].set(value=cenIn3Pos,
-                    min=waveAmpIn1Min-lineInfo['deltaVAng_13'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_13'][i])
-            
-                if cfg_par['gFit']['fixCentre'] == True and i >0:
+                if i == 0:
                     pars['g3ln'+str(i)+'_'+'center'].set(value=cenIn3Pos,
-                        min=waveAmpIn1Min-lineInfo['deltaVAng_13'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_13'][i],vary=True)
-                    pars.add(name='g3ln'+str(i)+'Split_'+'center', expr='g3ln'+str(0)+'_'+'center - g1ln'+str(0)+'_'+'center')
-                    pars.add(name='g3ln'+str(i)+'Pos_'+'center', value=cenIn3Pos,
-                        max=waveAmpIn1Max+lineInfo['deltaVAng_13'][i],min=cenIn1, vary=True)
-                    pars.add(name='g3ln'+str(i)+'Neg_'+'center', value=cenIn3Neg,max=cenIn1,
-                        min=waveAmpIn1Min-lineInfo['deltaVAng_13'][i], vary=True)
+                        min=waveAmpIn1Min-lineInfo['deltaVAng_13'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_13'][i])
+            
 
-                    pars['g3ln'+str(i)+'_'+'center'].set(expr='g3ln'+str(i)+'Pos_center if g3ln'+str(i)+'Split_center >= 0 else g3ln'+str(i)+'Neg_center' )                    
+                if cfg_par['gFit']['fixCentre'] == True and i>0:
+                    #pars.add(name='lineWave'+str(i),value=lineInfo['Wave'][i],vary=False)
+
+                    #pars.add(name='cenDistAng'+str(i),expr ='log((cenDist*1e3*lineWave'+str(i)+'*1e-10)/2.99792458e8/1e-10+lineWave'+str(i)+')')
+
+                    cenDist = cvP.lambdaVRad(np.exp(pars['g3ln'+str(0)+'_'+'center']),lineInfo['Wave'][0])
+                    cenDistAng = np.log(cvP.vRadLambda(cenDist,lineInfo['Wave'][i]))
+                    pars.add(name='cenDistln'+str(i), value=cenDistAng,vary=False)
+                    pars['g3ln'+str(i)+'_'+'center'].set(expr='cenDistln'+str(i))
 
                 else:
-                    pars['g3ln'+str(i)+'_'+'center'].set(value=cenIn3Pos,
-                        min=waveAmpIn1Min-lineInfo['deltaVAng_13'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_13'][i])                   
+                    pars['g3ln'+str(i)+'_'+'center'].set(value=cenIn3,
+                    min=waveAmpIn1Min,max=waveAmpIn1Max,vary=True)                   
 
-                pars['g3ln'+str(i)+'_'+'amplitude'].set(value=ampIn3,min=0,max=None)
+                    #pars['g3ln'+str(i)+'_'+'amplitude'].set(value=ampIn3,min=0,max=None)
 
-                mod += gauss3
+                    mod += gauss3
 
     #pars.pretty_print()
     return mod,pars
