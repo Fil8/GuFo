@@ -150,7 +150,7 @@ class MOMplot(object):
 
     return 0
 
-  def mom1Plot(self,cfg_par,imageName,lineName,lineThresh,linenameStr,
+  def mom1Plot(self,cfg_par,imageName,lineName,lineThresh,lineNameStr,
     vRange=None,contourColors='black',nameFigLabel=None,overlayContours=False,
     contName=None,contLevels=None,contValues=None,contColors=None):
 
