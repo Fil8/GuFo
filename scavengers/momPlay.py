@@ -85,7 +85,7 @@ class momplay:
             mom0Name = momModDir+'mom0_g1-'+lineName+'.fits'          
             mom1Name = momModDir+'mom1_g1-'+lineName+'.fits'
             
-            mPl.mom0Plot(cfg_par, mom0Name,lineNameStr,lineThresh)
+            mPl.mom0Plot(cfg_par, mom0Name,lineNameStr,lineName,lineThresh)
 
             mPl.mom1Plot(cfg_par, mom1Name,lineNameStr,lineThresh,lineName, vRange=[-cenRange,cenRange])
 
@@ -198,7 +198,7 @@ class momplay:
         mom0Head['BUNIT'] = 'Jy/beam.km/s'
         fits.writeto(momModDir+'mom0_g1-'+lineName+'.fits',mom0G1,mom0Head,overwrite=True)
         
-        mPl.mom0Plot(cfg_par, momModDir+'mom0_g1-'+lineName+'.fits',lineNameStr,lineThresh)
+        mPl.mom0Plot(cfg_par, momModDir+'mom0_g1-'+lineName+'.fits',lineNameStr,lineName,lineThresh)
 
         mom1Head['WCSAXES'] = 2
         mom1Head['SPECSYS'] = 'topocent'

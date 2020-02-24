@@ -65,7 +65,7 @@ class MOMplot(object):
       return params
 
   #def mom0Plot(self,cfg_par,imageName):
-  def mom0Plot(self,cfg_par,imageName,lineName,lineThresh,
+  def mom0Plot(self,cfg_par,imageName,lineName,lineNameStr,lineThresh,
     vRange=None,contourColors='black',nameFigLabel=None,overlayContours=False,
     contName=None,contLevels=None,contColors=None):
       
@@ -94,7 +94,7 @@ class MOMplot(object):
     if vRange == None:
       vRange=np.array([1,2],dtype=float)
       vRange[0] = lineThresh
-      vRange[1] = np.nanmax(hduImCut.data)
+      vRange[1] = np.nanmax(hduImCut.data)/5.
     print(vRange)
     img = ax1.imshow(hduImCut.data, cmap=cfg_par['moments']['colorMap'][0],vmin=vRange[0],vmax=vRange[1])
 
@@ -115,7 +115,7 @@ class MOMplot(object):
     cbar = plt.colorbar(img, cax=cax,ticks =colorTickLabels,
                     orientation='vertical', format='%d')   
     
-    ax1.set_title(lineName)
+    ax1.set_title(lineNameStr)
 
     ax1.set_autoscale_on(False)    
     #SaveOutput
