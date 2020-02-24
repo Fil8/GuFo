@@ -204,7 +204,7 @@ class momplay:
         mom1Head['SPECSYS'] = 'topocent'
         mom1Head['BUNIT'] = 'km/s'
         fits.writeto(momModDir+'mom1_g1-'+lineName+'.fits',mom1G1,mom1Head,overwrite=True)
-
+        print(lineName)
         mPl.mom1Plot(cfg_par, momModDir+'mom1_g1-'+lineName+'.fits',lineNameStr,lineThresh, lineName,
             vRange=[-cenRange,cenRange])
 
