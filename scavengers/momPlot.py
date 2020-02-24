@@ -92,7 +92,7 @@ class MOMplot(object):
     cax = divider.append_axes("right", size='2%', pad=0.1)
     print(vRange,lineThresh)
     if vRange == None:
-      vRange=np.array([1,2])
+      vRange=np.array([1,2],dtype=float)
       vRange[0] = lineThresh
       vRange[1] = np.nanmax(hduImCut.data)
     print(vRange)
