@@ -194,7 +194,7 @@ class MOMplot(object):
       mom1BarLabel=r'velocity [km s$^{-1}$]'
       cMap = 'jet'
     else:
-      mom1BarLabel = cfg_par['moments']['cBarLabel'][1]
+      mom1BarLabel = r+str(cfg_par['moments']['cBarLabel'][1])
       cMap = cfg_par['moments']['colorMap'][0]
 
     img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-1,vmax=vRange[1]+1)
@@ -216,7 +216,7 @@ class MOMplot(object):
     cbar = plt.colorbar(img, cax=cax,ticks =colorTickLabels,
                     orientation='vertical', format='%d')   
     
-    ax1.set_title(lineName)
+    ax1.set_title(lineNameStr)
 
     ax1.set_autoscale_on(False)    
     #SaveOutput

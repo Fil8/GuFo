@@ -555,7 +555,7 @@ class momplay:
         header = f[0].header
         f.close()
         modName = cfg_par['gFit']['modName']
-        bptDir = cfg_par['general']['bptDir']+modName+'/'
+        bptDir = cfg_par['general']['bptDir']+'/'
         momModDir = cfg_par['general']['momDir']+modName+'/'
 
         if 'CUNIT3' in header:

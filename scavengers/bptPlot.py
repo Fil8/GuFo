@@ -552,9 +552,9 @@ class BPTplot(object):
         cax = divider.append_axes("right", size='2%', pad=0.1)
         
         if vRange == None:
-          vRange=np.array([1,2])
-          vRange[0] = lineThresh
-          vRange[1] = np.nanmax(hduImCut.data)
+          vRange=np.array([1,2],dtype=float)
+          vRange[0] = -1.2
+          vRange[1] = 1.2
 
         img = ax1.imshow(hduImCut.data, cmap=cfg_par['lineRatios']['cDistColorMap'],vmin=vRange[0],vmax=vRange[1])
 
@@ -667,8 +667,8 @@ class BPTplot(object):
             #print((idxAGN),(idxKew),(idxKauf),(idxBad))
 
             if vRange==None:
-                vRangeMin=-1.
-                vRangeMax=1.
+                vRangeMin=-1.2
+                vRangeMax=1.2
             else:
                 vRangeMin=vRange[0]
                 vRangeMax=vRange[1]
