@@ -171,7 +171,7 @@ class MOMplot(object):
     wcsIm = WCS(hduIm.header)
 
     idx = np.where(np.isnan(hBetaData))
-    hduIm[idx] = np.nan
+    hduIm.data[idx] = np.nan
 
 
     hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsIm)
