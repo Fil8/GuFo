@@ -690,7 +690,7 @@ class BPTplot(object):
             ax1.legend.get_frame().set_edgecolor('black')
             ax1.legend.get_frame().set_facecolor('white')
             if outPlotDir==None:
-                outPlotDir = cfg_par['general']['bptDir']+cfg_par['gFit']['modName']+'/plots/'
+                outPlotDir = cfg_par['general']['bptDir']+'/plots/'
 
             if not os.path.exists(outPlotDir):
                 os.mkdir(outPlotDir)
