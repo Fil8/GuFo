@@ -90,7 +90,7 @@ class MOMplot(object):
 
     divider = make_axes_locatable(ax1)
     cax = divider.append_axes("right", size='2%', pad=0.1)
-    
+    print(vRange,lineThresh)
     if vRange == None:
       vRange=np.array([1,2])
       vRange[0] = lineThresh
