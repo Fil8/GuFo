@@ -130,8 +130,8 @@ class gplay(object):
 
                 pars = gauss1.make_params()
                 pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
-                pars.add(name = 'g1intln'+str(i), value=sigmaIn1,
-                    min=sigmaIn1,max=sigmaIn1*100.,vary=True)
+                pars.add(name = 'g1intln'+str(i), value=sigmaIn1,vary=True,max=100.)
+                    #min=sigmaIn1/10.,max=1000.,vary=True)
                 
                 #pars['g1ln'+str(i)+'_'+'sigma'].set(value=sigmaIn1,
                 #    min=sigmaIn1/10.,max=sigmaIn1*10.,vary=True)
