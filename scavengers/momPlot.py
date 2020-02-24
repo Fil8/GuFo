@@ -95,7 +95,7 @@ class MOMplot(object):
       vRange=np.array([1,2])
       vRange[0] = lineThresh
       vRange[1] = np.nanmax(hduImCut.data)
-
+    print(vRange)
     img = ax1.imshow(hduImCut.data, cmap=cfg_par['moments']['colorMap'][0],vmin=vRange[0],vmax=vRange[1])
 
     colorTickLabels = np.linspace(vRange[0],vRange[1],9.)    
