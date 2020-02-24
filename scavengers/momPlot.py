@@ -163,7 +163,7 @@ class MOMplot(object):
     params = self.loadRcParams()
     plt.rcParams.update(params)
 
-    mom0Map = fits.open(cfg_par['general']['momModDir']+'mom0_'+cfg_par['gFit']['modName']+'-'+lineName+'.fits')
+    mom0Map = fits.open(cfg_par['general']['momModDir']+'mom0_'+cfg_par['gFit']['modName']+'-'+lineNameStr+'.fits')
     hBetaData = mom0Map[0].data
 
 
