@@ -417,7 +417,7 @@ class tplay(object):
         return fitResArr
 
 
-    def updateLineArray(self,cfg_par,lineArr,result,noiseValue,lineInfo,binIDName,counter):
+    def updateLineArray(self,cfg_par,wave,lineArr,result,noiseValue,lineInfo,binIDName,counter):
         
         fitRes = result.params.valuesdict()
         dLambda = cvP.specRes(cfg_par)
@@ -446,7 +446,7 @@ class tplay(object):
                 
 
             waveInRed = cfg_par['general']['redshift']*lineInfo['Wave'][ii]+lineInfo['Wave'][ii]
-            indexWaveInRed = int(np.where(abs(np.exp(wave)-waveInRed)==abs(np.exp(wave)-waveInRed).min())[0])
+            indexWaveInRed = int(np.where(abs(np.exp(lineInfo['Wave'][ii])-waveInRed)==abs(np.exp(lineInfo['Wave'][ii])-waveInRed).min())[0])
             dLIn = dLambda[indexWaveInRed]
             dLIn = np.log(waveInRed+dLIn/2.)-np.log(waveInRed-dLIn/2.)
 
