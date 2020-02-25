@@ -95,7 +95,7 @@ class MOMplot(object):
       vRange=np.array([1,2],dtype=float)
       vRange[0] = lineThresh
       vRange[1] = np.nanmax(hduImCut.data)/5.
-    print(vRange)
+
     img = ax1.imshow(hduImCut.data, cmap=cfg_par['moments']['colorMap'][0],vmin=vRange[0],vmax=vRange[1])
 
     colorTickLabels = np.linspace(vRange[0],vRange[1],9.)    
@@ -164,7 +164,7 @@ class MOMplot(object):
     params = self.loadRcParams()
     plt.rcParams.update(params)
 
-    mom0Map = fits.open(cfg_par['general']['momModDir']+'mom0_'+cfg_par['gFit']['modName']+'-'+lineNameStr+'.fits')
+    mom0Map = fits.open(cfg_par['general']['momModDir']+'mom0_'+cfg_par['gFit']['modName']+'-'+lineName+'.fits')
     hBetaData = mom0Map[0].data
 
 
@@ -197,7 +197,7 @@ class MOMplot(object):
       mom1BarLabel = r+str(cfg_par['moments']['cBarLabel'][1])
       cMap = cfg_par['moments']['colorMap'][0]
 
-    img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-1,vmax=vRange[1]+1)
+    img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5)
 
     colorTickLabels = np.linspace(vRange[0],vRange[1],9.)    
 
@@ -216,6 +216,11 @@ class MOMplot(object):
     cbar = plt.colorbar(img, cax=cax,ticks =colorTickLabels,
                     orientation='vertical', format='%d')   
     
+    if lineNameStr=='Hb4861':
+      lineNameStr=r'H$_\beta$4861'
+    elif lineNameStr=='Ha6562':
+      lineNameStr=r'H$_\alpha$6562'
+
     ax1.set_title(lineNameStr)
 
     ax1.set_autoscale_on(False)    

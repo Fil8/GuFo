@@ -46,6 +46,7 @@ class momplay:
             else:
                 lineName = lineNameStr+str(int(lineInfo['Wave'][ii]))
 
+            lineNameStr=lineNameStr+str(int(lineInfo['Wave'][ii]))
             lineThresh = float(lineInfo['SNThresh'][ii])
             cenRange = float(lineInfo['cenRange'][ii])
 
@@ -85,9 +86,9 @@ class momplay:
             mom0Name = momModDir+'mom0_g1-'+lineName+'.fits'          
             mom1Name = momModDir+'mom1_g1-'+lineName+'.fits'
             
-            mPl.mom0Plot(cfg_par, mom0Name,lineNameStr,lineName,lineThresh)
+            mPl.mom0Plot(cfg_par, mom0Name,lineName,lineNameStr,lineThresh)
 
-            mPl.mom1Plot(cfg_par, mom1Name,lineNameStr,lineThresh,lineName, vRange=[-cenRange,cenRange])
+            mPl.mom1Plot(cfg_par, mom1Name,lineName,lineThresh,lineNameStr, vRange=[-cenRange,cenRange])
 
         return
 
@@ -198,14 +199,14 @@ class momplay:
         mom0Head['BUNIT'] = 'Jy/beam.km/s'
         fits.writeto(momModDir+'mom0_g1-'+lineName+'.fits',mom0G1,mom0Head,overwrite=True)
         
-        mPl.mom0Plot(cfg_par, momModDir+'mom0_g1-'+lineName+'.fits',lineNameStr,lineName,lineThresh)
+        mPl.mom0Plot(cfg_par, momModDir+'mom0_g1-'+lineName+'.fits',lineName,lineNameStr,lineThresh)
 
         mom1Head['WCSAXES'] = 2
         mom1Head['SPECSYS'] = 'topocent'
         mom1Head['BUNIT'] = 'km/s'
         fits.writeto(momModDir+'mom1_g1-'+lineName+'.fits',mom1G1,mom1Head,overwrite=True)
         print(lineName)
-        mPl.mom1Plot(cfg_par, momModDir+'mom1_g1-'+lineName+'.fits',lineNameStr,lineThresh, lineName,
+        mPl.mom1Plot(cfg_par, momModDir+'mom1_g1-'+lineName+'.fits',lineName,lineThresh, lineNameStr,
             vRange=[-cenRange,cenRange])
 
         mom2Head['WCSAXES'] = 2

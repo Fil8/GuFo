@@ -330,7 +330,9 @@ class tplay(object):
             frmList.append('f8')
             lineNameList.append('g1_Sigma_'+lineName)
             frmList.append('f8')
-            lineNameList.append('g1_Sigfit_'+lineName)
+            lineNameList.append('g1_SigInt_'+lineName)
+            frmList.append('f8')
+            lineNameList.append('g1_dLambda_'+lineName)
             frmList.append('f8')
             lineNameList.append('g1_FWHM_'+lineName)
             frmList.append('f8')
@@ -345,7 +347,9 @@ class tplay(object):
                 frmList.append('f8')
                 lineNameList.append('g2_Centre_'+lineName)
                 frmList.append('f8')
-                lineNameList.append('g2_Sigma_'+lineName)
+                lineNameList.append('g1_Sigma_'+lineName)
+                frmList.append('f8')
+                lineNameList.append('g1_SigInt_'+lineName)
                 frmList.append('f8')
                 lineNameList.append('g2_FWHM_'+lineName)
                 frmList.append('f8')
@@ -360,12 +364,15 @@ class tplay(object):
                     frmList.append('f8')
                     lineNameList.append('g3_Centre_'+lineName)
                     frmList.append('f8')
-                    lineNameList.append('g3_Sigma_'+lineName)
+                    lineNameList.append('g1_Sigma_'+lineName)
+                    frmList.append('f8')
+                    lineNameList.append('g1_SigInt_'+lineName)
                     frmList.append('f8')
                     lineNameList.append('g3_FWHM_'+lineName)
                     frmList.append('f8')
                     lineNameList.append('g3_SN_'+lineName)
                     frmList.append('f8')
+
         if cfg_par['gFit']['modName'] == 'g1':
             lineArr = np.zeros([len(vorBinInfo['ID'])], dtype={'names':(lineNameList), 'formats':(frmList)})
         elif cfg_par['gFit']['modName'] == 'g2':
@@ -413,7 +420,7 @@ class tplay(object):
     def updateLineArray(self,cfg_par,lineArr,result,noiseValue,lineInfo,binIDName,counter):
         
         fitRes = result.params.valuesdict()
-
+        dLambda = cvP.specRes(cfg_par)
 
         modName = cfg_par['gFit']['modName']
         lineArr['BIN_ID'][counter] = binIDName
@@ -436,10 +443,20 @@ class tplay(object):
 
             fwhm = fitRes['g1ln'+str(ii)+'_fwhm']
             height = fitRes['g1ln'+str(ii)+'_height']
-            
+                
+
+            waveInRed = cfg_par['general']['redshift']*lineInfo['Wave'][i]+lineInfo['Wave'][i]
+            indexWaveInRed = int(np.where(abs(np.exp(wave)-waveInRed)==abs(np.exp(wave)-waveInRed).min())[0])
+            dLIn = dLambda[indexWaveInRed]
+            dLIn = np.log(waveInRed+dLIn/2.)-np.log(waveInRed-dLIn/2.)
+
+            sigmaInt = np.sqrt(np.power(sig,2)-np.power(dLIn,2))
 
             g1Ctr = cvP.lambdaVRad(np.exp(ctr),lineInfo['Wave'][ii])
+
+            g1SigmaInt = cvP.lambdaVRad(np.exp(ctr+sigmaInt),lineInfo['Wave'][ii])-g1Ctr
             g1Sigma = cvP.lambdaVRad(np.exp(ctr+sig),lineInfo['Wave'][ii])-g1Ctr
+            g1dL = cvP.lambdaVRad(np.exp(ctr+dLambda[indexWaveInRed]),lineInfo['Wave'][ii])-g1Ctr
             g1FWHM = cvP.lambdaVRad(np.exp(ctr+fwhm),lineInfo['Wave'][ii])-g1Ctr
             #amp_err = result.params[modName+'ln'+str(i)+'_amplitude'].stderr
             #sig_err = result.params[modName+'ln'+str(i)+'_sigma'].stderr
@@ -452,6 +469,9 @@ class tplay(object):
             lineArr['g1_Height_'+lineName][counter] = height
             lineArr['g1_Centre_'+lineName][counter] = g1Ctr
             lineArr['g1_Sigma_'+lineName][counter] = g1Sigma
+            lineArr['g1_SigInt_'+lineName][counter] = g1SigmaInt
+            lineArr['g1_dLambda_'+lineName][counter] = g1dL
+
             lineArr['g1_FWHM_'+lineName][counter] = g1FWHM
 
             lineArr['g1_SN_'+lineName][counter]=height/noiseValue         
@@ -461,11 +481,15 @@ class tplay(object):
 
                 amp = fitRes['g2ln'+str(ii)+'_amplitude']
                 ctr = fitRes['g2ln'+str(ii)+'_center']
-                sig = fitRes['g2intln'+str(ii)+'_sigma']
+                sig = fitRes['g2ln'+str(ii)+'_sigma']
                 fwhm = fitRes['g2ln'+str(ii)+'_fwhm']
                 height = fitRes['g2ln'+str(ii)+'_height']
 
+
+                sigmaInt = np.sqrt(np.power(sig,2)-np.power(dLIn,2))
+
                 g2Ctr = cvP.lambdaVRad(np.exp(ctr),lineInfo['Wave'][ii])
+                g2SigmaInt = cvP.lambdaVRad(np.exp(ctr+sigmaInt),lineInfo['Wave'][ii])-g2Ctr
                 g2Sigma = cvP.lambdaVRad(np.exp(ctr+sig),lineInfo['Wave'][ii])-g2Ctr
                 g2FWHM = cvP.lambdaVRad(np.exp(ctr+fwhm),lineInfo['Wave'][ii])-g2Ctr
 
@@ -479,6 +503,7 @@ class tplay(object):
                 lineArr['g2_Height_'+lineName][counter] = height
                 lineArr['g2_Centre_'+lineName][counter] = g2Ctr
                 lineArr['g2_Sigma_'+lineName][counter] = g2Sigma
+                lineArr['g2_SigInt_'+lineName][counter] = g2SigmaInt
                 lineArr['g2_FWHM_'+lineName][counter] = g2FWHM
                 
                 lineArr['g2_SN_'+lineName][counter]=height/noiseValue         
@@ -491,8 +516,13 @@ class tplay(object):
                     fwhm = fitRes['g3ln'+str(ii)+'_fwhm']
                     height = fitRes['g3ln'+str(ii)+'_height']
 
+                    sigmaInt = np.sqrt(np.power(sig,2)-np.power(dLIn,2))
+
+
                     g3Ctr = cvP.lambdaVRad(np.exp(ctr),lineInfo['Wave'][ii])
                     g3Sigma = cvP.lambdaVRad(np.exp(ctr+sig),lineInfo['Wave'][ii])-g3Ctr
+                    g2SigmaInt = cvP.lambdaVRad(np.exp(ctr+sigmaInt),lineInfo['Wave'][ii])-g3Ctr
+                    g2Sigma = cvP.lambdaVRad(np.exp(ctr+sig),lineInfo['Wave'][ii])-g3Ctr
                     g3FWHM = cvP.lambdaVRad(np.exp(ctr+fwhm),lineInfo['Wave'][ii])-g3Ctr
 
                     #amp_err = result.params[modName+'ln'+str(i)+'_amplitude'].stderr
@@ -505,6 +535,8 @@ class tplay(object):
                     lineArr['g3_Height_'+lineName][counter] = height
                     lineArr['g3_Centre_'+lineName][counter] = g3Ctr
                     lineArr['g3_Sigma_'+lineName][counter] = g3Sigma
+                    lineArr['g3_SigInt_'+lineName][counter] = g3SigmaInt
+                    lineArr['g3_dLambda_'+lineName][counter] = g3dL
                     lineArr['g3_FWHM_'+lineName][counter] = g3FWHM
                     lineArr['g3_SN_'+lineName][counter]=height/noiseValue         
     
