@@ -1,6 +1,6 @@
 from multiprocessing.reduction import ForkingPickler, AbstractReducer
 
-class ForkingPickler4(ForkingPickler):
+class ForkingPickler2(ForkingPickler):
     def __init__(self, *args):
         if len(args) > 1:
             args[1] = 2
@@ -9,15 +9,15 @@ class ForkingPickler4(ForkingPickler):
         super().__init__(*args)
 
     @classmethod
-    def dumps(cls, obj, protocol=4):
+    def dumps(cls, obj, protocol=2):
         return ForkingPickler.dumps(obj, protocol)
 
 
-def dump(obj, file, protocol=4):
-    ForkingPickler4(file, protocol).dump(obj)
+def dump(obj, file, protocol=2):
+    ForkingPickler2(file, protocol).dump(obj)
 
 
-class Pickle4Reducer(AbstractReducer):
-    ForkingPickler = ForkingPickler4
-    register = ForkingPickler4.register
+class Pickle2Reducer(AbstractReducer):
+    ForkingPickler = ForkingPickler2
+    register = ForkingPickler2.register
     dump = dump

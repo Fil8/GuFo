@@ -114,6 +114,11 @@ class MOMplot(object):
     cax.coords[1].set_axislabel_position('r')
     cbar = plt.colorbar(img, cax=cax,ticks =colorTickLabels,
                     orientation='vertical', format='%d')   
+
+    if lineNameStr=='Hb4861':
+      lineNameStr=r'H$_\beta$4861'
+    elif lineNameStr=='Ha6562':
+      lineNameStr=r'H$_\alpha$6562'
     
     ax1.set_title(lineNameStr)
 

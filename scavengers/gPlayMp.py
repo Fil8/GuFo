@@ -12,9 +12,10 @@ import pickle4MPplay
 import multiprocessing as mp
 from multiprocessing import Queue, Manager, Process
 
-ctx = mp.get_context()
-ctx.reducer = pickle4MPplay.Pickle4Reducer()
-mp.context._default_context.reducer = pickle4MPplay.Pickle4Reducer()
+#ctx = mp.get_context()
+#ctx.reducer = pickle4MPplay.Pickle4Reducer()
+mp.context._default_context.reducer = pickle4MPplay.Pickle2Reducer()
+import multiprocessing.connection
 
 import ctypes
 from tqdm import tqdm
