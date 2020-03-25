@@ -37,7 +37,7 @@ def loadCfg(file=None):
     else:
         cfg = open(file_default)
 
-    cfg_par = yaml.load(cfg)
+    cfg_par = yaml.load(cfg, yaml.SafeLoader)
     if cfg_par['general']['verbose'] == True:
         print(yaml.dump(cfg_par))
     cfg_par['general']['gfitPath'] = GFIT_DIR

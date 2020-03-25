@@ -41,7 +41,7 @@ class gufo(object):
         else:
             cfg = open(file_default)
 
-        self.cfg_par = yaml.load(cfg)
+        self.cfg_par = yaml.load(cfg, yaml.SafeLoader)
         if self.cfg_par['general']['verbose'] == True:
             print(yaml.dump(self.cfg_par))
         self.cfg_par['general']['gfitPath'] = GFIT_DIR

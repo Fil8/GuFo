@@ -27,7 +27,8 @@ def workerAncels(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,rank,nprocs):
  
     counter = 0
 
-    for ii in range(rank,len(lines['BIN_ID']), nprocs):
+    #for ii in range(rank,len(lines['BIN_ID']), nprocs):
+    for ii in range(rank,24, nprocs):
         
         counter,sigmamaCen = widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter)
     
@@ -180,23 +181,19 @@ def main(cfg_par):
             nprocs = mp.cpu_count()
 
         inputs = [(cfg_par,lines,wave,lineInfo,dLambda,sigmaCenArr,rank, nprocs) for rank in range(nprocs)]
-        print('''\t+---------+\n\t sigma & centroid\n\t+---------+''')
 
         pool = mp.Pool(processes=nprocs)
         multi_result = [pool.apply_async(workerAncels, args=(inp)) for inp in inputs]        
         result = [p.get() for p in multi_result]
-        print(result[0][0])
         print(result)
         sigmaCen = np.asarray(result)
     
-        #for i in range(1,nprocs):
-        #    sigmaCen = np.hstack([sigmaCen,np.array(result[i][0])])
+        for i in range(1,nprocs):
+            sigmaCen = np.hstack([sigmaCen,np.array(result[i][0])])
 
         print(sigmaCen)
         print(sigmaCen.shape)
         tP.saveAncelsTable(cfg_par, sigmaCen)
-
-        print('''\t+---------+\n\t sigma & centroid done\n\t+---------+''')
 
 
 
