@@ -65,11 +65,11 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter):
         lineFit= comps['g1ln'+str(ii)+'_']+comps['g2ln'+str(ii)+'_']
         centreFit=result.params['g1ln'+str(ii)+'_center']
         ampSpax = lines[modName+'-AmpSpax_'+lineNameID][counter]
+        amp=result.params['g1ln'+str(ii)+'_amplitude']+result.params['g2ln'+str(ii)+'_amplitude']
 
-        if ampSpax >= lineThresh:
+        if ampSpax >= lineThresh and amp!=0.0:
 
             height =np.max(lineFit)
-            print(lineNameID,binID,height,ampSpax)
             #print(dLIn,dLIn1,centreFit)
 
             centroidG1 = lines['g1_Centre_'+str(lineNameID)][counter]

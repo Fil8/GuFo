@@ -90,7 +90,6 @@ class MOMplot(object):
 
     divider = make_axes_locatable(ax1)
     cax = divider.append_axes("right", size='2%', pad=0.1)
-    print(vRange,lineThresh)
     if vRange == None:
       vRange=np.array([1,2],dtype=float)
       vRange[0] = lineThresh
@@ -99,7 +98,6 @@ class MOMplot(object):
     img = ax1.imshow(hduImCut.data, cmap=cfg_par['moments']['colorMap'][0],vmin=vRange[0],vmax=vRange[1])
 
     colorTickLabels = np.linspace(vRange[0],vRange[1],9.)    
-    print(colorTickLabels)
 
     ax1.coords[1].set_axislabel(r'Dec (J2000)')
     ax1.coords[0].set_axislabel(r'RA (J2000)')

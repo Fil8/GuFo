@@ -439,12 +439,9 @@ class momplay:
 
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
                 #result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
-                #print(lines['BIN_ID'][i])
                 if idxRight-idxLeft <2.:
                     idxLeft-=4
                     idxRight+=4
-                #print(resCube[idxLeft:idxRight,172,172])
-                #sys.exit(0)
                 for index in match_bin:
 
                     if modName=='g1':
