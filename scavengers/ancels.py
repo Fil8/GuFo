@@ -30,11 +30,12 @@ def workerAncels(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,rank,nprocs):
     #for ii in range(rank,len(lines['BIN_ID']), nprocs):
     for ii in range(rank,80, nprocs):
         
-        counter,sigmamaCen = widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter)
+        counter,sigmaCen = widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter)
     
 
-    match_indices = np.where(sigmaCen['BIN_ID'] == 0.0)[0]
-    sigmaCen = np.delete(sigmaCen,match_indices,0)                                
+    #match_indices = np.where(sigmaCen['BIN_ID'] == 0.0)[0]
+    #sigmaCen = np.delete(sigmaCen,match_indices,0)                                
+    
     return sigmaCen  
     
 
@@ -118,7 +119,7 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter):
             sigmaCen['centroid_'+lineName][counter] = cvP.lambdaVRad(centroidToT,lambdaRest)
             #print(centroidToTVel[j],sigmaInt,sigma[j])
         else:
-
+            sigmaCen['w80_'+lineName][counter]=np.nan
             sigmaCen['sigma_'+lineName][counter]=np.nan
             sigmaCen['centroid_'+lineName][counter] = np.nan
 
