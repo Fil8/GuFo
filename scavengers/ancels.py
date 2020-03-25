@@ -79,8 +79,8 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter):
             waveNew = np.linspace(np.min(wave),np.max(wave),1e5)
             lineFit = interpolate.splev(wave, tck, der=0)
             height =np.max(lineFit)
-            #print(dLIn,dLIn1,centreFit)
-
+            print(len(lineFit))
+            
             centroidG1 = lines['g1_Centre_'+str(lineNameID)][counter]
             #print(centroidG1)
             centroidG2 = lines['g2_Centre_'+str(lineNameID)][counter]
