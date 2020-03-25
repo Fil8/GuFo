@@ -304,15 +304,12 @@ def main (argv):
         print ('\n\t +---------+    ancillary Info   +---------+')
 
         gPar = gufo.gufo(args.cfgFile)
-        print ('\n\t         +++   sigma & centroid  +++')
+        print('\n\t         +++   sigma & centroid  +++')
         ancels.main(gPar.cfg_par)
         #print ('\n\t  ********** --- ancillaryInfo : centroid --- **********\n')
-        print('''\n\t       +++         Done        +++''')
+        print('\n\t         +++        Done         +++')
 
         #ap.centroid(gPar.cfg_par)
-
-        print('\n\t ************ --- GuFo : DONE --- ************\n')
-
 
     if args.lineRatios or gPar.cfg_par['lineRatios'].get('enable',False) == True:
         
@@ -363,14 +360,14 @@ def main (argv):
         print ('\n\t************ --- GuFo : ERROR --- ************\n')
         print ('\t... you have not entered a config File ...')
         outFunction()
-        print ('\n\t ********* --- GuFo : DONE  --- ************\n')
+        print ('\n\t************ --- GuFo : DONE  --- ************\n')
         sys.exit(0)
 
-print ('\n\t************* ---    GuFo   --- *************')
+print ('\n\t************* ---      GuFo     --- *************')
 
 main([a for a in sys.argv[1:]])
 
-print ('\t   ********** --- GuFo : DONE  --- **********\n')
+print ('\n\t************* ---  GuFo : DONE  --- *************')
 
 
 

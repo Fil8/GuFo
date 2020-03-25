@@ -33,8 +33,8 @@ def workerAncels(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,rank,nprocs):
         counter,sigmaCen = widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter)
     
 
-    #match_indices = np.where(sigmaCen['BIN_ID'] == 0.0)[0]
-    #sigmaCen = np.delete(sigmaCen,match_indices,0)                                
+    match_indices = np.where(sigmaCen['BIN_ID'] == 0.0)[0]
+    sigmaCen = np.delete(sigmaCen,match_indices,0)                                
     
     return sigmaCen  
     
@@ -103,10 +103,10 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter):
             #    np.exp(wave[indexWaveRight]),waveDist)
 
             sigmaLambda50 = waveDist50/(2*np.sqrt(2*np.log(2)))
-            sigmaInt50 = np.sqrt(np.power(sigmaLambda50,2)-np.power(dLIn1,2))    
-            
-            width80 = np.sqrt(np.power(waveDist80,2)-np.power(dLIn1,2))    
-                            
+            #sigmaInt50 = np.sqrt(np.power(sigmaLambda50,2)-np.power(dLIn1,2))    
+            sigmaInt50=sigmaLambda50
+            #width80 = np.sqrt(np.power(waveDist80,2)-np.power(dLIn1,2))    
+            width80=waveDist80                
             sigmaCen['sigma_'+lineName][counter] =  cvP.lambdaVRad(lambdaRest+sigmaInt50,lambdaRest)
 
             sigmaCen['w80_'+lineName][counter] =  cvP.lambdaVRad(lambdaRest+width80,lambdaRest)
