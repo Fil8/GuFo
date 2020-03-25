@@ -114,20 +114,28 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter):
             #width80 = np.sqrt(np.power(waveDist80,2)-np.power(dLIn1,2))    
             width80=waveDist80                
             sigmaCen['sigma_'+lineName][counter] =  cvP.lambdaVRad(lambdaRest+sigmaInt50,lambdaRest)
+            sigmaCen['logSigma_'+lineName][counter] =  np.log10(sigmaCen['sigma_'+lineName][counter])
 
             sigmaCen['w80_'+lineName][counter] =  cvP.lambdaVRad(lambdaRest+width80,lambdaRest)
-
+            sigmaCen['logW80_'+lineName][counter] =  np.log10(sigmaCen['w80_'+lineName][counter])
 
                 
             centroidToT = np.divide(np.sum([np.multiply(centroidG1Lambda,ampG1)+np.multiply(centroidG2Lambda,ampG2)]),
                 np.sum([ampG1,ampG2]))          
 
             sigmaCen['centroid_'+lineName][counter] = cvP.lambdaVRad(centroidToT,lambdaRest)
+            sigmaCen['logCentroid_'+lineName][counter] =  np.log10(sigmaCen['centroid_'+lineName][counter])
+
             #print(centroidToTVel[j],sigmaInt,sigma[j])
         else:
             sigmaCen['w80_'+lineName][counter]=np.nan
+            sigmaCen['logW80_'+lineName][counter]=np.nan
+
             sigmaCen['sigma_'+lineName][counter]=np.nan
+            sigmaCen['logSigma_'+lineName][counter]=np.nan
+
             sigmaCen['centroid_'+lineName][counter] = np.nan
+            sigmaCen['logCentroid_'+lineName][counter]=np.nan
 
     counter +=1
     
@@ -172,9 +180,15 @@ def main(cfg_par):
 
         sigmaNameList.append('sigma_'+lineName)
         sigmaList.append('f8')
+        sigmaNameList.append('logSigma_'+lineName)
+        sigmaList.append('f8')
         sigmaNameList.append('w80_'+lineName)
         sigmaList.append('f8')
+        sigmaNameList.append('logW80_'+lineName)
+        sigmaList.append('f8')
         sigmaNameList.append('centroid_'+lineName)
+        sigmaList.append('f8')
+        sigmaNameList.append('logCentroid_'+lineName)
         sigmaList.append('f8')
     
     sigmaCenArr = np.zeros([len(lines['BIN_ID'])],dtype={'names':(sigmaNameList), 'formats':(sigmaList)})
