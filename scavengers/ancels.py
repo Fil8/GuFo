@@ -27,8 +27,8 @@ def workerAncels(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,rank,nprocs):
  
     counter = 0
 
-    #for ii in range(rank,len(lines['BIN_ID']), nprocs):
-    for ii in range(rank,80, nprocs):
+    for ii in range(rank,len(lines['BIN_ID']), nprocs):
+    #for ii in range(rank,80, nprocs):
         
         counter,sigmaCen = widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter)
     
