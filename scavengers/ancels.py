@@ -187,7 +187,7 @@ def main(cfg_par):
         multi_result = [pool.apply_async(workerAncels, args=(inp)) for inp in inputs]        
         result = [p.get() for p in multi_result]
         sigmaCen = np.array(result[0][0])
-        print(sigmaCen)    
+        print(result)    
         for i in range(1,nprocs):
             sigmaCen = np.hstack([sigmaCen,np.array(result[i][0])])
 
