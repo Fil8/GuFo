@@ -155,8 +155,16 @@ class momplay:
 
                 for index in match_bin:
                     
-                    thresHold = lines['g1_Amp_Hb4861'][i]/tabGen['NSPAX'][index]
-                    ampSpax[i] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]
+                    if modName=='g1':
+                        thresHold = lines['g1_Amp_Hb4861'][i]/tabGen['NSPAX'][index]
+                        ampSpax[i] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]                   
+                    elif modName=='g2':
+                        thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
+                        ampSpax[i] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]                   
+                    elif modName=='g3':
+                        thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
+                        ampSpax[i] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]  
+
                     #thresHold = lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
                     #print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
                     #print(thresHold,lineThresh)
@@ -166,19 +174,23 @@ class momplay:
 
                         mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
                         mom2G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_sigma_'+lineName][i]
-                        
-                        if doBinMap==True:
-                            binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
-                        
-                        if modName != 'g1':
-                            mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Amp_'+lineName][i]/tabGen['NSPAX'][index]
-                            mom1G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Centre_'+lineName][i]
-                            mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_sigma_'+lineName][i]
-                        
+
+                    if doBinMap==True:
+                        binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
+                    
+                    if modName != 'g1':
+                        mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Amp_'+lineName][i]/tabGen['NSPAX'][index]
+                        mom1G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Centre_'+lineName][i]
+                        mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_sigma_'+lineName][i]
+                    
                         if modName == 'g3':
                             mom0G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Amp_'+lineName][i]/tabGen['NSPAX'][index]
                             mom1G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Centre_'+lineName][i]
                             mom2G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_sigma_'+lineName][i]
+                        
+                        mom0Tot[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[i]
+
+
                     #else#:
                     #    print(mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
                     #    print(int(tabGen['PixY'][index]),int(tabGen['PixX'][index]))
@@ -205,9 +217,8 @@ class momplay:
         mom1Head['SPECSYS'] = 'topocent'
         mom1Head['BUNIT'] = 'km/s'
         fits.writeto(momModDir+'mom1_g1-'+lineName+'.fits',mom1G1,mom1Head,overwrite=True)
-        print(lineName)
         mPl.mom1Plot(cfg_par, momModDir+'mom1_g1-'+lineName+'.fits',lineName,lineThresh, lineNameStr,
-            vRange=[-cenRange,cenRange])
+            vRange=[-cenRange,cenRange],modName='g1')
 
         mom2Head['WCSAXES'] = 2
         mom2Head['SPECSYS'] = 'topocent'
@@ -217,8 +228,16 @@ class momplay:
         if modName != 'g1':
             fits.writeto(momModDir+'mom0_g2-'+lineName+'.fits',mom0G2,mom0Head,overwrite=True)
             fits.writeto(momModDir+'mom1_g2-'+lineName+'.fits',mom1G2,mom1Head,overwrite=True)
+            mPl.mom0Plot(cfg_par, momModDir+'mom0_g2-'+lineName+'.fits',lineName,lineNameStr,lineThresh)
+            mPl.mom1Plot(cfg_par, momModDir+'mom1_g2-'+lineName+'.fits',lineName,lineNameStr,lineThresh,vRange=[-cenRange,cenRange],
+                modName='g2')
+
             if modName == 'g2':
                 fits.writeto(momModDir+'mom0_tot-'+lineName+'.fits',mom0G1+mom0G2,mom0Head,overwrite=True)
+                
+                mPl.mom0Plot(cfg_par, momModDir+'mom0_tot-'+lineName+'.fits',lineName,lineNameStr,lineThresh)
+
+
             if modName == 'g3':
                 fits.writeto(momModDir+'mom0_g3-'+lineName+'.fits',mom0G3,mom0Head,overwrite=True)
                 fits.writeto(momModDir+'mom1_g3-'+lineName+'.fits',mom1G3,mom1Head,overwrite=True)
@@ -301,7 +320,7 @@ class momplay:
 
         resHead['SPECSYS'] = 'topocent'
         resHead['BUNIT'] = 'Flux'
-        fits.writeto(momModDir+'resAllLines_g1.fits',resG1,resHead,overwrite=True)
+        fits.writeto(momModDir+'resAllLines_'+modName+'.fits',resG1,resHead,overwrite=True)
 
         return
 
@@ -363,7 +382,8 @@ class momplay:
                 lineName = lineName.replace("]", "")
 
             lineName = lineName+str(int(lineInfo['Wave'][ii]))            
-            
+            lineThresh = float(lineInfo['SNThresh'][ii])
+
             print('\n\t *********** --- Residuals: '+lineName+' --- ***********\n')
             
             resG1Abs = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
@@ -374,9 +394,9 @@ class momplay:
 
             for i in range(0,len(lines['BIN_ID'])):
 
-                amp = lines['g1-AmpSpax_'+lineName][i]
-                
 
+                amp = lines['g1_Amp_'+lineName][i]
+                
                 cenKmsG1 = lines['g1_Centre_'+lineName][i]
                 sigKmsG1 = lines['g1_Sigma_'+lineName][i]
                 cenG1 = np.log(cvP.vRadLambda(cenKmsG1,lineInfo['Wave'][ii]))
@@ -387,6 +407,7 @@ class momplay:
                 idxRight = int(np.where(abs(wave-rightG1)==abs(wave-rightG1).min())[0])
             
                 if modName == 'g2':
+                    amp = lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i]
                     cenKmsG2 = lines['g2_Centre_'+lineName][i]
                     sigKmsG2 = lines['g2_Sigma_'+lineName][i]
             
@@ -424,8 +445,17 @@ class momplay:
                 #print(resCube[idxLeft:idxRight,172,172])
                 #sys.exit(0)
                 for index in match_bin:
-                    resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0),amp)
-                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
+
+                    if modName=='g1':
+                        thresHold = lines['g1_Amp_Hb4861'][i]/tabGen['NSPAX'][index]
+                    elif modName=='g2':
+                        thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
+                    elif modName=='g3':
+                        thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
+                    
+                    if thresHold >= lineThresh:
+                        resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0),amp)
+                        resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
             
             resHead['WCSAXES'] = 2
                       

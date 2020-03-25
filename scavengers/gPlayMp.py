@@ -241,7 +241,7 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
 
             pars = gauss1.make_params()
             pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
-            pars.add(name = 'g1intln'+str(i), value=dLIn,vary=True,min=dLIn)
+            pars.add(name = 'g1intln'+str(i), value=dLIn,vary=True,min=sigmaIn1)
 
                 #min=sigmaIn1/10.,max=1000.,vary=True)
             
@@ -311,7 +311,7 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
             Gmod = GaussianModel()
             gauss2 = GaussianModel(prefix='g2ln'+str(i)+'_')
             pars.update(gauss2.make_params())
-            cenIn2Pos = cenIn1 + lineInfo['deltaVAng_12'][i]
+            cenIn2Pos = cenIn1
 
             ampIn2 = ampIn1*cfg_par['gFit']['dltAmp12']      
             pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn2,min=0,max=None)
@@ -320,11 +320,11 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
                 sigmaIn2 = pars['g1ln'+str(i)+'_'+'sigma'] +lineInfo['deltaSigmaAng_12'][i]
             #    pars['g2ln'+str(i)+'_'+'sigma'].set(value=sigmaIn2,min=sigmaIn2/5.,max=sigmaIn2*5.)
                 pars.add('g2intln'+str(i), value=dLIn,
-                min=dLIn*1.00001,vary=True)
+                min=sigmaIn1*1.00001,vary=True)
                 pars['g2ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g2intln'+str(i)+',2))')
 
                 pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
-                    min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i])
+                    min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i],vary=True)
 
                 pars.add(name='lineWave'+str(i),value=lineInfo['Wave'][i],vary=False)
             
@@ -482,7 +482,6 @@ def main(cfg_par):
     f = fits.open(cfg_par['general']['outVorLines'])
     hh = f[0].header
     dd = f[0].data
-    
 
 
     if mp.current_process().name == "MainProcess":

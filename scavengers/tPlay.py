@@ -521,8 +521,8 @@ class tplay(object):
 
                     g3Ctr = cvP.lambdaVRad(np.exp(ctr),lineInfo['Wave'][ii])
                     g3Sigma = cvP.lambdaVRad(np.exp(ctr+sig),lineInfo['Wave'][ii])-g3Ctr
-                    g2SigmaInt = cvP.lambdaVRad(np.exp(ctr+sigmaInt),lineInfo['Wave'][ii])-g3Ctr
-                    g2Sigma = cvP.lambdaVRad(np.exp(ctr+sig),lineInfo['Wave'][ii])-g3Ctr
+                    g3SigmaInt = cvP.lambdaVRad(np.exp(ctr+sigmaInt),lineInfo['Wave'][ii])-g3Ctr
+                    g3Sigma = cvP.lambdaVRad(np.exp(ctr+sig),lineInfo['Wave'][ii])-g3Ctr
                     g3FWHM = cvP.lambdaVRad(np.exp(ctr+fwhm),lineInfo['Wave'][ii])-g3Ctr
 
                     #amp_err = result.params[modName+'ln'+str(i)+'_amplitude'].stderr
@@ -573,7 +573,6 @@ class tplay(object):
         hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
 
         return
-
 
     def cleanTable(self,cfg_par):
         
@@ -1222,6 +1221,26 @@ class tplay(object):
 
         return
 
+
+    def saveAncelsTable(self,cfg_par, sigmaCenArr):
+        modName = cfg_par['gFit']['modName']
+ 
+        hdul = fits.open(cfg_par['general']['outTableName'])
+
+        try:
+            tt = Table(hdul['Ancels'+modName].data)
+            tt = fits.BinTableHDU.from_columns(sigmaCenArr,name='Ancels'+modName)
+
+        except KeyError as e:
+            tt=fits.BinTableHDU.from_columns(sigmaCenArr,name='Ancels'+modName)   
+            
+            hdul.append(tt)  
+        
+        hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
+
+
+        return
+
     def cardan(self,a,b,c,d):
         J=np.exp(2j*np.pi/3)
         Jc=1/J
@@ -1417,4 +1436,6 @@ class tplay(object):
         hdl.writeto(cfg_par['general']['outTableName'],overwrite=True)
 
         return
+
+
 

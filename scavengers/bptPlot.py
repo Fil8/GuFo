@@ -141,15 +141,18 @@ class BPTplot(object):
 
             kaX = np.log10(np.linspace(np.power(10,-1.),np.power(10,0.),1e4))
             kaY = 0.61 / (kaX - 0.05) + 1.3
-            ax1.plot(kaX, kaY, ls='--',c='black', label='Kewley et al. 2001')
+            ax1.plot(kaX, kaY, ls='--',c='black', label='Kewley et al. 2001',lw=3)
 
             keX = np.log10(np.linspace(np.power(10,-2.),np.power(10,0.5),1e4))
 
             keY= 0.61 / (keX - 0.47) + 1.19
             ax1.plot(keX, keY, ls=':',c='black', label='Kauffmann et al. 2003')
+            
+            schaX = np.log10(np.linspace(0.6,np.power(10,1),1e4))
+            schaY =  1.05*schaX + 0.45
+            ax1.plot(schaX, schaY, ls='-.',c='black', label='Schawinski et al. 2007')
 
-
-            ax1.legend = plt.legend(loc=1, prop={'size': 12})
+            ax1.legend = plt.legend(loc=4, prop={'size': 12})
             ax1.legend.get_frame().set_edgecolor('black')
             ax1.legend.get_frame().set_facecolor('white')
 
@@ -685,8 +688,11 @@ class BPTplot(object):
             keY= 0.61 / (keX - 0.47) + 1.19
             ax1.plot(keX, keY, ls=':',c='black', label='Kauffmann et al. 2003')
 
-
-            ax1.legend = plt.legend(loc=1, prop={'size': 12})
+            schaX = np.log10(np.linspace(0.6,np.power(10,1),1e4))
+            schaY =  1.05*schaX + 0.45
+            ax1.plot(schaX, schaY, ls='-.',c='black', label='Schawinski et al. 2007')
+            
+            ax1.legend = plt.legend(loc=4, prop={'size': 12})
             ax1.legend.get_frame().set_edgecolor('black')
             ax1.legend.get_frame().set_facecolor('white')
             if outPlotDir==None:

@@ -157,7 +157,7 @@ class MOMplot(object):
     return 0
 
   def mom1Plot(self,cfg_par,imageName,lineName,lineThresh,lineNameStr,
-    vRange=None,contourColors='black',nameFigLabel=None,overlayContours=False,
+    vRange=None,modName='g1',contourColors='black',nameFigLabel=None,overlayContours=False,
     contName=None,contLevels=None,contValues=None,contColors=None):
 
     objCoordsRA = cfg_par['moments']['centreRA']
@@ -169,7 +169,7 @@ class MOMplot(object):
     params = self.loadRcParams()
     plt.rcParams.update(params)
 
-    mom0Map = fits.open(cfg_par['general']['momModDir']+'mom0_'+cfg_par['gFit']['modName']+'-'+lineName+'.fits')
+    mom0Map = fits.open(cfg_par['general']['momModDir']+'mom0_'+modName+'-'+lineName+'.fits')
     hBetaData = mom0Map[0].data
 
 

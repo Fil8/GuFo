@@ -250,7 +250,6 @@ class specplot(object):
         k=0
         for i in range(0,len(lineInfo['Wave'])):
 
-
             if i == 0:
                 j = 0
             elif i % 3 == 0:
@@ -503,8 +502,6 @@ class specplot(object):
                 elif cfg_par['gFit']['modName'] !='g2':
                     ax1.plot(velPlot, comps['g2ln'+str(i)+'_'], 'm--')    
                     ax1.plot(velPlot, comps['g3ln'+str(i)+'_'], 'c--')    
-
-
 
         # Calculate axis limits and aspect ratio
         x_min = np.min(velPlot)

@@ -130,7 +130,7 @@ class gplay(object):
 
                 pars = gauss1.make_params()
                 pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
-                pars.add(name = 'g1intln'+str(i), value=dLIn,vary=True,min=dLIn)
+                pars.add(name = 'g1intln'+str(i), value=sigmaIn1,vary=True,min=sigmaIn1)
 
                     #min=sigmaIn1/10.,max=1000.,vary=True)
                 
@@ -200,20 +200,23 @@ class gplay(object):
                 Gmod = GaussianModel()
                 gauss2 = GaussianModel(prefix='g2ln'+str(i)+'_')
                 pars.update(gauss2.make_params())
-                cenIn2Pos = cenIn1 + lineInfo['deltaVAng_12'][i]
+                cenIn2Pos = cenIn1
 
-                ampIn2 = ampIn1*cfg_par['gFit']['dltAmp12']      
-                pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn2,min=0,max=None)
+                ampIn2 = ampIn1*cfg_par['gFit']['dltAmp12']    
+                heightMax = pars['g1ln'+str(i)+'_'+'amplitude']*0.6
+                pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn2,min=0.0,vary=True)
+                #pars['g2ln'+str(i)+'_'+'height'].set(max=heightMax,vary=True)
 
                 if i == 0:
                     sigmaIn2 = pars['g1ln'+str(i)+'_'+'sigma'] +lineInfo['deltaSigmaAng_12'][i]
+                    sigmaMin = pars['g1ln'+str(i)+'_'+'sigma']
                 #    pars['g2ln'+str(i)+'_'+'sigma'].set(value=sigmaIn2,min=sigmaIn2/5.,max=sigmaIn2*5.)
-                    pars.add('g2intln'+str(i), value=dLIn,
-                    min=dLIn*1.00001,vary=True)
+                    pars.add('g2intln'+str(i), value=sigmaIn1*3.,
+                    min=sigmaIn1*3.,vary=True)
                     pars['g2ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g2intln'+str(i)+',2))')
 
                     pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
-                        min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i])
+                        min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i],vary=True)
 
                     pars.add(name='lineWave'+str(i),value=lineInfo['Wave'][i],vary=False)
                 
@@ -278,22 +281,25 @@ class gplay(object):
                     gauss3 = GaussianModel(prefix='g3ln'+str(i)+'_')
 
                     pars.update(gauss3.make_params())
+                
+                    pars['g3ln'+str(i)+'_'+'amplitude'].set(value=ampIn2,min=0.0,max=None)
 
                     
                     if i == 0:
                         sigmaIn3 = pars['g1ln'+str(i)+'_'+'sigma'] + lineInfo['deltaSigmaAng_13'][i]
-                        pars.add(name = 'g3intln'+str(i)+'_'+'sigma', value=dLIn,min=dLIn,vary=True)               
+                        pars.add(name = 'g3intln'+str(i)+'_'+'sigma', value=sigmaIn1*4.,min=sigmaIn1*4.,vary=True)               
                         pars['g3ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g3intln'+str(i)+'_'+'sigma,2))')
                         #pars['g3ln'+str(i)+'_'+'sigma'].set(value=sigmaIn3,min=sigmaIn3/5.,max=sigmaIn3*5.)
                     
-                    elif cfg_par['gFit']['fixSigma'] == True:
-                    #    pars['g3ln'+str(i)+'_'+'sigma'].set(expr='g3ln'+str(0)+'_'+'sigma')
-                        pars.add(name = 'g3intln'+str(i)+'_'+'sigma', expr='g3intln'+str(0)+'_'+'sigma')  
-                        pars['g3ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g3intln'+str(i)+'_'+'sigma,2))')
                     else:
-                        pars.add(name = 'g3intln'+str(i)+'_'+'sigma',value=sigmaIn3,
-                        min=sigmaIn3/5.,max=sigmaIn3*5.,vary=True)
-                        pars['g3ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g3intln'+str(i)+'_'+'sigma,2))')
+                        if cfg_par['gFit']['fixSigma'] == True:
+                    #    pars['g3ln'+str(i)+'_'+'sigma'].set(expr='g3ln'+str(0)+'_'+'sigma')
+                            pars.add(name = 'g3intln'+str(i)+'_'+'sigma', expr='g3intln'+str(0)+'_'+'sigma')  
+                            pars['g3ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g3intln'+str(i)+'_'+'sigma,2))')
+                    #else:
+                    #    pars.add(name = 'g3intln'+str(i)+'_'+'sigma',value=sigmaIn3,
+                    #    min=sigmaIn3/5.,max=sigmaIn3*5.,vary=True)
+                    #    pars['g3ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g3intln'+str(i)+'_'+'sigma,2))')
 
                     
                 #    else:
@@ -301,23 +307,34 @@ class gplay(object):
 
                     ampIn3 = ampIn1*cfg_par['gFit']['dltAmp13']
                     
-                    cenIn3Pos = cenIn1 + lineInfo['deltaVAng_13'][i]
-                    cenIn3Neg = cenIn1 - lineInfo['deltaVAng_13'][i]
+                    cenIn3 = cenIn1 
                     
                     if i == 0:
-                        pars['g3ln'+str(i)+'_'+'center'].set(value=cenIn3Pos,
+                        pars['g3ln'+str(i)+'_'+'center'].set(value=cenIn3,
                             min=waveAmpIn1Min-lineInfo['deltaVAng_13'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_13'][i])
-                
+                        
+                        pars.add(name='cenDistg3',expr ='((exp(g3ln'+str(i)+'_'+'center)-lineWave'+str(i)+')/lineWave'+str(0)+')*2.99792458e8/1e3',vary=False)
+
 
                     if cfg_par['gFit']['fixCentre'] == True and i>0:
                         #pars.add(name='lineWave'+str(i),value=lineInfo['Wave'][i],vary=False)
 
-                        #pars.add(name='cenDistAng'+str(i),expr ='log((cenDist*1e3*lineWave'+str(i)+'*1e-10)/2.99792458e8/1e-10+lineWave'+str(i)+')')
+                        pars.add(name='lineWave'+str(i),value=lineInfo['Wave'][i],vary=False)
 
+                        pars.add(name='cenDistAngg3'+str(i),expr ='log((cenDistg3*1e3*lineWave'+str(i)+'*1e-10)/2.99792458e8/1e-10+lineWave'+str(i)+')')
+                       
                         cenDist = cvP.lambdaVRad(np.exp(pars['g3ln'+str(0)+'_'+'center']),lineInfo['Wave'][0])
                         cenDistAng = np.log(cvP.vRadLambda(cenDist,lineInfo['Wave'][i]))
                         pars.add(name='cenDistln'+str(i), value=cenDistAng,vary=False)
-                        pars['g3ln'+str(i)+'_'+'center'].set(expr='cenDistln'+str(i))
+                        pars['g3ln'+str(i)+'_'+'center'].set(expr='cenDistAngg3'+str(i))
+
+
+                        #pars.add(name='cenDistAng'+str(i),expr ='log((cenDist*1e3*lineWave'+str(i)+'*1e-10)/2.99792458e8/1e-10+lineWave'+str(i)+')')
+
+                        #cenDist = cvP.lambdaVRad(np.exp(pars['g3ln'+str(0)+'_'+'center']),lineInfo['Wave'][0])
+                        #cenDistAng = np.log(cvP.vRadLambda(cenDist,lineInfo['Wave'][i]))
+                        #pars.add(name='cenDistln'+str(i), value=cenDistAng,vary=False)
+                        #pars['g3ln'+str(i)+'_'+'center'].set(expr='cenDistln'+str(i))
 
                     else:
                         pars['g3ln'+str(i)+'_'+'center'].set(value=cenIn3,
@@ -325,7 +342,7 @@ class gplay(object):
 
                         #pars['g3ln'+str(i)+'_'+'amplitude'].set(value=ampIn3,min=0,max=None)
 
-                        mod += gauss3
+                    mod += gauss3
 
         #pars.pretty_print()
         return mod,pars
@@ -569,11 +586,12 @@ class gplay(object):
 
         if doFit==False and os.path.exists(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav'):
             result = load_modelresult(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
+            print(result.params['g1ln0_amplitude'].value)
         elif doFit==True:
             print('''\t+---------+\n\t ...fitting...\n\t+---------+''')
             gMod,gPars = self.lineModDef(cfg_par,waveCut,y,lineInfo)
             result = gMod.fit(y, gPars, x=waveCut)
-            print(result.fit_report())
+            print(result)
 
             save_modelresult(result, cfg_par['general']['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
         
