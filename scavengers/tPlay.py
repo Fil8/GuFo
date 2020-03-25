@@ -1229,12 +1229,12 @@ class tplay(object):
 
         try:
             tt = Table(hdul['Ancels'+modName].data)
-            tt = fits.BinTableHDU.from_columns(sigmaCenArr,name='Ancels'+modName)
+            hdul['Ancels'+modName] = fits.BinTableHDU.from_columns(sigmaCenArr,name='Ancels'+modName)
 
         except KeyError as e:
             tt=fits.BinTableHDU.from_columns(sigmaCenArr,name='Ancels'+modName)   
-            
             hdul.append(tt)  
+        
         
         hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
 

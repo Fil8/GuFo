@@ -249,6 +249,7 @@ class momplay:
         if modName+'-AmpSpax_'+lineName not in lines.dtype.names: 
             t.add_column(Column(ampSpax,name=modName+'-AmpSpax_'+lineName))
         else:
+            print('culo',lineName)
             t.replace_column(modName+'-AmpSpax_'+lineName,Column(ampSpax,name=modName+'-AmpSpax_'+lineName))        
         
         if cfg_par['gFit']['modName'] == 'g1':
