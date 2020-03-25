@@ -77,10 +77,10 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter):
         if ampSpax >= lineThresh and amp!=0.0:
             tck = interpolate.splrep(wave[:-1], lineFit, s=0)
             waveNew = np.linspace(np.min(wave),np.max(wave),1e5)
-            lineFit = interpolate.splev(wave, tck, der=0)
+            lineFit = interpolate.splev(waveNew, tck, der=0)
             height =np.max(lineFit)
             print(len(lineFit))
-            
+
             centroidG1 = lines['g1_Centre_'+str(lineNameID)][counter]
             #print(centroidG1)
             centroidG2 = lines['g2_Centre_'+str(lineNameID)][counter]
