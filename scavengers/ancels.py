@@ -109,10 +109,9 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter):
             #    np.exp(wave[indexWaveRight]),waveDist)
 
             sigmaLambda50 = waveDist50/(2*np.sqrt(2*np.log(2)))
-            #sigmaInt50 = np.sqrt(np.power(sigmaLambda50,2)-np.power(dLIn1,2))    
-            sigmaInt50=sigmaLambda50
-            #width80 = np.sqrt(np.power(waveDist80,2)-np.power(dLIn1,2))    
-            width80=waveDist80                
+            sigmaInt50 = np.sqrt(np.power(sigmaLambda50,2)-np.power(dLIn1,2))    
+            width80 = np.sqrt(np.power(waveDist80,2)-np.power(dLIn1,2))    
+            
             sigmaCen['sigma_'+lineName][counter] =  cvP.lambdaVRad(lambdaRest+sigmaInt50,lambdaRest)
             sigmaCen['logSigma_'+lineName][counter] =  np.log10(sigmaCen['sigma_'+lineName][counter])
 
