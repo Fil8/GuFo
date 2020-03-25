@@ -8,6 +8,9 @@ from lmfit.models import GaussianModel
 from lmfit.model import save_modelresult
 from lmfit.model import load_modelresult
 
+from scipy import interpolate
+
+
 import multiprocessing as mp
 from multiprocessing import Queue, Manager, Process
 
@@ -65,12 +68,16 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter):
 
 
         lineFit= comps['g1ln'+str(ii)+'_']+comps['g2ln'+str(ii)+'_']
+
+        
         centreFit=result.params['g1ln'+str(ii)+'_center']
         ampSpax = lines[modName+'-AmpSpax_'+lineNameID][counter]
         amp=result.params['g1ln'+str(ii)+'_amplitude']+result.params['g2ln'+str(ii)+'_amplitude']
 
         if ampSpax >= lineThresh and amp!=0.0:
-
+            tck = interpolate.splrep(wave[:-1], lineFit, s=0)
+            waveNew = np.linspace(np.min(wave),np.max(wave),1e5)
+            lineFit = interpolate.splev(wave, tck, der=0)
             height =np.max(lineFit)
             #print(dLIn,dLIn1,centreFit)
 
@@ -93,11 +100,11 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter):
             lineFitRight = lineFit[indexHeight:]
             indexWaveLeft50 = (np.abs(lineFitLeft-height50)).argmin()
             indexWaveRight50 = (np.abs(lineFitRight-height50)).argmin()+indexHeight
-            waveDist50 = np.exp(wave[indexWaveRight50])-np.exp(wave[indexWaveLeft50])
+            waveDist50 = np.exp(waveNew[indexWaveRight50])-np.exp(waveNew[indexWaveLeft50])
 
             indexWaveLeft80 = (np.abs(lineFitLeft-height80)).argmin()
             indexWaveRight80 = (np.abs(lineFitRight-height80)).argmin()+indexHeight
-            waveDist80 = np.exp(wave[indexWaveRight80])-np.exp(wave[indexWaveLeft80])
+            waveDist80 = np.exp(waveNew[indexWaveRight80])-np.exp(waveNew[indexWaveLeft80])
 
             #print(indexWaveLeft,indexWaveRight,np.exp(wave[indexWaveLeft]),
             #    np.exp(wave[indexWaveRight]),waveDist)
