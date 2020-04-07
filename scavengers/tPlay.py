@@ -483,7 +483,7 @@ class tplay(object):
             lineArr['g1_Height_'+lineName][counter] = height
             lineArr['g1_SN_'+lineName][counter]=height/noiseValue         
             lineArr['g1_Centre_'+lineName][counter] = g1Ctr
-            lineArr['g1_SigmaMeas_'+lineName][counter] = g1Sigma
+            lineArr['g1_SigMeas_'+lineName][counter] = g1Sigma
             lineArr['g1_SigIntr_'+lineName][counter] = g1SigmaInt
             lineArr['g1_FWHM_'+lineName][counter] = g1FWHM
 
@@ -516,8 +516,8 @@ class tplay(object):
                 lineArr['g2_Amp_'+lineName][counter] = amp
                 lineArr['g2_Height_'+lineName][counter] = height
                 lineArr['g2_Centre_'+lineName][counter] = g2Ctr
-                lineArr['g2_Sigma_'+lineName][counter] = g2Sigma
-                lineArr['g2_SigInt_'+lineName][counter] = g2SigmaInt
+                lineArr['g2_SigMeas_'+lineName][counter] = g1Sigma
+                lineArr['g2_SigIntr_'+lineName][counter] = g1SigmaInt
                 lineArr['g2_FWHM_'+lineName][counter] = g2FWHM
                 
                 lineArr['g2_SN_'+lineName][counter]=height/noiseValue         
@@ -548,8 +548,8 @@ class tplay(object):
                     lineArr['g3_Amp_'+lineName][counter] = amp
                     lineArr['g3_Height_'+lineName][counter] = height
                     lineArr['g3_Centre_'+lineName][counter] = g3Ctr
-                    lineArr['g3_Sigma_'+lineName][counter] = g3Sigma
-                    lineArr['g3_SigInt_'+lineName][counter] = g3SigmaInt
+                    lineArr['g3_SigMeas_'+lineName][counter] = g1Sigma
+                    lineArr['g3_SigIntr_'+lineName][counter] = g1SigmaInt
                     lineArr['g3_dLambda_'+lineName][counter] = g3dL
                     lineArr['g3_FWHM_'+lineName][counter] = g3FWHM
                     lineArr['g3_SN_'+lineName][counter]=height/noiseValue         

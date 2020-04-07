@@ -70,7 +70,8 @@ class momplay:
             lineThresh = float(lineInfo['SNThresh'][ii])
             cenRange = float(lineInfo['cenRange'][ii])
 
-            print('\n\t *********** --- Moments: '+lineName+' --- ***********\n')
+            print('\n\t         +++\t\t    '+lineName+'\t\t  +++')
+
             
             if ii==0:
                 doBinMap=True
@@ -105,13 +106,11 @@ class momplay:
             lineThresh = float(lineInfo['SNThresh'][ii])
             cenRange = float(lineInfo['cenRange'][ii])
 
-            print('\t         +++'+lineName+'\t\t+++')
-            
-            
+            print('\t         +++\t\t'+lineName+'\t\t+++')
+                        
             self.momSigmaCentroid(cfg_par,lineName,lineNameStr,dd,lineThresh,cenRange)
 
         return
-
 
     def makeMomPlots(self,cfg_par):
 
@@ -297,7 +296,6 @@ class momplay:
                 if thresHold >= lineThresh:
                     mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_Hb4861'][i]/tabGen['NSPAX'][index]
 #                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Height_'+lineName][i]/tabGen['NSPAX'][index]
-
                     mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
                     mom2G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_SigIntr_'+lineName][i]
 
