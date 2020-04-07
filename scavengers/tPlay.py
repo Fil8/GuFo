@@ -605,15 +605,13 @@ class tplay(object):
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data 
 
-
         lineNameList=['BIN_ID']
         frmList=['i4']
 
         tot = lines['BIN_ID']
 
         lineNameID = np.array(lineNameID)
-        
-        
+              
         if 'OIII5006' in lineNameID and 'Hb4861' in lineNameID:
             
             lrOHbG1 = np.divide(lines['g1_Amp_'+'OIII5006'],lines['g1_Amp_'+'Hb4861'])
@@ -691,11 +689,19 @@ class tplay(object):
             if 'NII6583' in lineNameID and 'Ha6562' in lineNameID:
 
                 lrNIIHaG2 = np.divide(lines['g2_Amp_'+'NII6583'],lines['g2_Amp_'+'Ha6562'])
+                logNIIHaG2 = np.log10(lrNIIHaG2)
                 lrNIIHa = np.divide((lines['g1_Amp_'+'NII6583']+lines['g2_Amp_'+'NII6583']),(lines['g1_Amp_'+'Ha6562']+lines['g2_Amp_'+'Ha6562']))
+                logNIIHa = np.log10(lrNIIHa)
                 
-                tot = np.column_stack((tot,lrNIIHaG2,lrNIIHa))
+                tot = np.column_stack((tot,lrNIIHaG2,logNIIHaG2,lrNIIHa,logNIIHa))
                 lineNameList.append('G2-NII6583/Ha6562')
+                lineNameList.append('log_G2-NII6583/Ha6562')
+
                 lineNameList.append('ToT-NII6583/Ha6562')
+                lineNameList.append('log_ToT-NII6583/Ha6562')
+
+                frmList.append('f8')
+                frmList.append('f8')
                 frmList.append('f8')
                 frmList.append('f8')
 
@@ -713,6 +719,8 @@ class tplay(object):
                 lineNameList.append('G2-OI6300/Ha6562')
                 lineNameList.append('log_G2-OI6300/Ha6562')
 
+
+
                 lineNameList.append('ToT-OI6300/Ha6562')
                 lineNameList.append('log_ToT-OI6300/Ha6562')
 
@@ -729,9 +737,10 @@ class tplay(object):
                 lrSIIHa = np.divide((lines['g1_Amp_'+'SII6716']+lines['g1_Amp_'+'SII6730']+lines['g2_Amp_'+'SII6716']+lines['g2_Amp_'+'SII6730']),(lines['g1_Amp_'+'Ha6562']+lines['g2_Amp_'+'Ha6562']))
                 logSIIHa = np.log10(lrSIIHa)            
                 
-                tot = np.column_stack((tot,lrSIIHaG2,logSIIHaG2,lrSIIHa,logSIIHa))
+                tot = np.column_stack((tot,lrSIIHaG2,logSIIHaG2,lrSIIHaG2,logSIIHa))
                 lineNameList.append('G2-SII6716/Ha6562')
                 lineNameList.append('log_G2-SII6716/Ha6562')
+
 
                 lineNameList.append('ToT-SII6716/Ha6562')
                 lineNameList.append('log_ToT-SII6716/Ha6562')
@@ -959,7 +968,6 @@ class tplay(object):
             LrOIII[indexBadFit] = -1.
             #LrOIII[indexBadFit2] = -2.
 
-
             indexSF = np.where(np.logical_and.reduce((t['log_G2-OIII5006/Hb4861'] < 0.72 / (t['log_G2-SII6716/Ha6562'] - 0.32) + 1.30,
                                 t['log_G2-OIII5006/Hb4861']<3.,
                                 t['log_G2-SII6716/Ha6562']<0.32,
@@ -979,9 +987,11 @@ class tplay(object):
                                 t['log_G2-OIII5006/Hb4861']>=-2.,
                                 t['log_G2-SII6716/Ha6562']>=-2.)))
 
-            indexBadFit = np.where(np.logical_or.reduce(t['log_G2-OIII5006/Hb4861']<=-2.,t['log_G2-OIII5006/Hb4861']>3.,
-                t['log_G2-SII6716/Ha6562']<=-2.,t['log_G2-SII6716/Ha6562']>0.5))
             #indexBadFit2 = np.where(np.logical_or(np.isnan(t['G1-SII6716/Ha6562']),np.isnan(t['G1-NII6583/Ha6562'])))
+            indexBadFit = np.where(np.logical_or.reduce((t['log_G2-OIII5006/Hb4861']<=-2.,t['log_G2-OIII5006/Hb4861']>3.,
+                t['log_G2-SII6716/Ha6562']<=-2.,t['log_G2-SII6716/Ha6562']>0.5)))
+
+
 
             LrSII  = np.zeros(len(lines['BIN_ID']))*np.nan
             LrSII[indexSF] = 0.
@@ -1073,9 +1083,11 @@ class tplay(object):
                                 t['log_ToT-OIII5006/Hb4861']>=-2.,
                                 t['log_ToT-SII6716/Ha6562']>=-2.)))
 
-            indexBadFit = np.where(np.logical_or.reduce(t['log_ToT-OIII5006/Hb4861']<=-2.,t['log_ToT-OIII5006/Hb4861']>3.,
-                t['log_ToT-SII6716/Ha6562']<=-2.,t['log_ToT-SII6716/Ha6562']>0.5))
             #indexBadFit2 = np.where(np.logical_or(np.isnan(t['G1-SII6716/Ha6562']),np.isnan(t['G1-NII6583/Ha6562'])))
+            indexBadFit = np.where(np.logical_or.reduce((t['log_ToT-OIII5006/Hb4861']<=-2.,t['log_ToT-OIII5006/Hb4861']>3,
+                t['log_ToT-NII6583/Ha6562']<=2.,t['log_ToT-NII6583/Ha6562']>0.5)))
+
+
 
             LrSII  = np.zeros(len(lines['BIN_ID']))*np.nan
             LrSII[indexSF] = 0.
@@ -1216,8 +1228,20 @@ class tplay(object):
                 tt.add_column(Column(LrSII,name='G3-BPT_SII'))
                 tt.add_column(Column(LrOI,name='G3-BPT_OI'))
 
-        hdul.append(fits.BinTableHDU(tt.as_array(), name='BPT_'+modName))
+
+        try:
+            tt = Table(hdul['BPT_'+modName].data)
+            hdul['BPT_'+modName] = fits.BinTableHDU(tt.as_array(),name='BPT_'+modName)
+
+        except KeyError as e:
+            tt=fits.BinTableHDU.from_columns(tt.as_array(),name='BPT_'+modName)   
+            hdul.append(tt)          
+        
         hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
+
+
+        #hdul.append(fits.BinTableHDU(tt.as_array(), name='BPT_'+modName))
+        #hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
 
         return
 
@@ -1297,144 +1321,157 @@ class tplay(object):
     def carolloDistOIII(self,cfg_par):
         
         modName = cfg_par['gFit']['modName']
-        
-        if  modName == 'g1':
-            gName = 'G1'
-        else:
-            print('\n\t************* --- GuFo : ERROR --- **************\n')
-            print('\n\t******** --- G2 not implemented --- **********\n')
-            sys.exit(0)
 
         hdul = fits.open(cfg_par['general']['outTableName'])
+
+        if cfg_par['gFit']['modName'] == 'g1':
+            modString = ['G1']
+            gNameTable = 'G1'
+            gName = 'G1'
+        elif cfg_par['gFit']['modName'] == 'g2':
+            modString = ['G1','G2','ToT']
+            gNameTable = ['G2','G2','G2']
+            gName = ['G1','G2','ToT']
+        elif cfg_par['gFit']['modName'] == 'g3':
+            modString = ['G1','G2','G3','ToT']
+            gNameTable = ['G3','G3','G3','G3']
+            gName = ['G1','G2','G3','ToT']
+
+        for j in range(0,len(modString)):
+
         
-        bptInfo = hdul[5].data
-        lineRatio = hdul[4].data
+            bptInfo = hdul['BPT_'+gNameTable[j]].data
+            lineRatio = hdul['LINERATIOS_'+gNameTable[j]].data 
+            LrOIII  = bptInfo[gName[j]+'-BPT_OIII']
+            xArr = np.log10(lineRatio[gName[j]+'-NII6583/Ha6562'])
+            yArr = np.log10(lineRatio[gName[j]+'-OIII5006/Hb4861'])
 
-        LrOIII  = bptInfo[gName+'-BPT_OIII']
-        xArr = np.log10(lineRatio[gName+'-NII6583/Ha6562'])
-        yArr = np.log10(lineRatio[gName+'-OIII5006/Hb4861'])
+            nu = np.zeros(len(bptInfo['BIN_ID']))*np.nan
 
-        nu = np.zeros(len(bptInfo['BIN_ID']))*np.nan
-
-        for i in range(0,len(xArr)):
-            x1 = xArr[i]
-            y1 = yArr[i]
-            if np.isnan(LrOIII[i]):
-                continue
-
-            if LrOIII[i] == 0:
-                a = 40000
-                b = -40000*x1-6000
-                c = 6000*x1+300
-                d = -300.*x1+24400*y1-31725
-                e = -1220.*y1+5.*x1-13298.
-                
-                sols = self.findferrari(a,b,c,d,e)
-
-                if len(sols) == 0 : 
-                    nu[i] = np.nan
+            for i in range(0,len(xArr)):
+                x1 = xArr[i]
+                y1 = yArr[i]
+                if np.isnan(LrOIII[i]):
                     continue
 
-                d1=[]
-                for xS in sols:
-                    dist = np.sqrt(np.power(x1-xS.real,2)+np.power(y1-(np.divide(0.61,xS.real-0.05)+1.3),2))
-                    d1.append(dist)
+                if LrOIII[i] == 0:
+                    a = 40000
+                    b = -40000*x1-6000
+                    c = 6000*x1+300
+                    d = -300.*x1+24400*y1-31725
+                    e = -1220.*y1+5.*x1-13298.
+                    
+                    sols = self.findferrari(a,b,c,d,e)
 
-                if len(d1) !=0: 
-                    d1=np.min(d1)
-                else:
-                    nu[i] = np.nan
-                    continue
+                    if len(sols) == 0 : 
+                        nu[i] = np.nan
+                        continue
 
-                nu[i] = -0.5 - d1
+                    d1=[]
+                    for xS in sols:
+                        dist = np.sqrt(np.power(x1-xS.real,2)+np.power(y1-(np.divide(0.61,xS.real-0.05)+1.3),2))
+                        d1.append(dist)
+
+                    if len(d1) !=0: 
+                        d1=np.min(d1)
+                    else:
+                        nu[i] = np.nan
+                        continue
+
+                    nu[i] = -0.5 - d1
 
 
-            elif LrOIII[i] == 2:
+                elif LrOIII[i] == 2:
 
-                a = 1e6
-                b = -1e6*x1-1.41e6
-                c = 1.41e6*x1 + 6.627e5
-                d = -6.627e5*x1+6.1e5*y1-8.29723e5
-                e = -2.867e5*y1+1.03823e5*x1-3.0927e4            
-                
-                sols = self.findferrari(a,b,c,d,e)
-                if len(sols) == 0 : 
-                    nu[i] = np.nan
-                    continue
+                    a = 1e6
+                    b = -1e6*x1-1.41e6
+                    c = 1.41e6*x1 + 6.627e5
+                    d = -6.627e5*x1+6.1e5*y1-8.29723e5
+                    e = -2.867e5*y1+1.03823e5*x1-3.0927e4            
+                    
+                    sols = self.findferrari(a,b,c,d,e)
+                    if len(sols) == 0 : 
+                        nu[i] = np.nan
+                        continue
 
-                d1=[]
-                for xS in sols:
-                    dist = np.sqrt(np.power(x1-xS.real,2)+np.power(y1-(np.divide(0.61,xS.real-0.47)+1.19),2))
-                    d1.append(dist)
- 
-                if len(d1) !=0: 
-                    d1=np.min(d1)
-                else:
-                    nu[i] = np.nan
-                    continue           
+                    d1=[]
+                    for xS in sols:
+                        dist = np.sqrt(np.power(x1-xS.real,2)+np.power(y1-(np.divide(0.61,xS.real-0.47)+1.19),2))
+                        d1.append(dist)
+     
+                    if len(d1) !=0: 
+                        d1=np.min(d1)
+                    else:
+                        nu[i] = np.nan
+                        continue           
 
-                nu[i] = 0.5 + d1
+                    nu[i] = 0.5 + d1
 
-            elif LrOIII[i] == 1:
+                elif LrOIII[i] == 1:
 
-                aSF = 40000.
-                bSF = -40000.*x1-6000.
-                cSF = 6000.*x1+300.
-                dSF = -300.*x1+24400.*y1-31725
-                eSF = -1220.*y1+5.*x1-13298.
+                    aSF = 40000.
+                    bSF = -40000.*x1-6000.
+                    cSF = 6000.*x1+300.
+                    dSF = -300.*x1+24400.*y1-31725
+                    eSF = -1220.*y1+5.*x1-13298.
 
-                solsSF = self.findferrari(aSF,bSF,cSF,dSF,eSF)
+                    solsSF = self.findferrari(aSF,bSF,cSF,dSF,eSF)
 
-                if len(solsSF) == 0 : 
-                    nu[i] = np.nan
-                    continue
+                    if len(solsSF) == 0 : 
+                        nu[i] = np.nan
+                        continue
 
-                d1=[]
-                for xS in solsSF:
-                    dist = np.sqrt(np.power(x1-xS.real,2)+np.power(y1-(np.divide(0.61,xS.real-0.05)+1.3),2))
-                    d1.append(dist)
+                    d1=[]
+                    for xS in solsSF:
+                        dist = np.sqrt(np.power(x1-xS.real,2)+np.power(y1-(np.divide(0.61,xS.real-0.05)+1.3),2))
+                        d1.append(dist)
 
-                if len(d1) !=0: 
-                     d1=np.min(d1)
-                else:
-                     nu[i] = np.nan
-                     continue
+                    if len(d1) !=0: 
+                         d1=np.min(d1)
+                    else:
+                         nu[i] = np.nan
+                         continue
 
-                aAG = 1e6
-                bAG = -1e6*x1-1.41e6
-                cAG = 1.41e6*x1 + 6.627e5
-                dAG = -6.627e5*x1+6.1e5*y1-8.29723e5
-                eAG = -2.867e5*y1+1.03823e5*x1-3.0927e4
-                
-                solsAG = self.findferrari(aAG,bAG,cAG,dAG,eAG)
-                
-                if len(solsAG) == 0 : 
-                    nu[i] = np.nan
-                    continue
-                
-                d2=[]
-                for xS in solsSF:
-                    dist = np.sqrt(np.power(x1-xS.real,2)+np.power(y1-(np.divide(0.61,xS.real-0.05)+1.3),2))
-                    d2.append(dist)
+                    aAG = 1e6
+                    bAG = -1e6*x1-1.41e6
+                    cAG = 1.41e6*x1 + 6.627e5
+                    dAG = -6.627e5*x1+6.1e5*y1-8.29723e5
+                    eAG = -2.867e5*y1+1.03823e5*x1-3.0927e4
+                    
+                    solsAG = self.findferrari(aAG,bAG,cAG,dAG,eAG)
+                    
+                    if len(solsAG) == 0 : 
+                        nu[i] = np.nan
+                        continue
+                    
+                    d2=[]
+                    for xS in solsSF:
+                        dist = np.sqrt(np.power(x1-xS.real,2)+np.power(y1-(np.divide(0.61,xS.real-0.05)+1.3),2))
+                        d2.append(dist)
 
-                if len(d2) !=0: 
-                     d2=np.min(d2)
-                else:
-                     nu[i] = np.nan
-                     continue
+                    if len(d2) !=0: 
+                         d2=np.min(d2)
+                    else:
+                         nu[i] = np.nan
+                         continue
 
-                nu[i] = -0.5+d1
+                    nu[i] = -0.5+d1
 
-        t2 = Table(bptInfo)
-        if 'cDist-OIII' not in bptInfo.dtype.names: 
-            t2.add_column(Column(nu,name='cDist-OIII'))
-        else:
-            t2.replace_column('cDist-OIII',Column(nu,name='cDist-OIII'))
-
-        hdl = fits.HDUList([hdul[0],hdul[1],hdul[2],hdul[3],hdul[4]])
-        hdl.append(fits.BinTableHDU(t2.as_array(), name='BPT_'+modName))
-        hdl.writeto(cfg_par['general']['outTableName'],overwrite=True)
-
+            t2 = Table(bptInfo)
+     
+            if 'cDist-OIII'+modString[j] not in bptInfo.dtype.names: 
+                t2.add_column(Column(nu,name='cDist-OIII'+modString[j]))
+            else:
+                t2.replace_column('cDist-OIII'+modString[j],Column(nu,name='cDist-OIII'+modString[j]))
+    
+            try:
+                tt = Table(hdul['BPT_'+modName].data)
+                hdul['BPT_'+modName] = fits.BinTableHDU(t2.as_array(),name='BPT_'+modName)
+            except KeyError as e:
+                tt=fits.BinTableHDU(t2.as_array(),name='LineRes_'+modName)   
+                hdul.append(tt)          
+        
+        hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
         return
 
 

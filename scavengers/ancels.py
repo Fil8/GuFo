@@ -25,15 +25,17 @@ import tPlay,cvPlay
 tP = tPlay.tplay()
 cvP = cvPlay.convert()
 
-def workerAncels(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,rank,nprocs):
+def workerAncels(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,tabGen,rank,nprocs):
 
  
     counter = 0
+    ubins = np.unique(lines['BIN_ID'])
 
-    for ii in range(rank,len(lines['BIN_ID']), nprocs):
+    for ii in range(rank,len(ubins), nprocs):
     #for ii in range(rank,80, nprocs):
-        
-        counter,sigmaCen = widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter)
+        binID = ubins[ii]
+
+        counter,sigmaCen = widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tabGen)
     
 
     match_indices = np.where(sigmaCen['BIN_ID'] == 0.0)[0]
@@ -42,15 +44,13 @@ def workerAncels(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,rank,nprocs):
     return sigmaCen  
     
 
-def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter):
+def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tabGen):
 
     #tt=Table([lines['BIN_ID']])
-    binID = lines['BIN_ID'][counter]
     modName = cfg_par['gFit']['modName']
     result = load_modelresult(cfg_par['general']['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
     comps = result.eval_components()
     
-    sigmaCen['BIN_ID'][counter]=binID
     for ii in range(0,len(lineInfo['ID'])):
         lambdaRest = lineInfo['Wave'][ii]
 
@@ -71,20 +71,21 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter):
 
         
         centreFit=result.params['g1ln'+str(ii)+'_center']
-        ampSpax = lines[modName+'-AmpSpax_'+lineNameID][counter]
+        index = np.where(tabGen['BIN_ID']==binID)[0]
+        ampSpax = tabGen[modName+'-AmpSpax_'+lineNameID][index[0]]
         amp=result.params['g1ln'+str(ii)+'_amplitude']+result.params['g2ln'+str(ii)+'_amplitude']
+        indexCentroid=np.where(lines['BIN_ID']==binID)[0]
 
         if ampSpax >= lineThresh and amp!=0.0:
             tck = interpolate.splrep(wave[:-1], lineFit, s=0)
             waveNew = np.linspace(np.min(wave),np.max(wave),1e5)
             lineFit = interpolate.splev(waveNew, tck, der=0)
             height =np.max(lineFit)
-
-            centroidG1 = lines['g1_Centre_'+str(lineNameID)][counter]
+            centroidG1 = lines['g1_Centre_'+str(lineNameID)][indexCentroid]
             #print(centroidG1)
-            centroidG2 = lines['g2_Centre_'+str(lineNameID)][counter]
-            ampG1 = lines['g1_Amp_'+str(lineNameID)][counter]
-            ampG2 = lines['g2_Amp_'+str(lineNameID)][counter]
+            centroidG2 = lines['g2_Centre_'+str(lineNameID)][indexCentroid]
+            ampG1 = lines['g1_Amp_'+str(lineNameID)][indexCentroid]
+            ampG2 = lines['g2_Amp_'+str(lineNameID)][indexCentroid]
             centroidG1Lambda = cvP.vRadLambda(centroidG1,lambdaRest)
             centroidG2Lambda = cvP.vRadLambda(centroidG2,lambdaRest)
    
@@ -109,32 +110,34 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter):
             #    np.exp(wave[indexWaveRight]),waveDist)
 
             sigmaLambda50 = waveDist50/(2*np.sqrt(2*np.log(2)))
+            print(sigmaLambda50,dLIn1)
             sigmaInt50 = np.sqrt(np.power(sigmaLambda50,2)-np.power(dLIn1,2))    
             width80 = np.sqrt(np.power(waveDist80,2)-np.power(dLIn1,2))    
-            
-            sigmaCen['sigma_'+lineName][counter] =  cvP.lambdaVRad(lambdaRest+sigmaInt50,lambdaRest)
-            sigmaCen['logSigma_'+lineName][counter] =  np.log10(sigmaCen['sigma_'+lineName][counter])
+            print(sigmaInt50)
+            sigmaCen['sigma_'+lineName][indexCentroid] =  cvP.lambdaVRad(lambdaRest+sigmaInt50,lambdaRest)
+            sigmaCen['logSigma_'+lineName][indexCentroid] =  np.log10(sigmaCen['sigma_'+lineName][indexCentroid])
 
-            sigmaCen['w80_'+lineName][counter] =  cvP.lambdaVRad(lambdaRest+width80,lambdaRest)
-            sigmaCen['logW80_'+lineName][counter] =  np.log10(sigmaCen['w80_'+lineName][counter])
-
+            sigmaCen['w80_'+lineName][indexCentroid] =  cvP.lambdaVRad(lambdaRest+width80,lambdaRest)
+            sigmaCen['logW80_'+lineName][indexCentroid] =  np.log10(sigmaCen['w80_'+lineName][indexCentroid])
+            print(sigmaCen['sigma_'+lineName][indexCentroid])
                 
             centroidToT = np.divide(np.sum([np.multiply(centroidG1Lambda,ampG1)+np.multiply(centroidG2Lambda,ampG2)]),
                 np.sum([ampG1,ampG2]))          
 
-            sigmaCen['centroid_'+lineName][counter] = cvP.lambdaVRad(centroidToT,lambdaRest)
-            sigmaCen['logCentroid_'+lineName][counter] =  np.log10(sigmaCen['centroid_'+lineName][counter])
+            sigmaCen['centroid_'+lineName][indexCentroid] = cvP.lambdaVRad(centroidToT,lambdaRest)
+            sigmaCen['logCentroid_'+lineName][indexCentroid] =  np.log10(sigmaCen['centroid_'+lineName][indexCentroid])
 
             #print(centroidToTVel[j],sigmaInt,sigma[j])
         else:
-            sigmaCen['w80_'+lineName][counter]=np.nan
-            sigmaCen['logW80_'+lineName][counter]=np.nan
+            sigmaCen['w80_'+lineName][indexCentroid]=np.nan
+            sigmaCen['logW80_'+lineName][indexCentroid]=np.nan
 
-            sigmaCen['sigma_'+lineName][counter]=np.nan
-            sigmaCen['logSigma_'+lineName][counter]=np.nan
+            sigmaCen['sigma_'+lineName][indexCentroid]=np.nan
+            sigmaCen['logSigma_'+lineName][indexCentroid]=np.nan
 
-            sigmaCen['centroid_'+lineName][counter] = np.nan
-            sigmaCen['logCentroid_'+lineName][counter]=np.nan
+            sigmaCen['centroid_'+lineName][indexCentroid] = np.nan
+            sigmaCen['logCentroid_'+lineName][indexCentroid]=np.nan
+    sigmaCen['BIN_ID'][indexCentroid]=binID
 
     counter +=1
     
@@ -162,6 +165,8 @@ def main(cfg_par):
 
     dLambda = cvP.specRes(cfg_par)
 
+    hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
+    tabGen = hduGen[1].data
 
     wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
         cfg_par['general']['outVorSpectra'])
@@ -200,7 +205,7 @@ def main(cfg_par):
         else:
             nprocs = mp.cpu_count()
 
-        inputs = [(cfg_par,lines,wave,lineInfo,dLambda,sigmaCenArr,rank, nprocs) for rank in range(nprocs)]
+        inputs = [(cfg_par,lines,wave,lineInfo,dLambda,sigmaCenArr,tabGen,rank, nprocs) for rank in range(nprocs)]
 
         pool = mp.Pool(processes=nprocs)
         multi_result = [pool.apply_async(workerAncels, args=(inp)) for inp in inputs]        

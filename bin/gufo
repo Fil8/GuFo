@@ -41,7 +41,6 @@ class MultilineFormatter(argparse.HelpFormatter):
 
 def outFunction ():
         
-
         print ("""\nRun one of the following commands:\n
         gufo\t\t\t-gd <configFileName>:\tgenerate config file in working directory
         gufo\t\t\t-c  <configFileName>:\trun GuFo with modules enabled from config file
@@ -50,6 +49,7 @@ def outFunction ():
         gufo -gpMp\t\t-c  <configFileName>:\trun fit on multiprocess with parameters from config file and lineList file
         gufo -gPl\t\t-c  <configFileName>:\tplot fit results for each bin
         gufo -gPs\t-bin <binNum>\t-c  <configFileName>:\tplot fit results for binNum
+        gufo -gPs\t-dF\t-bin <binNum>\t-c  <configFileName>:\tdo fit for binNum with specs from configFile
         gufo -mom\t\t-c  <configFileName>:\tmake moment maps of fitted lines
         gufo -momPl\t\t-c  <configFileName>:\t plot moment maps from fits files
         gufo -res\t\t-c  <configFileName>:\tmake residual maps for each fitted line
@@ -57,6 +57,7 @@ def outFunction ():
         gufo -clT\t\t-c  <configFileName>:\tclean table leaving only fit results
         gufo -vor\t\t-c  <configFileName>:\tvoronoi binning of output of PPXF (star subtracted datacube) 
         gufo -stS\t\t-c  <configFileName>:\tmake stellar subtracted datacube (output of PPXF is a table)
+        gufo -af\t\t-c   <configFileName>:\tcompute sigma, centroid, w80 for each voronoi bin
             """)
 
         return 
@@ -165,7 +166,7 @@ def main (argv):
     if args.help and len(argv) ==1 :
         print('\n\t************* --- GuFo : Help --- **************\n')
 
-        print ('\t\t  ... called for help ...\n')
+        print ('\t\t... called for help ...\n')
         parser.print_help()
         outFunction()
 
@@ -306,7 +307,9 @@ def main (argv):
         gPar = gufo.gufo(args.cfgFile)
         print('\n\t         +++   sigma & centroid  +++')
         ancels.main(gPar.cfg_par)
-        #print ('\n\t  ********** --- ancillaryInfo : centroid --- **********\n')
+        print ('\n\t  ********** --- ancillaryInfo : centroid --- **********\n')
+        print('\n\t         +++     plotting maps   +++')
+        mom.makeSigmaCentroidMaps(gPar.cfg_par)
         print('\n\t         +++        Done         +++')
 
         #ap.centroid(gPar.cfg_par)
@@ -315,9 +318,9 @@ def main (argv):
         
         print('\n\t************ --- GuFo : lineRatios --- ************\n')
         gPar = gufo.gufo(args.cfgFile)
-        gPar.cfg_par['general']['cleanTable'] = True
-        tP.cleanTable(gPar.cfg_par)   
-        gPar.cfg_par['general']['cleanTable'] = False
+        #gPar.cfg_par['general']['cleanTable'] = True
+        #tP.cleanTable(gPar.cfg_par)   
+        #gPar.cfg_par['general']['cleanTable'] = False
 
         lineInfo = tP.openLineList(gPar.cfg_par)
         tP.binLineRatio(gPar.cfg_par,lineInfo)
@@ -327,11 +330,11 @@ def main (argv):
     if args.bptPlots or gPar.cfg_par['lineRatios'].get('bptPlot',False) == True:    
         print ('\n\t************* --- GuFo : BPT plots --- **************\n')
         gPar.cfg_par['lineRatios'].get('bptMap',False) == True
-        gPar.cfg_par['general']['cleanTable'] = True
+        #gPar.cfg_par['general']['cleanTable'] = True
         bpt.bptOIII(gPar.cfg_par)
-        bpt.bptSII(gPar.cfg_par)
-        bpt.bptOI(gPar.cfg_par)
-        gPar.cfg_par['general']['cleanTable'] = False
+        #bpt.bptSII(gPar.cfg_par)
+        #bpt.bptOI(gPar.cfg_par)
+        #gPar.cfg_par['general']['cleanTable'] = False
 
         print('\n\t  ************ --- GuFo : DONE --- ************\n')
 
@@ -339,12 +342,12 @@ def main (argv):
         
         print ('\n\t************ --- GuFo : BPT maps --- ************\n')
         print(gPar.cfg_par['general']['bptDir']+gPar.cfg_par['gFit']['modName'])
-        gPar.cfg_par['general']['cleanTable'] = True
+        #gPar.cfg_par['general']['cleanTable'] = True
         outBPT = glob.glob(gPar.cfg_par['general']['bptDir']+gPar.cfg_par['gFit']['modName']+"/*.fits")
         print(outBPT)
         for i in outBPT:
             bpt.bptIM(gPar.cfg_par,i)
-        gPar.cfg_par['general']['cleanTable'] = False
+        #gPar.cfg_par['general']['cleanTable'] = False
 
         print('\n\t  ************ --- GuFo : DONE --- ************\n')
 
@@ -353,6 +356,7 @@ def main (argv):
         gPar = gufo.gufo(args.cfgFile)
         tP.carolloDistOIII(gPar.cfg_par)
         mom.momCDist(gPar.cfg_par)
+        print('\n\t      ************ --- GuFo : cDistBPT --- ************\n')
         bpt.bptCDist(gPar.cfg_par)
         print('\n\t      ************ --- GuFo : DONE --- ************\n')
 

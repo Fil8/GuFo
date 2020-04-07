@@ -24,10 +24,19 @@ import cvPlay
 cvP = cvPlay.convert()
 
 class specplot(object):
+    '''Modules to plot spectra and fits
+    - loadRcParamsBig 
+        load rc parameters to plot full spectrum
+    - loadRcParamsZoom
+        load rc parameters to plot subpanels of fitted lines
+    - plotSpecFit
+        plot full spectrum and fitted function
+    - plotSpecFitZoom
+        determines the area of the beam of the observations
+    - addFullSublot
+        add subplot of total spectrum to plot of fitted lines
+    '''
 
-#----------------------#
-# rc param initialize
-#----------------------#
     def loadRcParamsBig(self):
     
         params = {'figure.figsize'      : '10,10',

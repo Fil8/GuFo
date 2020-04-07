@@ -70,13 +70,12 @@ class BPTplot(object):
         lineRatios = hdul['LineRatios_'+cfg_par['gFit']['modName']].data
 
         ampTable = hdul['LineRes_'+cfg_par['gFit']['modName']].data
-        amps = ampTable[cfg_par['gFit']['modName']+'-AmpSpax'+'_Hb4861']
-
+        
         lineInfo = tP.openLineList(cfg_par)
         lineThresh = float(lineInfo['SNThresh'][0])
 
+        amps = ampTable[cfg_par['gFit']['modName']+'-AmpSpax'+'_Hb4861']
         idx  = np.where(amps>=lineThresh)
-
 
         if cfg_par['gFit']['modName'] == 'g1':
             modString = ['G1']
@@ -88,6 +87,8 @@ class BPTplot(object):
 
         for i in range (0, len(modString)):
             
+
+
             # initialize figure
             params = self.loadRcParams()
             plt.rcParams.update(params)
@@ -177,7 +178,6 @@ class BPTplot(object):
         hdul = fits.open(cfg_par['general']['outTableName'])
         lineBPT = hdul['BPT_'+cfg_par['gFit']['modName']].data
         lineRatios = hdul['LineRatios_'+cfg_par['gFit']['modName']].data
-
 
         ampTable = hdul['LineRes_'+cfg_par['gFit']['modName']].data
         amps = ampTable[cfg_par['gFit']['modName']+'-AmpSpax'+'_Hb4861']
@@ -388,7 +388,15 @@ class BPTplot(object):
             CustomCmap = ListedColormap(['grey','blue','red','green'])
             cBarTickLabels = ['bad fit','SF','AGN','LINER']
 
+        ampTable = hdul['LineRes_'+cfg_par['gFit']['modName']].data
+        
+        lineInfo = tP.openLineList(cfg_par)
+        lineThresh = float(lineInfo['SNThresh'][0])
 
+        amps = ampTable[cfg_par['gFit']['modName']+'-AmpSpax'+'_Hb4861']
+        idx  = np.where(amps>=lineThresh)
+
+        
         objCoordsRA = cfg_par['moments']['centreRA']
         objCoordsDec = cfg_par['moments']['centreDec']
         
@@ -402,6 +410,8 @@ class BPTplot(object):
         hduIm = fits.open(outBPT)[0]
         wcsIm = WCS(hduIm.header)
 
+        hduIm.data[idx] = np.nan
+        
         hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsIm)
         
         #idxLin = np.where(hduImCut==2.)
@@ -613,7 +623,6 @@ class BPTplot(object):
 
     def bptCDist(self,cfg_par,outPlotDir=None,vRange=None):
 
-
         hdul = fits.open(cfg_par['general']['outTableName'])
         lineBPT = hdul['BPT_'+cfg_par['gFit']['modName']].data
         lineRatios = hdul['LineRatios_'+cfg_par['gFit']['modName']].data
@@ -632,9 +641,7 @@ class BPTplot(object):
             modString = ['G1','G2','G3','ToT']
 
         idx  = np.where(amps>=lineThresh)
-
-        for i in range (0, len(modString)):
-            
+        for i in range (0, len(modString)):            
             # initialize figure
             params = self.loadRcParams()
             plt.rcParams.update(params)
@@ -645,7 +652,7 @@ class BPTplot(object):
 
             y = lineRatios['log_'+modString[i]+'-OIII5006/Hb4861']
             x = lineRatios['log_'+modString[i]+'-NII6583/Ha6562']
-            k = lineBPT['cDist-OIII']
+            k = lineBPT['cDist-OIII'+modString[i]]
             
             #ax.set_xticks([])
             
@@ -695,16 +702,14 @@ class BPTplot(object):
             ax1.legend = plt.legend(loc=4, prop={'size': 12})
             ax1.legend.get_frame().set_edgecolor('black')
             ax1.legend.get_frame().set_facecolor('white')
+            
             if outPlotDir==None:
                 outPlotDir = cfg_par['general']['bptDir']+'/plots/'
-
             if not os.path.exists(outPlotDir):
                 os.mkdir(outPlotDir)
 
-            outPlot = outPlotDir+'BPT-'+cfg_par['gFit']['modName']+'etadist.png'
+            outPlot = outPlotDir+'BPT-'+modString[i]+'etadist.png'
             plt.savefig(outPlot,
-                        format='png') # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
-            plt.show()
-            plt.close()
+                        format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100) # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
                
         return 0      
