@@ -35,9 +35,9 @@ class MultilineFormatter(argparse.HelpFormatter):
     '''
 
     def _fill_text(self, text, width, indent):
-    '''
-    fills in missing spaces when arguments are parsed on multiple lines
-    '''
+        '''
+        fills in missing spaces when arguments are parsed on multiple lines
+        '''
     
         text = self._whitespace_matcher.sub(' ', text).strip()
         paragraphs = text.split('|n ')
