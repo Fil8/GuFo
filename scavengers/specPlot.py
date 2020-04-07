@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.6
+
 import os, sys
 from astropy.io import fits
 import numpy as np
@@ -7,6 +8,8 @@ from lmfit import Model
 from lmfit.models import GaussianModel
 from lmfit.model import save_modelresult
 
+import matplotlib as mpl
+mpl.use('Agg')
 from matplotlib import pyplot as plt
 from matplotlib import rc
 from matplotlib import gridspec
@@ -20,11 +23,20 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import cvPlay
 cvP = cvPlay.convert()
 
-class specplot:
+class specplot(object):
+    '''Modules to plot spectra and fits
+    - loadRcParamsBig 
+        load rc parameters to plot full spectrum
+    - loadRcParamsZoom
+        load rc parameters to plot subpanels of fitted lines
+    - plotSpecFit
+        plot full spectrum and fitted function
+    - plotSpecFitZoom
+        determines the area of the beam of the observations
+    - addFullSublot
+        add subplot of total spectrum to plot of fitted lines
+    '''
 
-#----------------------#
-# rc param initialize
-#----------------------#
     def loadRcParamsBig(self):
     
         params = {'figure.figsize'      : '10,10',
@@ -81,6 +93,7 @@ class specplot:
            }
         
         return params
+
 
     def plotSpecFit(self,cfg_par,vel,y,result,noise,xx,yy,lineInfo,singleVorBinInfo):
         
@@ -158,7 +171,7 @@ class specplot:
         #        label='3-$\sigma$ uncertainty band')
         if cfg_par['gFit']['modName'] !='g1':
             comps = result.eval_components()
-            for i in xrange(0,len(lineInfo['ID'])):
+            for i in range(0,len(lineInfo['ID'])):
                 
                 ax1.plot(velPlot, comps['g1ln'+str(i)+'_'], 'g--')
             
@@ -196,7 +209,7 @@ class specplot:
 
         plt.savefig(outPlot,
                     format='png') # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
-        plt.show()
+        #plt.show()
         plt.close()
            
         return 0
@@ -205,16 +218,21 @@ class specplot:
 
         velExp = np.exp(vel)
         yBFit = result.best_fit
-        yRes = result.residual
+        if cfg_par['gPlot'].get('loadModel',None)==True:
+            yRes = yBFit-y
+            binName = singleVorBinInfo['BIN_ID']
+        else:
+            yRes = result.residual
+            binName = singleVorBinInfo['BIN_ID']
+
         yInFit = result.init_fit
         key = 'general'
         
         outPlotDir = cfg_par['general']['outPlotDir']
         if not os.path.exists(outPlotDir):
             os.mkdir(outPlotDir)
-        
-        outPlot = outPlotDir+str(singleVorBinInfo['BIN_ID'][0])+'_'+cfg_par['gFit']['modName']+'.png'       
-
+        #print singleVorBinInfo['BIN_ID']
+        outPlot = outPlotDir+str(binName)+'_'+cfg_par['gFit']['modName']+'.png'       
         params = self.loadRcParamsZoom()
         plt.rcParams.update(params)
         # add one row for the plot with full channel width
@@ -224,7 +242,7 @@ class specplot:
         #    ncols=3, nrows=n_rows, figsize=(8.25, 11.67))
 
 
-        fig = plt.figure(figsize=(8.25, 11.67), constrained_layout=True)
+        fig = plt.figure(figsize=(8.25, 11.67), constrained_layout=False)
         fig.subplots_adjust(hspace=0.)
 
         gs_top = plt.GridSpec(nrows=n_rows+1, ncols=3,  figure=fig, top=0.95)
@@ -239,8 +257,7 @@ class specplot:
  
         #for plot_count in range(n_plots):
         k=0
-        for i in xrange(0,len(lineInfo['Wave'])):
-
+        for i in range(0,len(lineInfo['Wave'])):
 
             if i == 0:
                 j = 0
@@ -257,7 +274,7 @@ class specplot:
             x_data_plot = cvP.lambdaVRad(x_data_plot,lineInfo['Wave'][i])
             y_data_plot = y[idxMin:idxMax]
             y_BFit_plot = result.best_fit[idxMin:idxMax]
-            y_Res_plot = result.residual[idxMin:idxMax]
+            y_Res_plot = yRes[idxMin:idxMax]
             y_sigma_plot = noise[idxMin:idxMax]
 
             # Calculate axis limits and aspect ratio
@@ -324,7 +341,7 @@ class specplot:
             #        label='3-$\sigma$ uncertainty band')
             if cfg_par['gFit']['modName'] !='g1':
                 comps = result.eval_components()
-                for ii in xrange(0,len(lineInfo['ID'])):
+                for ii in range(0,len(lineInfo['ID'])):
 
                     ax.plot(x_data_plot, comps['g1ln'+str(ii)+'_'][idxMin:idxMax], 'g--')
                 
@@ -402,7 +419,13 @@ class specplot:
         
         velPlot = np.exp(vel)
         yBFit = result.best_fit
-        yRes = result.residual
+        if cfg_par['gPlot'].get('loadModel',None):
+            yRes = yBFit-y
+            binName = singleVorBinInfo['BIN_ID']
+        else:
+            yRes = result.residual
+            binName = singleVorBinInfo['BIN_ID'][0]
+
         yInFit = result.init_fit
         key = 'general'
         
@@ -466,7 +489,7 @@ class specplot:
         xText = cfg_par['gFit']['lambdaMin']+50
 
 
-        ax1.text(xText, y1_max*0.90, r'BIN ID:\t'+str(singleVorBinInfo['BIN_ID'][0]), {'color': 'k', 'fontsize': 8})
+        ax1.text(xText, y1_max*0.90, r'BIN ID:\t'+str(binName), {'color': 'k', 'fontsize': 8})
         ax1.text(xText, y1_max*0.80, r'X,Y:\t'+str(xx)+','+str(yy), {'color': 'k', 'fontsize': 8})
 
         #ax1.text(xText, x_max*0.85, r'Success:\t'+successStr, {'color': 'b'})
@@ -478,7 +501,7 @@ class specplot:
         #        label='3-$\sigma$ uncertainty band')
         if cfg_par['gFit']['modName'] !='g1':
             comps = result.eval_components()
-            for i in xrange(0,len(lineInfo['ID'])):
+            for i in range(0,len(lineInfo['ID'])):
                 
                 ax1.plot(velPlot, comps['g1ln'+str(i)+'_'], 'g--')
             
@@ -488,8 +511,6 @@ class specplot:
                 elif cfg_par['gFit']['modName'] !='g2':
                     ax1.plot(velPlot, comps['g2ln'+str(i)+'_'], 'm--')    
                     ax1.plot(velPlot, comps['g3ln'+str(i)+'_'], 'c--')    
-
-
 
         # Calculate axis limits and aspect ratio
         x_min = np.min(velPlot)

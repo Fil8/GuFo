@@ -1,12 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.6
 
-import os
+import os, glob
 import sys
 import logging
 import time
 
 import gufo
-from scavengers import gPlay
+from scavengers import gPlay, starSub, momPlay, tPlay
+from scavengers import gPlayMp, bptPlot, vorPlay, ancels
+from scavengers import util as pretty
 
 import argparse
 from  argparse import ArgumentParser
@@ -21,6 +23,11 @@ except pkg_resources.DistributionNotFound:
 
 
 gp = gPlay.gplay()
+ss = starSub.starsub()
+mom = momPlay.momplay()
+tP = tPlay.tplay()
+bpt = bptPlot.BPTplot()
+vor = vorPlay.vorplay()
 
 class MultilineFormatter(argparse.HelpFormatter):
     def _fill_text(self, text, width, indent):
@@ -34,18 +41,25 @@ class MultilineFormatter(argparse.HelpFormatter):
 
 def outFunction ():
         
-        print ('\n\t************* --- GuFo : ERROR --- **************')
-        print ('\t... you have not entered a config File ... \n')
         print ("""\nRun one of the following commands:\n
         gufo\t\t\t-gd <configFileName>:\tgenerate config file in working directory
         gufo\t\t\t-c  <configFileName>:\trun GuFo with modules enabled from config file
-        gufo -gp\t\t-c  <configFileName>:\trun fit with parameters from config file and lineList file
+        gufo -stS\t\t-c  <configFileName>:\tmake line cube from PPXF outputs
+        gufo -gp\t\t-c  <configFileName>:\trun fit with parameters from config file and lineList file (outdated)
+        gufo -gpMp\t\t-c  <configFileName>:\trun fit on multiprocess with parameters from config file and lineList file
         gufo -gPl\t\t-c  <configFileName>:\tplot fit results for each bin
+        gufo -gPs\t-bin <binNum>\t-c  <configFileName>:\tplot fit results for binNum
+        gufo -gPs\t-dF\t-bin <binNum>\t-c  <configFileName>:\tdo fit for binNum with specs from configFile
         gufo -mom\t\t-c  <configFileName>:\tmake moment maps of fitted lines
-        gufo -lineRatios\t-c  <configFileName>:\testimate lineRatios, make lineRatio maps and BPT plots of fitted lines
-                    """)
-        print ('\t************* --- GuFo : DONE  --- *************\n')
-        sys.exit(0)
+        gufo -momPl\t\t-c  <configFileName>:\t plot moment maps from fits files
+        gufo -res\t\t-c  <configFileName>:\tmake residual maps for each fitted line
+        gufo -lr\t-c  <configFileName>:\testimate lineRatios, make lineRatio maps and BPT plots of fitted lines
+        gufo -clT\t\t-c  <configFileName>:\tclean table leaving only fit results
+        gufo -vor\t\t-c  <configFileName>:\tvoronoi binning of output of PPXF (star subtracted datacube) 
+        gufo -stS\t\t-c  <configFileName>:\tmake stellar subtracted datacube (output of PPXF is a table)
+        gufo -af\t\t-c   <configFileName>:\tcompute sigma, centroid, w80 for each voronoi bin
+            """)
+
         return 
 
 def main (argv):
@@ -72,21 +86,75 @@ def main (argv):
         default=False,
         help='Generate a default configuration file (YAML format)')
 
+    add('-stS', '--starSub',
+        action='store_true',
+        help= 'make stat subtracted datacube from PPXF output')
+
     add('-gp', '--gPlay',
         action='store_true',
         help= 'tool to play with gaussian fits')
 
+    add('-vor', '--vorPlay',
+        action='store_true',
+        help= 'tool to voronoi bin line cube')
+
+    add('-gMp', '--gMpPlay',
+        action='store_true',
+        help= 'tool to play with gaussian fits on multiple cores')
+
     add('-gPl', '--gPlot',
         action='store_true',
-        help= 'tool to plot fit results for each beam')
+        help= 'tool to plot fit results for each bin')
 
-    add('-mom', '--moments',
+    add('-gPs', '--gPlotSingle',
+        action='store_true',
+        help= 'tool to plot fit results from a single bin')
+
+    add('-res', '--resPlot',
+        action='store_true',
+        help= 'tool to plot residuals of fit')
+
+    add('-bptPl', '--bptPlots',
+        action='store_true',
+        help= 'tool to draw BPT plots')
+
+    add('-bptMp', '--bptMaps',
+        action='store_true',
+        help= 'tool to draw BPT maps')
+
+    add('-bin', '--binID',
+        type = str,
+        default=False,
+        help= 'bin to plot')
+
+    add('-dF', '--doFit',
+        action = 'store_true',
+        default=False,
+        help= 'fit single bin')
+
+    add('-clT', '--clTbl',
+        action='store_true',
+        help= 'clean fit table from moments and lineratios')
+
+    add('-mm', '--moments',
         action='store_true',
         help= 'tool to play with gaussian fits')
 
+    add('-mPl', '--momPlot',
+        action='store_true',
+        help= 'tool to play with gaussian fits')
+    
     add('-lr', '--lineRatios',
         action='store_true',
         help= 'tool to play with gaussian fits')
+
+    add('-af', '--ancillaryInfo',
+        action='store_true',
+        help= 'tool to play with gaussian fits')
+
+    add('-cD', '--cDist',
+        action='store_true',
+        help= 'compute carollo distance')
 
     add('-c', '--cfgFile',
         type=str,
@@ -96,15 +164,13 @@ def main (argv):
     args, unknown = parser.parse_known_args()
 
     if args.help and len(argv) ==1 :
-        print '\n\t************* --- GuFo : Help --- **************\n'
+        print('\n\t************* --- GuFo : Help --- **************\n')
 
-        print ('\t\t  ... called for help ...\n')
+        print ('\t\t... called for help ...\n')
         parser.print_help()
+        outFunction()
 
-        print ("""\nRun a command. This can be:\n
-gufo -gp\t tools to play with gaussian fits
-            """)
-        print '\n\t************* --- GuFo : DONE --- **************\n'
+        print('\n\t************* --- GuFo : DONE --- **************\n')
 
         sys.exit(0)
 
@@ -129,53 +195,183 @@ gufo -gp\t tools to play with gaussian fits
     # Load parameter file
     # +++++++++++++++++++
     if args.cfgFile:
-        print("## Load parameter file")
-        gPar = gf.gufo(args.cfgFile)
+        print("\n\t +---------+      config File    +---------+")
+        gPar = gufo.gufo(args.cfgFile)
     #    print("## Load parameter file ... Done ({0:.2f}s)".format(
     #time.time() - time_start_load))
     else:
         outFunction()
-        
 
-    if args.gPlay or cfg_par['gFit'].get('enable',False) == True:
+
+    if args.clTbl or gPar.cfg_par['general'].get('cleanTable',False) == True:
+        
+        print ('\n\t************ --- GuFo : clean Table --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        tP.cleanTable(gPar.cfg_par)
+        print('\n\t************ --- GuFo : DONE --- ************\n') 
+
+    if args.starSub or gPar.cfg_par['starSub'].get('enable',False) == True:
+        time_start_load = time.time()        
+        print ('\n\t************ --- GuFo : make Datacubes --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        if gPar.cfg_par['starSub'].get('scaleFlux',False) == True:
+            ss.makeCubesPix(gPar.cfg_par)
+        elif gPar.cfg_par['starSub'].get('scaleFlux',False) == False:
+            ss.makeCubesVorBin(gPar.cfg_par)
+        print("## fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
+        print('\n\t************ --- GuFo : DONE --- ************\n')
+
+    if args.vorPlay or gPar.cfg_par['vorBin'].get('enable',False) == True:
+        time_start_load = time.time()        
+        gPar = gufo.gufo(args.cfgFile)
+        pretty.prettyOutput_Running('\n\t *********** --- GuFo: VorBin --- ***********\n')
+        vor.vorBin(gPar.cfg_par)
+        print ('\n\t************ --- GuFo : vorLineCube --- ************\n')
+        ss.makeCubesVorLine(gPar.cfg_par)
+        print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
+        print('\n\t************* --- GuFo : DONE --- **************\n')
+
+    if args.gPlay or gPar.cfg_par['gFit'].get('enable',False) == True and gPar.cfg_par['general'].get('enableMP',False) == False :
         time_start_load = time.time()        
         print ('\n\t************* --- GuFo : gPlay --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
-        print gPar.cfg_par
         gp.gFit(gPar.cfg_par)
-        print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load))/60.)
+        print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    elif args.gPlot or cfg_par['gPlot'].get('enable',False) == True:
+    if args.gMpPlay or gPar.cfg_par['general'].get('enableMP',False) == True and gPar.cfg_par['gFit'].get('enable',False) == True or args.gPlay:
+        time_start_load = time.time()        
+        print ('\n\t************ --- GuFo : MPgPlay --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        gPlayMp.main(gPar.cfg_par)
+        print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
+        print('\n\t  ********** --- GuFo : DONE --- ************\n')
+
+    if args.gPlot or gPar.cfg_par['gPlot'].get('enable',False) == True and gPar.cfg_par['gFit'].get('enable',False) == False:
         time_start_load = time.time()
-        print ('\n\t************* --- GuFo : gPlot --- **************\n')
+        print ('\n\t************ --- GuFo : gPlot --- ************\n')
         gPar = gufo.gufo(args.cfgFile)
         gp.gPlot(gPar.cfg_par)
-        print("## plot fits ... Done ({0:.2f}m)".format((time.time()- time_start_load))/60.)
-        print('\n\t************* --- GuFo : DONE --- **************\n')
-    
-    elif args.moments or cfg_par['moments'].get('enable',False) == True:
-        
-        print ('\n\t************* --- GuFo : moments --- **************\n')
+        print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
+        print('\n\t  ************ --- GuFo : DONE --- ***********\n')
+
+    if args.gPlotSingle:
+        time_start_load = time.time()
+        print ('\n\t************ --- GuFo : gPlot single BIN --- ************\n')
         gPar = gufo.gufo(args.cfgFile)
+        gPar.cfg_par['general']['cleanTable'] = False
+        gPar.cfg_par['starSub']['enable'] = False
+        gPar.cfg_par['vorBin']['enable'] = False
+        gPar.cfg_par['gFit']['enable'] = False
+        gPar.cfg_par['lineRatios']['enable'] = False
+        gPar.cfg_par['moments']['enable']
+        if args.doFit:
+            doFit=True
+        else:
+            doFit=False
+        gp.plotSingleBin(gPar.cfg_par, args.binID,doFit=doFit)
+        print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
+        print('\n\t************ --- GuFo : DONE --- ************\n')
+
+    if args.moments or gPar.cfg_par['moments'].get('enable',False) == True:
+        
+        print ('\n\t *********** --- GuFo : moments --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        gPar.cfg_par['general']['cleanTable'] = True
+        tP.cleanTable(gPar.cfg_par)        
         mom.makeMoments(gPar.cfg_par)
+        gPar.cfg_par['general']['cleanTable'] = False
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    elif args.lineRatios or cfg_par['lineRatios'].get('enable',False) == True:
-        
-        print ('\n\t************* --- GuFo : lineRatios --- **************\n')
+    if args.resPlot or gPar.cfg_par['residuals'].get('enable',False) == True:
+        time_start_load = time.time()
+        print ('\n\t************* --- GuFo : residuals --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
-        lineInfo = gp.openLineList(gPar.cfg_par)
-        tP.binLineRatio(lineInfo)
-        mom.makeLineRatios(gPar.cfg_par)
+        mom.resLines(gPar.cfg_par)
+        print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    else:
+    if args.momPlot or gPar.cfg_par['moments'].get('plot',False) == True:
+        
+        print('\n\t*********** --- GuFo : moments --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        gPar.cfg_par['general']['cleanTable'] = True
+        mom.makeMoments(gPar.cfg_par)
+        gPar.cfg_par['general']['cleanTable'] = False
+        print('\n\t ************ --- GuFo : DONE --- ************\n')
+
+    if args.ancillaryInfo or gPar.cfg_par['ancillary'].get('enable',False) == True:
+
+        print ('\n\t +---------+    ancillary Info   +---------+')
+
+        gPar = gufo.gufo(args.cfgFile)
+        print('\n\t         +++   sigma & centroid  +++')
+        ancels.main(gPar.cfg_par)
+        print ('\n\t  ********** --- ancillaryInfo : centroid --- **********\n')
+        print('\n\t         +++     plotting maps   +++')
+        mom.makeSigmaCentroidMaps(gPar.cfg_par)
+        print('\n\t         +++        Done         +++')
+
+        #ap.centroid(gPar.cfg_par)
+
+    if args.lineRatios or gPar.cfg_par['lineRatios'].get('enable',False) == True:
+        
+        print('\n\t************ --- GuFo : lineRatios --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        #gPar.cfg_par['general']['cleanTable'] = True
+        #tP.cleanTable(gPar.cfg_par)   
+        #gPar.cfg_par['general']['cleanTable'] = False
+
+        lineInfo = tP.openLineList(gPar.cfg_par)
+        tP.binLineRatio(gPar.cfg_par,lineInfo)
+        mom.makeLineRatioMaps(gPar.cfg_par)
+        print('\n\t  ************ --- GuFo : DONE --- ************\n')    
+  
+    if args.bptPlots or gPar.cfg_par['lineRatios'].get('bptPlot',False) == True:    
+        print ('\n\t************* --- GuFo : BPT plots --- **************\n')
+        gPar.cfg_par['lineRatios'].get('bptMap',False) == True
+        #gPar.cfg_par['general']['cleanTable'] = True
+        bpt.bptOIII(gPar.cfg_par)
+        #bpt.bptSII(gPar.cfg_par)
+        #bpt.bptOI(gPar.cfg_par)
+        #gPar.cfg_par['general']['cleanTable'] = False
+
+        print('\n\t  ************ --- GuFo : DONE --- ************\n')
+
+    if args.bptMaps or gPar.cfg_par['lineRatios'].get('bptMap',False) == True:    
+        
+        print ('\n\t************ --- GuFo : BPT maps --- ************\n')
+        print(gPar.cfg_par['general']['bptDir']+gPar.cfg_par['gFit']['modName'])
+        #gPar.cfg_par['general']['cleanTable'] = True
+        outBPT = glob.glob(gPar.cfg_par['general']['bptDir']+gPar.cfg_par['gFit']['modName']+"/*.fits")
+        print(outBPT)
+        for i in outBPT:
+            bpt.bptIM(gPar.cfg_par,i)
+        #gPar.cfg_par['general']['cleanTable'] = False
+
+        print('\n\t  ************ --- GuFo : DONE --- ************\n')
+
+    if args.cDist or gPar.cfg_par['lineRatios'].get('cDist',False) == True:    
+        print ('\n\t************ --- GuFo : Carollo Distance --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        tP.carolloDistOIII(gPar.cfg_par)
+        mom.momCDist(gPar.cfg_par)
+        print('\n\t      ************ --- GuFo : cDistBPT --- ************\n')
+        bpt.bptCDist(gPar.cfg_par)
+        print('\n\t      ************ --- GuFo : DONE --- ************\n')
+
+    if args.cfgFile is None:
+        print ('\n\t************ --- GuFo : ERROR --- ************\n')
+        print ('\t... you have not entered a config File ...')
         outFunction()
+        print ('\n\t************ --- GuFo : DONE  --- ************\n')
+        sys.exit(0)
 
-
-print ('\n\t************* ---      GuFo    --- *************')
+print ('\n\t************* ---      GuFo     --- *************')
 
 main([a for a in sys.argv[1:]])
 
-print ('\t************* --- GuFo : DONE  --- *************\n')
+print ('\n\t************* ---  GuFo : DONE  --- *************')
+
+
+

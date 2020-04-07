@@ -1,43 +1,42 @@
 Metadata-Version: 1.1
-Name: radiobs
+Name: gufo
 Version: 1.0.0
-Summary: A set of tools for fitting N-gaussian function to an optical spectrum
-Home-page: https://github.com/Fil8/radiobs
+Summary: GAs N-GaussIAn Line Fitter - GANGIALF
+Home-page: https://github.com/Fil8/gufo
 Author: Filippo Marcello Maccagni
 Author-email: filippo.maccagni@gmail.com
 License: GNU GPL 3
-Description: ## Radiobs
+Description: ## GuFo
         
         tools for radioastronomy data analysis
         
         ### Installation
         
-        Add `<path to gufo>` to `PYTHONPATH`
+        Add `<path to radiobs>` to `PYTHONPATH`
           
           - in your `.cshrc`
           `setenv PYTHONPATH <path_to_radiobs>:${PYTHONPATH}`
           - in your `.bashrc`
-          `export PYTHONPATH=<path_to_gufo>:$PYTHONPATH`
+          `export PYTHONPATH=<path_to_radiobs>:$PYTHONPATH`
           
         ### Usage
-         In `python` environment type `import gufo` and `from scavengers import gPlay`
-
+         In `python` environment type `import radiobs`
          
          find which classes are available.
          
-         `gufo.__dict__.keys()`
+         `radiobs.__dict__.keys()`
          
-         We choose to read the parameter file and run the fitter
+         We choose to determine the expected frequency of the HI line at a given redshift, we need  `hiline` contained in the class `hi`. Let's load the class:
          
-          `gPar = gufo.gufo(args.cfgFile)`
-
-          `gp = gPlay.gplay()`
-
-          `gp.gFit(gPar.cfg_par)`
+         `hi = radiobs.hi()`
+         
+          use the module:
+         `freq = hi.hiline(z=0.1)`
+        
          
         
 Platform: OS Independent
 Classifier: Intended Audience :: Developers
-Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 3
 Classifier: Topic :: Scientific/Engineering :: Astronomy
 Classifier: Topic :: Software Development :: Libraries :: Python Modules

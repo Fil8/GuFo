@@ -1,34 +1,70 @@
 general:
   __helpstr: General INPUT parameters for gaussFit
-  workdir: '/home/maccagni/Projects/MFS/FornaxA/MUSE/cubes/results/FornaxE_4750-6800-v100/'
-  runName: 'run2-prova'
-  dataCubeName:  'mycubes/lineCube.fits' # outputs will be stored here
+  workdir: '/Users/maccagni/Projects/MFS/FornaxA/MUSE/cubes/results/FornaxE_4750-6800-v402/'
+  runName: 'runMP-lineVbinSumSN7'
+  inputCube:  'FornaxESmall.fits' # outputs will be stored here
   tableBinName: 'FornaxE_table.fits' # name of continuum image (assumed stored in workdir)
   tableSpecName: 'FornaxE_VorSpectra.fits' # name of datacube (assumed stored in workdir)
+  tableAllSpecName: 'FornaxE_AllSpectra.fits'
+  tableStarName:  'FornaxE_ppxf-bestfit.fits'
   lineListName: 'lineList.txt'
-  verbose: False
+  cleanTable: False
+  redshift: 0.00587
+  verbose: True
+  enableMP: True
+  nCores: 4
+starSub:
+  enable: False 
+  ra: '03:22:41.734'
+  dec: '-37:12:28.62'
+  scaleFlux: True
+  scaleHow: 'median'
+  waveMin: 4750.
+  waveMax: 6800.
+  pixX : 200
+  pixY : 125
+  pixZ : 1
+  outputs: 'lines' #either 'all', 'stars', 'lines', 'data'
+vorBin:
+  enable: True
+  minSNR: 0.5
+  method: 'sum' #either 'peak', 'mean', 'sum'
+  snr: 7
+  covarNoise: 0.0
 gFit:  
-  enable: False
-  modName: 'g2'
+  enable: True
+  modName: 'g1'
   fixCentre: True
   fixSigma: True
   lambdaMin: 4750
   lambdaMax: 6800
-  sigmaIn1: 50.
+  sigmaIn1: 5.
+  ampRatioNII: 0.05
+  ampRatioSII: 0.1
   dltAmp12: 0.5
-  dltV12: 300.
-  dltSigma12: 250.
+  dltV12: 400.
+  dltSigma12: 10.
   dltAmp13: 0.2
-  dltSigma13: 100.
+  dltSigma13: 30.
   dltV13: 150.
 gPlot:
-  enable: True
+  enable: False
   fixed_scale: False
-  Res-fixed_scale: True
+  Res-fixed_scale: False
   deltaVlabel: 1000.
   deltaVRange: 2000.
+  plotFormat: png 
 moments:
-  enable: False
+  enable: True 
+  plotFormat: png 
 lineRatios:
   enable: False
+  bptPlot: False
+  bptMap: False
+  cDist: True
+  cDistPlot: True
+  plotFormat: png 
+residuals:
+  enable: False
+  plotFormat: png 
 
