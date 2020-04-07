@@ -132,10 +132,15 @@ class gufo(object):
             os.mkdir(momModDir)
         self.cfg_par['general']['momModDir'] = momModDir
 
-        bptDir =self.cfg_par['general']['runNameDir']+'bpt/'+self.cfg_par['gFit']['modName']+'/'
+        bptDir =self.cfg_par['general']['runNameDir']+'bpt/'
         if not os.path.exists(bptDir):
             os.mkdir(bptDir)
         self.cfg_par['general']['bptDir'] = bptDir
+
+        bptModDir =self.cfg_par['general']['runNameDir']+'bpt/'+self.cfg_par['gFit']['modName']+'/'
+        if not os.path.exists(bptModDir):
+            os.mkdir(bptModDir)
+        self.cfg_par['general']['bptDir'] = bptModDir
 
         modNameDir = self.cfg_par['general']['runNameDir']+'models/'
         if not os.path.exists(modNameDir):
