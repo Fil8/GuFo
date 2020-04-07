@@ -13,41 +13,52 @@ cvP = cvPlay.convert()
 tP = tPlay.tplay()
 
 class starsub(object):
+    '''
+    Modules to prepare for gaussian fitting of optical lines: 
+    - subtract the stellar continuum from PPXF tables run with GISTPipeline ()
+        Stellar subtractions is performed by subtracting the stellar and the nuclear emission from the original 
+        unbinned data cube, by rescaling the fitted continuum – constant within each Voronoi bin – to the original 
+        unbinned observed continuum flux of each spaxel.
+    - Create a datacube of the stellar subtracted data by 
+    - Perform Voronoi binning of the stellar subtracted datacube
+    - Create the voronoi binned datacube
+    '''
 
-    def run_logrebinning(self, bin_data, velscale, nbins, wave ):
-        """
-        Calls the log-rebinning routine of pPXF (see Cappellari & Emsellem 2004;
-        ui.adsabs.harvard.edu/?#abs/2004PASP..116..138C;
-        ui.adsabs.harvard.edu/?#abs/2017MNRAS.466..798C).
-        """
-        # Setup arrays
-        lamRange = np.array([np.amin(wave),np.amax(wave)])
-        sspNew, logLam, _ = log_rebin(lamRange, bin_data[:,0], velscale=velscale)
-        log_bin_data = np.zeros([len(logLam),nbins])
+###these functions are likely not used
+    # def run_logrebinning(self, bin_data, velscale, nbins, wave ):
+    #     """
+    #     Calls the log-rebinning routine of pPXF (see Cappellari & Emsellem 2004;
+    #     ui.adsabs.harvard.edu/?#abs/2004PASP..116..138C;
+    #     ui.adsabs.harvard.edu/?#abs/2017MNRAS.466..798C).
+    #     """
+    #     # Setup arrays
+    #     lamRange = np.array([np.amin(wave),np.amax(wave)])
+    #     sspNew, logLam, _ = log_rebin(lamRange, bin_data[:,0], velscale=velscale)
+    #     log_bin_data = np.zeros([len(logLam),nbins])
 
-        # Do log-rebinning 
-        for i in range(0, nbins):
-            log_bin_data[:,i] = self.corefunc_logrebin(lamRange, bin_data[:,i], velscale, len(logLam), i, nbins)
+    #     # Do log-rebinning 
+    #     for i in range(0, nbins):
+    #         log_bin_data[:,i] = self.corefunc_logrebin(lamRange, bin_data[:,i], velscale, len(logLam), i, nbins)
 
-        return(log_bin_data)
+    #     return(log_bin_data)
 
 
-    def corefunc_logrebin(self, lamRange, bin_data, velscale, npix, iterate, nbins):
-        """
-        Calls the log-rebinning routine of pPXF (see Cappellari & Emsellem 2004;
-        ui.adsabs.harvard.edu/?#abs/2004PASP..116..138C;
-        ui.adsabs.harvard.edu/?#abs/2017MNRAS.466..798C). 
+    # def corefunc_logrebin(self, lamRange, bin_data, velscale, npix, iterate, nbins):
+    #     """
+    #     Calls the log-rebinning routine of pPXF (see Cappellari & Emsellem 2004;
+    #     ui.adsabs.harvard.edu/?#abs/2004PASP..116..138C;
+    #     ui.adsabs.harvard.edu/?#abs/2017MNRAS.466..798C). 
 
-        TODO: Should probably be merged with run_logrebinning. 
-        """
-        try:
-            sspNew, logLam, _ = log_rebin(lamRange, bin_data, velscale=velscale)
-            pipeline.printProgress(iterate+1, nbins, barLength = 50)
-            return(sspNew)
+    #     TODO: Should probably be merged with run_logrebinning. 
+    #     """
+    #     try:
+    #         sspNew, logLam, _ = log_rebin(lamRange, bin_data, velscale=velscale)
+    #         pipeline.printProgress(iterate+1, nbins, barLength = 50)
+    #         return(sspNew)
 
-        except:
-            out = np.zeros(npix); out[:] = np.nan
-            return(out)
+    #     except:
+    #         out = np.zeros(npix); out[:] = np.nan
+    #         return(out)
 
 
     def makeCubesVorBin(self,cfg_par):
@@ -376,52 +387,19 @@ class starsub(object):
         t = Table(vorBinInfo)
         t.add_column(xxVecArr,index=0)
         t.add_column(yyVecArr,index=0) 
-        #vorBinInfo = np.column_stack((vorBinInfo,xxVec,yyVec))
-        #vorBinInfo = np.vstack([vorBinInfo,yyVecArr])
+
         tab = fits.open(workDir+cfg_par['general']['tableBinName'])
         head = tab[0].header
-        #data = tab[0].data
-        #tab[1] = vorBinInfo    
+  
 
         empty_primary = fits.PrimaryHDU(header=head)           
 
-        #t2 = fits.BinTableHDU.from_columns(t,name='vorBinInfo')
         hdul = fits.HDUList([empty_primary])      
 
         hdul.append(fits.BinTableHDU(t.as_array(), name='vorBinInfo'))
 
 
-        #hdul.append(t2)  
-        hdul.writeto(cfg_par['general']['outVorLineTableName'],overwrite=True)        
-
-
-        #xxVecArr= Column(np.array(xxVec), name='PixX')
-        #yyVecArr= Column(np.array(yyVec), name='PixY')
-
-        #yyVecArr=np.array(yyVec,dtype={'names':('PixY')})
-        #print(vorBinInfo.shape)
-        #print(xxVecArr.shape)
-
-        #t = Table(vorBinInfo)
-        #t.add_column(xxVecArr,index=0)
-        #t.add_column(yyVecArr,index=0) 
-        
-        #vorBinInfo = np.column_stack((vorBinInfo,xxVec,yyVec))
-        #vorBinInfo = np.vstack([vorBinInfo,yyVecArr])
-        #tab = fits.open(workDir+cfg_par['general']['tableBinName'])
-        #head = tab[0].header
-        #data = tab[0].data
-        #tab[1] = vorBinInfo    
-
-        #empty_primary = fits.PrimaryHDU(header=head)           
-
-        #t2 = fits.BinTableHDU.from_columns(t,name='vorBinInfo')
-        #hdul = fits.HDUList([empty_primary])      
-
-        #hdul.append(fits.BinTableHDU(t.as_array(), name='vorBinInfo'))
-
-        #hdul.append(t2)  
-        #hdul.writeto(workDir+cfg_par['general']['outVorLineTableName'],overwrite=True)
+        hdul.writeto(cfg_par['general']['outVorLineTableName'],overwrite=True)       
 
         fits.writeto(cfg_par['general']['outVorLines'],data,header,overwrite=True)
         fits.writeto(cfg_par['general']['outVorNoise'],noiseCube,header,overwrite=True)
@@ -432,7 +410,6 @@ class starsub(object):
 
     def makeHeader(self,cfg_par,wave,pxSize):
         
-        # these are arbitrary but must correspond, I choose the centre of the galaxy(usually offset with fov)
         crPix3 =cfg_par['starSub']['pixZ']
         crPix1=cfg_par['starSub']['pixX']
         crPix2=cfg_par['starSub']['pixY']
@@ -440,9 +417,6 @@ class starsub(object):
         crVal3 = np.min(wave)
         deltaLambda = (np.max(wave)-np.min(wave))/len(wave)
 
-        #only for Fornax E
-        #crVal3 = np.exp(dataSpecStraight[0])
-        #crVal3 =4750.2734375
         crpix3 = 1
         crVal1=cfg_par['starSub']['ra']
         crVal2=cfg_par['starSub']['dec']
@@ -452,9 +426,6 @@ class starsub(object):
 
         w = wcs.WCS(naxis=3)
 
-
-        # Set up an "Airy's zenithal" projection
-        # Vector properties may be set with Python lists, or Numpy arrays
         w.wcs.crpix = [crPix1, crPix2, crPix3]
         w.wcs.cdelt = np.array([-pxSize,pxSize,deltaLambda])
         w.wcs.crval = [ra, dec, crVal3]
@@ -462,12 +433,9 @@ class starsub(object):
 
         header = w.to_header()
 
-        #w.wcs.set_pv([(2, 1, 45.0)])
         header['EQUINOX'] = 2000
         header['CRDER3'] = 0.026
         header['CTYPE3'] = "AWAV"
         header['CUNIT3'] = "Angstrom"
-        #header['CRPIX1'] = crPix1
-        #head['CRPIX2'] = crPix2
 
         return header

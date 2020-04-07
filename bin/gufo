@@ -188,7 +188,7 @@ def main (argv):
     args, unknown = parser.parse_known_args()
 
     if args.help and len(argv) ==1 :
-        print("\n\t +---------+\t\t    Help\t\t+---------+\n")
+        print("\n\t +---------+\t\t    Help\t\t +---------+\n")
 
         parser.print_help()
         outFunction()
@@ -218,7 +218,7 @@ def main (argv):
     # Load parameter file
     # +++++++++++++++++++
     if args.cfgFile:
-        print("\n\t +---------+\t\t  config File\t\t+---------+")
+        print("\n\t +---------+\t\t  config File\t\t +---------+")
         gPar = gufo.gufo(args.cfgFile)
     #    print("## Load parameter file ... Done ({0:.2f}s)".format(
     #time.time() - time_start_load))
@@ -308,11 +308,11 @@ def main (argv):
 
     if args.resPlot or gPar.cfg_par['residuals'].get('enable',False) == True:
         time_start_load = time.time()
-        print ('\n\t +---------+\t\t   residuals\t\t+---------+')
+        print ('\n\t +---------+\t\t   residuals\t\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
         mom.resLines(gPar.cfg_par)
         timeRes = (time.time()- time_start_load)/60.
-        print('\n\t  +---------+\t\t  Done ({0:.2f}m)\t\t+---------+'.format(timeRes))
+        print('\n\t  +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeRes))
 
     if args.momPlot or gPar.cfg_par['moments'].get('plot',False) == True:
         
