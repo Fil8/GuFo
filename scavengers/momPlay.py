@@ -278,43 +278,43 @@ class momplay:
             #    continue
             #else:
 
-                match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
-                for index in match_bin:
-                    
-                    if modName=='g1':
-                        thresHold = lines['g1_Amp_Hb4861'][i]/tabGen['NSPAX'][index]
-                        ampSpax[index] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]                   
-                    elif modName=='g2':
-                        thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
-                        ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]                   
-                    elif modName=='g3':
-                        thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
-                        ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]  
+            match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
+            for index in match_bin:
+                
+                if modName=='g1':
+                    thresHold = lines['g1_Amp_Hb4861'][i]/tabGen['NSPAX'][index]
+                    ampSpax[index] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]                   
+                elif modName=='g2':
+                    thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
+                    ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]                   
+                elif modName=='g3':
+                    thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
+                    ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]  
 
-                    #thresHold = lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
-                    #print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
-                    #print(thresHold,lineThresh)
-                    if thresHold >= lineThresh:
-                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_Hb4861'][i]/tabGen['NSPAX'][index]
+                #thresHold = lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                #print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
+                #print(thresHold,lineThresh)
+                if thresHold >= lineThresh:
+                    mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_Hb4861'][i]/tabGen['NSPAX'][index]
 #                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Height_'+lineName][i]/tabGen['NSPAX'][index]
 
-                        mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
-                        mom2G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_SigIntr_'+lineName][i]
+                    mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
+                    mom2G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_SigIntr_'+lineName][i]
 
-                        if doBinMap==True:
-                            binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
+                    if doBinMap==True:
+                        binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
+                    
+                    if modName != 'g1':
+                        mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Amp_'+lineName][i]/tabGen['NSPAX'][index]
+                        mom1G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Centre_'+lineName][i]
+                        mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_SigIntr_'+lineName][i]
+                    
+                        if modName == 'g3':
+                            mom0G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Amp_'+lineName][i]/tabGen['NSPAX'][index]
+                            mom1G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Centre_'+lineName][i]
+                            mom2G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_SigIntr_'+lineName][i]
                         
-                        if modName != 'g1':
-                            mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Amp_'+lineName][i]/tabGen['NSPAX'][index]
-                            mom1G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Centre_'+lineName][i]
-                            mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_SigIntr_'+lineName][i]
-                        
-                            if modName == 'g3':
-                                mom0G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Amp_'+lineName][i]/tabGen['NSPAX'][index]
-                                mom1G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Centre_'+lineName][i]
-                                mom2G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_SigIntr_'+lineName][i]
-                            
-                            mom0Tot[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[i]
+                        mom0Tot[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[i]
 
 
                     #else#:
