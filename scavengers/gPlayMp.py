@@ -502,8 +502,8 @@ def main(cfg_par):
 
         inputs = [(cfg_par,dd,rank, nprocs) for rank in range(nprocs)]
         #print inputs 
-        print('''\t+---------+\n\t going to process\n\t+---------+''')
-        
+        print('\t\t\t\t+++ multiProcess +++')
+
         #test = mpFit()
 
         #processes = []
