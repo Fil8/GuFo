@@ -105,7 +105,7 @@ class momplay:
             lineThresh = float(lineInfo['SNThresh'][ii])
             cenRange = float(lineInfo['cenRange'][ii])
 
-            print('\n\t *********** --- Moments: '+lineName+' --- ***********\n')
+            print('\t         +++'+lineName+'\t\t+++')
             
             
             self.momSigmaCentroid(cfg_par,lineName,lineNameStr,dd,lineThresh,cenRange)

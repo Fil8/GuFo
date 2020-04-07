@@ -161,6 +161,8 @@ def main(cfg_par):
     lineNameID=[]
     lineThresh=[]
 
+    print('\n\t         +++ multiProcess\t\t+++')
+
 
     lineInfo = tP.openLineList(cfg_par)
 

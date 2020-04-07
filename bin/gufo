@@ -280,7 +280,6 @@ def main (argv):
 
     if args.gPlotSingle:
         time_start_load = time.time()
-        print ('\n\t************ --- GuFo : gPlot single BIN --- ************\n')
         gPar = gufo.gufo(args.cfgFile)
         gPar.cfg_par['general']['cleanTable'] = False
         gPar.cfg_par['starSub']['enable'] = False
@@ -289,22 +288,34 @@ def main (argv):
         gPar.cfg_par['lineRatios']['enable'] = False
         gPar.cfg_par['moments']['enable']
         if args.doFit:
+            print('\n\t +---------+\t\t  fit single bin\t\t +---------+')
             doFit=True
         else:
+            print('\n\t +---------+\t\t  plot single bin\t\t +---------+')
             doFit=False
         gp.plotSingleBin(gPar.cfg_par, args.binID,doFit=doFit)
-        print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
-        print('\n\t************ --- GuFo : DONE --- ************\n')
+        timeSpec = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeSpec))
 
     if args.moments or gPar.cfg_par['moments'].get('enable',False) == True:
-        
-        print ('\n\t *********** --- GuFo : moments --- ************\n')
+        time_start_load = time.time()
+        print('\n\t +---------+\t\t    moments\t\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
-        gPar.cfg_par['general']['cleanTable'] = True
-        tP.cleanTable(gPar.cfg_par)        
+        #gPar.cfg_par['general']['cleanTable'] = True
+        #tP.cleanTable(gPar.cfg_par)        
         mom.makeMoments(gPar.cfg_par)
-        gPar.cfg_par['general']['cleanTable'] = False
-        print('\n\t************* --- GuFo : DONE --- **************\n')
+        #gPar.cfg_par['general']['cleanTable'] = False
+        timeMom = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))
+
+    if args.momPlot or gPar.cfg_par['moments'].get('plot',False) == True:
+        
+        print('\n\t +---------+\t\t   moments Plot\t\t+---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        #gPar.cfg_par['general']['cleanTable'] = True
+        mom.makeMomPlots(gPar.cfg_par)
+        #gPar.cfg_par['general']['cleanTable'] = False
+        print('\n\t ************ --- GuFo : DONE --- ************\n')
 
     if args.resPlot or gPar.cfg_par['residuals'].get('enable',False) == True:
         time_start_load = time.time()
@@ -314,23 +325,14 @@ def main (argv):
         timeRes = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeRes))
 
-    if args.momPlot or gPar.cfg_par['moments'].get('plot',False) == True:
-        
-        print('\n\t*********** --- GuFo : moments --- ************\n')
-        gPar = gufo.gufo(args.cfgFile)
-        gPar.cfg_par['general']['cleanTable'] = True
-        mom.makeMoments(gPar.cfg_par)
-        gPar.cfg_par['general']['cleanTable'] = False
-        print('\n\t ************ --- GuFo : DONE --- ************\n')
 
     if args.ancillaryInfo or gPar.cfg_par['ancillary'].get('enable',False) == True:
         time_start_load = time.time()
-        print ('\n\t +---------+    ancillary Info   +---------+')
+        print ('\n\t +---------+\t\t  ancillary Info\t\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
-        print('\n\t         +++   sigma & centroid  +++')
+        print('\n\t         +++ sigma & centroid\t\t+++')
         ancels.main(gPar.cfg_par)
-        print ('\n\t  ********** --- ancillaryInfo : centroid --- **********\n')
-        print('\n\t         +++     plotting maps   +++')
+        print('\n\t         +++   plotting maps\t\t+++')
         mom.makeSigmaCentroidMaps(gPar.cfg_par)
         timeAnc = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
