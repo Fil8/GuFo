@@ -30,7 +30,15 @@ bpt = bptPlot.BPTplot()
 vor = vorPlay.vorplay()
 
 class MultilineFormatter(argparse.HelpFormatter):
+    '''
+    Modules to format arguments parsed from terminal
+    '''
+
     def _fill_text(self, text, width, indent):
+    '''
+    fills in missing spaces when arguments are parsed on multiple lines
+    '''
+    
         text = self._whitespace_matcher.sub(' ', text).strip()
         paragraphs = text.split('|n ')
         multiline_text = ''
@@ -40,29 +48,45 @@ class MultilineFormatter(argparse.HelpFormatter):
         return multiline_text
 
 def outFunction ():
-        
-        print ("""\nRun one of the following commands:\n
-        gufo\t\t\t-gd <configFileName>:\tgenerate config file in working directory
-        gufo\t\t\t-c  <configFileName>:\trun GuFo with modules enabled from config file
-        gufo -stS\t\t-c  <configFileName>:\tmake line cube from PPXF outputs
-        gufo -gp\t\t-c  <configFileName>:\trun fit with parameters from config file and lineList file (outdated)
-        gufo -gpMp\t\t-c  <configFileName>:\trun fit on multiprocess with parameters from config file and lineList file
-        gufo -gPl\t\t-c  <configFileName>:\tplot fit results for each bin
-        gufo -gPs\t-bin <binNum>\t-c  <configFileName>:\tplot fit results for binNum
-        gufo -gPs\t-dF\t-bin <binNum>\t-c  <configFileName>:\tdo fit for binNum with specs from configFile
-        gufo -mom\t\t-c  <configFileName>:\tmake moment maps of fitted lines
-        gufo -momPl\t\t-c  <configFileName>:\t plot moment maps from fits files
-        gufo -res\t\t-c  <configFileName>:\tmake residual maps for each fitted line
-        gufo -lr\t-c  <configFileName>:\testimate lineRatios, make lineRatio maps and BPT plots of fitted lines
-        gufo -clT\t\t-c  <configFileName>:\tclean table leaving only fit results
-        gufo -vor\t\t-c  <configFileName>:\tvoronoi binning of output of PPXF (star subtracted datacube) 
-        gufo -stS\t\t-c  <configFileName>:\tmake stellar subtracted datacube (output of PPXF is a table)
-        gufo -af\t\t-c   <configFileName>:\tcompute sigma, centroid, w80 for each voronoi bin
-            """)
+    '''
+    prints out main commands of GaNGiaLF
 
-        return 
+    called by GaNGiaLF help
+    '''
+    
+    print ("""\nRun one of the following commands:\n
+    gufo\t\t\t-gd <configFileName>\tgenerate config file in working directory
+    gufo\t\t\t-c  <configFileName>\trun GuFo with modules enabled from config file
+    gufo -stS\t\t-c  <configFileName>\tmake line cube from PPXF outputs
+    gufo -gp\t\t-c  <configFileName>\trun fit with parameters from config file and lineList file (outdated)
+    gufo -gpMp\t\t-c  <configFileName>\trun fit on multiprocess with parameters from config file and lineList file
+    gufo -gPl\t\t-c  <configFileName>\tplot fit results for each bin
+    gufo -gPs -bin <binNum>\t-c  <configFileName>\tplot fit results for binNum
+    gufo -gPs -bin <binNum>\t-c  <configFileName> -dF\tdo fit for binNum with specs from configFile
+    gufo -mom\t\t-c  <configFileName>\tmake moment maps of fitted lines
+    gufo -momPl\t\t-c  <configFileName>\t plot moment maps from fits files
+    gufo -res\t\t-c  <configFileName>\tmake residual maps for each fitted line
+    gufo -lr\t\t-c  <configFileName>\testimate lineRatios, make lineRatio maps and BPT plots of fitted lines
+    gufo -clT\t\t-c  <configFileName>\tclean table leaving only fit results
+    gufo -vor\t\t-c  <configFileName>\tVoronoi binning of output of PPXF (star subtracted datacube) 
+    gufo -stS\t\t-c  <configFileName>\tmake stellar subtracted datacube (the output of PPXF is a table)
+    gufo -af\t\t-c   <configFileName>\tcompute sigma, centroid, w80 for each voronoi bin
+        """)
+
+    return 
 
 def main (argv):
+    '''
+    Main function of GaNGiaLF
+
+    Parameters:
+        arguments given from terminal
+
+    Help:
+
+    gufo -h
+    '''
+
 
     for i, arg in enumerate(argv):
         if (arg[0] == '-') and arg[1].isdigit(): argv[i] = ' ' + arg
@@ -90,37 +114,61 @@ def main (argv):
         action='store_true',
         help= 'make stat subtracted datacube from PPXF output')
 
-    add('-gp', '--gPlay',
-        action='store_true',
-        help= 'tool to play with gaussian fits')
-
     add('-vor', '--vorPlay',
         action='store_true',
-        help= 'tool to voronoi bin line cube')
+        help= 'voronoi binning of line subtracted datacube')
+
+    add('-gp', '--gPlay',
+        action='store_true',
+        help= 'fit gaussian components for each Voronoi bin')
 
     add('-gMp', '--gMpPlay',
         action='store_true',
-        help= 'tool to play with gaussian fits on multiple cores')
+        help= 'multi-process fit gaussian components for each Voronoi bin')
 
     add('-gPl', '--gPlot',
         action='store_true',
-        help= 'tool to plot fit results for each bin')
+        help= 'loop to plot fit results for each Voronoi bin')
 
     add('-gPs', '--gPlotSingle',
         action='store_true',
-        help= 'tool to plot fit results from a single bin')
+        help= 'plot fit results from a single bin')
+
+    add('-mm', '--moments',
+        action='store_true',
+        help= 'compute moment maps from fit results of each line')
+
+    add('-mPl', '--momPlot',
+        action='store_true',
+        help= 'plot moment maps from fit results of each line')
+    
+    add('-lr', '--lineRatios',
+        action='store_true',
+        help= 'compute line ratios of OIII/Hbeta, NII/Halpha, SII/Halpha')
 
     add('-res', '--resPlot',
         action='store_true',
-        help= 'tool to plot residuals of fit')
+        help= 'compute and plot residuals of fits')
 
     add('-bptPl', '--bptPlots',
         action='store_true',
-        help= 'tool to draw BPT plots')
+        help= 'compute and draw BPT plots')
 
     add('-bptMp', '--bptMaps',
         action='store_true',
         help= 'tool to draw BPT maps')
+ 
+    add('-cD', '--cDist',
+        action='store_true',
+        help= 'compute and plot eta-parameter')
+
+    add('-af', '--ancillaryInfo',
+        action='store_true',
+        help= 'compute sigma, w80 and centroid of fitted line')
+
+    add('-clT', '--clTbl',
+        action='store_true',
+        help= 'clean fit table from everything except fit results')
 
     add('-bin', '--binID',
         type = str,
@@ -132,30 +180,6 @@ def main (argv):
         default=False,
         help= 'fit single bin')
 
-    add('-clT', '--clTbl',
-        action='store_true',
-        help= 'clean fit table from moments and lineratios')
-
-    add('-mm', '--moments',
-        action='store_true',
-        help= 'tool to play with gaussian fits')
-
-    add('-mPl', '--momPlot',
-        action='store_true',
-        help= 'tool to play with gaussian fits')
-    
-    add('-lr', '--lineRatios',
-        action='store_true',
-        help= 'tool to play with gaussian fits')
-
-    add('-af', '--ancillaryInfo',
-        action='store_true',
-        help= 'tool to play with gaussian fits')
-
-    add('-cD', '--cDist',
-        action='store_true',
-        help= 'compute carollo distance')
-
     add('-c', '--cfgFile',
         type=str,
         default=False,
@@ -164,13 +188,12 @@ def main (argv):
     args, unknown = parser.parse_known_args()
 
     if args.help and len(argv) ==1 :
-        print('\n\t************* --- GuFo : Help --- **************\n')
+        print("\n\t +---------+\t\t    Help\t\t+---------+\n")
 
-        print ('\t\t... called for help ...\n')
         parser.print_help()
         outFunction()
 
-        print('\n\t************* --- GuFo : DONE --- **************\n')
+        print ('\n\t*************\t\t--- GuFo End ---\t*************')
 
         sys.exit(0)
 
