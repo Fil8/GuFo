@@ -264,7 +264,7 @@ def main (argv):
 
     if args.gMpPlay or gPar.cfg_par['general'].get('enableMP',False) == True and gPar.cfg_par['gFit'].get('enable',False) == True or args.gPlay:
         time_start_load = time.time()        
-        print ('\n\t +---------+\t\t    Fitting\t\t+---------+')
+        print ('\n\t +---------+\t\t    Fitting\t\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
         gPlayMp.main(gPar.cfg_par)
         timeFit = (time.time()- time_start_load)/60.

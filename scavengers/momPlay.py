@@ -70,7 +70,7 @@ class momplay:
             lineThresh = float(lineInfo['SNThresh'][ii])
             cenRange = float(lineInfo['cenRange'][ii])
 
-            print('\n\t         +++\t\t    '+lineName+'\t\t  +++')
+            print('\n\t         +++\t\t    '+lineName+'\t\t +++')
 
             
             if ii==0:
@@ -294,7 +294,7 @@ class momplay:
                 #print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
                 #print(thresHold,lineThresh)
                 if thresHold >= lineThresh:
-                    mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_Hb4861'][i]/tabGen['NSPAX'][index]
+                    mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[index]
 #                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Height_'+lineName][i]/tabGen['NSPAX'][index]
                     mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
                     mom2G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_SigIntr_'+lineName][i]
@@ -303,12 +303,12 @@ class momplay:
                         binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
                     
                     if modName != 'g1':
-                        mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Amp_'+lineName][i]/tabGen['NSPAX'][index]
+                        mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[index]
                         mom1G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Centre_'+lineName][i]
                         mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_SigIntr_'+lineName][i]
                     
                         if modName == 'g3':
-                            mom0G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Amp_'+lineName][i]/tabGen['NSPAX'][index]
+                            mom0G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[index]
                             mom1G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Centre_'+lineName][i]
                             mom2G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_SigIntr_'+lineName][i]
                         
@@ -785,11 +785,7 @@ class momplay:
                     
                     lineMapG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j]['cDist-OIIIG1']
 
-                    if modName != 'g1': 
-                    
-                    #print('\n\t************* --- GuFo : ERROR --- **************\n')
-                    #print('\n\t******** --- G2 not implemented --- **********\n')
-                    #sys.exit(0)
+                    if modName != 'g1':
 
                         lineMapG2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j]['cDist-OIIIG2']
 

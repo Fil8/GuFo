@@ -62,7 +62,25 @@ class starsub(object):
 
 
     def makeCubesVorBin(self,cfg_par):
+        '''
+        Creates voronoi binned data cubes from output of PPXF
+        
+        Parameters:
+            - cfg_par: configuration file
 
+        Uses:
+            - output tables of PPXF run using the GISTpipeline 
+            - GISTpipeline table of stellar continuum emission   
+        Returns:
+            voronoi binned datacube 
+            voronoi binned noisecube
+            star subtracted voronoi binned datacube
+            voronoi binned datacube of stellar continuum emission
+
+        Options:
+            cfg_par['starSub']['outputs'] defines the kind of output datacubes
+            all, stars, data, lines
+        '''
         workDir = cfg_par['general']['workdir']
 
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['tableBinName'],
@@ -82,10 +100,9 @@ class starsub(object):
         del header['LONPOLE']
         xxVec = []
         yyVec = []
-        #create AllSpectra datacube
+
         for i in range(0,vorBinInfo['ID'].shape[0]):
-            #print xAxis
-            #print yAxis
+
             indexX = ((xAxis <= (np.round(vorBinInfo['X'][i],4)+diffusion)) & 
                       ((np.round(vorBinInfo['X'][i],4)-diffusion) < xAxis))
             
@@ -120,19 +137,13 @@ class starsub(object):
         xxVecArr= Column(np.array(xxVec), name='PixX')
         yyVecArr= Column(np.array(yyVec), name='PixY')
 
-        #yyVecArr=np.array(yyVec,dtype={'names':('PixY')})
-        #print(vorBinInfo.shape)
-        #print(xxVecArr.shape)
 
         t = Table(vorBinInfo)
         t.add_column(xxVecArr,index=0)
         t.add_column(yyVecArr,index=0) 
-        #vorBinInfo = np.column_stack((vorBinInfo,xxVec,yyVec))
-        #vorBinInfo = np.vstack([vorBinInfo,yyVecArr])
+
         tab = fits.open(workDir+cfg_par['general']['tableBinName'])
         head = tab[0].header
-        #data = tab[0].data
-        #tab[1] = vorBinInfo    
 
         empty_primary = fits.PrimaryHDU(header=head)           
 
@@ -141,8 +152,6 @@ class starsub(object):
 
         hdul.append(fits.BinTableHDU(t.as_array(), name='vorBinInfo'))
 
-
-        #hdul.append(t2)  
         hdul.writeto(workDir+cfg_par['general']['outVorTableName'],overwrite=True)
 
         Lines = np.subtract(data,Stars)
@@ -152,25 +161,52 @@ class starsub(object):
         if outputs == 'lines':
             fits.writeto(cfg_par['general']['outLines'],Lines,header,overwrite=True)
             fits.writeto(cfg_par['general']['outNoise'],noiseCube,header,overwrite=True)
-            print('''\t+---------+\n\t Line Cube saved\n\t+---------+''')     
+            print('\n\t         +++\t\tLine Cube saved\t\t +++')
             return 
         else: 
             if outputs == 'stars':
                 fits.writeto(cfg_par['general']['outStars'],Stars,header,overwrite=True)
-                print('''\t+---------+\n\t Star Cube saved\n\t+---------+''')    
+                print('\n\t         +++\t\tStar Cube saved\t\t +++')
                 return 
             elif outputs == 'data':
                 fits.writeto(cfg_par['general']['outCube'],data,header,overwrite=True)
-                print('''\t+---------+\n\t Data Cube saved\n\t+---------+''')                 
+                print('\n\t         +++\t\tData Cube saved\t\t +++')
+                return
             elif outputs=='all':
                 fits.writeto(cfg_par['general']['outNoise'],noiseCube,header,overwrite=True)
                 fits.writeto(cfg_par['general']['outLines'],Lines,header,overwrite=True)
                 fits.writeto(cfg_par['general']['outStars'],Stars,header,overwrite=True)
                 fits.writeto(cfg_par['general']['outCube'],data,header,overwrite=True)
-                print('''\t+---------+\n\t All Cubes saved\n\t+---------+''')    
+                print('\n\t         +++\t\tAll Cube saved\t\t +++')
                 return
 
     def makeCubesPix(self,cfg_par):
+        '''
+        Creates data cubes from output of PPXF run using the GISTpipeline
+        with the pixel size of the input data
+        
+        Parameters:
+            - cfg_par: configuration file
+        Uses:
+            - output tables of voronoi binning 
+                - cfg_par['general']['tableAllSpecName'], 
+            - GISTpipeline table of stellar continuum emission   
+            - module of tPlay: openPPXFforSubtraction
+        Returns:
+            - datacube 
+            - noisecube
+            - line cube (star subtracted datacube)
+            - datacube of stellar continuum emission
+
+        Options:
+            cfg_par['starSub']['outputs'] defines the kind of output datacubes
+            all, stars, data, lines
+
+        Notes:
+            the stellar emission is subtracted from the original unbinned datacube
+            by rescaling the fitted continuum – constant within each Voronoi bin – to the original 
+            unbinned observed continuum flux of each spaxel. 
+        '''
 
         workDir = cfg_par['general']['workdir']
 
@@ -181,7 +217,6 @@ class starsub(object):
         lineInfo = tP.openLineList(cfg_par)
 
         dataSpec = np.array(dataSpec['SPEC'][:])
-        #dataSpec = np.reshape(dataSpec.T,[dataSpec.shape[1],yAxis.shape[0],xAxis.shape[0]])
         
         dataSub=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         data=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
@@ -205,22 +240,18 @@ class starsub(object):
    
         dd = dd[idx,:,:]
 
-        #spec = np.reshape(dd,[dd.shape[0],dd.shape[1]*dd.shape[2]])
-        #idx_good = np.where( np.median(spec, axis=0) > 0.0 )[0]
-        #spec     = spec[:,idx_good]
 
         waveCube = waveCube[idx]
         velscale  = (wave[1]-wave[0])*(cfg_par['general']['C']*1e-3)/np.mean(wave)
-        #log_spec, logLam = self.run_logrebinning(spec, velscale,dd.shape[1]*dd.shape[2], waveCube )
         diffusion = 1e-5
         del header['LATPOLE']
         del header['LONPOLE']
         xxVec = []
         yyVec = []
+        
         #create AllSpectra datacube
         for i in range(0,vorBinInfo['ID'].shape[0]):
-            #print xAxis
-            #print yAxis
+
             indexX = ((xAxis <= (np.round(vorBinInfo['X'][i],4)+diffusion)) & 
                       ((np.round(vorBinInfo['X'][i],4)-diffusion) < xAxis))
             
@@ -237,14 +268,8 @@ class starsub(object):
             if indexBin>0 and xx and yy: 
 
                 tmpS = np.array(dataStar[indexBin][1][:])
-                #tmpS = tmpS.tolist()
-                #print(xx[0],yy[0])
-                
-                #for j in range(0,len(yy)):
-                #   for k in range(0,len(xx)):
-
                 tmpD = np.array(dataSpec[i,:])
-                #tmp = tmpD.tolist()
+
                 data[:,yy[0],xx[0]] = tmpD
                 if cfg_par['starSub'].get('scaleHow',None) == 'mean':
                     starsScale=np.multiply(tmpS,(np.divide(np.nanmean(tmpD),np.nanmean(tmpS))))                
@@ -254,74 +279,76 @@ class starsub(object):
                 dataSub[:,yy[0],xx[0]] = np.subtract(tmpD,starsScale)
                 Stars[:,yy[0],xx[0]] = starsScale
 
-                        #tmpN = np.array(dataSpec[indexBin][1][:])
-                        #tmpN = tmpD/tmpN
-                        #tmpN = tmpN.tolist()                
-                        #noiseCube[:,yy[0],xx[0]] = tmpN
             else:
                 pass
 
         xxVecArr= Column(np.array(xxVec), name='PixX')
         yyVecArr= Column(np.array(yyVec), name='PixY')
 
-        #yyVecArr=np.array(yyVec,dtype={'names':('PixY')})
-        #print(vorBinInfo.shape)
-        #print(xxVecArr.shape)
+
 
         t = Table(vorBinInfo)
         t.add_column(xxVecArr,index=0)
         t.add_column(yyVecArr,index=0) 
-        #vorBinInfo = np.column_stack((vorBinInfo,xxVec,yyVec))
-        #vorBinInfo = np.vstack([vorBinInfo,yyVecArr])
+
         tab = fits.open(workDir+cfg_par['general']['tableBinName'])
         head = tab[0].header
-        #data = tab[0].data
-        #tab[1] = vorBinInfo    
+   
 
         empty_primary = fits.PrimaryHDU(header=head)           
 
-        #t2 = fits.BinTableHDU.from_columns(t,name='vorBinInfo')
         hdul = fits.HDUList([empty_primary])      
 
         hdul.append(fits.BinTableHDU(t.as_array(), name='vorBinInfo'))
 
 
-        #hdul.append(t2)  
         hdul.writeto(cfg_par['general']['outVorTableName'],overwrite=True)
-
-        #Lines = np.subtract(data,Stars)
-
         outputs = cfg_par['starSub']['outputs']
         
         if outputs == 'lines':
             fits.writeto(cfg_par['general']['outLines'],dataSub,header,overwrite=True)
-            #fits.writeto(cfg_par['general']['outNoise'],noiseCube,header,overwrite=True)
-            print('''\t+---------+\n\t Line Cube saved\n\t+---------+''')     
+            print('\n\t         +++\t\tLine Cube saved\t\t +++')
             return 
         else: 
             if outputs == 'stars':
                 fits.writeto(cfg_par['general']['outStars'],Stars,header,overwrite=True)
-                print('''\t+---------+\n\t Star Cube saved\n\t+---------+''')    
+                print('\n\t         +++\t\tStar Cube saved\t\t +++')    
                 return 
             elif outputs == 'data':
                 fits.writeto(cfg_par['general']['outCube'],data,header,overwrite=True)
-                print('''\t+---------+\n\t Data Cube saved\n\t+---------+''')                 
+                print('\n\t         +++\t\tData Cube saved\t\t +++')                 
             elif outputs=='all':
                 fits.writeto(cfg_par['general']['outNoise'],noiseCube,header,overwrite=True)
                 fits.writeto(cfg_par['general']['outLines'],Lines,header,overwrite=True)
                 fits.writeto(cfg_par['general']['outStars'],Stars,header,overwrite=True)
                 fits.writeto(cfg_par['general']['outCube'],data,header,overwrite=True)
-                print('''\t+---------+\n\t All Cubes saved\n\t+---------+''')    
+                print('\n\t         +++\t\tAll Cube saved\t\t +++')    
                 return
 
     def makeCubesVorLine(self,cfg_par):
+        '''
+        Creates line datacube from results of Voronoi binning
+        
+        Parameters:
+            - cfg_par: configuration file
+        Uses:
+            - output tables of voronoi binning (created by vorPlay and stored in workdir/runName/tables) 
+                - cfg_par['general']['outVorLineTableName'], cfg_par['general']['outVorSpectra']
+            - module of tPlay: openVorLineOutput
+        
+        Returns:
+            - voronoi binned datacube 
+            - voronoi binned noisecube
+
+        Notes:
+            the output table of voronoi binning is updated with the pixel coordinates of each bin
+
+        '''
+
 
         key = 'general'
         workDir = cfg_par['general']['workdir']
         
-        #wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec  = tP.openTablesPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['outVorLineName'],
-        #    cfg_par['general']['outVorSpectra'])
-
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
             cfg_par['general']['outVorSpectra'])
 
@@ -409,7 +436,18 @@ class starsub(object):
 
 
     def makeHeader(self,cfg_par,wave,pxSize):
+        '''
+        Defines header of output datacube
+        Puts wcs coordinates in datacube from information provided in the configuration file
         
+        Parameters:
+            - cfg_par: configuration file
+            - wave: x-axis of spectra in log(lamdba) units
+            - pxSize: pixel size of output cubes
+        
+        Returns:
+            - header of datacubes
+        '''       
         crPix3 =cfg_par['starSub']['pixZ']
         crPix1=cfg_par['starSub']['pixX']
         crPix2=cfg_par['starSub']['pixY']
