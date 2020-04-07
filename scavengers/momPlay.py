@@ -454,7 +454,26 @@ class momplay:
         return
 
 
-    def resLines(self,cfg_par):
+    def resLines(self,cfg_par): 
+        '''
+        Computes for each the residuals of the fit. Within which velocity range? 
+            At the moment is within 6*sigmaG1 and 3*sigmaG2
+
+        Parameters:
+            cfg_par: parameter file
+                gFit_modName: specifies # of gaussian components used for the fit
+
+        Uses:
+            - voroni binned line subtracted datacube
+            - table of voronoi binned datacube and spectra
+            -
+        Returns (located in /moments/modName/):
+            - resAbs_linename:  residuals computed as sum of the absolute value of line-fit
+                                within a velocity range given by 6*sigmag1 weighted on the fitted amplitude of the line
+            - resSTD_linename:  residuals computed as the standard deviation of line-fit
+                                within a velocity range given by 6*sigmag1 weighted on the fitted amplitude of the line
+        '''
+
 
         key = 'general'
         workDir = cfg_par[key]['workdir'] 
@@ -462,7 +481,7 @@ class momplay:
         modName = cfg_par['gFit']['modName']
         momModDir = cfg_par['general']['momDir']+modName+'/'
 
-        resName = momModDir+'resAllLines_'+modName+'.fits'
+        resName = resModDir+'resAllLines_'+modName+'.fits'
 
         if not os.path.exists(resName):
             self.resCube(cfg_par)
@@ -513,21 +532,21 @@ class momplay:
             lineName = lineName+str(int(lineInfo['Wave'][ii]))            
             lineThresh = float(lineInfo['SNThresh'][ii])
 
-            print('\n\t *********** --- Residuals: '+lineName+' --- ***********\n')
-            
+            print('\t\t\t\t+++ '+lineName+' +++')
+          
             resG1Abs = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
             resG1Std = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
 
-            resNameOutAbs =momModDir+'resAbs_'+lineName+'.fits'
-            resNameOutStd =momModDir+'resStd_'+lineName+'.fits'
+            resNameOutAbs =resModDir+'resAbs_'+lineName+'.fits'
+            resNameOutStd =resModDir+'resStd_'+lineName+'.fits'
 
             for i in range(0,len(lines['BIN_ID'])):
-
 
                 amp = lines['g1_Amp_'+lineName][i]
                 
                 cenKmsG1 = lines['g1_Centre_'+lineName][i]
                 sigKmsG1 = lines['g1_Sigma_'+lineName][i]
+                
                 cenG1 = np.log(cvP.vRadLambda(cenKmsG1,lineInfo['Wave'][ii]))
                 leftG1 = np.log(cvP.vRadLambda(cenKmsG1-6.*sigKmsG1,lineInfo['Wave'][ii]))
                 rightG1 = np.log(cvP.vRadLambda(cenKmsG1+6.*sigKmsG1,lineInfo['Wave'][ii]))

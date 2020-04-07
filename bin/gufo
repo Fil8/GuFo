@@ -195,7 +195,7 @@ def main (argv):
     # Load parameter file
     # +++++++++++++++++++
     if args.cfgFile:
-        print("\n\t +---------+      config File    +---------+")
+        print("\n\t +---------+\t\t  config File\t\t+---------+")
         gPar = gufo.gufo(args.cfgFile)
     #    print("## Load parameter file ... Done ({0:.2f}s)".format(
     #time.time() - time_start_load))
@@ -241,11 +241,11 @@ def main (argv):
 
     if args.gMpPlay or gPar.cfg_par['general'].get('enableMP',False) == True and gPar.cfg_par['gFit'].get('enable',False) == True or args.gPlay:
         time_start_load = time.time()        
-        print ('\n\t************ --- GuFo : MPgPlay --- ************\n')
+        print ('\n\t +---------+\t\t    Fitting\t\t+---------+')
         gPar = gufo.gufo(args.cfgFile)
         gPlayMp.main(gPar.cfg_par)
-        print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
-        print('\n\t  ********** --- GuFo : DONE --- ************\n')
+        timeFit = (time.time()- time_start_load)/60.
+        print('\n\t  +---------+\t\t  Done ({0:.2f}m)\t\t+---------+'.format(timeFit))
 
     if args.gPlot or gPar.cfg_par['gPlot'].get('enable',False) == True and gPar.cfg_par['gFit'].get('enable',False) == False:
         time_start_load = time.time()
@@ -285,11 +285,11 @@ def main (argv):
 
     if args.resPlot or gPar.cfg_par['residuals'].get('enable',False) == True:
         time_start_load = time.time()
-        print ('\n\t************* --- GuFo : residuals --- **************\n')
+        print ('\n\t +---------+\t\t   residuals\t\t+---------+')
         gPar = gufo.gufo(args.cfgFile)
         mom.resLines(gPar.cfg_par)
-        print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
-        print('\n\t************* --- GuFo : DONE --- **************\n')
+        timeRes = (time.time()- time_start_load)/60.
+        print('\n\t  +---------+\t\t  Done ({0:.2f}m)\t\t+---------+'.format(timeRes))
 
     if args.momPlot or gPar.cfg_par['moments'].get('plot',False) == True:
         
@@ -301,16 +301,16 @@ def main (argv):
         print('\n\t ************ --- GuFo : DONE --- ************\n')
 
     if args.ancillaryInfo or gPar.cfg_par['ancillary'].get('enable',False) == True:
-
+        time_start_load = time.time()
         print ('\n\t +---------+    ancillary Info   +---------+')
-
         gPar = gufo.gufo(args.cfgFile)
         print('\n\t         +++   sigma & centroid  +++')
         ancels.main(gPar.cfg_par)
         print ('\n\t  ********** --- ancillaryInfo : centroid --- **********\n')
         print('\n\t         +++     plotting maps   +++')
         mom.makeSigmaCentroidMaps(gPar.cfg_par)
-        print('\n\t         +++        Done         +++')
+        timeAnc = (time.time()- time_start_load)/60.
+        print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
 
         #ap.centroid(gPar.cfg_par)
 
@@ -367,11 +367,11 @@ def main (argv):
         print ('\n\t************ --- GuFo : DONE  --- ************\n')
         sys.exit(0)
 
-print ('\n\t************* ---      GuFo     --- *************')
+print ('\n\t*************\t\t---   GuFo   ---\t*************')
 
 main([a for a in sys.argv[1:]])
 
-print ('\n\t************* ---  GuFo : DONE  --- *************')
+print ('\n\t*************\t\t--- GuFo End ---\t*************')
 
 
 

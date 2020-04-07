@@ -142,5 +142,15 @@ class gufo(object):
             os.mkdir(modNameDir)
         self.cfg_par['general']['modNameDir'] = modNameDir
 
+        resDir =self.cfg_par['general']['runNameDir']+'residuals/'
+        if not os.path.exists(resDir):
+            os.mkdir(resDir)
+        self.cfg_par['general']['resDir'] = resDir
+
+        resModDir =self.cfg_par['general']['resDir']+self.cfg_par['gFit']['modName']+'/'
+        if not os.path.exists(resModDir):
+            os.mkdir(resModDir)
+        self.cfg_par['general']['resModDir'] = resModDir
+
         return
 

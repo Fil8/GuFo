@@ -66,33 +66,48 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
         lineNameID = lineName
         lineThresh = float(lineInfo['SNThresh'][ii])
 
-
-        lineFit= comps['g1ln'+str(ii)+'_']+comps['g2ln'+str(ii)+'_']
+        if modName =='g1':
+            lineFit= comps['g1ln'+str(ii)+'_']
+            amp=result.params['g1ln'+str(ii)+'_amplitude']         
+        if modName=='g2':
+            lineFit= comps['g1ln'+str(ii)+'_']+comps['g2ln'+str(ii)+'_']
+            amp=result.params['g1ln'+str(ii)+'_amplitude']+result.params['g2ln'+str(ii)+'_amplitude']
+        elif modName=='g3':
+            lineFit= comps['g1ln'+str(ii)+'_']+comps['g2ln'+str(ii)+'_']+comps['g3ln'+str(ii)+'_']
+            amp=result.params['g1ln'+str(ii)+'_amplitude']+result.params['g2ln'+str(ii)+'_amplitude']+result.params['g3ln'+str(ii)+'_amplitude']
 
         
         centreFit=result.params['g1ln'+str(ii)+'_center']
         index = np.where(tabGen['BIN_ID']==binID)[0]
         ampSpax = tabGen[modName+'-AmpSpax_'+lineNameID][index[0]]
-        amp=result.params['g1ln'+str(ii)+'_amplitude']+result.params['g2ln'+str(ii)+'_amplitude']
         indexCentroid=np.where(lines['BIN_ID']==binID)[0]
 
         if ampSpax >= lineThresh and amp!=0.0:
             tck = interpolate.splrep(wave[:-1], lineFit, s=0)
             waveNew = np.linspace(np.min(wave),np.max(wave),1e5)
             lineFit = interpolate.splev(waveNew, tck, der=0)
+            
+            #centroid
+            if modName=='g2':
+                centroidG1 = lines['g1_Centre_'+str(lineNameID)][indexCentroid]
+                centroidG2 = lines['g2_Centre_'+str(lineNameID)][indexCentroid]
+                ampG1 = lines['g1_Amp_'+str(lineNameID)][indexCentroid]
+                ampG2 = lines['g2_Amp_'+str(lineNameID)][indexCentroid]
+                centroidG1Lambda = cvP.vRadLambda(centroidG1,lambdaRest)
+                centroidG2Lambda = cvP.vRadLambda(centroidG2,lambdaRest)
+                centroidToT = np.divide(np.sum([np.multiply(centroidG1Lambda,ampG1)+np.multiply(centroidG2Lambda,ampG2)]),
+                    np.sum([ampG1,ampG2]))            
+            elif modName=='g1':
+                cencentroidToT = lines['g1_Centre_'+str(lineNameID)][indexCentroid]
+
+            sigmaCen['centroid_'+lineName][indexCentroid] = cvP.lambdaVRad(centroidToT,lambdaRest)
+            sigmaCen['logCentroid_'+lineName][indexCentroid] =  np.log10(sigmaCen['centroid_'+lineName][indexCentroid])
+            
+            #sigma & W80
             height =np.max(lineFit)
-            centroidG1 = lines['g1_Centre_'+str(lineNameID)][indexCentroid]
-            #print(centroidG1)
-            centroidG2 = lines['g2_Centre_'+str(lineNameID)][indexCentroid]
-            ampG1 = lines['g1_Amp_'+str(lineNameID)][indexCentroid]
-            ampG2 = lines['g2_Amp_'+str(lineNameID)][indexCentroid]
-            centroidG1Lambda = cvP.vRadLambda(centroidG1,lambdaRest)
-            centroidG2Lambda = cvP.vRadLambda(centroidG2,lambdaRest)
-   
             indexHeight =np.abs(lineFit-height).argmin()
 
             height50 =np.divide(height,2.)
-
             height80 = np.divide(height,5.)
             
 
@@ -110,24 +125,14 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
             #    np.exp(wave[indexWaveRight]),waveDist)
 
             sigmaLambda50 = waveDist50/(2*np.sqrt(2*np.log(2)))
-            print(sigmaLambda50,dLIn1)
             sigmaInt50 = np.sqrt(np.power(sigmaLambda50,2)-np.power(dLIn1,2))    
             width80 = np.sqrt(np.power(waveDist80,2)-np.power(dLIn1,2))    
-            print(sigmaInt50)
             sigmaCen['sigma_'+lineName][indexCentroid] =  cvP.lambdaVRad(lambdaRest+sigmaInt50,lambdaRest)
             sigmaCen['logSigma_'+lineName][indexCentroid] =  np.log10(sigmaCen['sigma_'+lineName][indexCentroid])
 
             sigmaCen['w80_'+lineName][indexCentroid] =  cvP.lambdaVRad(lambdaRest+width80,lambdaRest)
             sigmaCen['logW80_'+lineName][indexCentroid] =  np.log10(sigmaCen['w80_'+lineName][indexCentroid])
-            print(sigmaCen['sigma_'+lineName][indexCentroid])
                 
-            centroidToT = np.divide(np.sum([np.multiply(centroidG1Lambda,ampG1)+np.multiply(centroidG2Lambda,ampG2)]),
-                np.sum([ampG1,ampG2]))          
-
-            sigmaCen['centroid_'+lineName][indexCentroid] = cvP.lambdaVRad(centroidToT,lambdaRest)
-            sigmaCen['logCentroid_'+lineName][indexCentroid] =  np.log10(sigmaCen['centroid_'+lineName][indexCentroid])
-
-            #print(centroidToTVel[j],sigmaInt,sigma[j])
         else:
             sigmaCen['w80_'+lineName][indexCentroid]=np.nan
             sigmaCen['logW80_'+lineName][indexCentroid]=np.nan
@@ -137,6 +142,7 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
 
             sigmaCen['centroid_'+lineName][indexCentroid] = np.nan
             sigmaCen['logCentroid_'+lineName][indexCentroid]=np.nan
+
     sigmaCen['BIN_ID'][indexCentroid]=binID
 
     counter +=1
