@@ -60,7 +60,7 @@ class specplot(object):
           'ytick.minor.size'    : 3,
           'ytick.minor.width'   : 1, 
           'text.usetex'         : True,
-          'text.latex.unicode'  : True
+          #'text.latex.unicode'  : True
            }
         
         return params
@@ -88,7 +88,7 @@ class specplot(object):
           'ytick.minor.size'    : 2,
           'ytick.minor.width'   : 0.75, 
           'text.usetex'         : True,
-          'text.latex.unicode'  : True,
+          #'text.latex.unicode'  : True,
           'legend.fontsize'     : 10
            }
         

@@ -58,7 +58,7 @@ class BPTplot(object):
           'ytick.minor.size'    : 3,
           'ytick.minor.width'   : 1, 
           'text.usetex'         : True,
-          'text.latex.unicode'  : True
+          #'text.latex.unicode'  : True
            }
         
         return params
