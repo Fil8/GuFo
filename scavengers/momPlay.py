@@ -504,6 +504,10 @@ class momplay:
         if 'CRDER3'in resHead:
             del resHead['CRDER3']
 
+        # to implement to compute noise while computing residuals
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
+            cfg_par['general']['outVorSpectra'])
+
         f = fits.open(cfg_par['general']['dataCubeName'])
         dd = f[0].data
         header = f[0].header
@@ -529,13 +533,15 @@ class momplay:
 
             lineName = lineName+str(int(lineInfo['Wave'][ii]))            
             lineThresh = float(lineInfo['SNThresh'][ii])
-            print('\t         +++'+lineName+'\t\t+++')
+            print('\n\t         +++\t\t    '+lineName+'\t\t +++')
           
             resG1Abs = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
             resG1Std = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+            noiseMap = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
 
             resNameOutAbs =resModDir+'resAbs_'+lineName+'.fits'
             resNameOutStd =resModDir+'resStd_'+lineName+'.fits'
+            noiseNameOut =resModDir+'noise_'+lineName+'.fits'
 
             for i in range(0,len(lines['BIN_ID'])):
 
@@ -551,6 +557,8 @@ class momplay:
                 idxLeft = int(np.where(abs(wave-leftG1)==abs(wave-leftG1).min())[0])
                 idxRight = int(np.where(abs(wave-rightG1)==abs(wave-rightG1).min())[0])
             
+                noiseValue = np.std(noiseBin[lines['BIN_ID'][i]][idxLeft:idxRight])
+
                 if modName == 'g2':
                     amp = lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i]
                     cenKmsG2 = lines['g2_Centre_'+lineName][i]
@@ -598,11 +606,13 @@ class momplay:
                     # if thresHold >= lineThresh:
                         resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0),amp)
                         resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
-            
+                        noise[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
+
             resHead['WCSAXES'] = 2
                       
             fits.writeto(resNameOutAbs,resG1Abs,resHead,overwrite=True)
             fits.writeto(resNameOutStd,resG1Std,resHead,overwrite=True)
+            fits.writeto(noiseNameOut,noise,resHead,overwrite=True)
 
         return 0
 

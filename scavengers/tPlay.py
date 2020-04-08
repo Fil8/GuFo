@@ -52,7 +52,7 @@ class tplay(object):
         cenRange = np.zeros([lenTable])
 
         #ampThresh = np.zeros([lenTable])
-        
+
 
         for i in range(0,lenTable):
 
@@ -313,6 +313,8 @@ class tplay(object):
         frmList = []
         lineNameList.append('BIN_ID')
         frmList.append('i4')
+        lineNameList.append('noise_'+lineName)
+        frmList.append('f8')
         for i in range (0,len(lineInfo['ID'])):
             lineName = str(lineInfo['Name'][i])+str(int(lineInfo['Wave'][i]))
             if '[' in lineName:
@@ -437,6 +439,7 @@ class tplay(object):
 
         modName = cfg_par['gFit']['modName']
         lineArr['BIN_ID'][counter] = binIDName
+        lineArr['Noise'][counter] = noiseValue
 
         for ii in range(0,len(lineInfo['ID'])):
 
@@ -456,7 +459,7 @@ class tplay(object):
 
             fwhm = fitRes['g1ln'+str(ii)+'_fwhm']
             height = fitRes['g1ln'+str(ii)+'_height']
-                
+            
 
             waveInRed = cfg_par['general']['redshift']*lineInfo['Wave'][ii]+lineInfo['Wave'][ii]
             indexWaveInRed = int(np.where(abs(np.exp(wave)-waveInRed)==abs(np.exp(wave)-waveInRed).min())[0])
