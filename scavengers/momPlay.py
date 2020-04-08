@@ -402,8 +402,8 @@ class momplay:
         resModDir = cfg_par['general']['resDir']+modName+'/'
 
 
-        if not os.path.exists(momModDir):
-            os.mkdir(momModDir)
+        # if not os.path.exists(resModDir):
+        #     os.mkdir(momModDir)
 
         f = fits.open(cfg_par['general']['dataCubeName'])
         dd = f[0].data
