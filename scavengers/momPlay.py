@@ -477,7 +477,7 @@ class momplay:
         workDir = cfg_par[key]['workdir'] 
         cubeDir = cfg_par[key]['cubeDir'] 
         modName = cfg_par['gFit']['modName']
-        resModDir = cfg_par['general']['momDir']+modName+'/'
+        resModDir = cfg_par['general']['resDir']+modName+'/'
 
         resName = resModDir+'resAllLines_'+modName+'.fits'
 
@@ -524,6 +524,8 @@ class momplay:
         dataSpec = tab[1].data
         specExp = tab[2].data
         wave = [item for t in specExp for item in t] 
+        
+        noiseNameOut =resModDir+'noiseMap.fits'
 
         for ii in range(0,len(lineInfo['ID'])):
             lineName = str(lineInfo['Name'][ii])
@@ -541,7 +543,7 @@ class momplay:
 
             resNameOutAbs =resModDir+'resAbs_'+lineName+'.fits'
             resNameOutStd =resModDir+'resStd_'+lineName+'.fits'
-            noiseNameOut =resModDir+'noise_'+lineName+'.fits'
+            
 
             for i in range(0,len(lines['BIN_ID'])):
 
@@ -557,7 +559,7 @@ class momplay:
                 idxLeft = int(np.where(abs(wave-leftG1)==abs(wave-leftG1).min())[0])
                 idxRight = int(np.where(abs(wave-rightG1)==abs(wave-rightG1).min())[0])
             
-                noiseValue = np.std(noiseBin[lines['BIN_ID'][i]][idxLeft:idxRight])
+
 
                 if modName == 'g2':
                     amp = lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i]
@@ -589,6 +591,9 @@ class momplay:
                         idxLeft = np.min([idxLeft,idxLeftG3])
                         idxRight = np.max([idxRight,idxRightG3])
 
+                if ii==0:
+                    noiseValue = noiseBinp[lines['BIN_ID'][i]][idxLeft]
+
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
                 #result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
                 if idxRight-idxLeft <2.:
@@ -604,8 +609,9 @@ class momplay:
                     #     thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
                     
                     # if thresHold >= lineThresh:
-                        resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0),amp)
-                        resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
+                    resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0),amp)
+                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
+                    if ii==0:    
                         noiseMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
 
             resHead['WCSAXES'] = 2
