@@ -242,9 +242,9 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
             pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
             
             if gName=='g1':
-                pars.add(name = 'g1intln'+str(i), value=sigmaIn1,vary=True,min=0)
+                pars.add(name = 'g1intln'+str(i), value=sigmaIn1,vary=True,min=sigmaIn1)
             else:
-                pars.add(name = 'g1intln'+str(i), value=dLIn,vary=True,min=0)
+                pars.add(name = 'g1intln'+str(i), value=dLIn,vary=True,min=sigmaIn1)
 
             pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
             pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,

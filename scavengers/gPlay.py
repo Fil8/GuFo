@@ -133,6 +133,9 @@ class gplay(object):
                 pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,
                 min=waveAmpIn1Min,max=waveAmpIn1Max,vary=True)
 
+
+                #pars['g1ln'+str(i)+'_'+'height'].set(min=np.max(y[indexMin:indexMax])/100.,max=None,vary=True)
+
                 pars.add(name='lineWave'+str(i),value=lineInfo['Wave'][i],vary=False)
                 pars.add(name='cenDist',expr ='((exp(g1ln'+str(i)+'_'+'center)-lineWave'+str(i)+')/lineWave'+str(0)+')*2.99792458e8/1e3',vary=False)
 
@@ -578,13 +581,11 @@ class gplay(object):
 
         if doFit==False and os.path.exists(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav'):
             result = load_modelresult(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
-            print(result.params['g1ln0_amplitude'].value)
         elif doFit==True:
             print('''\t+---------+\n\t ...fitting...\n\t+---------+''')
             gMod,gPars = self.lineModDef(cfg_par,waveCut,y,lineInfo)
             result = gMod.fit(y, gPars, x=waveCut)
-            print(result)
-
+            #print(result.fit_report())
             save_modelresult(result, cfg_par['general']['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
         
         cfg_par['gPlot']['loadModel'] = True
