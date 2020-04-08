@@ -588,14 +588,14 @@ class momplay:
                     idxRight+=4
                 for index in match_bin:
 
-                    if modName=='g1':
-                        thresHold = lines['g1_Amp_Hb4861'][i]/tabGen['NSPAX'][index]
-                    elif modName=='g2':
-                        thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
-                    elif modName=='g3':
-                        thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
+                    # if modName=='g1':
+                    #     thresHold = lines['g1_Amp_Hb4861'][i]/tabGen['NSPAX'][index]
+                    # elif modName=='g2':
+                    #     thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
+                    # elif modName=='g3':
+                    #     thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
                     
-                    if thresHold >= lineThresh:
+                    # if thresHold >= lineThresh:
                         resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0),amp)
                         resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
             
