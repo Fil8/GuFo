@@ -542,7 +542,7 @@ class momplay:
                 amp = lines['g1_Amp_'+lineName][i]
                 
                 cenKmsG1 = lines['g1_Centre_'+lineName][i]
-                sigKmsG1 = lines['g1_Sigma_'+lineName][i]
+                sigKmsG1 = lines['g1_SigMeas_'+lineName][i]
                 
                 cenG1 = np.log(cvP.vRadLambda(cenKmsG1,lineInfo['Wave'][ii]))
                 leftG1 = np.log(cvP.vRadLambda(cenKmsG1-6.*sigKmsG1,lineInfo['Wave'][ii]))
@@ -554,7 +554,7 @@ class momplay:
                 if modName == 'g2':
                     amp = lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i]
                     cenKmsG2 = lines['g2_Centre_'+lineName][i]
-                    sigKmsG2 = lines['g2_Sigma_'+lineName][i]
+                    sigKmsG2 = lines['g2_SigMeas_'+lineName][i]
             
                     cenG2 = np.log(cvP.vRadLambda(cenKmsG2,lineInfo['Wave'][ii]))
                     leftG2 = np.log(cvP.vRadLambda(cenKmsG2-3.*sigKmsG2,lineInfo['Wave'][ii]))
@@ -569,7 +569,7 @@ class momplay:
                     if modName =='g3':
 
                         cenKmsG3 = lines['g3_Centre_'+lineName][i]
-                        sigKmsG3 = lines['g3_Sigma_'+lineName][i]
+                        sigKmsG3 = lines['g3_SigMeas_'+lineName][i]
                 
                         cenG2 = np.log(cvP.vRadLambda(cenKmsG1,lineInfo['Wave'][ii]))
                         leftG2 = np.log(cvP.vRadLambda(cenKmsG1-3.*sigKmsG3,lineInfo['Wave'][ii]))
