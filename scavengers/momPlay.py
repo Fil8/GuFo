@@ -612,7 +612,7 @@ class momplay:
                         idxRight = np.max([idxRight,idxRightG3])
 
                 if ii==0 and cfg_par['residuals']['computeNoise']=='enable':
-                    noiseValue = noiseBinp[lines['BIN_ID'][i]][idxLeft]
+                    noiseValue = noiseBin[lines['BIN_ID'][i]][idxLeft]
 
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
                 #result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
