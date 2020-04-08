@@ -477,7 +477,7 @@ class momplay:
         workDir = cfg_par[key]['workdir'] 
         cubeDir = cfg_par[key]['cubeDir'] 
         modName = cfg_par['gFit']['modName']
-        momModDir = cfg_par['general']['momDir']+modName+'/'
+        resModDir = cfg_par['general']['momDir']+modName+'/'
 
         resName = resModDir+'resAllLines_'+modName+'.fits'
 
