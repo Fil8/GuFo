@@ -305,12 +305,12 @@ class momplay:
                     if modName != 'g1':
                         mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[index]
                         mom1G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Centre_'+lineName][i]
-                        mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Sig_'+lineName][i]
+                        mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_SigIntr_'+lineName][i]
                     
                         if modName == 'g3':
                             mom0G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[index]
                             mom1G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Centre_'+lineName][i]
-                            mom2G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Sig_'+lineName][i]
+                            mom2G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_SigIntr_'+lineName][i]
                         
                         mom0Tot[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[i]
 
