@@ -581,7 +581,7 @@ class momplay:
 
                     idxRightRightNoise = int(np.where(abs(wave-rightrightNoise)==abs(wave-rightrightNoise).min())[0])
                     idxRightNoise = int(np.where(abs(wave-rightNoise)==abs(wave-rightNoise).min())[0])
-
+                    print(,idxLeftLeftNoise,idxLeftNoise,idxRightRightNoise,idxRightNoise)
                 if modName == 'g2':
                     amp = lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i]
                     cenKmsG2 = lines['g2_Centre_'+lineName][i]
