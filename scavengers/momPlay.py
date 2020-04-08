@@ -634,7 +634,7 @@ class momplay:
                         noiseLine[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(np.mean(dd[idxLeftLeftNoise:idxLeftNoise],dd[idxLeftLeftNoise:idxLeftNoise])),amp)
 
                         if ii==0:    
-                        noiseMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
+                            noiseMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
 
             resHead['WCSAXES'] = 2
                       
