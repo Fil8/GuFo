@@ -398,7 +398,9 @@ class momplay:
 
 
         modName = cfg_par['gFit']['modName']
-        momModDir = cfg_par['general']['momDir']+modName+'/'
+
+        resModDir = cfg_par['general']['resDir']+modName+'/'
+
 
         if not os.path.exists(momModDir):
             os.mkdir(momModDir)
