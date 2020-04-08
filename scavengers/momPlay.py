@@ -606,13 +606,13 @@ class momplay:
                     # if thresHold >= lineThresh:
                         resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0),amp)
                         resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
-                        noise[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
+                        noiseMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
 
             resHead['WCSAXES'] = 2
                       
             fits.writeto(resNameOutAbs,resG1Abs,resHead,overwrite=True)
             fits.writeto(resNameOutStd,resG1Std,resHead,overwrite=True)
-            fits.writeto(noiseNameOut,noise,resHead,overwrite=True)
+            fits.writeto(noiseNameOut,noiseMap,resHead,overwrite=True)
 
         return 0
 
