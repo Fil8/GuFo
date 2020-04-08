@@ -288,10 +288,10 @@ def main (argv):
         gPar.cfg_par['lineRatios']['enable'] = False
         gPar.cfg_par['moments']['enable']
         if args.doFit:
-            print('\n\t +---------+\t\t  fit single bin\t\t +---------+')
+            print('\n\t +---------+\t\t  fit single bin\t +---------+')
             doFit=True
         else:
-            print('\n\t +---------+\t\t  plot single bin\t\t +---------+')
+            print('\n\t +---------+\t\t  plot single bin\t +---------+')
             doFit=False
         gp.plotSingleBin(gPar.cfg_par, args.binID,doFit=doFit)
         timeSpec = (time.time()- time_start_load)/60.

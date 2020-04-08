@@ -21,6 +21,8 @@ import cvPlay
 import specPlot
 import tPlay
 
+from scavengers import gPlayMp
+
 #gf = gufo()
 cvP = cvPlay.convert()
 sP = specPlot.specplot()
@@ -103,12 +105,8 @@ class gplay(object):
             
             dLIn = dLambda[indexWaveInRed]
             dLIn = np.log(waveInRed+dLIn/2.)-np.log(waveInRed-dLIn/2.)
-            
             indexWaveIn = int(np.where(abs(np.exp(wave)-lineInfo['Wave'][i]).min())[0])
             waveIn = np.exp(wave[indexWaveIn])
-            
-            #waveMin =  np.log(lineInfo['Wave'][i] - lineInfo['lineRangeAng'][i])
-            #waveMax =  np.log(lineInfo['Wave'][i] + lineInfo['lineRangeAng'][i])
            
             waveAmpIn1Min = np.log(lineInfo['Wave'][i]-lineInfo['cenRangeAng'][i])
             indexMin = int(np.where(abs(wave-waveAmpIn1Min)==abs(wave-waveAmpIn1Min).min())[0]) 
@@ -125,17 +123,11 @@ class gplay(object):
             smallWave = wave[indexMin:indexMax]
             cenIn1 = smallWave[np.argmax(y[indexMin:indexMax])]
 
-
             if i == 0:
 
                 pars = gauss1.make_params()
                 pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
                 pars.add(name = 'g1intln'+str(i), value=sigmaIn1,vary=True,min=sigmaIn1)
-
-                    #min=sigmaIn1/10.,max=1000.,vary=True)
-                
-                #pars['g1ln'+str(i)+'_'+'sigma'].set(value=sigmaIn1,
-                #    min=sigmaIn1/10.,max=sigmaIn1*10.,vary=True)
                     
                 pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
                 pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,

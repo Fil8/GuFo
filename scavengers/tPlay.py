@@ -52,7 +52,7 @@ class tplay(object):
         cenRange = np.zeros([lenTable])
 
         #ampThresh = np.zeros([lenTable])
-
+        
 
         for i in range(0,lenTable):
 
