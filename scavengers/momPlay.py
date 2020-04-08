@@ -575,6 +575,7 @@ class momplay:
                 
 
                 if cfg_par['residuals']['computeNoise']=='enable':
+                    
                     idxLeftLeftNoise = int(np.where(abs(wave-leftleftNoise)==abs(wave-leftleftNoise).min())[0])
                     idxLeftNoise = int(np.where(abs(wave-leftNoise)==abs(wave-leftNoise).min())[0])
 
@@ -633,7 +634,7 @@ class momplay:
                     resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
                     
                     if cfg_par['residuals']['computeNoise']=='enable':
-                        noiseLine[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(np.mean(dd[idxLeftLeftNoise:idxLeftNoise],dd[idxLeftLeftNoise:idxLeftNoise])),amp)
+                        noiseLine[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(np.mean(dd[idxLeftLeftNoise:idxLeftNoise],dd[idxRightNoise:idxRightRightNoise])),amp)
 
                         if ii==0:    
                             noiseMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
