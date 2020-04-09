@@ -313,7 +313,7 @@ class tplay(object):
         frmList = []
         lineNameList.append('BIN_ID')
         frmList.append('i4')
-        lineNameList.append('noise_'+lineName)
+        lineNameList.append('noiseBin')
         frmList.append('f8')
         for i in range (0,len(lineInfo['ID'])):
             lineName = str(lineInfo['Name'][i])+str(int(lineInfo['Wave'][i]))
