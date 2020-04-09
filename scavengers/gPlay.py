@@ -126,6 +126,7 @@ class gplay(object):
             if i == 0:
 
                 pars = gauss1.make_params()
+                print(dLIn,sigmaIn1)
                 pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
                 pars.add(name = 'g1intln'+str(i), value=dLIn,vary=True,min=sigmaIn1)
                     
