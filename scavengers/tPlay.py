@@ -439,7 +439,7 @@ class tplay(object):
 
         modName = cfg_par['gFit']['modName']
         lineArr['BIN_ID'][counter] = binIDName
-        lineArr['Noise'][counter] = noiseValue
+        lineArr['noiseBin'][counter] = noiseValue
 
         for ii in range(0,len(lineInfo['ID'])):
 
