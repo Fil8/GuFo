@@ -655,7 +655,7 @@ class momplay:
             fits.writeto(resNameOutStd,resG1Std,resHead,overwrite=True)
             
             if cfg_par['residuals']['computeNoise']==True:
-                fits.writeto(noiseNameLine,noiseline,resHead,overwrite=True)
+                fits.writeto(noiseNameLine,noiseLine,resHead,overwrite=True)
                 if ii==0:
                     fits.writeto(noiseMapName,noiseMap,resHead,overwrite=True)
 
