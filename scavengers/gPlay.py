@@ -130,6 +130,7 @@ class gplay(object):
                 pars.add(name = 'g1intln'+str(i), value=sigmaIn1,vary=True,min=sigmaIn1)
                     
                 pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
+                print(pars['g1ln'+str(i)+'_'+'sigma'].value)
                 pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,
                 min=waveAmpIn1Min,max=waveAmpIn1Max,vary=True)
 
