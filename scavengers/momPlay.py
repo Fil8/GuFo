@@ -588,9 +588,8 @@ class momplay:
 
                     idxRightRightNoise = int(np.where(abs(wave-rightrightNoise)==abs(wave-rightrightNoise).min())[0])
                     idxRightNoise = int(np.where(abs(wave-rightNoise)==abs(wave-rightNoise).min())[0])
-
                     idxTable = int(np.where(tabGen['BIN_ID'] == int(lines['BIN_ID'][i]))[0][0])
-                    y = dd[idxMin:idxMax,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]                
+                    y = dd[:,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]                
 
                 if modName == 'g2':
                     amp = lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i]
@@ -644,9 +643,10 @@ class momplay:
                     resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
                     
                     if cfg_par['residuals']['computeNoise']==True:
-                        noiseLine[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(np.mean(y[idxLeftLeftNoise:idxLeftNoise],y[idxRightNoise:idxRightRightNoise])),amp)
+                        noise = np.nanstd(np.concatenate([y[idxLeftLeftNoise:idxLeftNoise],y[idxRightNoise:idxRightRightNoise]]))*amp
+                        noiseLine[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noise
 
-                        if ii==0:    
+                        if ii==0: 
                             noiseMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
 
             resHead['WCSAXES'] = 2
