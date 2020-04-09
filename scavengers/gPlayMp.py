@@ -233,7 +233,7 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
         sigmaMin = lineInfo['deltaSigmaAng_Min'][i]
         sigmaMax = lineInfo['deltaSigmaAng_Max'][i]
 
-        ampIn1 = np.max(y[indexMin:indexMax])*max(2.220446049250313e-16, sigmaInMin)/0.3989423
+        ampIn1 = np.max(y[indexMin:indexMax])*max(2.220446049250313e-16, sigmaMin)/0.3989423
         smallWave = wave[indexMin:indexMax]
         cenIn1 = smallWave[np.argmax(y[indexMin:indexMax])]
 
