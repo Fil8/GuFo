@@ -128,7 +128,7 @@ class gplay(object):
                 pars = gauss1.make_params()
                 print(dLIn,sigmaIn1)
                 pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
-                pars.add(name = 'g1intln'+str(i), value=dLIn,vary=True,min=sigmaIn1)
+                pars.add(name = 'g1intln'+str(i), value=sigmaIn1,vary=True,min=sigmaIn1)
                     
                 pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
                 print(pars['g1ln'+str(i)+'_'+'sigma'].value)
