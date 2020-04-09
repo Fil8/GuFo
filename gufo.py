@@ -157,7 +157,7 @@ class gufo(object):
             os.mkdir(resModDir)
         self.cfg_par['general']['resModDir'] = resModDir
 
-        noiseDir =self.cfg_par['general']['runNameDir']+'residuals/noise'
+        noiseDir =self.cfg_par['general']['runNameDir']+'residuals/noise/'
         if not os.path.exists(noiseDir):
             os.mkdir(noiseDir)
         self.cfg_par['general']['noiseDir'] = noiseDir

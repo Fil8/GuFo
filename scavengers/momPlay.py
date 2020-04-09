@@ -558,8 +558,6 @@ class momplay:
 
             for i in range(0,len(lines['BIN_ID'])):
 
-
- 
                 amp = lines['g1_Amp_'+lineName][i]
                 
                 cenKmsG1 = lines['g1_Centre_'+lineName][i]
@@ -622,7 +620,7 @@ class momplay:
                         idxRight = np.max([idxRight,idxRightG3])
 
                 if ii==0 and cfg_par['residuals']['computeNoise']==True:
-                    noiseValue = noiseBin[lines['BIN_ID'][i]][idxLeft]
+                    noiseValue = noiseBin[lines['BIN_ID'][i]][idxLeft]*amp
 
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
                 #result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
