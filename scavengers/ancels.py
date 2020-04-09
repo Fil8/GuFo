@@ -57,7 +57,7 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
         waveInRed = cfg_par['general']['redshift']*lambdaRest+lambdaRest
         indexWaveInRed = int(np.where(abs(np.exp(wave)-waveInRed)==abs(np.exp(wave)-waveInRed).min())[0])
         dLIn = dLambda[indexWaveInRed]  
-        dLIn = np.log(waveInRed+dLIn/2.)-np.log(waveInRed-dLIn/2.)
+        dLIn1 = np.log(waveInRed+dLIn/2.)-np.log(waveInRed-dLIn/2.)
 
         lineName = str(lineInfo['Name'][ii])+str(int(lineInfo['Wave'][ii]))
         if '[' in lineName:
@@ -99,7 +99,7 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
                 centroidToT = np.divide(np.sum([np.multiply(centroidG1Lambda,ampG1)+np.multiply(centroidG2Lambda,ampG2)]),
                     np.sum([ampG1,ampG2]))            
             elif modName=='g1':
-                cencentroidToT = lines['g1_Centre_'+str(lineNameID)][indexCentroid]
+                centroidToT = lines['g1_Centre_'+str(lineNameID)][indexCentroid]
 
             sigmaCen['centroid_'+lineName][indexCentroid] = cvP.lambdaVRad(centroidToT,lambdaRest)
             sigmaCen['logCentroid_'+lineName][indexCentroid] =  np.log10(sigmaCen['centroid_'+lineName][indexCentroid])
@@ -126,7 +126,8 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
             #    np.exp(wave[indexWaveRight]),waveDist)
 
             sigmaLambda50 = waveDist50/(2*np.sqrt(2*np.log(2)))
-            sigmaInt50 = np.sqrt(np.power(sigmaLambda50,2)-np.power(dLIn1,2))    
+            sigmaInt50 = np.sqrt(np.power(sigmaLambda50,2)-np.power(dLIn1,2)) 
+
             width80 = np.sqrt(np.power(waveDist80,2)-np.power(dLIn1,2))    
             sigmaCen['sigma_'+lineName][indexCentroid] =  cvP.lambdaVRad(lambdaRest+sigmaInt50,lambdaRest)
             sigmaCen['logSigma_'+lineName][indexCentroid] =  np.log10(sigmaCen['sigma_'+lineName][indexCentroid])
