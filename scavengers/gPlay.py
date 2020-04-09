@@ -118,20 +118,20 @@ class gplay(object):
 
             gauss1 = GaussianModel(prefix='g1ln'+str(i)+'_')
 
-            sigmaIn1 = lineInfo['deltaSigmaAng_In1'][i]
-            ampIn1 = np.max(y[indexMin:indexMax])*max(2.220446049250313e-16, sigmaIn1)/0.3989423
+            sigmaMin = lineInfo['deltaSigmaAng_Min'][i]
+            sigmaMax = lineInfo['deltaSigmaAng_Max'][i]
+
+            ampIn1 = np.max(y[indexMin:indexMax])*max(2.220446049250313e-16, sigmaMin)/0.3989423
             smallWave = wave[indexMin:indexMax]
             cenIn1 = smallWave[np.argmax(y[indexMin:indexMax])]
 
             if i == 0:
 
                 pars = gauss1.make_params()
-                print(dLIn,sigmaIn1)
                 pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
-                pars.add(name = 'g1intln'+str(i), value=dLIn,vary=True,min=sigmaIn1)
+                pars.add(name = 'g1intln'+str(i), value=sigmaMin*5.,vary=True,min=sigmaMin,max=sigmaMax)
                     
                 pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
-                print(pars['g1ln'+str(i)+'_'+'sigma'].value)
                 pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,
                 min=waveAmpIn1Min,max=waveAmpIn1Max,vary=True)
 
@@ -187,8 +187,8 @@ class gplay(object):
                     #pars.add(name = 'g1intln'+str(i), value=sigmaIn1,
                     #min=sigmaIn1/10.,max=sigmaIn1*10.,vary=True)
                     #pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
-                    pars['g1ln'+str(i)+'_'+'sigma'].set(value=sigmaIn1,
-                        min=sigmaIn1,max=sigmaIn1*100.,vary=True)    
+                    pars['g1ln'+str(i)+'_'+'sigma'].set(value=sigmaMin*5,
+                        min=sigmaMin,max=sigmaMax,vary=True)    
 
                 mod += gauss1            
             
@@ -208,8 +208,8 @@ class gplay(object):
                     sigmaIn2 = pars['g1ln'+str(i)+'_'+'sigma'] +lineInfo['deltaSigmaAng_12'][i]
                     sigmaMin = pars['g1ln'+str(i)+'_'+'sigma']
                 #    pars['g2ln'+str(i)+'_'+'sigma'].set(value=sigmaIn2,min=sigmaIn2/5.,max=sigmaIn2*5.)
-                    pars.add('g2intln'+str(i), value=sigmaIn1*3.,
-                    min=sigmaIn1*3.,vary=True)
+                    pars.add('g2intln'+str(i), value=sigmaMin*5,
+                        min=sigmaMin*1.00001,vary=True,max=sigmaMax)
                     pars['g2ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g2intln'+str(i)+',2))')
 
                     pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,

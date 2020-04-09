@@ -230,8 +230,10 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
 
         gauss1 = GaussianModel(prefix='g1ln'+str(i)+'_')
 
-        sigmaIn1 = lineInfo['deltaSigmaAng_In1'][i]
-        ampIn1 = np.max(y[indexMin:indexMax])*max(2.220446049250313e-16, sigmaIn1)/0.3989423
+        sigmaMin = lineInfo['deltaSigmaAng_Min'][i]
+        sigmaMax = lineInfo['deltaSigmaAng_Max'][i]
+
+        ampIn1 = np.max(y[indexMin:indexMax])*max(2.220446049250313e-16, sigmaInMin)/0.3989423
         smallWave = wave[indexMin:indexMax]
         cenIn1 = smallWave[np.argmax(y[indexMin:indexMax])]
 
@@ -242,9 +244,9 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
             pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
             
             if gName=='g1':
-                pars.add(name = 'g1intln'+str(i), value=sigmaIn1,vary=True,min=sigmaIn1)
+                pars.add(name = 'g1intln'+str(i), value=sigmaMin*5.,vary=True,min=sigmaMin,max=sigmaMax)
             else:
-                pars.add(name = 'g1intln'+str(i), value=dLIn,vary=True,min=sigmaIn1)
+                pars.add(name = 'g1intln'+str(i), value=dLIn,vary=True,min=sigmaMin)
 
             pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
             pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,
@@ -279,8 +281,8 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
                 pars.add(name = 'g1intln'+str(i), expr='g1intln'+str(0))  
                 pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
             else:
-                pars['g1ln'+str(i)+'_'+'sigma'].set(value=sigmaIn1,
-                    min=sigmaIn1,max=sigmaIn1*100.,vary=True)    
+                pars['g1ln'+str(i)+'_'+'sigma'].set(value=sigmaMin,
+                    min=sigmaMin,max=sigmaMax,vary=True)    
 
             mod += gauss1            
         
@@ -298,7 +300,7 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
                 sigmaIn2 = pars['g1ln'+str(i)+'_'+'sigma'] +lineInfo['deltaSigmaAng_12'][i]
             #    pars['g2ln'+str(i)+'_'+'sigma'].set(value=sigmaIn2,min=sigmaIn2/5.,max=sigmaIn2*5.)
                 pars.add('g2intln'+str(i), value=dLIn,
-                min=sigmaIn1*1.00001,vary=True)
+                min=sigmaMin*1.00001,vary=True,max=sigmaMax)
                 pars['g2ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g2intln'+str(i)+',2))')
 
                 pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,

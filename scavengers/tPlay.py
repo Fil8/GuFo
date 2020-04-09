@@ -41,7 +41,8 @@ class tplay(object):
         lineInfo.remove_rows(list(fltr))
 
         lenTable = len(lineInfo['ID'])
-        dltSigmaIn1Ang = np.zeros([lenTable])
+        dltSigmaMinAng = np.zeros([lenTable])
+        dltSigmaMaxAng = np.zeros([lenTable])
 
         dltV12Ang = np.zeros([lenTable])
         dltSigma12Ang = np.zeros([lenTable])
@@ -70,9 +71,12 @@ class tplay(object):
             deltaV13 -= np.log(lambdaRest)
 
 
-            deltaSigmaIn1 = np.log(cvP.vRadLambda(cfg_par['gFit']['sigmaIn1'],
+            deltaSigmaMin = np.log(cvP.vRadLambda(cfg_par['gFit']['sigmaMin'],
                 lambdaRest))
-            deltaSigmaIn1 -= np.log(lambdaRest)            
+            deltaSigmaMin -= np.log(lambdaRest)   
+            deltaSigmaMax = np.log(cvP.vRadLambda(cfg_par['gFit']['sigmaMax'],
+                lambdaRest))
+            deltaSigmaMax -= np.log(lambdaRest)            
             deltaSigma12 = np.log(cvP.vRadLambda(cfg_par['gFit']['dltSigma12'],
                 lambdaRest))
             deltaSigma12 -=  np.log(lambdaRest)
@@ -81,7 +85,9 @@ class tplay(object):
             deltaSigma13 -= np.log(lambdaRest)
 
 
-            dltSigmaIn1Ang[i] = deltaSigmaIn1
+            dltSigmaMinAng[i] = deltaSigmaMin
+            dltSigmaMaxAng[i] = deltaSigmaMax
+
             dltV12Ang[i] = deltaV12            
             dltSigma12Ang[i] = deltaSigma12
             dltV13Ang[i] = deltaV13
@@ -89,7 +95,8 @@ class tplay(object):
 
             #ampThresh[i] = lineInfo['ampThresh'][i]
 
-        dltSigmaIn1Col = Column(name='deltaSigmaAng_In1', data=dltSigmaIn1Ang)        
+        dltSigmaMinCol = Column(name='deltaSigmaAng_Min', data=dltSigmaMinAng)        
+        dltSigmaMaxCol = Column(name='deltaSigmaAng_Max', data=dltSigmaMaxAng)        
         dltV12Col = Column(name='deltaVAng_12', data=dltV12Ang)
         dltSigma12Col = Column(name='deltaSigmaAng_12', data=dltSigma12Ang)
         dltV13Col = Column(name='deltaVAng_13', data=dltV13Ang)
@@ -99,7 +106,8 @@ class tplay(object):
         #ampThreshCol = Column(name='ampThresh', data=ampThresh)
 
 
-        lineInfo.add_column(dltSigmaIn1Col)
+        lineInfo.add_column(dltSigmaMinCol)
+        lineInfo.add_column(dltSigmaMaxCol)
         lineInfo.add_column(dltV12Col)
         lineInfo.add_column(dltSigma12Col)
         lineInfo.add_column(dltV13Col)
