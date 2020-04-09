@@ -586,7 +586,7 @@ class gplay(object):
             print('''\t+---------+\n\t ...fitting...\n\t+---------+''')
             gMod,gPars = self.lineModDef(cfg_par,waveCut,y,lineInfo)
             result = gMod.fit(y, gPars, x=waveCut)
-            #print(result.fit_report())
+            print(result.fit_report())
             save_modelresult(result, cfg_par['general']['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
         
         cfg_par['gPlot']['loadModel'] = True
