@@ -553,7 +553,7 @@ class momplay:
 
             resNameOutAbs =resModDir+'resAbs_'+lineName+'.fits'
             resNameOutStd =resModDir+'resStd_'+lineName+'.fits'
-            noiseNameLineOut =noiseDir+'noise_'+lineName+'.fits'
+            noiseNameLine =noiseDir+'noise_'+lineName+'.fits'
    
 
             for i in range(0,len(lines['BIN_ID'])):
@@ -655,7 +655,7 @@ class momplay:
             fits.writeto(resNameOutStd,resG1Std,resHead,overwrite=True)
             
             if cfg_par['residuals']['computeNoise']==True:
-                fits.writeto(noiseLineName,noiseline,resHead,overwrite=True)
+                fits.writeto(noiseNameLine,noiseline,resHead,overwrite=True)
                 if ii==0:
                     fits.writeto(noiseMapName,noiseMap,resHead,overwrite=True)
 
