@@ -643,7 +643,7 @@ class momplay:
                     resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
                     
                     if cfg_par['residuals']['computeNoise']==True:
-                        noise = np.nanstd(np.concatenate([y[idxLeftLeftNoise:idxLeftNoise],y[idxRightNoise:idxRightRightNoise]]))*amp
+                        noise = np.nanstd(np.concatenate([y[idxLeftLeftNoise:idxLeftNoise],y[idxRightNoise:idxRightRightNoise]]))
                         noiseLine[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noise
 
                         if ii==0: 
