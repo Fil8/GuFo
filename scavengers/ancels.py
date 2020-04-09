@@ -56,8 +56,9 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
 
         waveInRed = cfg_par['general']['redshift']*lambdaRest+lambdaRest
         indexWaveInRed = int(np.where(abs(np.exp(wave)-waveInRed)==abs(np.exp(wave)-waveInRed).min())[0])
-        dLIn1 = dLambda[indexWaveInRed]  
-        
+        dLIn = dLambda[indexWaveInRed]  
+        dLIn = np.log(waveInRed+dLIn/2.)-np.log(waveInRed-dLIn/2.)
+
         lineName = str(lineInfo['Name'][ii])+str(int(lineInfo['Wave'][ii]))
         if '[' in lineName:
             lineName = lineName.replace("[", "")
