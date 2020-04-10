@@ -258,6 +258,7 @@ class momplay:
         mom0G1 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         mom1G1 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         mom2G1 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
+        heightG1 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
 
         if doBinMap==True:
             binMap = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
@@ -298,6 +299,7 @@ class momplay:
 #                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Height_'+lineName][i]/tabGen['NSPAX'][index]
                     mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
                     mom2G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_SigIntr_'+lineName][i]
+                    heightG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Height_'+lineName][i]                
 
                     if doBinMap==True:
                         binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
@@ -334,6 +336,7 @@ class momplay:
         mom0Head['SPECSYS'] = 'topocent'
         mom0Head['BUNIT'] = 'Jy/beam.km/s'
         fits.writeto(momModDir+'mom0_g1-'+lineName+'.fits',mom0G1,mom0Head,overwrite=True)
+        fits.writeto(momModDir+'height_g1-'+lineName+'.fits',heightG1,mom0Head,overwrite=True)
         
         mPl.mom0Plot(cfg_par, momModDir+'mom0_g1-'+lineName+'.fits',lineName,lineNameStr,lineThresh)
 
@@ -416,6 +419,7 @@ class momplay:
         tabGen = hduGen[1].data
 
         resG1 = np.zeros([resHead['NAXIS3'],resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+        fitCube = np.zeros([resHead['NAXIS3'],resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
     
 
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
@@ -443,9 +447,10 @@ class momplay:
 
             for index in match_bin:
                 yy = dd[idxMin:idxMax,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                fit = result.best_fit
                 residuals = result.best_fit-yy
                 resG1[idxMin:idxMax,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = residuals
-
+                fitCube[idxMin:idxMax,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit
 
         resHead['SPECSYS'] = 'topocent'
         resHead['BUNIT'] = 'Flux'
@@ -482,6 +487,7 @@ class momplay:
         resModDir = cfg_par['general']['resDir']+modName+'/'
         noiseDir = cfg_par['general']['noiseDir']
         resName = resModDir+'resAllLines_'+modName+'.fits'
+        fitCubeName = cubeDir+'fitCube_'+modName+'.fits'
 
         if not os.path.exists(resName):
             self.resCube(cfg_par)
@@ -505,11 +511,12 @@ class momplay:
             del resHead['NAXIS3']
         if 'CRDER3'in resHead:
             del resHead['CRDER3']
-        f = fits.open(cfg_par['general']['outVorLines'])
-        dd = f[0].data        \
         
 
-        # to implement to compute noise while computing residuals
+        f = fits.open(cfg_par['general']['outVorLines'])
+        dd = f[0].data
+        
+        #to load Voronoi Bin noise : noiseBin
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
             cfg_par['general']['outVorSpectra'])
 
@@ -517,11 +524,12 @@ class momplay:
         dd = f[0].data
         header = f[0].header
 
-
-
-
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
+
+        resNameList=['BIN_ID']
+        frmList=['i4']
+        tot = lines['BIN_ID']
 
         hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
@@ -534,10 +542,16 @@ class momplay:
         specExp = tab[2].data
         wave = [item for t in specExp for item in t] 
         
-        noiseMapName =resModDir+'noiseMap.fits'
+        noiseMapName =noiseDir+'noiseMap.fits'
         noiseMap = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
 
         for ii in range(0,len(lineInfo['ID'])):
+            
+            stdArr = np.empty(len(lines['BIN_ID']))
+            noiseArr = np.empty(len(lines['BIN_ID']))
+            SNValues = np.empty(len(lines['BIN_ID']))
+            SNStdValues = np.empty(len(lines['BIN_ID']))
+
             lineName = str(lineInfo['Name'][ii])
             if '[' in lineName:
                 lineName = lineName.replace("[", "")
@@ -550,14 +564,21 @@ class momplay:
             resG1Abs = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
             resG1Std = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
             noiseLine = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+            SNLineMap = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+            SNStdLineMap = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+
 
             resNameOutAbs =resModDir+'resAbs_'+lineName+'.fits'
             resNameOutStd =resModDir+'resStd_'+lineName+'.fits'
             noiseNameLine =noiseDir+'noise_'+lineName+'.fits'
+            SNMapName =noiseDir+'SN_'+lineName+'.fits'
+            SNStdMapName =resModDir+'SNRes_'+lineName+'.fits'
    
-
             for i in range(0,len(lines['BIN_ID'])):
 
+            
+                #lineHeigth = np.max(y[indexMin:indexMax])    
+        
                 amp = lines['g1_Amp_'+lineName][i]
                 
                 cenKmsG1 = lines['g1_Centre_'+lineName][i]
@@ -571,9 +592,15 @@ class momplay:
                 rightG1 = np.log(cvP.vRadLambda(cenKmsG1+6.*sigKmsG1,lineInfo['Wave'][ii]))
 
                 idxLeft = int(np.where(abs(wave-leftG1)==abs(wave-leftG1).min())[0])
-
                 idxRight = int(np.where(abs(wave-rightG1)==abs(wave-rightG1).min())[0])
-            
+
+                #define interval where to measure maximum of real line from centroid of 1G-fit
+                peakLeft = np.log(cvP.vRadLambda(cenKmsG1-140.,lineInfo['Wave'][ii]))
+                peakRight = np.log(cvP.vRadLambda(cenKmsG1+140.,lineInfo['Wave'][ii]))
+
+                idxPeakLeft = int(np.where(abs(wave-peakLeft)==abs(wave-peakLeft).min())[0])
+                idxPeakRight = int(np.where(abs(wave-peakRight)==abs(wave-peakRight).min())[0])
+ 
                 if cfg_par['residuals']['computeNoise']==True:
             
                     leftNoise = np.log(lineInfo['Wave'][ii]-60.)
@@ -623,6 +650,8 @@ class momplay:
                     noiseValue = noiseBin[lines['BIN_ID'][i]][idxLeft]*amp
 
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
+
+
                 #result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
                 if idxRight-idxLeft <2.:
                     idxLeft-=4
@@ -637,25 +666,76 @@ class momplay:
                     #     thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
                     
                     # if thresHold >= lineThresh:
-                    resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0),amp)
-                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
+                    absValue = np.multiply(np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0),amp)
+                    stdValue = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
+
+                    resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = absValue
+                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = stdValue
                     
                     if cfg_par['residuals']['computeNoise']==True:
-                        noise = np.nanstd(np.concatenate([y[idxLeftLeftNoise:idxLeftNoise],y[idxRightNoise:idxRightRightNoise]]))*amp
+                        noise = np.nanstd(np.concatenate([y[idxLeftLeftNoise:idxLeftNoise],y[idxRightNoise:idxRightRightNoise]]))
+                        linePeak = np.max(y[idxPeakLeft:idxPeakRight])
+                        sn = np.divide(linePeak,noise)
+                        snStd = np.divide(linePeak,stdValue)
+
                         noiseLine[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noise
+
+                        SNLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = sn
+                        SNStdLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = snStd
+
 
                         if ii==0: 
                             noiseMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
+
+                stdArr[i] = stdValue
+                noiseArr[i] = noise
+                SNValues[i] = sn
+                SNStdValues[i] = snStd
+ 
+            tot = np.column_stack((tot,stdArr))
+            resNameList.append('res_'+lineName)
+            frmList.append('f8')
+
 
             resHead['WCSAXES'] = 2
                       
             fits.writeto(resNameOutAbs,resG1Abs,resHead,overwrite=True)
             fits.writeto(resNameOutStd,resG1Std,resHead,overwrite=True)
-            
+
             if cfg_par['residuals']['computeNoise']==True:
                 fits.writeto(noiseNameLine,noiseLine,resHead,overwrite=True)
+                fits.writeto(SNMapName,SNLineMap,resHead,overwrite=True)
+                fits.writeto(SNStdMapName,SNStdLineMap,resHead,overwrite=True)
+
+                tot = np.column_stack((tot,noiseArr))
+                resNameList.append('noise_'+lineName)
+                frmList.append('f8')
+
+                tot = np.column_stack((tot,SNValues))
+                resNameList.append('SN_'+lineName)
+                frmList.append('f8')
+                
+                tot = np.column_stack((tot,SNStdValues))
+                resNameList.append('snRes_'+lineName)
+                frmList.append('f8')
+
                 if ii==0:
                     fits.writeto(noiseMapName,noiseMap,resHead,overwrite=True)
+
+        t = Table(tot, names=(resNameList))
+        hdul.append(fits.BinTableHDU(t.as_array(), name='Residuals_'+modName))
+
+        try:
+            tt = Table(hdul['Residuals_'+modName].data)
+            hdul['Residuals_'+modName] = fits.BinTableHDU(tt.as_array(),name='Residuals_'+modName)
+
+        except KeyError as e:
+            tt=fits.BinTableHDU.from_columns(t.as_array(),name='Residuals_'+modName)   
+            hdul.append(tt)          
+        
+        hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
+
+
 
         return 0
 

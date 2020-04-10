@@ -119,7 +119,9 @@ class gplay(object):
             gauss1 = GaussianModel(prefix='g1ln'+str(i)+'_')
 
             sigmaMin = lineInfo['deltaSigmaAng_Min'][i]
-            sigmaMax = lineInfo['deltaSigmaAng_Max'][i]
+            sigmaMaxG1 = lineInfo['deltaSigmaAng_MaxG1'][i]
+            sigmaMaxG2 = lineInfo['deltaSigmaAng_MaxG2'][i]
+            sigmaMaxG3 = lineInfo['deltaSigmaAng_MaxG3'][i]
 
             ampIn1 = np.max(y[indexMin:indexMax])*max(2.220446049250313e-16, sigmaMin)/0.3989423
             smallWave = wave[indexMin:indexMax]
@@ -129,7 +131,7 @@ class gplay(object):
 
                 pars = gauss1.make_params()
                 pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
-                pars.add(name = 'g1intln'+str(i), value=sigmaMin*5.,vary=True,min=sigmaMin,max=sigmaMax)
+                pars.add(name = 'g1intln'+str(i), value=sigmaMin*5.,vary=True,min=sigmaMin,max=sigmaMaxG1)
                     
                 pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
                 pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,
@@ -188,7 +190,7 @@ class gplay(object):
                     #min=sigmaIn1/10.,max=sigmaIn1*10.,vary=True)
                     #pars['g1ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g1intln'+str(i)+',2))')
                     pars['g1ln'+str(i)+'_'+'sigma'].set(value=sigmaMin*5,
-                        min=sigmaMin,max=sigmaMax,vary=True)    
+                        min=sigmaMin,max=sigmaMaxG1,vary=True)    
 
                 mod += gauss1            
             
@@ -200,16 +202,16 @@ class gplay(object):
                 cenIn2Pos = cenIn1
 
                 ampIn2 = ampIn1*cfg_par['gFit']['dltAmp12']    
-                heightMax = pars['g1ln'+str(i)+'_'+'amplitude']*0.6
-                pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn2,min=0.0,vary=True)
-                #pars['g2ln'+str(i)+'_'+'height'].set(max=heightMax,vary=True)
+                heightMax = pars['g1ln'+str(i)+'_'+'amplitude']
+                pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn2,min=0.0,vary=True,max=None)
+                #pars['g2ln'+str(i)+'_'+'height'].set(value=1,min=10.0,max=heightMax,vary=True)
 
                 if i == 0:
                     sigmaIn2 = pars['g1ln'+str(i)+'_'+'sigma'] +lineInfo['deltaSigmaAng_12'][i]
                     sigmaMin = pars['g1ln'+str(i)+'_'+'sigma']
                 #    pars['g2ln'+str(i)+'_'+'sigma'].set(value=sigmaIn2,min=sigmaIn2/5.,max=sigmaIn2*5.)
                     pars.add('g2intln'+str(i), value=sigmaMin*5,
-                        min=sigmaMin*1.00001,vary=True,max=sigmaMax)
+                        min=pars['g1intln'+str(i)].value,vary=True,max=sigmaMaxG2)
                     pars['g2ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g2intln'+str(i)+',2))')
 
                     pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
@@ -284,7 +286,7 @@ class gplay(object):
                     
                     if i == 0:
                         sigmaIn3 = pars['g1ln'+str(i)+'_'+'sigma'] + lineInfo['deltaSigmaAng_13'][i]
-                        pars.add(name = 'g3intln'+str(i)+'_'+'sigma', value=sigmaIn1*4.,min=sigmaIn1*4.,vary=True)               
+                        pars.add(name = 'g3intln'+str(i)+'_'+'sigma', value=sigmaMin*6.,min=pars['g1intln'+str(i)].value,vary=True,max=sigmaMax*3)               
                         pars['g3ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g3intln'+str(i)+'_'+'sigma,2))')
                         #pars['g3ln'+str(i)+'_'+'sigma'].set(value=sigmaIn3,min=sigmaIn3/5.,max=sigmaIn3*5.)
                     

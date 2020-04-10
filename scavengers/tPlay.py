@@ -42,7 +42,9 @@ class tplay(object):
 
         lenTable = len(lineInfo['ID'])
         dltSigmaMinAng = np.zeros([lenTable])
-        dltSigmaMaxAng = np.zeros([lenTable])
+        dltSigmaMaxAngG1 = np.zeros([lenTable])
+        dltSigmaMaxAngG2 = np.zeros([lenTable])
+        dltSigmaMaxAngG3 = np.zeros([lenTable])
 
         dltV12Ang = np.zeros([lenTable])
         dltSigma12Ang = np.zeros([lenTable])
@@ -74,9 +76,16 @@ class tplay(object):
             deltaSigmaMin = np.log(cvP.vRadLambda(cfg_par['gFit']['sigmaMin'],
                 lambdaRest))
             deltaSigmaMin -= np.log(lambdaRest)   
-            deltaSigmaMax = np.log(cvP.vRadLambda(cfg_par['gFit']['sigmaMax'],
+            deltaSigmaMaxG1 = np.log(cvP.vRadLambda(cfg_par['gFit']['sigmaMaxG1'],
                 lambdaRest))
-            deltaSigmaMax -= np.log(lambdaRest)            
+            deltaSigmaMaxG1 -= np.log(lambdaRest)   
+            deltaSigmaMaxG2 = np.log(cvP.vRadLambda(cfg_par['gFit']['sigmaMaxG2'],
+                lambdaRest))
+            deltaSigmaMaxG2 -= np.log(lambdaRest)   
+            deltaSigmaMaxG3 = np.log(cvP.vRadLambda(cfg_par['gFit']['sigmaMaxG3'],
+                lambdaRest))
+            deltaSigmaMaxG3 -= np.log(lambdaRest)            
+            
             deltaSigma12 = np.log(cvP.vRadLambda(cfg_par['gFit']['dltSigma12'],
                 lambdaRest))
             deltaSigma12 -=  np.log(lambdaRest)
@@ -86,7 +95,9 @@ class tplay(object):
 
 
             dltSigmaMinAng[i] = deltaSigmaMin
-            dltSigmaMaxAng[i] = deltaSigmaMax
+            dltSigmaMaxAngG1[i] = deltaSigmaMaxG1
+            dltSigmaMaxAngG2[i] = deltaSigmaMaxG2
+            dltSigmaMaxAngG3[i] = deltaSigmaMaxG3
 
             dltV12Ang[i] = deltaV12            
             dltSigma12Ang[i] = deltaSigma12
@@ -96,7 +107,10 @@ class tplay(object):
             #ampThresh[i] = lineInfo['ampThresh'][i]
 
         dltSigmaMinCol = Column(name='deltaSigmaAng_Min', data=dltSigmaMinAng)        
-        dltSigmaMaxCol = Column(name='deltaSigmaAng_Max', data=dltSigmaMaxAng)        
+        dltSigmaMaxColG1 = Column(name='deltaSigmaAng_MaxG1', data=dltSigmaMaxAngG1)        
+        dltSigmaMaxColG2 = Column(name='deltaSigmaAng_MaxG2', data=dltSigmaMaxAngG2)        
+        dltSigmaMaxColG3 = Column(name='deltaSigmaAng_MaxG3', data=dltSigmaMaxAngG3)        
+
         dltV12Col = Column(name='deltaVAng_12', data=dltV12Ang)
         dltSigma12Col = Column(name='deltaSigmaAng_12', data=dltSigma12Ang)
         dltV13Col = Column(name='deltaVAng_13', data=dltV13Ang)
@@ -107,7 +121,10 @@ class tplay(object):
 
 
         lineInfo.add_column(dltSigmaMinCol)
-        lineInfo.add_column(dltSigmaMaxCol)
+        lineInfo.add_column(dltSigmaMaxColG1)
+        lineInfo.add_column(dltSigmaMaxColG2)
+        lineInfo.add_column(dltSigmaMaxColG3)
+
         lineInfo.add_column(dltV12Col)
         lineInfo.add_column(dltSigma12Col)
         lineInfo.add_column(dltV13Col)
