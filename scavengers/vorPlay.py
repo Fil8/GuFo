@@ -126,6 +126,7 @@ class vorplay(object):
                     stdLeft[j,i] = np.nanstd(dd[idxWaveLeftInf:idxWaveLeftSup,j,i])
                     stdRight[j,i] =np.nanstd(dd[idxWaveRightInf:idxWaveRightSup,j,i])
                     noise[j,i] = np.divide(np.nansum([stdLeft[j,i], stdRight[j,i]]),2.)       
+                    noise[j,i] = stdRigth[j,i]
                     noise[j,i] = np.multiply(noise[j,i],np.sqrt(indexMax-indexMin))
         
         snr = np.divide(peak,noise)

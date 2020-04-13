@@ -61,19 +61,23 @@ class cubeplay:
         cubeletsDir = cfg_par['general']['cubeletsDir']
         cubeDir = cfg_par['general']['cubeDir']
         modName = cfg_par['gFit']['modName']
-        momModDir = cfg_par['gFit']['modName']
+        momDir = cfg_par['general']['momDir']
 
         if cfg_par['cubelets']['cube'] == 'vorLine': 
             f = fits.open(cfg_par['general']['dataCubeName'])
-            dd = f[0].data
-            hh = f[0].header
+
 
         elif cfg_par['cubelets']['cube'] == 'fitLine': 
             f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
-            mom = fits.open(momModDir+'mom0_OIII5006.fits')
+            dd = f[0].data
+            hh = f[0].header
+            mom = fits.open(momDir+'g1/mom0_g1-OIII5006.fits')
             mm=mom[0].data
-            indexFltr = np.where(mm==np.nan)
-            dd=dd[:,[indexFltr]]
+            print(mm)
+            indexFltr = np.broadcast_to(np.isnan(mm), dd.shape)
+            print(indexFltr.shape)
+            dd[indexFltr] = np.nan
+            print(dd.shape)
 
         else:
             f = fits.open(cubeDir+cfg_par['cubelets']['cube'])
