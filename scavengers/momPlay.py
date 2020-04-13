@@ -247,6 +247,7 @@ class momplay:
         hdul = fits.open(cfg_par['general']['outTableName'])
 
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
+        residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
         
 
         hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
@@ -282,7 +283,7 @@ class momplay:
             for index in match_bin:
                 
                 if modName=='g1':
-                    thresHold = lines['g1_Amp_Hb4861'][i]/tabGen['NSPAX'][index]
+                    thresHold = residuals['SN_OIII5006']
                     ampSpax[index] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]                   
                 elif modName=='g2':
                     thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
@@ -433,11 +434,11 @@ class momplay:
         idxMin = int(np.where(abs(wave-lambdaMin)==abs(wave-lambdaMin).min())[0]) 
         idxMax = int(np.where(abs(wave-lambdaMax)==abs(wave-lambdaMax).min())[0])
         
-        if modName != 'g1':
-            resTot = np.zeros([resHead['NAXIS3'],resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
-            resG2 = np.zeros([resHead['NAXIS3'],resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
-            if modName == 'g3':
-                res0G3 = np.zeros([resHead['NAXIS3'],resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+        # if modName != 'g1':
+        #     resTot = np.zeros([resHead['NAXIS3'],resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+        #     resG2 = np.zeros([resHead['NAXIS3'],resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+        #     if modName == 'g3':
+        #         res0G3 = np.zeros([resHead['NAXIS3'],resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
 
         for i in range(0,len(lines['BIN_ID'])):
 
@@ -454,7 +455,7 @@ class momplay:
 
         resHead['SPECSYS'] = 'topocent'
         resHead['BUNIT'] = 'Flux'
-        fits.writeto(resModDir+'resAllLines_'+modName+'.fits',resG1,resHead,overwrite=True)
+        fits.writeto(cubeDir+'resCube_'+modName+'.fits',resG1,resHead,overwrite=True)
         fits.writeto(cubeDir+'fitCube_'+modName+'.fits',fitCube,resHead,overwrite=True)
 
         return

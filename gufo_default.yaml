@@ -27,6 +27,8 @@ starSub:
   outputs: 'lines' #either 'all', 'stars', 'lines', 'data'
 vorBin:
   enable: False
+  line: 'OIII5006'
+  noiseInterval: '30,60'
   minSNR: 0.5
   method: 'sum' #either 'peak', 'mean', 'sum'
   snr: 7
