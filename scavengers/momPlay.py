@@ -248,8 +248,8 @@ class momplay:
 
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
-        
 
+        
         hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
 
@@ -265,6 +265,7 @@ class momplay:
             binMap = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         
         if modName != 'g1':
+            #ancels = hdul['Ancels_'+cfg_par['gFit']['modName']].data
             mom0Tot = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
             mom0G2 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
             mom1G2 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
@@ -281,16 +282,14 @@ class momplay:
 
             match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
             for index in match_bin:
+                thresHold = residuals['SN_OIII5006'][i]
+                sigmaThresh = lines['g1_SigIntr_OIII5006'][i]
                 
                 if modName=='g1':
-                    thresHold = residuals['SN_OIII5006'][i]
-                    sigmaThresh = lines['g1_SigIntr_OIII5006'][i]
                     ampSpax[index] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]                   
                 elif modName=='g2':
-                    thresHold = residuals['SN_OIII5006'][i]
                     ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]                   
                 elif modName=='g3':
-                    thresHold = residuals['SN_OIII5006'][i]
                     ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]  
 
                 #thresHold = lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]

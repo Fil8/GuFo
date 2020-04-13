@@ -82,8 +82,9 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
         index = np.where(tabGen['BIN_ID']==binID)[0]
         indexCentroid=np.where(lines['BIN_ID']==binID)[0]
         thresHold = residuals['SN_OIII5006'][indexCentroid]
+        sigmaThresh = lines['g1_sigIntr_OIII5006'][indexCentroid]
 
-        if thresHold >= lineThresh and amp!=0.0:
+        if thresHold >= lineThresh and amp!=0.0 and sigmaThresh < cfg_par['moments']['sigmaThresh']:
             tck = interpolate.splrep(wave[:-1], lineFit, s=0)
             waveNew = np.linspace(np.min(wave),np.max(wave),1e5)
             lineFit = interpolate.splev(waveNew, tck, der=0)
