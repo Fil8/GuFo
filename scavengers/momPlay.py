@@ -283,7 +283,7 @@ class momplay:
             for index in match_bin:
                 
                 if modName=='g1':
-                    thresHold = residuals['SN_OIII5006']
+                    thresHold = residuals['SN_OIII5006'][i]
                     ampSpax[index] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]                   
                 elif modName=='g2':
                     thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
