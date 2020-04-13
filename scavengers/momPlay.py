@@ -287,10 +287,10 @@ class momplay:
                     sigmaThresh = lines['g1_SigIntr_OIII5006'][i]
                     ampSpax[index] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]                   
                 elif modName=='g2':
-                    thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
+                    thresHold = residuals['SN_OIII5006'][i]
                     ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]                   
                 elif modName=='g3':
-                    thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
+                    thresHold = residuals['SN_OIII5006'][i]
                     ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]  
 
                 #thresHold = lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
