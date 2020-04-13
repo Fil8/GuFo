@@ -248,7 +248,7 @@ class momplay:
 
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
-
+        linesG1 = hdul['LineRes_G1'].data
         
         hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
@@ -283,7 +283,7 @@ class momplay:
             match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
             for index in match_bin:
                 thresHold = residuals['SN_OIII5006'][i]
-                sigmaThresh = lines['g1_SigIntr_OIII5006'][i]
+                sigmaThresh = linesG1['g1_SigIntr_OIII5006'][i]
                                   
                 if modName=='g2':
                     ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i])/tabGen['NSPAX'][index]                   

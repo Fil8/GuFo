@@ -65,7 +65,7 @@ class gufo(object):
             os.mkdir(cubeDir)
         self.cfg_par['general']['cubeDir'] = cubeDir
  
-        cubeletsDir = self.cfg_par['general']['runNameDir']+'cubelets/'
+        cubeletsDir = self.cfg_par['general']['cubeDir']+'cubelets/'
         if not os.path.exists(cubeletsDir):
             os.mkdir(cubeletsDir)
         self.cfg_par['general']['cubeletsDir'] = cubeletsDir
