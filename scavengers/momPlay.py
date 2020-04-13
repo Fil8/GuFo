@@ -296,7 +296,7 @@ class momplay:
                 #thresHold = lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
                 #print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
                 #print(thresHold,lineThresh)
-                if thresHold >= lineThresh and sigmaThresh < 600:
+                if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
                     mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[index]
 #                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Height_'+lineName][i]/tabGen['NSPAX'][index]
                     mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
