@@ -25,7 +25,7 @@ import tPlay,cvPlay
 tP = tPlay.tplay()
 cvP = cvPlay.convert()
 
-def workerAncels(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,tabGen,rank,nprocs):
+def workerAncels(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,tabGen,residuals,rank,nprocs):
 
  
     counter = 0
@@ -35,7 +35,7 @@ def workerAncels(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,tabGen,rank,nprocs
     #for ii in range(rank,80, nprocs):
         binID = ubins[ii]
 
-        counter,sigmaCen = widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tabGen)
+        counter,sigmaCen = widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tabGen,residuals)
     
 
     match_indices = np.where(sigmaCen['BIN_ID'] == 0.0)[0]
