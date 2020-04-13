@@ -455,6 +455,7 @@ class momplay:
         resHead['SPECSYS'] = 'topocent'
         resHead['BUNIT'] = 'Flux'
         fits.writeto(resModDir+'resAllLines_'+modName+'.fits',resG1,resHead,overwrite=True)
+        fits.writeto(cubeDir+'fitCube_'+modName+'.fits',fitCube,resHead,overwrite=True)
 
         return
 
