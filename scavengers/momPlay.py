@@ -284,6 +284,7 @@ class momplay:
                 
                 if modName=='g1':
                     thresHold = residuals['SN_OIII5006'][i]
+                    sigmaThresh = lines['g1_SigmaIntr_OIII5006'][i]
                     ampSpax[index] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]                   
                 elif modName=='g2':
                     thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
@@ -295,7 +296,7 @@ class momplay:
                 #thresHold = lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
                 #print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
                 #print(thresHold,lineThresh)
-                if thresHold >= lineThresh:
+                if thresHold >= lineThresh and sigmaThresh < 600:
                     mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[index]
 #                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Height_'+lineName][i]/tabGen['NSPAX'][index]
                     mom1G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Centre_'+lineName][i]
