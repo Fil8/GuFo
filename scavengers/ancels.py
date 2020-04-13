@@ -44,7 +44,7 @@ def workerAncels(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,tabGen,rank,nprocs
     return sigmaCen  
     
 
-def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tabGen):
+def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tabGen,residuals):
 
     #tt=Table([lines['BIN_ID']])
     modName = cfg_par['gFit']['modName']
@@ -171,7 +171,8 @@ def main(cfg_par):
 
     hdul = fits.open(cfg_par['general']['outTableName'])
     lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data 
-
+    residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data 
+    
     dLambda = cvP.specRes(cfg_par)
 
     hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
@@ -214,7 +215,7 @@ def main(cfg_par):
         else:
             nprocs = mp.cpu_count()
 
-        inputs = [(cfg_par,lines,wave,lineInfo,dLambda,sigmaCenArr,tabGen,rank, nprocs) for rank in range(nprocs)]
+        inputs = [(cfg_par,lines,wave,lineInfo,dLambda,sigmaCenArr,tabGen,residuals,rank, nprocs) for rank in range(nprocs)]
 
         pool = mp.Pool(processes=nprocs)
         multi_result = [pool.apply_async(workerAncels, args=(inp)) for inp in inputs]        
