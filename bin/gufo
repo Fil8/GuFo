@@ -6,7 +6,7 @@ import logging
 import time
 
 import gufo
-from scavengers import gPlay, starSub, momPlay, tPlay
+from scavengers import gPlay, starSub, momPlay, tPlay, cubePlay
 from scavengers import gPlayMp, bptPlot, vorPlay, ancels
 from scavengers import util as pretty
 
@@ -26,6 +26,7 @@ gp = gPlay.gplay()
 ss = starSub.starsub()
 mom = momPlay.momplay()
 tP = tPlay.tplay()
+cP = cubePlay.cubeplay()
 bpt = bptPlot.BPTplot()
 vor = vorPlay.vorplay()
 
@@ -65,6 +66,7 @@ def outFunction ():
     gufo -gPs -bin <binNum>\t-c  <configFileName> -dF\tdo fit for binNum with specs from configFile
     gufo -mom\t\t-c  <configFileName>\tmake moment maps of fitted lines
     gufo -momPl\t\t-c  <configFileName>\t plot moment maps from fits files
+    gufo -cBl\t\t-c  <configFileName>\t make cubelets of chosen lines
     gufo -res\t\t-c  <configFileName>\tmake residual maps for each fitted line
     gufo -lr\t\t-c  <configFileName>\testimate lineRatios, make lineRatio maps and BPT plots of fitted lines
     gufo -clT\t\t-c  <configFileName>\tclean table leaving only fit results
@@ -158,6 +160,10 @@ def main (argv):
         action='store_true',
         help= 'tool to draw BPT maps')
  
+    add('-cBl', '--cubelets',
+        action='store_true',
+        help= 'make cubelets of chosen lines')
+
     add('-cD', '--cDist',
         action='store_true',
         help= 'compute and plot eta-parameter')
@@ -324,6 +330,17 @@ def main (argv):
         mom.resLines(gPar.cfg_par)
         timeRes = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeRes))
+
+    if args.cubelets or gPar.cfg_par['cubelets'].get('enable',False) == True:
+        time_start_load = time.time()
+        print('\n\t +---------+\t\t    cubelets\t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        #gPar.cfg_par['general']['cleanTable'] = True
+        #tP.cleanTable(gPar.cfg_par)        
+        cP.makeLineCubes(gPar.cfg_par)
+        #gPar.cfg_par['general']['cleanTable'] = False
+        timeMom = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))
 
 
     if args.ancillaryInfo or gPar.cfg_par['ancillary'].get('enable',False) == True:
