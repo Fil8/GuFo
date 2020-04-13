@@ -489,7 +489,7 @@ class momplay:
         modName = cfg_par['gFit']['modName']
         resModDir = cfg_par['general']['resDir']+modName+'/'
         noiseDir = cfg_par['general']['noiseDir']
-        resName = resModDir+'resAllLines_'+modName+'.fits'
+        resName = cubeDir+'resCube_'+modName+'.fits'
         fitCubeName = cubeDir+'fitCube_'+modName+'.fits'
 
         if not os.path.exists(resName):
