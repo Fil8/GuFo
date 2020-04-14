@@ -399,15 +399,15 @@ class BPTplot(object):
         lineInfo = tP.openLineList(cfg_par)
         lineThresh = float(lineInfo['SNThresh'][2])
 
-        sn = resTable['SN_OIII5006']
-        idx  = np.where(sn<=lineThresh)
+        #sn = resTable['SN_OIII5006']
+        #idx  = np.where(sn<=lineThresh)
 
-        hduIm.data[idx] = np.nan 
+        #hduIm.data[idx] = np.nan 
 
-        sigmaThresh = sigmaTable['g1_SigIntr_OIII5006']
-        idx  = np.where(sigmaThresh>=cfg_par['moments']['sigmaThresh'])
+        #sigmaThresh = sigmaTable['g1_SigIntr_OIII5006']
+        #idx  = np.where(sigmaThresh>=cfg_par['moments']['sigmaThresh'])
 
-        hduIm.data[idx] = np.nan 
+        #hduIm.data[idx] = np.nan 
         
         objCoordsRA = cfg_par['moments']['centreRA']
         objCoordsDec = cfg_par['moments']['centreDec']
