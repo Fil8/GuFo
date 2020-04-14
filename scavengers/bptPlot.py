@@ -389,14 +389,25 @@ class BPTplot(object):
             cBarTickLabels = ['bad fit','SF','AGN','LINER']
 
         hdul = fits.open(cfg_par['general']['outTableName'])
-        ampTable = hdul['LineRes_'+cfg_par['gFit']['modName']].data
-        
+        resTable = hdul['Residuals_'+cfg_par['gFit']['modName']].data
+        sigmaTable = hdul['LineRes_'+cfg_par['gFit']['modName']].data
+
+
+        hduIm = fits.open(outBPT)[0]
+        wcsIm = WCS(hduIm.header)
+
         lineInfo = tP.openLineList(cfg_par)
-        lineThresh = float(lineInfo['SNThresh'][0])
+        lineThresh = float(lineInfo['SNThresh'][2])
 
-        amps = ampTable[cfg_par['gFit']['modName']+'-AmpSpax'+'_Hb4861']
-        idx  = np.where(amps>=lineThresh)
+        sn = resTable['SN_OIII5006']
+        idx  = np.where(sn<=lineThresh)
 
+        hduIm.data[idx] = np.nan 
+
+        sigmaThresh = sigmaTable['g1_SigIntr_OIII5006']
+        idx  = np.where(sigmaThresh<=cfg_par['moments']['sigmaThresh'])
+
+        hduIm.data[idx] = np.nan 
         
         objCoordsRA = cfg_par['moments']['centreRA']
         objCoordsDec = cfg_par['moments']['centreDec']
@@ -408,10 +419,6 @@ class BPTplot(object):
         plt.rcParams.update(params)
 
 
-        hduIm = fits.open(outBPT)[0]
-        wcsIm = WCS(hduIm.header)
-
-        hduIm.data[idx] = np.nan
         
         hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsIm)
         
