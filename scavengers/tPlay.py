@@ -665,7 +665,7 @@ class tplay(object):
         lineNameID = np.array(lineNameID)
        
 
-        index = np.where(threshold<=lineThresh)
+        index = np.where(thresHold<=lineThresh)
 
         indexSigma = np.where(sigmaThresh<=cfg_par['moments']['sigmaThresh'])
 
