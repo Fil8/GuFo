@@ -79,8 +79,16 @@ class cubeplay:
             dd[indexFltr] = np.nan
             print(dd.shape)
 
+        elif cfg_par['cubelets']['cube'] == 'residuals':
+            f = fits.open(cubeDir+'resCube_'+modName+'.fits')
+            dd = f[0].data
+            hh = f[0].header
+            mom = fits.open(momDir+'g1/mom0_g1-OIII5006.fits')
+            mm=mom[0].data
+            indexFltr = np.broadcast_to(np.isnan(mm), dd.shape)
+            dd[indexFltr] = np.nan
         else:
-            f = fits.open(cubeDir+cfg_par['cubelets']['cube'])
+            f = fits.open(cfg_par['general']['outLines'])
             dd = f[0].data
             hh = f[0].header
 
@@ -133,7 +141,9 @@ class cubeplay:
             if cfg_par['cubelets']['cube'] == 'vorLine': 
                 outCubelet = cubeletsDir+str(lineNameStr)+'_measVor.fits'
             elif cfg_par['cubelets']['cube'] == 'fitLine': 
-                outCubelet = cubeletsDir+str(lineNameStr)+'_fit.fits'          
+                outCubelet = cubeletsDir+str(lineNameStr)+'_fit'+modName+'.fits'   
+            elif cfg_par['cubelets']['cube'] == 'residuals':        
+                outCubelet = cubeletsDir+str(lineNameStr)+'_res'+modName+'.fits'        
             else:
                 outCubelet = cubeletsDir+str(lineNameStr)+'_meas.fits'
 

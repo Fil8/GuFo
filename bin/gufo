@@ -336,8 +336,18 @@ def main (argv):
         print('\n\t +---------+\t\t    cubelets\t\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
         #gPar.cfg_par['general']['cleanTable'] = True
-        #tP.cleanTable(gPar.cfg_par)        
-        cP.makeLineCubes(gPar.cfg_par)
+        #tP.cleanTable(gPar.cfg_par)  
+        if gPar.cfg_par['cubelets']['cube']=='all':
+            gPar.cfg_par['cubelets']['cubes'] = 'vorLine'
+            cP.makeLineCubes(gPar.cfg_par)
+            gPar.cfg_par['cubelets']['cube'] = 'residuals'
+            cP.makeLineCubes(gPar.cfg_par)
+            gPar.cfg_par['cubelets']['cube'] = 'fitLine'
+            cP.makeLineCubes(gPar.cfg_par)
+            gPar.cfg_par['cubelets']['cube'] = 'cubes'
+            cP.makeLineCubes(gPar.cfg_par)
+        else:
+            cP.makeLineCubes(gPar.cfg_par)            
         #gPar.cfg_par['general']['cleanTable'] = False
         timeMom = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))
