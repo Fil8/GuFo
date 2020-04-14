@@ -172,8 +172,6 @@ class BPTplot(object):
         lineBPT = hdul['BPT_'+cfg_par['gFit']['modName']].data
         lineRatios = hdul['LineRatios_'+cfg_par['gFit']['modName']].data
 
-        ampTable = hdul['LineRes_'+cfg_par['gFit']['modName']].data
-        amps = ampTable[cfg_par['gFit']['modName']+'-AmpSpax'+'_Hb4861']
 
         # lineInfo = tP.openLineList(cfg_par)
         # lineThresh = float(lineInfo['SNThresh'][0])

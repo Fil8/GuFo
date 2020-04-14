@@ -665,20 +665,20 @@ class tplay(object):
         lineNameID = np.array(lineNameID)
        
 
-        index = np.where(thresHold<=lineThresh)
-
-        indexSigma = np.where(sigmaThresh<=cfg_par['moments']['sigmaThresh'])
+        index = np.where(thresHold<=lineThresh)[0]
+        indexSigma = np.where(sigmaThresh>cfg_par['moments']['sigmaThresh'])
 
         if 'OIII5006' in lineNameID and 'Hb4861' in lineNameID:
             
-            lines['g1_Amp_'+'OIII5006'][index] = np.nan
-            lines['g1_Amp_'+'OIII5006'][indexSigma] = np.nan
+            oIII = np.copy(lines['g1_Amp_'+'OIII5006'])
+            oIII[index] = np.nan
+            oIII[indexSigma] = np.nan
 
-            lines['g1_Amp_'+'Hb4861'][index] = np.nan
-            lines['g1_Amp_'+'Hb4861'][indexSigma] = np.nan
+            hBeta = np.copy(lines['g1_Amp_'+'Hb4861'])
+            hBeta[index] = np.nan
+            hBeta[indexSigma] = np.nan
             
-
-            lrOHbG1 = np.divide(lines['g1_Amp_'+'OIII5006'],lines['g1_Amp_'+'Hb4861'])
+            lrOHbG1 = np.divide(oIII,hBeta)
             logOHbG1 = np.log10(lrOHbG1)
 
             tot = np.column_stack((tot,lrOHbG1,logOHbG1))
@@ -692,13 +692,15 @@ class tplay(object):
 
         if 'NII6583' in lineNameID and 'Ha6562' in lineNameID:
             
-            lines['g1_Amp_'+'NII6583'][index]=np.nan
-            lines['g1_Amp_'+'NII6583'][indexSigma]=np.nan
+            NII = np.copy(lines['g1_Amp_'+'NII6583'])
+            NII[index]=np.nan
+            NII[indexSigma] = np.nan
 
-            lines['g1_Amp_'+'Ha6562'][index]=np.nan
-            lines['g1_Amp_'+'Ha6562'][indexSigma]=np.nan
+            Halpha = np.copy(lines['g1_Amp_'+'Ha6562'])
+            Halpha[index]=np.nan
+            Halpha[indexSigma]=np.nan
 
-            lrNIIHaG1 = np.divide(lines['g1_Amp_'+'NII6583'],lines['g1_Amp_'+'Ha6562'])
+            lrNIIHaG1 = np.divide(NII,Halpha)
             logNIIHaG1 = np.log10(lrNIIHaG1)
             tot = np.column_stack((tot,lrNIIHaG1,logNIIHaG1))
             lineNameList.append('G1-NII6583/Ha6562')
@@ -709,13 +711,15 @@ class tplay(object):
 
         if 'OI6300' in lineNameID and 'Ha6562' in lineNameID:
             
-            lines['g1_Amp_'+'OI6300'][index] = np.nan
-            lines['g1_Amp_'+'OI6300'][indexSigma] = np.nan
+            OI = np.copy(lines['g1_Amp_'+'OI6300'])
+            OI[index] = np.nan
+            OI[indexSigma] = np.nan
 
-            lines['g1_Amp_'+'Ha6562'][index]=np.nan
-            lines['g1_Amp_'+'Ha6562'][indexSigma]=np.nan
+            Halpha = np.copy(lines['g1_Amp_'+'Ha6562'])
+            Halpha[index]=np.nan
+            Halpha[indexSigma]=np.nan
 
-            lrOIHaG1 = np.divide(lines['g1_Amp_'+'OI6300'],lines['g1_Amp_'+'Ha6562'])
+            lrOIHaG1 = np.divide(OI,Halpha)
             logOIHaG1 = np.log10(lrOIHaG1)            
             tot = np.column_stack((tot,lrOIHaG1,logOIHaG1))
             lineNameList.append('G1-OI6300/Ha6562')
@@ -726,17 +730,20 @@ class tplay(object):
 
         if 'SII6716' in lineNameID and 'Ha6562' in lineNameID:
             
-            lines['g1_Amp_'+'SII6716'][index] = np.nan
-            lines['g1_Amp_'+'SII6716'][indexSigma] = np.nan
+            SII1 = np.copy(lines['g1_Amp_'+'SII6716'])
+            SII1[index] = np.nan
+            SII1[indexSigma] = np.nan
 
-            lines['g1_Amp_'+'SII6730'][index] = np.nan
-            lines['g1_Amp_'+'SII6730'][indexSigma] = np.nan
+            SII2 = np.copy(lines['g1_Amp_'+'SII6730'])
+            SII2[index] = np.nan
+            SII2[indexSigma] = np.nan
 
-            lines['g1_Amp_'+'Ha6562'][index]=np.nan
-            lines['g1_Amp_'+'Ha6562'][indexSigma]=np.nan
+            Halpha = np.copy(lines['g1_Amp_'+'Ha6562'])
+            Halpha[index] = np.nan
+            Halpha[indexSigma]=np.nan
 
 
-            lrSIIHaG1 = np.divide((lines['g1_Amp_'+'SII6716']+lines['g1_Amp_'+'SII6730']),lines['g1_Amp_'+'Ha6562'])
+            lrSIIHaG1 = np.divide((SII1+SII2),Halpha)
             logSIIHaG1 = np.log10(lrSIIHaG1)            
             
             tot = np.column_stack((tot,lrSIIHaG1,logSIIHaG1))
@@ -753,16 +760,18 @@ class tplay(object):
 
             if 'OIII5006' in lineNameID and 'Hb4861' in lineNameID:
 
-                lines['g2_Amp_'+'OIII5006'][index] = np.nan
-                lines['g2_Amp_'+'OIII5006'][indexSigma] = np.nan
+                oIIIG2 = np.copy(lines['g2_Amp_'+'OIII5006'])
+                oIIIG2[index] = np.nan
+                oIIIG2[indexSigma] = np.nan
 
-                lines['g2_Amp_'+'Hb4861'][index] = np.nan
-                lines['g2_Amp_'+'Hb4861'][indexSigma] = np.nan
+                hBetaG2 = np.copy(lines['g2_Amp_'+'Hb4861'])
+                hBetaG2[index] = np.nan
+                hBetaG2[indexSigma] = np.nan
 
-                lrOHbG2 = np.divide(lines['g2_Amp_'+'OIII5006'],lines['g2_Amp_'+'Hb4861'])
+                lrOHbG2 = np.divide(oIIIG2,hBetaG2)
                 logOHbG2 = np.log10(lrOHbG2)            
 
-                lrOHb = np.divide((lines['g1_Amp_'+'OIII5006']+lines['g2_Amp_'+'OIII5006']),(lines['g1_Amp_'+'Hb4861']+lines['g2_Amp_'+'Hb4861']))
+                lrOHb = np.divide((oIII+oIIIG2),(hBeta+hBetaG2))
                 logOHb = np.log10(lrOHb)            
                 
                 tot = np.column_stack((tot,lrOHbG2,logOHbG2,lrOHb,logOHb))
@@ -780,15 +789,17 @@ class tplay(object):
             
             if 'NII6583' in lineNameID and 'Ha6562' in lineNameID:
 
-                lines['g2_Amp_'+'NII6583'][index] = np.nan
-                lines['g2_Amp_'+'NII6583'][indexSigma] = np.nan
+                NIIG2 = np.copy(lines['g2_Amp_'+'NII6583'])
+                NIIG2[index] = np.nan
+                NIIG2[indexSigma] = np.nan
 
-                lines['g2_Amp_'+'Ha6562'][index] = np.nan
-                lines['g2_Amp_'+'Ha6562'][indexSigma] = np.nan
+                HalphaG2 = np.copy(lines['g2_Amp_'+'Ha6562'])
+                HalphaG2[index] = np.nan
+                HalphaG2[indexSigma] = np.nan
 
-                lrNIIHaG2 = np.divide(lines['g2_Amp_'+'NII6583'],lines['g2_Amp_'+'Ha6562'])
+                lrNIIHaG2 = np.divide(NIIG2,HalphaG2)
                 logNIIHaG2 = np.log10(lrNIIHaG2)
-                lrNIIHa = np.divide((lines['g1_Amp_'+'NII6583']+lines['g2_Amp_'+'NII6583']),(lines['g1_Amp_'+'Ha6562']+lines['g2_Amp_'+'Ha6562']))
+                lrNIIHa = np.divide((NII+NIIG2),(Halpha+HalphaG2))
                 logNIIHa = np.log10(lrNIIHa)
                 
                 tot = np.column_stack((tot,lrNIIHaG2,logNIIHaG2,lrNIIHa,logNIIHa))
@@ -806,25 +817,25 @@ class tplay(object):
 
             if 'OI6300' in lineNameID and 'Ha6562' in lineNameID:
 
-                lines['g2_Amp_'+'OI6300'][index] = np.nan
-                lines['g2_Amp_'+'OI6300'][indexSigma] = np.nan
+                OIG2 = np.copy(lines['g2_Amp_'+'OI6300'])
+                OIG2[index] = np.nan
+                OIG2[indexSigma] = np.nan
 
-                lines['g2_Amp_'+'Ha6562'][index] = np.nan
-                lines['g2_Amp_'+'Ha6562'][indexSigma] = np.nan
+                HalphaG2 = np.copy(lines['g2_Amp_'+'Ha6562'])
+                HalphaG2[index] = np.nan
+                HalphaG2[indexSigma] = np.nan
 
 
-                lrOIHaG2 = np.divide(lines['g2_Amp_'+'OI6300'],lines['g2_Amp_'+'Ha6562'])
+                lrOIHaG2 = np.divide(OIG2,HalphaG2)
                 logOIHaG2 = np.log10(lrOIHaG2)            
 
-                lrOIHa = np.divide((lines['g1_Amp_'+'OI6300']+lines['g2_Amp_'+'OI6300']),(lines['g1_Amp_'+'Ha6562']+lines['g2_Amp_'+'Ha6562']))
+                lrOIHa = np.divide((OI+OIG2),(Halpha+HalphaG2))
                 logOIHa = np.log10(lrOIHa)            
                 
 
                 tot = np.column_stack((tot,lrOIHaG2,logOIHaG2,lrOIHa,logOIHa))
                 lineNameList.append('G2-OI6300/Ha6562')
                 lineNameList.append('log_G2-OI6300/Ha6562')
-
-
 
                 lineNameList.append('ToT-OI6300/Ha6562')
                 lineNameList.append('log_ToT-OI6300/Ha6562')
@@ -836,27 +847,27 @@ class tplay(object):
 
             if 'SII6716' in lineNameID and 'Ha6562' in lineNameID:
 
-                lines['g2_Amp_'+'SII6716'][index] = np.nan
-                lines['g2_Amp_'+'SII6716'][indexSigma] = np.nan
-                lines['g2_Amp_'+'SII6730'][index] = np.nan
-                lines['g2_Amp_'+'SII6730'][indexSigma] = np.nan
+                SII1G2 = np.copy(lines['g2_Amp_'+'SII6716'])
+                SII1G2[index] = np.nan
+                SII1G2[indexSigma] = np.nan
+                SII2G2 = np.copy(lines['g2_Amp_'+'SII6730'])
+                SII2G2[index] = np.nan
+                SII2G2[indexSigma] = np.nan
 
-                lines['g2_Amp_'+'Ha6562'][index] = np.nan
-                lines['g2_Amp_'+'Ha6562'][indexSigma] = np.nan
+                HalphaG2 = np.copy(lines['g2_Amp_'+'Ha6562'])
+                HalphaG2[index] = np.nan
+                HalphaG2[indexSigma] = np.nan
 
-
-
-                lrSIIHaG2 = np.divide((lines['g2_Amp_'+'SII6716']+lines['g2_Amp_'+'SII6730']),lines['g2_Amp_'+'Ha6562'])
+                lrSIIHaG2 = np.divide((SII1G2+SII2G2),HalphaG2)
                 logSIIHaG2 = np.log10(lrSIIHaG2)            
                 
-                lrSIIHa = np.divide((lines['g1_Amp_'+'SII6716']+lines['g1_Amp_'+'SII6730']+lines['g2_Amp_'+'SII6716']+lines['g2_Amp_'+'SII6730']),(lines['g1_Amp_'+'Ha6562']+lines['g2_Amp_'+'Ha6562']))
+                lrSIIHa = np.divide((SII1+SII2+SII1G2+SII1G2),(Halpha+HalphaG2))
                 logSIIHa = np.log10(lrSIIHa)            
                 
                 tot = np.column_stack((tot,lrSIIHaG2,logSIIHaG2,lrSIIHaG2,logSIIHa))
                 lineNameList.append('G2-SII6716/Ha6562')
                 lineNameList.append('log_G2-SII6716/Ha6562')
-
-
+    
                 lineNameList.append('ToT-SII6716/Ha6562')
                 lineNameList.append('log_ToT-SII6716/Ha6562')
 
@@ -869,13 +880,15 @@ class tplay(object):
                 
                 if 'OIII5006' in lineNameID and 'Hb4861' in lineNameID:
 
-                    lines['g3_Amp_'+'OIII5006'][index] = np.nan
-                    lines['g3_Amp_'+'OIII5006'][indexSigma] = np.nan
+                    oIIIG3 = np.copy(lines['g3_Amp_'+'OIII5006'])
+                    oIIIG3[index] = np.nan
+                    oIIIG3[indexSigma] = np.nan
 
-                    lines['g3_Amp_'+'Hb4861'][index] = np.nan
-                    lines['g3_Amp_'+'Hb4861'][indexSigma] = np.nan
+                    hBetaG3 = lines['g3_Amp_'+'Hb4861']
+                    hBetaG3[index] = np.nan
+                    hBetaG3[indexSigma] = np.nan
 
-                    lrOHbG3 = np.divide(lines['g3_Amp_'+'OIII5006'],lines['g3_Amp_'+'Hb4861'])
+                    lrOHbG3 = np.divide(oIIIG3,HBetaG3)
                     logOHbG3 = np.log10(lrOHbG3)            
 
                     lrOHb = np.divide((lines['g1_Amp_'+'OIII5006']+lines['g2_Amp_'+'OIII5006']+lines['g3_Amp_'+'OIII5006']),(lines['g1_Amp_'+'Hb4861']+
@@ -897,18 +910,19 @@ class tplay(object):
                 
                 if 'NII6583' in lineNameID and 'Ha6562' in lineNameID:
 
-                    lines['g3_Amp_'+'NII6583'][index] = np.nan
-                    lines['g3_Amp_'+'NII6583'][indexSigma] = np.nan
+                    NIIG3 = np.copy(lines['g3_Amp_'+'NII6583'])
+                    NIIG3[index] = np.nan
+                    NIIG3[indexSigma] = np.nan
                     
-                    lines['g3_Amp_'+'Ha6562'][index] = np.nan
-                    lines['g3_Amp_'+'Ha6562'][indexSigma] = np.nan
+                    HalphaG3 = np.copy(lines['g3_Amp_'+'Ha6562'])
+                    HalphaG3[index] = np.nan
+                    HalphaG3[indexSigma] = np.nan
 
                     
-                    lrNIIHaG3 = np.divide(lines['g3_Amp_'+'NII6583'],lines['g3_Amp_'+'Ha6562'])
+                    lrNIIHaG3 = np.divide(NIIG3,HalphaG3)
                     logNIIHaG3 = np.log10(lrNIIHaG3)            
 
-                    lrNIIHa = np.divide((lines['g1_Amp_'+'NII6583']+lines['g2_Amp_'+'NII6583']+lines['g3_Amp_'+'NII6583']),(lines['g1_Amp_'+'Ha6562']+
-                        lines['g2_Amp_'+'Ha6562']+lines['g3_Amp_'+'Ha6562']))
+                    lrNIIHa = np.divide((NII+NIIG2+NIIG3),(Halpha+HalphaG2+HalphaG3))
                     logNIIHa = np.log10(lrNIIHa)            
 
                     tot = np.column_stack((tot,lrNIIHaG3,logNIIHaG3,lrNIIHa,logNIIHa))
@@ -925,17 +939,18 @@ class tplay(object):
 
                 if 'OI6300' in lineNameID and 'Ha6562' in lineNameID:
 
-                    lines['g2_Amp_'+'OI6300'][index] = np.nan
-                    lines['g2_Amp_'+'OI6300'][indexSigma] = np.nan
+                    OIG3 = np.copy(lines['g3_Amp_'+'OI6300'])
+                    OIG3[index] = np.nan
+                    OIG3[indexSigma] = np.nan
 
-                    lines['g2_Amp_'+'Ha6562'][index] = np.nan
-                    lines['g2_Amp_'+'Ha6562'][indexSigma] = np.nan
+                    HalphaG3= np.copy(lines['g3_Amp_'+'Ha6562'])
+                    HalphaG3[index] = np.nan
+                    HalphaG3[indexSigma] = np.nan
 
-                    lrOIHaG3 = np.divide(lines['g3_Amp_'+'OI6300'],lines['g3_Amp_'+'Ha6562'])
+                    lrOIHaG3 = np.divide(OIG3,HalphaG3)
                     logOIHaG3 = np.log10(lrOIHaG3)            
 
-                    lrOIHa = np.divide((lines['g1_Amp_'+'OI6300']+lines['g2_Amp_'+'OI6300']+lines['g3_Amp_'+'OI6300']),(lines['g1_Amp_'+'Ha6562']+
-                        lines['g2_Amp_'+'Ha6562']+lines['g3_Amp_'+'Ha6562']))
+                    lrOIHa = np.divide((OI+OIG2+OIG3),(Halpha+HalphaG2+HalphaG3))
                     logOIHa = np.log10(lrOIHa)            
 
                     tot = np.column_stack((tot,lrOIHaG3,logOIHaG3,lrOIHa,logOIHa))
@@ -953,19 +968,23 @@ class tplay(object):
 
                 if 'SII6716' in lineNameID and 'Ha6562' in lineNameID:
 
-                    lines['g3_Amp_'+'SII6716'][index] = np.nan
-                    lines['g3_Amp_'+'SII6716'][indexSigma] = np.nan
-                    lines['g3_Amp_'+'SII6730'][index] = np.nan
-                    lines['g3_Amp_'+'SII6730'][indexSigma] = np.nan
+                    SII1G3 = np.copy(lines['g3_Amp_'+'SII6716'])
+                    SII1G3[index] = np.nan
+                    SII1G3[indexSigma] = np.nan
+                    
+                    SII2G3 = np.copy(lines['g3_Amp_'+'SII6730'])
+                    SII2G3[index] = np.nan
+                    SII2G3[indexSigma] = np.nan
 
-                    lines['g3_Amp_'+'Ha6562'][index] = np.nan
-                    lines['g3_Amp_'+'Ha6562'][indexSigma] = np.nan
+                    HalphaG3 = lines['g3_Amp_'+'Ha6562']
+                    HalphaG3[index] = np.nan
+                    HalphaG3[indexSigma] = np.nan
 
-                    lrSIIHaG3 = np.divide((lines['g2_Amp_'+'SII6716']+lines['g2_Amp_'+'SII6730']),lines['g2_Amp_'+'Ha6562'])
+                    lrSIIHaG3 = np.divide((SII1G3+SII2G3),HalphaG3)
                     logSIIHaG3 = np.log10(lrSIIHaG3)            
 
-                    lrSIIHa = np.divide((lines['g1_Amp_'+'SII6716']+lines['g1_Amp_'+'SII6730']+lines['g2_Amp_'+'SII6716']+lines['g2_Amp_'+'SII6730']+lines['g3_Amp_'+'SII6716']+lines['g3_Amp_'+'SII6730']),
-                        (lines['g1_Amp_'+'Ha6562']+lines['g2_Amp_'+'Ha6562']+lines['g3_Amp_'+'Ha6562']))
+                    lrSIIHa = np.divide((SII1+SII2+SII1G2+SII2G2+SII1G2+SII2G2),
+                        (Halpha+HalphaG2+HalphaG3))
                     logSIIHa = np.log10(lrSIIHa)            
 
                     tot = np.column_stack((tot,lrSIIHaG3,logSIIHaG3,lrSIIHa,logSIIHa))
@@ -984,7 +1003,6 @@ class tplay(object):
         t = Table(tot, names=(lineNameList))
 
         hdul.append(fits.BinTableHDU(t.as_array(), name='LineRatios_'+modName))
-
 
         indexSFK = np.where(np.logical_and(np.logical_and(t['log_G1-OIII5006/Hb4861'] < 0.61 / (t['log_G1-NII6583/Ha6562'] - 0.05) + 1.3,
             t['log_G1-OIII5006/Hb4861']<3),
@@ -1304,7 +1322,6 @@ class tplay(object):
                 LrOIII[indexBadFit] = -1.
                 #LrOIII[indexBadFit2] = -2.
 
-
                 indexSF = np.where(np.logical_and.reduce((t['log_G3-OIII5006/Hb4861'] < 0.72 / (t['log_G3-SII6716/Ha6562'] - 0.32) + 1.30,
                                     t['log_G3-OIII5006/Hb4861']<3.,
                                     t['log_G3-SII6716/Ha6562']<0.32,
@@ -1380,7 +1397,6 @@ class tplay(object):
             hdul.append(tt)          
         
         hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
-
 
         #hdul.append(fits.BinTableHDU(tt.as_array(), name='BPT_'+modName))
         #hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
