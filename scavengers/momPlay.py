@@ -921,12 +921,12 @@ class momplay:
                     if modName != 'g1':
 
                         lineMapG2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j]['cDist-OIIIG2']
-
-                    if modName == 'g3':
-                        lineMapG3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j]['cDist-OIIIG3'] #TOREVIEW!!!!
-
-                    lineMapToT[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j]['cDist-OIIIToT']
+                        lineMapToT[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j]['cDist-OIIIToT']
                     
+                        if modName == 'g3':
+                            lineMapG3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j]['cDist-OIIIG3'] #TOREVIEW!!!!
+
+                        
 
         lineMapHead['BUNIT'] = 'cDistance'
         outBPT = bptDir+'cDist-OIIIG1.fits'

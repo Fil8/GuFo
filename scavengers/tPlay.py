@@ -1484,8 +1484,8 @@ class tplay(object):
 
         if cfg_par['gFit']['modName'] == 'g1':
             modString = ['G1']
-            gNameTable = 'G1'
-            gName = 'G1'
+            gNameTable = ['G1']
+            gName = ['G1']
         elif cfg_par['gFit']['modName'] == 'g2':
             modString = ['G1','G2','ToT']
             gNameTable = ['G2','G2','G2']
@@ -1497,7 +1497,6 @@ class tplay(object):
 
         for j in range(0,len(modString)):
 
-        
             bptInfo = hdul['BPT_'+gNameTable[j]].data
             lineRatio = hdul['LINERATIOS_'+gNameTable[j]].data 
             LrOIII  = bptInfo[gName[j]+'-BPT_OIII']

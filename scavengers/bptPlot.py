@@ -626,11 +626,11 @@ class BPTplot(object):
         lineBPT = hdul['BPT_'+cfg_par['gFit']['modName']].data
         lineRatios = hdul['LineRatios_'+cfg_par['gFit']['modName']].data
 
-        ampTable = hdul['LineRes_'+cfg_par['gFit']['modName']].data
-        amps = ampTable[cfg_par['gFit']['modName']+'-AmpSpax'+'_Hb4861']
+        #ampTable = hdul['LineRes_'+cfg_par['gFit']['modName']].data
+        #amps = ampTable[cfg_par['gFit']['modName']+'-AmpSpax'+'_Hb4861']
 
-        lineInfo = tP.openLineList(cfg_par)
-        lineThresh = float(lineInfo['SNThresh'][0])
+        #lineInfo = tP.openLineList(cfg_par)
+        #lineThresh = float(lineInfo['SNThresh'][0])
 
         if cfg_par['gFit']['modName'] == 'g1':
             modString = ['G1']
@@ -639,9 +639,11 @@ class BPTplot(object):
         elif cfg_par['gFit']['modName'] == 'g3':
             modString = ['G1','G2','G3','ToT']
 
-        idx  = np.where(amps>=lineThresh)
         for i in range (0, len(modString)):            
-            # initialize figure
+            
+            idx  = np.where(~np.isnan(lineRatios['log_'+modString[i]+'-OIII5006/Hb4861']))[0]
+            print(idx)
+                        # initialize figure
             params = self.loadRcParams()
             plt.rcParams.update(params)
             fig = plt.figure(figsize =(10,8))
@@ -649,10 +651,10 @@ class BPTplot(object):
             gs = gridspec.GridSpec(1, 1)
             ax1 = fig.add_subplot(gs[0])
 
-            y = lineRatios['log_'+modString[i]+'-OIII5006/Hb4861']
-            x = lineRatios['log_'+modString[i]+'-NII6583/Ha6562']
-            k = lineBPT['cDist-OIII'+modString[i]]
-            
+            y = lineRatios['log_'+modString[i]+'-OIII5006/Hb4861'][idx]
+            x = lineRatios['log_'+modString[i]+'-NII6583/Ha6562'][idx]
+            k = lineBPT['cDist-OIII'+modString[i]][idx]
+            print(y,x)
             #ax.set_xticks([])
             
             ax1.set_xlabel(r'log([NII] 6583/H$_\alpha$ 6562)')
@@ -682,7 +684,7 @@ class BPTplot(object):
                 vRangeMin=vRange[0]
                 vRangeMax=vRange[1]
 
-            ax1.scatter(x[idx], y[idx], c=k[idx], cmap='nipy_spectral', marker='+', s=80, linewidths=4, 
+            ax1.scatter(x, y, c=k, cmap='nipy_spectral', marker='+', s=80, linewidths=4, 
                 label='Fornax A',vmin=vRangeMin,vmax=vRangeMax)
 
             kaX = np.log10(np.linspace(np.power(10,-1.),np.power(10,0.),1e4))

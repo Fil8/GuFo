@@ -373,7 +373,6 @@ def main (argv):
         #gPar.cfg_par['general']['cleanTable'] = True
         #tP.cleanTable(gPar.cfg_par)   
         #gPar.cfg_par['general']['cleanTable'] = False
-
         lineInfo = tP.openLineList(gPar.cfg_par)
         tP.binLineRatio(gPar.cfg_par,lineInfo)
         mom.makeLineRatioMaps(gPar.cfg_par)
@@ -396,7 +395,6 @@ def main (argv):
         print(gPar.cfg_par['general']['bptDir']+gPar.cfg_par['gFit']['modName'])
         #gPar.cfg_par['general']['cleanTable'] = True
         outBPT = glob.glob(gPar.cfg_par['general']['bptDir']+gPar.cfg_par['gFit']['modName']+"/*.fits")
-        print(outBPT)
         for i in outBPT:
             bpt.bptIM(gPar.cfg_par,i)
         #gPar.cfg_par['general']['cleanTable'] = False
