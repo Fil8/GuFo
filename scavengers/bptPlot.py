@@ -405,7 +405,7 @@ class BPTplot(object):
         hduIm.data[idx] = np.nan 
 
         sigmaThresh = sigmaTable['g1_SigIntr_OIII5006']
-        idx  = np.where(sigmaThresh<=cfg_par['moments']['sigmaThresh'])
+        idx  = np.where(sigmaThresh>=cfg_par['moments']['sigmaThresh'])
 
         hduIm.data[idx] = np.nan 
         
