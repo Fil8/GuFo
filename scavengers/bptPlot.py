@@ -92,7 +92,7 @@ class BPTplot(object):
 
             y = lineRatios['log_'+modString[i]+'-OIII5006/Hb4861']
             x = lineRatios['log_'+modString[i]+'-NII6583/Ha6562']
-            k = lineBPT[modString[i]+'-BPT_OIII'][idx]
+            k = lineBPT[modString[i]+'-BPT_OIII']
             
             #ax.set_xticks([])
             
@@ -200,7 +200,7 @@ class BPTplot(object):
 
             y = lineRatios['log_'+modString[i]+'-OIII5006/Hb4861']
             x = lineRatios['log_'+modString[i]+'-SII6716/Ha6562']
-            k = lineBPT[modString[i]+'-BPT_SII'][idx]
+            k = lineBPT[modString[i]+'-BPT_SII']
             #ax.set_xticks([])
 
             ax1.set_xlabel(r'log([SII] 6716,6730/H$_\alpha$ 6562)')
@@ -303,7 +303,7 @@ class BPTplot(object):
 
             y = lineRatios['log_'+modString[i]+'-OIII5006/Hb4861']
             x = lineRatios['log_'+modString[i]+'-OI6300/Ha6562']
-            k = lineBPT[modString[i]+'-BPT_OI'][idx]
+            k = lineBPT[modString[i]+'-BPT_OI']
             #ax.set_xticks([])
 
             ax1.set_xlabel(r'log([OI] 6300/H$_\alpha$ 6562)')
