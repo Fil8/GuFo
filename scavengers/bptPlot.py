@@ -388,6 +388,7 @@ class BPTplot(object):
             CustomCmap = ListedColormap(['grey','blue','red','green'])
             cBarTickLabels = ['bad fit','SF','AGN','LINER']
 
+        hdul = fits.open(cfg_par['general']['outTableName'])
         ampTable = hdul['LineRes_'+cfg_par['gFit']['modName']].data
         
         lineInfo = tP.openLineList(cfg_par)
