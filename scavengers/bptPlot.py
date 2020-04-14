@@ -69,18 +69,6 @@ class BPTplot(object):
         lineBPT = hdul['BPT_'+cfg_par['gFit']['modName']].data
         lineRatios = hdul['LineRatios_'+cfg_par['gFit']['modName']].data
 
-        resTable = hdul['Residuals_'+cfg_par['gFit']['modName']].data
-        sigmaTable = hdul['LineRes_'+cfg_par['gFit']['modName']].data
-
-
-        lineInfo = tP.openLineList(cfg_par)
-        lineThresh = float(lineInfo['SNThresh'][0])
-
-        sn = resTable['SN_OIII5006']
-
-        sigmaThresh = sigmaTable['g1_SigIntr_OIII5006']
-        
-        idx  = np.logical_and(np.where(sn>=lineThresh),np.where(sigmaThresh<=cfg_par['moments']['sigmaThresh']))
 
         if cfg_par['gFit']['modName'] == 'g1':
             modString = ['G1']
@@ -102,8 +90,8 @@ class BPTplot(object):
             gs = gridspec.GridSpec(1, 1)
             ax1 = fig.add_subplot(gs[0])
 
-            y = lineRatios['log_'+modString[i]+'-OIII5006/Hb4861'][idx]
-            x = lineRatios['log_'+modString[i]+'-NII6583/Ha6562'][idx]
+            y = lineRatios['log_'+modString[i]+'-OIII5006/Hb4861']
+            x = lineRatios['log_'+modString[i]+'-NII6583/Ha6562']
             k = lineBPT[modString[i]+'-BPT_OIII'][idx]
             
             #ax.set_xticks([])
@@ -187,10 +175,10 @@ class BPTplot(object):
         ampTable = hdul['LineRes_'+cfg_par['gFit']['modName']].data
         amps = ampTable[cfg_par['gFit']['modName']+'-AmpSpax'+'_Hb4861']
 
-        lineInfo = tP.openLineList(cfg_par)
-        lineThresh = float(lineInfo['SNThresh'][0])
+        # lineInfo = tP.openLineList(cfg_par)
+        # lineThresh = float(lineInfo['SNThresh'][0])
 
-        idx  = np.where(amps>=lineThresh)
+        # idx  = np.where(amps>=lineThresh)
 
         if cfg_par['gFit']['modName'] == 'g1':
             modString = ['G1']
@@ -210,8 +198,8 @@ class BPTplot(object):
             gs = gridspec.GridSpec(1, 1)
             ax1 = fig.add_subplot(gs[0])
 
-            y = lineRatios['log_'+modString[i]+'-OIII5006/Hb4861'][idx]
-            x = lineRatios['log_'+modString[i]+'-SII6716/Ha6562'][idx]
+            y = lineRatios['log_'+modString[i]+'-OIII5006/Hb4861']
+            x = lineRatios['log_'+modString[i]+'-SII6716/Ha6562']
             k = lineBPT[modString[i]+'-BPT_SII'][idx]
             #ax.set_xticks([])
 
@@ -286,13 +274,13 @@ class BPTplot(object):
         lineBPT = hdul['BPT_'+cfg_par['gFit']['modName']].data
         lineRatios = hdul['LineRatios_'+cfg_par['gFit']['modName']].data
 
-        ampTable = hdul['LineRes_'+cfg_par['gFit']['modName']].data
-        amps = ampTable[cfg_par['gFit']['modName']+'-AmpSpax'+'_Hb4861']
+        # ampTable = hdul['LineRes_'+cfg_par['gFit']['modName']].data
+        # amps = ampTable[cfg_par['gFit']['modName']+'-AmpSpax'+'_Hb4861']
 
-        lineInfo = tP.openLineList(cfg_par)
-        lineThresh = float(lineInfo['SNThresh'][0])
+        # lineInfo = tP.openLineList(cfg_par)
+        # lineThresh = float(lineInfo['SNThresh'][0])
 
-        idx  = np.where(amps>=lineThresh)
+        # idx  = np.where(amps>=lineThresh)
 
 
         if cfg_par['gFit']['modName'] == 'g1':
@@ -313,8 +301,8 @@ class BPTplot(object):
             gs = gridspec.GridSpec(1, 1)
             ax1 = fig.add_subplot(gs[0])            
 
-            y = lineRatios['log_'+modString[i]+'-OIII5006/Hb4861'][idx]
-            x = lineRatios['log_'+modString[i]+'-OI6300/Ha6562'][idx]
+            y = lineRatios['log_'+modString[i]+'-OIII5006/Hb4861']
+            x = lineRatios['log_'+modString[i]+'-OI6300/Ha6562']
             k = lineBPT[modString[i]+'-BPT_OI'][idx]
             #ax.set_xticks([])
 
