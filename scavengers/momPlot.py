@@ -148,7 +148,7 @@ class MOMplot(object):
         ax1.contour(array.data,levels=contLevels[i], colors=contColors[i])
       
 
-    outFig = cfg_par['general']['momDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
+    outFig = cfg_par['general']['plotMomModDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
             #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
 
@@ -259,7 +259,7 @@ class MOMplot(object):
         if contValues[i]==1:
             ax1.clabel(cs, inline=1, fontsize=14)
 
-    outFig = cfg_par['general']['momDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
+    outFig = cfg_par['general']['plotMomModDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
             #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
     return 0
@@ -366,7 +366,7 @@ class MOMplot(object):
         if contValues[i]==1:
             ax1.clabel(cs, inline=1, fontsize=14)
 
-    outFig = cfg_par['general']['momDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
+    outFig = cfg_par['general']['plotMomModDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
             #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
     return 0

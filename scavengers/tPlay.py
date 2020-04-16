@@ -1000,9 +1000,19 @@ class tplay(object):
                     frmList.append('f8')
                     frmList.append('f8')
 
+
         t = Table(tot, names=(lineNameList))
 
-        hdul.append(fits.BinTableHDU(t.as_array(), name='LineRatios_'+modName))
+        try:
+            tb = Table(hdul['LineRatios_'+modName].data)
+            hdul['LineRatios_'+modName] = fits.BinTableHDU(t.as_array(),name='LineRatios_'+modName)
+        except KeyError as e:
+            tt=fits.BinTableHDU.from_columns(t.as_array(),name='LineRatios_'+modName)   
+            hdul.append(tt) 
+
+
+
+        #hdul.append(fits.BinTableHDU(t.as_array(), name='LineRatios_'+modName))
 
         indexSFK = np.where(np.logical_and(np.logical_and(t['log_G1-OIII5006/Hb4861'] < 0.61 / (t['log_G1-NII6583/Ha6562'] - 0.05) + 1.3,
             t['log_G1-OIII5006/Hb4861']<3),

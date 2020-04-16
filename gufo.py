@@ -137,6 +137,11 @@ class gufo(object):
             os.mkdir(momModDir)
         self.cfg_par['general']['momModDir'] = momModDir
 
+        plotMomModDir =self.cfg_par['general']['momModDir']+'plots/'
+        if not os.path.exists(plotMomModDir):
+            os.mkdir(plotMomModDir)
+        self.cfg_par['general']['plotMomModDir'] = plotMomModDir
+
         bptDir =self.cfg_par['general']['runNameDir']+'bpt/'
         if not os.path.exists(bptDir):
             os.mkdir(bptDir)

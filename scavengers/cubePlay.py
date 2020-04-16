@@ -141,9 +141,9 @@ class cubeplay:
             if cfg_par['cubelets']['cube'] == 'vorLine': 
                 outCubelet = cubeletsDir+str(lineNameStr)+'_measVor.fits'
             elif cfg_par['cubelets']['cube'] == 'fitLine': 
-                outCubelet = cubeletsDir+str(lineNameStr)+'_fit'+modName+'.fits'   
+                outCubelet = cubeletsDir+str(lineNameStr)+'_'+modName+'_fit'+modName+'.fits'   
             elif cfg_par['cubelets']['cube'] == 'residuals':        
-                outCubelet = cubeletsDir+str(lineNameStr)+'_res'+modName+'.fits'        
+                outCubelet = cubeletsDir+str(lineNameStr)+'_'+modName+'_res'+modName+'.fits'        
             else:
                 outCubelet = cubeletsDir+str(lineNameStr)+'_meas.fits'
 
