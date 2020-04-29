@@ -62,8 +62,6 @@ def outFunction ():
     gufo -gp\t\t-c  <configFileName>\trun fit with parameters from config file and lineList file (outdated)
     gufo -gpMp\t\t-c  <configFileName>\trun fit on multiprocess with parameters from config file and lineList file
     gufo -gPl\t\t-c  <configFileName>\tplot fit results for each bin
-    gufo -gPs -bin <binNum>\t-c  <configFileName>\tplot fit results for binNum
-    gufo -gPs -bin <binNum>\t-c  <configFileName> -dF\tdo fit for binNum with specs from configFile
     gufo -mom\t\t-c  <configFileName>\tmake moment maps of fitted lines
     gufo -momPl\t\t-c  <configFileName>\t plot moment maps from fits files
     gufo -cBl\t\t-c  <configFileName>\t make cubelets of chosen lines
@@ -73,6 +71,9 @@ def outFunction ():
     gufo -vor\t\t-c  <configFileName>\tVoronoi binning of output of PPXF (star subtracted datacube) 
     gufo -stS\t\t-c  <configFileName>\tmake stellar subtracted datacube (the output of PPXF is a table)
     gufo -af\t\t-c   <configFileName>\tcompute sigma, centroid, w80 for each voronoi bin
+    gufo -pV -pa -inCube <pathToCube> -c <configFileName>\tcompute sigma, centroid, w80 for each voronoi bin
+    gufo -gPs -bin <binNum>\t-c  <configFileName>\t\tplot fit results for binNum
+    gufo -gPs -bin <binNum>\t-c  <configFileName> -dF\tdo fit for binNum with specs from configFile
         """)
 
     return 
@@ -185,6 +186,21 @@ def main (argv):
         action = 'store_true',
         default=False,
         help= 'fit single bin')
+
+    add('-pV', '--pVsingle',
+        action = 'store_true',
+        default = False,
+        help= 'pvPlot of single cube')
+
+    add('-pa', '--positionAngle',
+        type= float,
+        default= False,
+        help = 'position angle of position-velocity diagram')
+
+    add('-inCube', '--inputCube',
+        type= str,
+        default= False,
+        help = 'path to input datacube')
 
     add('-c', '--cfgFile',
         type=str,
@@ -352,7 +368,15 @@ def main (argv):
         timeMom = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))
 
-
+    if args.pVsingle: 
+        time_start_load = time.time()
+        print('\n\t +---------+\t\t    pV diagram\t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        gPar.cfg_par['cubelets']['pa'] = args.positionAngle
+        cP.pvDiagram(gPar.cfg_par,args.inputCube)
+        timePV = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timePV))
+        
     if args.ancillaryInfo or gPar.cfg_par['ancillary'].get('enable',False) == True:
         time_start_load = time.time()
         print ('\n\t +---------+\t\t ancillary Info\t\t +---------+')

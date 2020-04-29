@@ -70,6 +70,11 @@ class gufo(object):
             os.mkdir(cubeletsDir)
         self.cfg_par['general']['cubeletsDir'] = cubeletsDir
 
+        pvDir = self.cfg_par['general']['cubeletsDir']+'pv/'
+        if not os.path.exists(pvDir):
+            os.mkdir(pvDir )
+        self.cfg_par['general']['pvDir'] = pvDir
+
         tableDir = self.cfg_par['general']['runNameDir']+'tables/'
         if not os.path.exists(tableDir):
             os.mkdir(tableDir)
