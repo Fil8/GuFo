@@ -165,6 +165,10 @@ def main (argv):
         action='store_true',
         help= 'make cubelets of chosen lines')
 
+    add('-cvG', '--convolveGauss',
+        action='store_true',
+        help= 'convolve datacube with 2D Gaussian')
+
     add('-cD', '--cDist',
         action='store_true',
         help= 'compute and plot eta-parameter')
@@ -201,6 +205,11 @@ def main (argv):
         type= str,
         default= False,
         help = 'path to input datacube')
+
+    add('-mO', '--mosaic',
+        action = 'store_true',
+        default = False,
+        help= 'mosaic datacubes in a directory')
 
     add('-c', '--cfgFile',
         type=str,
@@ -257,14 +266,14 @@ def main (argv):
 
     if args.starSub or gPar.cfg_par['starSub'].get('enable',False) == True:
         time_start_load = time.time()        
-        print ('\n\t************ --- GuFo : make Datacubes --- ************\n')
+        print ('\n\t +---------+\t\t    make Cubes\t\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
         if gPar.cfg_par['starSub'].get('scaleFlux',False) == True:
             ss.makeCubesPix(gPar.cfg_par)
         elif gPar.cfg_par['starSub'].get('scaleFlux',False) == False:
             ss.makeCubesVorBin(gPar.cfg_par)
-        print("## fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
-        print('\n\t************ --- GuFo : DONE --- ************\n')
+        timeStar = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeStar))
 
     if args.vorPlay or gPar.cfg_par['vorBin'].get('enable',False) == True:
         time_start_load = time.time()        
@@ -347,23 +356,34 @@ def main (argv):
         timeRes = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeRes))
 
-    if args.cubelets or gPar.cfg_par['cubelets'].get('enable',False) == True:
+    if args.cubelets or gPar.cfg_par['cubePlay']['cubelets'].get('enable',False) == True:
         time_start_load = time.time()
         print('\n\t +---------+\t\t    cubelets\t\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
         #gPar.cfg_par['general']['cleanTable'] = True
         #tP.cleanTable(gPar.cfg_par)  
-        if gPar.cfg_par['cubelets']['cube']=='all':
-            gPar.cfg_par['cubelets']['cubes'] = 'vorLine'
+        if gPar.cfg_par['cubePlay']['cubelets']['cube']=='all':
+            gPar.cfg_par['cubePlay']['cubelets']['cubes'] = 'vorLine'
             cP.makeLineCubes(gPar.cfg_par)
-            gPar.cfg_par['cubelets']['cube'] = 'residuals'
+            gPar.cfg_par['cubePlay']['cubelets']['cube'] = 'residuals'
             cP.makeLineCubes(gPar.cfg_par)
-            gPar.cfg_par['cubelets']['cube'] = 'fitLine'
+            gPar.cfg_par['cubePlay']['cubelets']['cube'] = 'fitLine'
             cP.makeLineCubes(gPar.cfg_par)
-            gPar.cfg_par['cubelets']['cube'] = 'cubes'
+            gPar.cfg_par['cubePlay']['cubelets']['cube'] = 'cubes'
             cP.makeLineCubes(gPar.cfg_par)
         else:
             cP.makeLineCubes(gPar.cfg_par)            
+        #gPar.cfg_par['general']['cleanTable'] = False
+        timeMom = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))
+
+    if args.cubelets or gPar.cfg_par['cubePlay'].get('convolveGauss',False) == True:
+        time_start_load = time.time()
+        print('\n\t +---------+\t\t    cubelets\t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        #gPar.cfg_par['general']['cleanTable'] = True
+        #tP.cleanTable(gPar.cfg_par)  
+        cP.regridPix(gPar.cfg_par)            
         #gPar.cfg_par['general']['cleanTable'] = False
         timeMom = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))
@@ -376,6 +396,16 @@ def main (argv):
         cP.pvDiagram(gPar.cfg_par,args.inputCube)
         timePV = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timePV))
+    
+
+    if args.mosaic or gPar.cfg_par['cubePlay']['mosaic'].get('enable',False) == True: 
+        time_start_load = time.time()
+        print('\n\t +---------+\t\t  mosaic Cubes\t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        cP.mosaicCubes(gPar.cfg_par)
+        timePV = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timePV))
+
         
     if args.ancillaryInfo or gPar.cfg_par['ancillary'].get('enable',False) == True:
         time_start_load = time.time()

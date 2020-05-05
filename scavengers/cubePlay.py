@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.6
 
-import os, sys
+import os, sys, shutil
 import yaml
 
 from lmfit import Model
@@ -10,10 +10,17 @@ from lmfit.model import load_modelresult
 
 from scipy.ndimage import map_coordinates
 
+from reproject import reproject_interp as rp
 
 from astropy.io import ascii, fits
 from astropy.table import Table, Column
 from astropy import wcs
+from astropy import units as u
+from astropy.coordinates import SkyCoord
+
+
+from MontagePy.main    import *
+from MontagePy.archive import *
 
 import numpy as np
 #import numpy.ma as ma
@@ -98,12 +105,12 @@ class cubeplay:
         modName = cfg_par['gFit']['modName']
         momDir = cfg_par['general']['momDir']
 
-        if cfg_par['cubelets']['cube'] == 'vorLine': 
+        if cfg_par['cubePlay']['cubelets']['cube'] == 'vorLine': 
             f = fits.open(cfg_par['general']['dataCubeName'])
             dd = f[0].data
             hh = f[0].header
 
-        elif cfg_par['cubelets']['cube'] == 'fitLine': 
+        elif cfg_par['cubePlay']['cubelets']['cube'] == 'fitLine': 
             f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
             dd = f[0].data
             hh = f[0].header
@@ -115,7 +122,7 @@ class cubeplay:
             dd[indexFltr] = np.nan
             print(dd.shape)
 
-        elif cfg_par['cubelets']['cube'] == 'residuals':
+        elif cfg_par['cubePlay']['cubelets']['cube'] == 'residuals':
             f = fits.open(cubeDir+'resCube_'+modName+'.fits')
             dd = f[0].data
             hh = f[0].header
@@ -133,6 +140,7 @@ class cubeplay:
         index = np.where(lineInfo['Cubelets'] == 0)
         fltr =  np.array(index)[0]
         lineInfo.remove_rows(list(fltr))
+
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
             cfg_par['general']['outVorSpectra'])
 
@@ -145,7 +153,6 @@ class cubeplay:
         wave=wave[idxMin:idxMax]
         dd=dd[idxMin:idxMax,:,:]
  
-        velRange = float(cfg_par['cubelets']['velRange'])
        
         for ii in range(0,len(lineInfo['ID'])):
 
@@ -163,17 +170,18 @@ class cubeplay:
 
             print('\n\t         +++\t\t    '+lineName+'\t\t +++')
             
-            velRange = cvP.vRadLambda(cfg_par['cubelets']['velRange'],
+            velRangeMin = cvP.vRadLambda(-cfg_par['cubePlay']['cubelets']['velRange'][0],
                 lineInfo['Wave'][ii] )-lineInfo['Wave'][ii] 
-
-            #velRangeLeft = cvP.vRadLambda(cfg_par['cubelets']['velRange'],
+            velRangeMax= cvP.vRadLambda(cfg_par['cubePlay']['cubelets']['velRange'][1],
+                lineInfo['Wave'][ii] )-lineInfo['Wave'][ii] 
+            #velRangeLeft = cvP.vRadLambda(cfg_par['cubePlay']['velRange'],
             #    lineInfo['Wave'][ii] )+lineInfo['Wave'][ii] 
 
             #waveMin =  np.log(lineInfo['Wave'][ii] - lineInfo['lineRangeAng'][ii])
             #waveMax =  np.log(lineInfo['Wave'][ii] + lineInfo['lineRangeAng'][ii])
             
-            waveMin =  np.log(lineInfo['Wave'][ii] - velRange)
-            waveMax =  np.log(lineInfo['Wave'][ii] + velRange)
+            waveMin =  np.log(lineInfo['Wave'][ii] - velRangeMin)
+            waveMax =  np.log(lineInfo['Wave'][ii] + velRangeMax)
             
 
             idxMin = int(np.where(abs(wave-waveMin)==abs(wave-waveMin).min())[0]) 
@@ -185,11 +193,11 @@ class cubeplay:
 
             header = self.makeHeader(cfg_par,lineInfo['Wave'][ii],hh,waveAng)
             
-            if cfg_par['cubelets']['cube'] == 'vorLine': 
+            if cfg_par['cubePlay']['cubelets']['cube'] == 'vorLine': 
                 outCubelet = cubeletsDir+str(lineNameStr)+'_measVor.fits'
-            elif cfg_par['cubelets']['cube'] == 'fitLine': 
+            elif cfg_par['cubePlay']['cubelets']['cube'] == 'fitLine': 
                 outCubelet = cubeletsDir+str(lineNameStr)+'_fit_'+modName+'.fits'   
-            elif cfg_par['cubelets']['cube'] == 'residuals':        
+            elif cfg_par['cubePlay']['cubelets']['cube'] == 'residuals':        
                 outCubelet = cubeletsDir+str(lineNameStr)+'_res_'+modName+'.fits'        
             else:
                 outCubelet = cubeletsDir+str(lineNameStr)+'_meas.fits'
@@ -209,8 +217,8 @@ class cubeplay:
         headerCubelets = f[0].header
 
         # Centres and bounding boxes
-        Xc = cfg_par['cubelets']['raCentre']
-        Yc = cfg_par['cubelets']['decCentre']
+        Xc = cfg_par['cubePlay']['cubelets']['raCentre']
+        Yc = cfg_par['cubePlay']['cubelets']['decCentre']
         Xc = cvP.hms2deg(Xc)
         Yc = cvP.dms2deg(Yc)
 
@@ -219,18 +227,18 @@ class cubeplay:
 
         w = wcs.WCS(header2d)
         Xc,Yc=w.wcs_world2pix(Xc,Yc,0)
-        if cfg_par['cubelets']['raMin'] != False:
-            Xmin = cfg_par['cubelets']['raMin']
-            Ymin = cfg_par['cubelets']['decMin']
-            Xmax = cfg_par['cubelets']['raMax']
-            Ymax = cfg_par['cubelets']['decMax']
+        if cfg_par['cubePlay']['cubelets']['raMin'] != False:
+            Xmin = cfg_par['cubePlay']['cubelets']['raMin']
+            Ymin = cfg_par['cubePlay']['cubelets']['decMin']
+            Xmax = cfg_par['cubePlay']['cubelets']['raMax']
+            Ymax = cfg_par['cubePlay']['cubelets']['decMax']
         else:
             Xmin = 0
             Ymin = 0
             Xmax = subcube.shape[2]
             Ymax = subcube.shape[1]
 
-        kin_pa = np.radians(float(cfg_par['cubelets']['pa']))
+        kin_pa = np.radians(float(cfg_par['cubePlay']['cubelets']['pa']))
 
         pv_sampling = 10
         pv_r = np.arange(-max(subcube.shape[1:]), max(subcube.shape[1:]) - 1 + 1.0 / pv_sampling, 1.0 / pv_sampling)
@@ -268,7 +276,7 @@ class cubeplay:
         self.delete_3rd_axis(hdulist[0].header)
         
         outCubelet=str.split(os.path.basename(inCubelet),'.')[0]
-        outCubelet=outCubelet+'_'+str(cfg_par['cubelets']['pa'])+'-pv.fits'
+        outCubelet=outCubelet+'_'+str(cfg_par['cubePlay']['pa'])+'-pv.fits'
         name = cfg_par['general']['pvDir'] + outCubelet
         print(name)
         hdulist.writeto(name,overwrite=True)
@@ -298,11 +306,11 @@ class cubeplay:
             print('\n\t         +++\t\t    '+lineName+'\t\t +++') 
 
 
-            if cfg_par['cubelets']['cube'] == 'vorLine': 
+            if cfg_par['cubePlay']['cube'] == 'vorLine': 
                 inCubelet = cubeletsDir+str(lineNameStr)+'_measVor.fits'
-            elif cfg_par['cubelets']['cube'] == 'fitLine': 
+            elif cfg_par['cubePlay']['cube'] == 'fitLine': 
                 inCubelet = cubeletsDir+str(lineNameStr)+'_fit_'+modName+'.fits'   
-            elif cfg_par['cubelets']['cube'] == 'residuals':        
+            elif cfg_par['cubePlay']['cube'] == 'residuals':        
                 inCubelet = cubeletsDir+str(lineNameStr)+'_res_'+modName+'.fits' 
             else:
                 inCubelet = cubeletsDir+str(lineNameStr)+'_meas.fits'
@@ -310,5 +318,96 @@ class cubeplay:
             self.pvDiagram(cfg_par,inCubelet,pa)
 
 
-
             return
+
+    def mosaicCubes(self, cfg_par):
+        '''
+        calls Montage() to mosaic a set of datacubes
+
+        Parameters:
+            - cfg_par: configuration file
+        Uses:
+            - cfg_par['cubePlay']['mosaic']['inDirectory']: directory of input cubes
+        Creates: 
+            - cfg_par['cubePlay']['mosaic']['inDirectory']+ mosaicProjections: directory with
+                datacubes projected to common frame of reference
+            - cfg_par['cubePlay']['mosaic']['inDirectory']+ mosaicProjections: directory with
+                - projected datacube: mosaicCube.fits
+                - tableInputs.tbl: table of input dataCubes
+                - tableMosaic.tbl: table of projected dataCubes
+                - hdrMosaic.hdr : header of common reference frame for mosaic
+        Options:
+            - cfg_par['cubePlay']['mosaic']['cleanup'] = True
+                intermediate files are deleted and final mosaic is moved in base directory of cfg_par['cubePlay']['mosaic']['inDirectory']   
+        '''
+
+        pathCubes=cfg_par['cubePlay']['mosaic']['inDirectory']
+
+        workDir = os.path.normpath(os.path.join(pathCubes, os.pardir))
+
+        pathProj = workDir+'/mosaicProjections/'
+        if not os.path.exists(pathProj):
+            os.mkdir(pathProj)
+
+        pathMosaic =  workDir+'/mosaicCube/'
+        if not os.path.exists(pathMosaic):
+            os.mkdir(pathMosaic)
+
+        mImgtbl(pathCubes,pathMosaic+'tableMontage.tbl')
+        mMakeHdr(pathMosaic+'tableMontage.tbl',pathMosaic+'hdrMosaic.hdr')
+        
+        with os.scandir(pathCubes) as it:
+            for entry in it:
+                if entry.name.endswith(".fits") and entry.is_file(): 
+                    outProjection = str.split(entry.name,'.fits')[0]+'proj.fits'
+                    mProjectCube(pathCubes+entry.name,pathProj+outProjection,pathMosaic+'hdrMosaic.hdr')
+
+        mImgtbl(pathProj,pathMosaic+'tableMosaic.tbl')
+        mAddCube(pathProj,pathMosaic+'tableMosaic.tbl',pathMosaic+'hdrMosaic.hdr',pathMosaic+'mosaicCube.fits')
+
+        if cfg_par['cubePlay']['mosaic']['cleanup'] == True:
+            ## Try to delete the file ##
+            shutil.rmtree(pathProj)
+            shutil.move(pathMosaic+'mosaicCube.fits',workDir+'/mosaicCube.fits')
+            shutil.rmtree(pathMosaic)
+
+        return
+
+    def regridPix(self,cfg_par):
+
+        inName = str.split(cfg_par['general']['runNameDir']+cfg_par['cubePlay']['inCube'],'.fits')
+        outName=inName[0]+'_reg.fits'
+        cube = fits.open(cfg_par['general']['runNameDir']+cfg_par['cubePlay']['inCube'])[0]
+
+        regHeader = cube.header.copy()
+
+        fovX = -cube.data.shape[2]*cube.header['CDELT1']*u.deg
+        fovY = cube.data.shape[1]*cube.header['CDELT2']*u.deg
+
+        x=cfg_par['cubePlay']['Gx']*u.arcsec
+        xDeg = x.to(u.deg).value
+        print(fovX.value/xDeg)
+        y=cfg_par['cubePlay']['Gy']*u.arcsec
+        yDeg = y.to(u.deg).value
+
+        naxis1 = int(fovX.value/xDeg)
+        naxis2 = int(fovY.value/yDeg)
+        crPix1 = int(cube.header['CRPIX1']*naxis1/float(cube.data.shape[2]))
+        crPix2 = int(cube.header['CRPIX2']*naxis2/float(cube.data.shape[1]))
+
+        regHeader['CDELT1']= -x.to(u.deg).value
+        regHeader['CDELT2'] = y.to(u.deg).value
+        regHeader['CRPIX1']= crPix1
+        regHeader['CRPIX2'] = crPix2
+        regHeader['NAXIS1'] = naxis1
+        regHeader['NAXIS2'] = naxis2
+
+
+        #print(x,y,pa)
+
+        #print(centreCoords.ra.deg,centreCoords.dec.deg)
+        regridCube, footprint = rp(cube, regHeader)
+        fits.writeto(outName, regridCube, regHeader, overwrite=True)
+        sys.exit(0)
+
+
