@@ -658,16 +658,16 @@ class cubeplay:
         tData = tFile[0].data
 
         tVel = ((np.linspace(1,tData.shape[0],tData.shape[0])-tHead['CRPIX3'])*tHead['CDELT3']+tHead['CRVAL3'])/1e3
-        print(tVel)
+        tVel = tVel[::-1]
         iHead = iFile[0].header
         iData = iFile[0].data
 
         iVel = ((np.linspace(1,iData.shape[0],iData.shape[0])-iHead['CRPIX3'])*iHead['CDELT3']+iHead['CRVAL3'])/1e3
-        print(iVel)
+        iVel = iVel[::-1]
         data = np.zeros([tData.shape[0],tData.shape[1],tData.shape[2]])
 
         for i in range(0,tData.shape[0]-1):
-            index = (tVel[i] >= iVel) & (iVel > tVel[i+1])
+            index = (tVel[i] <= iVel) & (iVel < tVel[i+1])
             print(index)
             print(tVel[i])
             data[i,:,:] = np.sum(iData[index,:,:])
