@@ -2,7 +2,7 @@
 
 import os, sys, shutil
 import yaml
-
+from math import floor,ceil
 from lmfit import Model
 from lmfit.models import GaussianModel
 from lmfit.model import save_modelresult
@@ -65,7 +65,7 @@ class cubeplay:
         header['CTYPE3'] = "VRAD"
         header['SPECSYS'] = "barycent"
         header['CELLSCAL'] = 'constant'
-        header['CUNIT3'] = 'm/s'
+        header['CUNIT3'] = 'km/s'
         header['BUNIT'] = 'Jy/beam'
         return header
 
@@ -206,80 +206,315 @@ class cubeplay:
 
         return
 
-    def pvDiagram(self,cfg_par,inCubelet):
+    def circPoint(self,alpha,beta,m,q,pa,ww,keyAlpha):
+        a = -2.*alpha
+        b = -2.*beta 
+        if ww != 0.:
+            r = (ww*1.5)/np.tan(np.radians(float(pa)))
+        else:
+            return alpha,beta
+        c = np.power(alpha,2)+np.power(beta,2)-np.power(r,2)
+
+        bb = 2.*m*q+a+b*m
+        delta = np.sqrt(np.power(bb,2)-4.*(1.+np.power(m,2))*(np.power(q,2)+b*q+c))
+        dueA = 2.*(1.+np.power(m,2))
+        x = np.divide(-bb+delta,dueA)
+        if keyAlpha == 'min':
+            if x<alpha:
+                x = np.divide(-bb-delta,dueA)
+        elif keyAlpha == 'max':
+            if x>alpha:
+                x = np.divide(-bb-delta,dueA)
+        y = m*x+q
+        return x,y
+    
+    def findExtremes(self,ww,pa,Xc,Yc,shape):
+
+        m = np.tan(np.radians(float(pa)))
+        q = Yc-m*Xc
+        x0 = -q/m
+        
+        y0 = m*shape[2]+q
+        if m >= 0:
+            if q < 0:
+                if y0 <= shape[1]:
+                    alpha= x0
+                    beta= 0.
+                    patmp = pa
+                    x1,y1 = self.circPoint(alpha,beta,m,q,patmp,ww,keyAlpha='min')
+                    alpha= shape[2]
+                    beta= y0 
+                    patmp = 90.-pa
+                    x2,y2 = self.circPoint(alpha,beta,m,q,patmp,ww,keyAlpha='max')
+                    #extrs = [[x0,0],[data.shape[2],y0]]                         
+                else:
+                    alpha= x0
+                    beta= 0.
+                    patmp = pa
+                    x1,y1 = self.circPoint(alpha,beta,m,q,patmp,ww,keyAlpha='min')
+                    xtmp = (shape[1]-q)/m                            
+                    alpha= xtmp
+                    beta= shape[1]
+                    patmp = pa
+                    x2,y2 = self.circPoint(alpha,beta,m,q,patmp,ww,keyAlpha='max')
+                    #extrs = [[x0,0],[xtmp,data.shape[1]]]                         
+            elif q >= 0 and q < shape[1]:
+                if y0 <= shape[1]:
+                    alpha= 0.
+                    beta= q
+                    patmp = pa
+                    x1,y1 = self.circPoint(alpha,beta,m,q,patmp,ww,keyAlpha='min')
+                    alpha= shape[2]
+                    beta= y0
+                    patmp = 90.-pa
+                    x2,y2 = self.circPoint(alpha,beta,m,q,patmp,ww,keyAlpha='max')
+                    #extrs = [[0,q],[data.shape[2],y0]]
+                else:
+                    alpha= 0.
+                    beta= q
+                    patmp = pa
+                    x1,y1 = self.circPoint(alpha,beta,m,q,patmp,ww,keyAlpha='min')
+                    xtmp = (shape[1]-q)/m                            
+                    alpha= xtmp
+                    beta= shape[1]
+                    patmp = pa
+                    x2,y2 = self.circPoint(alpha,beta,m,q,patmp,ww,keyAlpha='max')
+                    #extrs = [[0,q],[x1,data.shape[1]]]
+            elif q >=data.shape[1]:
+                    print('ERROR: cutting outside of datacube, adjust PA or centre')
+                    sys.exit(0)
+        elif m < 0:
+            if q > shape[1]:
+                if y0 >= 0:
+                    print('ciao')
+                    alpha = (shape[1]-q)/m
+                    beta= shape[1]
+                    patmp=180.-pa
+                    x1,y1 = self.circPoint(alpha,beta,m,q,patmp,ww,keyAlpha='min')
+                    print(x1,y1)
+                    alpha= shape[2]
+                    beta= y0
+                    patmp =(180.-pa)
+                    x2,y2 = self.circPoint(alpha,beta,m,q,patmp,ww,keyAlpha='max')                              
+                    print(x2,y2)
+
+                    #extrs = [[x1,data.shape[1]],[data.shape[2],y0]]
+                else:
+                    x1 = (shape[1]-q)/m
+                    alpha= x1
+                    beta= shape[1]
+                    patmp = 180.-pa
+                    x1,y1 = self.circPoint(alpha,beta,m,q,patmp,ww,keyAlpha='min')
+                    alpha= x0
+                    beta= 0
+                    patmp = 180.-pa
+                    x2,y2 = self.circPoint(alpha,beta,m,q,patmp,ww,keyAlpha='max')
+                    #extrs = [[x1,data.shape[1]],[x0,0]]
+            elif q >=0 and q < shape[1]:
+                if y0 >= 0:
+                    alpha= 0.
+                    beta= q
+                    patmp = 90.-(180.-pa)
+                    x1,y1 = self.circPoint(alpha,beta,m,q,patmp,ww,keyAlpha='min')
+                    alpha= shape[2]
+                    beta= y0
+                    patmp=90. - (180.-pa)                
+                    x2,y2 = self.circPoint(alpha,beta,m,q,patmp,ww,keyAlpha='max')  
+                    #extrs = [[0,q],[data.shape[2],y0]]
+                else:
+                    alpha= 0.
+                    beta= q
+                    patmp = 90.-(180.-pa)
+                    x1,y1 = self.circPoint(alpha,beta,m,q,pa,ww,keyAlpha='min')
+                    alpha = x0
+                    beta = 0.
+                    patmp = 180.-pa
+                    x2,y2 = self.circPoint(alpha,beta,m,q,pa,ww,keyAlpha='max')
+                    #extrs = [[0,q],[x0,0]]
+            elif q <=0:
+                    print('ERROR: cutting outside of datacube, adjust PA or centre')
+                    sys.exit(0)
+        
+        extrs = [[np.rint(x1),np.rint(y1)],[np.rint(x2),np.rint(y2)]]
+        return extrs,m
+
+    def pvDiagram(self,cfg_par):
         '''
         from SoFiA
         '''
-
-
+        inCubelet=cfg_par['cubePlay']['pvDiagram']['inCube']
         f = fits.open(inCubelet)
-        subcube = f[0].data
+        data = f[0].data
         headerCubelets = f[0].header
 
         # Centres and bounding boxes
-        Xc = cfg_par['cubePlay']['cubelets']['raCentre']
-        Yc = cfg_par['cubePlay']['cubelets']['decCentre']
+        Xc = cfg_par['cubePlay']['pvDiagram']['raCentre']
+        Yc = cfg_par['cubePlay']['pvDiagram']['decCentre']
         Xc = cvP.hms2deg(Xc)
         Yc = cvP.dms2deg(Yc)
 
         header2d = headerCubelets.copy()
         self.delete_3rd_axis(header2d)
 
+        pa = cfg_par['cubePlay']['pvDiagram']['pa']+90.
+        kin_pa = np.radians(float(pa))
+
         w = wcs.WCS(header2d)
+
         Xc,Yc=w.wcs_world2pix(Xc,Yc,0)
-        if cfg_par['cubePlay']['cubelets']['raMin'] != False:
-            Xmin = cfg_par['cubePlay']['cubelets']['raMin']
-            Ymin = cfg_par['cubePlay']['cubelets']['decMin']
-            Xmax = cfg_par['cubePlay']['cubelets']['raMax']
-            Ymax = cfg_par['cubePlay']['cubelets']['decMax']
-        else:
-            Xmin = 0
-            Ymin = 0
-            Xmax = subcube.shape[2]
-            Ymax = subcube.shape[1]
 
-        kin_pa = np.radians(float(cfg_par['cubePlay']['cubelets']['pa']))
 
-        pv_sampling = 10
-        pv_r = np.arange(-max(subcube.shape[1:]), max(subcube.shape[1:]) - 1 + 1.0 / pv_sampling, 1.0 / pv_sampling)
-        #pv_y = Yc - float(YminNew) + pv_r * np.cos(kin_pa)
-        #pv_x = Xc - float(XminNew) - pv_r * np.sin(kin_pa)
-
-        pv_y = Yc  + pv_r * np.cos(kin_pa)
-        pv_x = Xc  - pv_r * np.sin(kin_pa)
-
-        pv_x, pv_y = pv_x[(pv_x >= 0) * (pv_x <= subcube.shape[2] - 1)], pv_y[(pv_x >= 0) * (pv_x <= subcube.shape[2] - 1)]
-        pv_x, pv_y = pv_x[(pv_y >= 0) * (pv_y <= subcube.shape[1] - 1)], pv_y[(pv_y >= 0) * (pv_y <= subcube.shape[1] - 1)]
-        pv_x.resize((1, pv_x.shape[0]))
-        pv_y.resize((pv_x.shape))
-        pv_coords = np.concatenate((pv_y, pv_x), axis=0)
-        pv_array=[]
-        for jj in range(subcube.shape[0]):
-            plane = map_coordinates(subcube[jj], pv_coords)
-            plane = [plane[ii::pv_sampling] for ii in range(pv_sampling)]
-            plane = np.array([ii[:plane[-1].shape[0]] for ii in plane])
-            pv_array.append(plane.mean(axis=0))
-        pv_array = np.array(pv_array)
+        ww = np.rint(cfg_par['cubePlay']['pvDiagram']['width']/3600./headerCubelets['CDELT2'])
+        if ww < 1 :     
+            ww = 0.0
         
-        hdu = fits.PrimaryHDU(data=pv_array, header=headerCubelets)
+        if float(pa) == 90.:
+            extrs = [[Xc,0],[Xc,data.shape[1]]]            
+        else:
+
+            extrs,m = self.findExtremes(ww,pa,Xc,Yc,data.shape)
+
+        # if cfg_par['cubePlay']['cubelets']['raMin'] != False:
+        #     Xmin = cfg_par['cubePlay']['cubelets']['raMin']
+        #     Ymin = cfg_par['cubePlay']['cubelets']['decMin']
+        #     Xmax = cfg_par['cubePlay']['cubelets']['raMax']
+        #     Ymax = cfg_par['cubePlay']['cubelets']['decMax']
+        # else:
+        #     Xmin = 0
+        #     Ymin = 0
+        #     Xmax = subcube.shape[2]
+        #     Ymax = subcube.shape[1]
+        #sys.exit(0)
+        N=5.
+        px,py,dt,tmp,ss,tmpp=extrs[0][0],extrs[0][1],1./N,np.arange(0),np.arange(0),np.arange(0)
+        Dx,Dy=extrs[1][0]-extrs[0][0],extrs[1][1]-extrs[0][1]
+        dist=np.sqrt((Dx)**2+(Dy)**2)
+        # find perpendicular
+        if ww and ww > 1:
+            if Dx:
+                Dyp=ww/np.sqrt(1+Dy**2/Dx**2)
+                Dxp=-Dyp*Dy/Dx
+            else:
+                Dxp=ww/np.sqrt(1+Dx**2/Dy**2)
+                Dyp=-Dxp*Dx/Dy
+            distp=np.sqrt((Dxp)**2+(Dyp)**2)
+        else: Dxp,Dyp,distp=0,0,1
+        # move from one extreme to the other of the line
+        # append 1 average spectrum 'tmp' per pixel to 'ss' sampling the pixel with N sub-pixels
+        if m >= 0:
+            while np.rint((px))<extrs[1][0] and np.rint((py))<extrs[1][1]:
+                dw=-ww
+
+                while dw<=ww+1e-9:
+                    pxp,pyp=(px+dw*Dxp/distp),(py+dw*Dyp/distp)
+                    #sys.exit(0)
+                    if 0. <= pxp <= data.shape[2] and 0.<= pyp <=data.shape[1]:
+                        if not tmpp.sum():
+                            tmpp=data[:,int(floor(pyp)),int(floor(pxp))]
+                            tmpp=np.atleast_2d(tmpp)
+                        else: tmpp=np.vstack((tmpp,data[:,int(floor(pyp)),int(floor(pxp))]))
+                    dw+=1./N
+                if not tmp.sum():
+                    tmp=tmpp.mean(axis=0)
+                    tmp=np.atleast_2d(tmp)
+                else: tmp=np.vstack((tmp,tmpp.mean(axis=0)))
+                tmpp=np.arange(0)
+                if tmp.shape[0]==N:
+                    if not ss.sum():
+                        ss=tmp.mean(axis=0)
+                        ss=np.atleast_2d(ss)
+                    else: ss=np.vstack((ss,tmp.mean(axis=0)))
+                    tmp=np.arange(0)
+                if np.rint((px)) == np.rint(Xc) and np.rint((py)) == np.rint(Yc) :
+                    centreX = ss.shape[0]
+                px+=dt*(extrs[1][0]-extrs[0][0])/dist
+                py+=dt*(extrs[1][1]-extrs[0][1])/dist
+        elif m<0:
+            while np.rint(floor(px))<extrs[1][0] and np.rint(floor(py))>extrs[1][1]:
+                dw=-ww
+
+                while dw<=ww+1e-9:
+                    pxp,pyp=(px+dw*Dxp/distp),(py+dw*Dyp/distp)
+                    
+                    #sys.exit(0)
+                    if not tmpp.sum():
+                        tmpp=data[:,int(floor(pyp)),int(floor(pxp))]
+                        tmpp=np.atleast_2d(tmpp)
+                    else: tmpp=np.vstack((tmpp,data[:,int(floor(pyp)),int(floor(pxp))]))
+                    dw+=1./N
+                if not tmp.sum():
+                    tmp=tmpp.mean(axis=0)
+                    tmp=np.atleast_2d(tmp)
+                else: tmp=np.vstack((tmp,tmpp.mean(axis=0)))
+                tmpp=np.arange(0)
+                if tmp.shape[0]==N:
+                    if not ss.sum():
+                        ss=tmp.mean(axis=0)
+                        ss=np.atleast_2d(ss)
+                    else: ss=np.vstack((ss,tmp.mean(axis=0)))
+                    tmp=np.arange(0)
+                px+=dt*(extrs[1][0]-extrs[0][0])/dist
+                py+=dt*(extrs[1][1]-extrs[0][1])/dist            
+            #print(pv_slice)
+
+        vel = ((np.linspace(1, ss.shape[0], ss.shape[0]) - headerCubelets['CRPIX3']) 
+            * headerCubelets['CDELT3'] + headerCubelets['CRVAL3'])
+
+        print(vel[-1],vel[0],headerCubelets['CRPIX3'])
+        # print(vel[0],vel[-1])
+        if np.float(vel[0]) > np.float(vel[-1]):
+            headerCubelets['CRPIX3'] = ss.shape[0]
+            headerCubelets['CRVAL3'] = vel[-1]/1e3
+            headerCubelets['CDELT3'] = -headerCubelets['CDELT3']
+            ss = np.fliplr(ss).T
+            print('ciao')
+        else:
+            ss = ss.T
+
+
+        hdu = fits.PrimaryHDU(data=ss, header=headerCubelets)
         hdulist = fits.HDUList([hdu])
+        # print(hdulist[0].header)
+        #if hdulist[0].header["CRPIX3"]
+        print(hdulist[0].header['CRVAL3'])
+
         hdulist[0].header["CTYPE1"] = "PV--DIST"
         hdulist[0].header["CDELT1"] = hdulist[0].header["CDELT2"]
         hdulist[0].header["CRVAL1"] = 0
-        hdulist[0].header["CRPIX1"] = pv_array.shape[1] / 2
+        hdulist[0].header["CRPIX1"] = centreX
         hdulist[0].header["CTYPE2"] = hdulist[0].header["CTYPE3"]
         hdulist[0].header["CDELT2"] = hdulist[0].header["CDELT3"]
         hdulist[0].header["CRVAL2"] = hdulist[0].header["CRVAL3"]
         hdulist[0].header["CRPIX2"] = hdulist[0].header["CRPIX3"]
+        hdulist[0].header["CUNIT2"] = hdulist[0].header["CUNIT3"]
         hdulist[0].header["ORIGIN"] = 'GaNGiaLF'
-        
+
         self.delete_3rd_axis(hdulist[0].header)
         
         outCubelet=str.split(os.path.basename(inCubelet),'.')[0]
-        outCubelet=outCubelet+'_'+str(cfg_par['cubePlay']['pa'])+'-pv.fits'
+        outCubelet=outCubelet+'_'+str(cfg_par['cubePlay']['pvDiagram']['pa'])+'-pv.fits'
         name = cfg_par['general']['pvDir'] + outCubelet
-        print(name)
         hdulist.writeto(name,overwrite=True)
+        
+        # hdu1 = fits.PrimaryHDU(data=pv_slice1[2,:,:], header=headerCubelets)
+        # hdul = fits.HDUList([hdu1])
+        # hdul[0].header["CTYPE1"] = "PV--DIST"
+        # hdul[0].header["CDELT1"] = hdul[0].header["CDELT2"]
+        # hdul[0].header["CRVAL1"] = 0
+        # hdul[0].header["CRPIX1"] = pv_slice1.shape[1] / 2
+        # hdul[0].header["CTYPE2"] = hdul[0].header["CTYPE3"]
+        # hdul[0].header["CDELT2"] = hdul[0].header["CDELT3"]
+        # hdul[0].header["CRVAL2"] = hdul[0].header["CRVAL3"]
+        # hdul[0].header["CRPIX2"] = hdul[0].header["CRPIX3"]
+        # hdul[0].header["ORIGIN"] = 'GaNGiaLF'
+
+        # self.delete_3rd_axis(hdul[0].header)
+        
+        # outCubelet=str.split(os.path.basename(inCubelet),'.')[0]
+        # outCubelet=outCubelet+'_'+str(cfg_par['cubePlay']['pvDiagram']['pa'])+'-pvSingle.fits'
+        # name = cfg_par['general']['pvDir'] + outCubelet
+        # print(name)
+        # hdul.writeto(name,overwrite=True)
 
         return
 

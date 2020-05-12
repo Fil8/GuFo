@@ -388,12 +388,14 @@ def main (argv):
         timeMom = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))
 
-    if args.pVsingle: 
+    if args.pVsingle or gPar.cfg_par['cubePlay']['pvDiagram'].get('enable',False) == True: 
         time_start_load = time.time()
         print('\n\t +---------+\t\t    pV diagram\t\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
-        gPar.cfg_par['cubelets']['pa'] = args.positionAngle
-        cP.pvDiagram(gPar.cfg_par,args.inputCube)
+        gPar.cfg_par['cubePlay']['cubelets']['pa'] = args.positionAngle
+        if args.inputCube:
+            gPar.cfg_par['cubePlay']['cubelets']['inCube'] = args.inputCube
+        cP.pvDiagram(gPar.cfg_par)
         timePV = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timePV))
     
