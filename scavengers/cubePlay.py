@@ -674,6 +674,7 @@ class cubeplay:
         iHead['CRVAL3'] = tHead['CRVAL3']
         iHead['CDELT3'] = tHead['CDELT3']
         iHead['CRPIX3'] = tHead['CRPIX3']
+        iHead['CTYPE3'] = 'm/s'
 
 
         rebinFileName = str.split((inputFile),'.')[0]
