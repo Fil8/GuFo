@@ -457,26 +457,26 @@ class cubeplay:
                 py+=dt*(extrs[1][1]-extrs[0][1])/dist            
             #print(pv_slice)
 
-        vel = ((np.linspace(1, ss.shape[0], ss.shape[0]) - headerCubelets['CRPIX3']) 
-            * headerCubelets['CDELT3'] + headerCubelets['CRVAL3'])
+        # vel = ((np.linspace(1, ss.shape[0], ss.shape[0]) - headerCubelets['CRPIX3']) 
+        #     * headerCubelets['CDELT3'] + headerCubelets['CRVAL3'])
 
-        print(vel[-1],vel[0],headerCubelets['CRPIX3'])
-        # print(vel[0],vel[-1])
-        if np.float(vel[0]) > np.float(vel[-1]):
-            headerCubelets['CRPIX3'] = ss.shape[0]
-            headerCubelets['CRVAL3'] = vel[-1]/1e3
-            headerCubelets['CDELT3'] = -headerCubelets['CDELT3']
-            ss = np.fliplr(ss).T
-            print('ciao')
-        else:
-            ss = ss.T
+        # print(vel[-1],vel[0],headerCubelets['CRPIX3'])
+        # # print(vel[0],vel[-1])
+        # if np.float(vel[0]) > np.float(vel[-1]):
+        #     headerCubelets['CRPIX3'] = ss.shape[0]
+        #     headerCubelets['CRVAL3'] = vel[-1]/1e3
+        #     headerCubelets['CDELT3'] = -headerCubelets['CDELT3']
+        #     ss = np.fliplr(ss).T
+        #     print('ciao')
+        # else:
+        #     ss = ss.T
 
 
         hdu = fits.PrimaryHDU(data=ss, header=headerCubelets)
         hdulist = fits.HDUList([hdu])
         # print(hdulist[0].header)
         #if hdulist[0].header["CRPIX3"]
-        print(hdulist[0].header['CRVAL3'])
+        # print(hdulist[0].header['CRVAL3'])
 
         hdulist[0].header["CTYPE1"] = "PV--DIST"
         hdulist[0].header["CDELT1"] = hdulist[0].header["CDELT2"]
