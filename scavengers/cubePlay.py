@@ -666,7 +666,7 @@ class cubeplay:
         iVel = iVel[::-1]
         data = np.zeros([tData.shape[0],tData.shape[1],tData.shape[2]])
 
-        if iData.shape[0] != tdata.shape[0]:
+        if iData.shape[0] != tData.shape[0]:
             for i in range(0,tData.shape[0]-1):
                 index = (tVel[i] <= iVel) & (iVel < tVel[i+1])
                 print(index)
