@@ -670,7 +670,7 @@ class cubeplay:
             index = (tVel[i] <= iVel) & (iVel < tVel[i+1])
             print(index)
             print(tVel[i])
-            data[i,:,:] = np.sum(iData[index,:,:])
+            data[i,:,:] = np.sum(iData[index,:,:],axis=0)
 
         iHead['CRVAL3'] = tHead['CRVAL3']
         iHead['CDELT3'] = tHead['CDELT3']
