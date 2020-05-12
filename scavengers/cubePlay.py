@@ -667,8 +667,9 @@ class cubeplay:
         data = np.zeros([tData.shape[0],tData.shape[1],tData.shape[2]])
 
         for i in range(0,tData.shape[0]-1):
-            index = (tVel[i] <= iVel) & (iVel < tVel[i+1])
+            index = (tVel[i] >= iVel) & (iVel > tVel[i+1])
             print(index)
+            print(tVel[i])
             data[i,:,:] = np.sum(iData[index,:,:])
 
         iHead['CRVAL3'] = tHead['CRVAL3']
