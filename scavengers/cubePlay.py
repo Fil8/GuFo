@@ -206,6 +206,7 @@ class cubeplay:
 
         return
 
+
     def circPoint(self,alpha,beta,m,q,pa,ww,keyAlpha):
         a = -2.*alpha
         b = -2.*beta 
@@ -644,5 +645,42 @@ class cubeplay:
         regridCube, footprint = rp(cube, regHeader)
         fits.writeto(outName, regridCube, regHeader, overwrite=True)
         sys.exit(0)
+
+
+
+    def rebinCubeSpec(self,templateFile,inputFile):
+
+
+        tFile = fits.open(templateFile)
+        iFile = fits.open(inputFile)
+
+        tHead = tFile[0].header
+        tData = tFile[0].data
+
+        tVel = ((np.linspace(1,tData.shape[0],tData.shape[0])-tHead['CRPIX3'])*tHead['CDELT3']+tHead['CRVAL3'])
+
+        iHead = iFile[0].header
+        iData = iFile[0].data
+
+        iVel = ((np.linspace(1,iData.shape[0],iData.shape[0])-iHead['CRPIX3'])*iHead['CDELT3']+iHead['CRVAL3'])
+
+        data = np.zeros([tData.shape[0],tData.shape[1],tData.shape[2]])
+
+        for i in range(0,tData.shape[0]-1):
+            index = (tVel[i] <= iVel) & (iVel < tVel[i+1])
+            data[i,:,:] = np.sum(iData[index,:,:])
+
+        iHead['CRVAL3'] = tHead['CRVAL3']
+        iHead['CDELT3'] = tHead['CDELT3']
+        iHead['CRPIX3'] = tHead['CRPIX3']
+
+
+        rebinFileName = str.split((inputFile),'.')[0]
+        rebinFileName=rebinFileName+'-rebin.fits'
+        print(rebinFileName)
+        fits.writeto(rebinFileName,data,iHead,overwrite=True)
+
+
+        return 0
 
 
