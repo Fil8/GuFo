@@ -666,12 +666,14 @@ class cubeplay:
         iVel = iVel[::-1]
         data = np.zeros([tData.shape[0],tData.shape[1],tData.shape[2]])
 
-        for i in range(0,tData.shape[0]-1):
-            index = (tVel[i] <= iVel) & (iVel < tVel[i+1])
-            print(index)
-            print(tVel[i])
-            data[i,:,:] = np.sum(iData[index,:,:],axis=0)
-
+        if idata.shape[0] != tdata.shape[0]:
+            for i in range(0,tData.shape[0]-1):
+                index = (tVel[i] <= iVel) & (iVel < tVel[i+1])
+                print(index)
+                print(tVel[i])
+                data[i,:,:] = np.sum(iData[index,:,:])
+        else:
+            data = np.copy(iData)
         iHead['CRVAL3'] = tHead['CRVAL3']
         iHead['CDELT3'] = tHead['CDELT3']
         iHead['CRPIX3'] = tHead['CRPIX3']
