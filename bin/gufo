@@ -196,6 +196,26 @@ def main (argv):
         default = False,
         help= 'pvPlot of single cube')
 
+    add('-mS', '--medSub',
+        action = 'store_true',
+        default = False,
+        help= 'subtract median value from spectra in cube')
+
+    add('-rC', '--rebCube',
+        action = 'store_true',
+        default = False,
+        help= 'rebin input cube according to template cube')
+
+    add('-cT', '--cubeTemp',
+        type= float,
+        default= False,
+        help = 'template cube for rebinning')    
+
+    add('-cI', '--cubeIn',
+        type= float,
+        default= False,
+        help = 'template cube for rebinning')    
+
     add('-pa', '--positionAngle',
         type= float,
         default= False,
@@ -398,7 +418,23 @@ def main (argv):
         cP.pvDiagram(gPar.cfg_par)
         timePV = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timePV))
-    
+
+    if args.rebCub or gPar.cfg_par['cubePlay']['rebinCub'].get('enable',False) == True: 
+        time_start_load = time.time()
+        print('\n\t +---------+\t\t  rebin Cube\t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        cP.rebinCube(args.cubeTemp,args.cubeIn)
+        timeMS = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMS))    
+
+    if args.medSub or gPar.cfg_par['cubePlay']['medSub'].get('enable',False) == True: 
+        time_start_load = time.time()
+        print('\n\t +---------+\t\t  median Sub\t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        cP.medianSubtract(gPar.cfg_par)
+        timeMS = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMS))
+
 
     if args.mosaic or gPar.cfg_par['cubePlay']['mosaic'].get('enable',False) == True: 
         time_start_load = time.time()

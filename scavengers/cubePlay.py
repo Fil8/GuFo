@@ -473,7 +473,7 @@ class cubeplay:
         #     ss = ss.T
 
 
-        hdu = fits.PrimaryHDU(data=ss, header=headerCubelets)
+        hdu = fits.PrimaryHDU(data=ss.T, header=headerCubelets)
         hdulist = fits.HDUList([hdu])
         # print(hdulist[0].header)
         #if hdulist[0].header["CRPIX3"]
@@ -646,10 +646,7 @@ class cubeplay:
         fits.writeto(outName, regridCube, regHeader, overwrite=True)
         sys.exit(0)
 
-
-
-    def rebinCubeSpec(self,templateFile,inputFile):
-
+    def rebinCube(self,templateFile,inputFile):
 
         tFile = fits.open(templateFile)
         iFile = fits.open(inputFile)
@@ -686,5 +683,28 @@ class cubeplay:
 
 
         return 0
+
+    def medianSubtract(self,cfg_par):
+
+
+        inCubelet=cfg_par['cubePlay']['medSub']['inCube']
+        f = fits.open(inCubelet)
+        data = f[0].data
+        headerCubelets = f[0].header
+
+        for i in range(0,data.shape[2]):
+            for j in range(0,data.shape[1]):
+                median1 = np.nanmedian(data[cfg_par['cubePlay']['medSub']['interval'][0][0]:cfg_par['cubePlay']['medSub']['interval'][0][1],j,i])
+                median2 = np.nanmedian(data[cfg_par['cubePlay']['medSub']['interval'][1][0]:cfg_par['cubePlay']['medSub']['interval'][1][1],j,i])
+
+                median = (median1+median2)/2.
+                data[:,j,i] =np.subtract(data[:,j,i],median)
+        
+        medSubFile = str.split((inCubelet),'.')[0]
+        medSubFile=medSubFile+'-medSub.fits'
+        fits.writeto(medSubFile,data,headerCubelets,overwrite=True)
+
+        return 0
+
 
 
