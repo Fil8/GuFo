@@ -207,12 +207,12 @@ def main (argv):
         help= 'rebin input cube according to template cube')
 
     add('-cT', '--cubeTemp',
-        type= float,
+        type= str,
         default= False,
         help = 'template cube for rebinning')    
 
     add('-cI', '--cubeIn',
-        type= float,
+        type= str,
         default= False,
         help = 'template cube for rebinning')    
 
