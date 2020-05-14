@@ -310,7 +310,7 @@ def main (argv):
         print ('\n\t************* --- GuFo : gPlay --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
         if gPar.cfg_par['gFit']['method'] == 'pixel':
-            tp.makePixelTables(gPar.cfg_par)
+            tp.makePixelTable(gPar.cfg_par)
         gp.gFit(gPar.cfg_par)
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')

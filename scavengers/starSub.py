@@ -213,6 +213,9 @@ class starsub(object):
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['tableBinName'],
             workDir+cfg_par['general']['tableAllSpecName'],workDir+cfg_par['general']['tableStarName'])
         
+        pxSize *=3600.
+        cvel      = 299792.458
+        velscale  = (wave[1]-wave[0])*cvel/np.mean(wave)
 
         lineInfo = tP.openLineList(cfg_par)
 
@@ -269,6 +272,7 @@ class starsub(object):
 
                 tmpS = np.array(dataStar[indexBin][1][:])
                 tmpD = np.array(dataSpec[i,:])
+                tmpN = np.array(noiseBin[i,:])
 
                 data[:,yy[0],xx[0]] = tmpD
                 if cfg_par['starSub'].get('scaleHow',None) == 'mean':
@@ -279,12 +283,40 @@ class starsub(object):
                 dataSub[:,yy[0],xx[0]] = np.subtract(tmpD,starsScale)
                 Stars[:,yy[0],xx[0]] = starsScale
 
+                noiseVec.append(tmpN)
+                specVec.append(np.subtract(tmpD,starsScale))
+
             else:
                 pass
 
         xxVecArr= Column(np.array(xxVec), name='PixX')
         yyVecArr= Column(np.array(yyVec), name='PixY')
 
+
+        if cfg_par['gFit']['method'] == pixel:
+            tab = fits.open(cfg_par['general']['tableAllSpecName'])
+            # Table HDU for spectra
+            cols = []
+            cols.append( fits.Column(name='SPEC',  format=str(len(specVec))+'D', array=specVec  ))
+            cols.append( fits.Column(name='ESPEC', format=str(len(specVec)+'D', array=noiseVec ))
+            dataHDU = fits.BinTableHDU.from_columns(fits.ColDefs(cols))
+            dataHDU.name = 'VOR_SPECTRA'
+            hdl = fits.HDUList([tab[0],dataHDU['VOR_SPECTRA'],tab[2]])
+
+            hdl.writeto(cfg_par['general']['outPixSpectra'],overwrite=True)
+
+            fits.setval(cfg_par['general']['outPixSpectra'],'VELSCALE',value=velscale)
+            fits.setval(cfg_par['general']['outPixSpectra'],'CRPIX1',  value=1.0)
+            fits.setval(cfg_par['general']['outPixSpectra'],'CRVAL1',  value=tab[2].data[0])
+            fits.setval(cfg_par['general']['outPixSpectra'],'CDELT1',  value=tab[2].data[1]-tab[2].data[0])
+
+
+        # Table HDU for spectra
+        cols = []
+        cols.append( fits.Column(name='SPEC',  format=str(npix)+'D', array=log_spec.T  ))
+        cols.append( fits.Column(name='ESPEC', format=str(npix)+'D', array=log_error.T ))
+        dataHDU = fits.BinTableHDU.from_columns(fits.ColDefs(cols))
+        dataHDU.name = 'VOR_SPECTRA'
 
 
         t = Table(vorBinInfo)
@@ -319,7 +351,7 @@ class starsub(object):
                 print('\n\t         +++\t\tData Cube saved\t\t +++')                 
             elif outputs=='all':
                 fits.writeto(cfg_par['general']['outNoise'],noiseCube,header,overwrite=True)
-                fits.writeto(cfg_par['general']['outLines'],Lines,header,overwrite=True)
+                fits.writeto(cfg_par['general']['outLines'],dataSub,header,overwrite=True)
                 fits.writeto(cfg_par['general']['outStars'],Stars,header,overwrite=True)
                 fits.writeto(cfg_par['general']['outCube'],data,header,overwrite=True)
                 print('\n\t         +++\t\tAll Cube saved\t\t +++')    

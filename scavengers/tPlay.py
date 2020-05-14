@@ -248,7 +248,7 @@ class tplay(object):
 
     def makePixelTable(self,cfg_par):
 
-        tab = fits.open(self.cfg_par['general']['outVorTableName'])
+        tab = fits.open(cfg_par['general']['outVorTableName'])
         
         headTab = tab[0].header
         dataTab = tab[0].data  
@@ -273,7 +273,7 @@ class tplay(object):
         cols.append(fits.Column(name='NSPAX',     format='J',   array=NSPAX             ))
 
         tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(cols))
-        tbhdu.writeto(self.cfg_par['general']['outVorLineTableName'], overwrite=True)
+        tbhdu.writeto(cfg_par['general']['outVorLineTableName'], overwrite=True)
 
         return 0
 
