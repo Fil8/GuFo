@@ -284,8 +284,8 @@ class starsub(object):
                 dataSub[:,yy[0],xx[0]] = np.subtract(tmpD,starsScale)
                 Stars[:,yy[0],xx[0]] = starsScale
 
-                noiseVec.append(tmpN)
-                specVec.append(np.subtract(tmpD,starsScale))
+                noiseVec.append([tmpN])
+                specVec.append([np.subtract(tmpD,starsScale)])
 
             else:
                 pass
@@ -298,7 +298,7 @@ class starsub(object):
             tab = fits.open(workDir+cfg_par['general']['tableAllSpecName'])
             # Table HDU for spectra
             cols = []
-            print(specVec)
+            print(specVec,noiseVec)
             cols.append( fits.Column(name='SPEC',  format=str(len(specVec))+'D', array=specVec  ))
             cols.append( fits.Column(name='ESPEC', format=str(len(specVec))+'D', array=noiseVec ))
             print(cols)
