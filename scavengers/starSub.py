@@ -299,8 +299,8 @@ class starsub(object):
             # Table HDU for spectra
             cols = []
             print(specVec)
-            cols.append( fits.Column(name='SPEC',  format=str(len(specVec))+'D', array=specVec.T  ))
-            cols.append( fits.Column(name='ESPEC', format=str(len(specVec))+'D', array=noiseVec.T ))
+            cols.append( fits.Column(name='SPEC',  format=str(len(specVec))+'D', array=specVec  ))
+            cols.append( fits.Column(name='ESPEC', format=str(len(specVec))+'D', array=noiseVec ))
             print(cols)
 
             dataHDU = fits.BinTableHDU.from_columns(fits.ColDefs(cols))
