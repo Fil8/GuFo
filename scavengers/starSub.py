@@ -295,7 +295,7 @@ class starsub(object):
 
 
         if cfg_par['gFit']['method'] == 'pixel':
-            tab = fits.open(workdir+cfg_par['general']['tableAllSpecName'])
+            tab = fits.open(workDir+cfg_par['general']['tableAllSpecName'])
             # Table HDU for spectra
             cols = []
             cols.append( fits.Column(name='SPEC',  format=str(len(specVec))+'D', array=specVec  ))
