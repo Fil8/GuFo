@@ -294,7 +294,7 @@ class starsub(object):
         yyVecArr= Column(np.array(yyVec), name='PixY')
 
 
-        if cfg_par['gFit']['method'] == pixel:
+        if cfg_par['gFit']['method'] == 'pixel':
             tab = fits.open(cfg_par['general']['tableAllSpecName'])
             # Table HDU for spectra
             cols = []
