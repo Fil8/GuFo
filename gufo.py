@@ -121,6 +121,8 @@ class gufo(object):
            self.cfg_par['general']['dataCubeName'] =  self.cfg_par['general']['outVorLines'] 
         if not self.cfg_par['general'].get('noiseCubeName',None):
            self.cfg_par['general']['noiseCubeName'] =  self.cfg_par['general']['outVorNoise'] 
+        if self.cfg_par['gFit']['method'] == 'pixel':
+            self.cfg_par['general']['dataCubeName'] = self.cfg_par['general']['outCube']
 
         outTableName = self.cfg_par['general']['runNameDir']+'gPlayOut.fits'
 

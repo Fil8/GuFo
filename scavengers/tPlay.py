@@ -246,6 +246,37 @@ class tplay(object):
 
         return wave,xAxis,yAxis,pxSize,noiseBin,dataTab,dataSpec
 
+    def makePixelTable(self,cfg_par):
+
+        tab = fits.open(self.cfg_par['general']['outVorTableName'])
+        
+        headTab = tab[0].header
+        dataTab = tab[0].data  
+
+        NSPAX = np.zeros(0,len(dataTab['NSPAX']))+1.
+        BIN_ID = dataTab['ID'].copy()
+
+        nam = tuple (['ID', 'BIN_ID', 'X', 'Y', 'PixX', 'PixY', 'NSPAX'])
+        tableArr = np.array([dataTab['ID'],BIN_ID,dataTab['X'],dataTab['Y'],dataTab['PixX'],dataTab['PixY'],NSPAX], dtype={'names':nam,
+                          'formats':( 'i4', 'i4', 'f8', 'f8', 'i4', 'i4', 'i4', 'i4')})
+
+        cols = []
+
+        cols.append(fits.Column(name='ID',        format='J',   array=dataTab['ID']     ))
+        cols.append(fits.Column(name='BIN_ID',    format='J',   array=BIN_ID            ))
+        cols.append(fits.Column(name='X',         format='D',   array=dataTab['X']      ))
+        cols.append(fits.Column(name='Y',         format='D',   array=dataTab['Y']      ))
+        cols.append(fits.Column(name='PixX',      format='D',   array=dataTab['PixX']   ))
+        cols.append(fits.Column(name='PixY',      format='D',   array=dataTab['PixY']   ))
+        cols.append(fits.Column(name='XBIN',      format='D',   array=dataTab['PixX']   ))
+        cols.append(fits.Column(name='YBIN',      format='D',   array=dataTab['PixY']   ))        
+        cols.append(fits.Column(name='NSPAX',     format='J',   array=NSPAX             ))
+
+        tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(cols))
+        tbhdu.writeto(self.cfg_par['general']['outVorLineTableName'], overwrite=True)
+
+        return 0
+
     def makeInputArrays(self,cfg_par,lineInfo, Xdim,Ydim):
 
         binID = np.zeros([Ydim,Xdim],dtype=int)
