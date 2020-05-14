@@ -251,7 +251,8 @@ class starsub(object):
         del header['LONPOLE']
         xxVec = []
         yyVec = []
-        
+        noiseVec = []
+        specVec = []
         #create AllSpectra datacube
         for i in range(0,vorBinInfo['ID'].shape[0]):
 
