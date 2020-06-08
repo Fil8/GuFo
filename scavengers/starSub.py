@@ -301,7 +301,7 @@ class starsub(object):
             cols = []
             print(len(tab[2].name))
             print(len(specVec),len(noiseVec))
-            sys.exit(0)
+            #sys.exit(0)
             cols.append( fits.Column(name='SPEC',  format=str(len(specVec))+'D', array=np.array(specVec).T  ))
             cols.append( fits.Column(name='ESPEC', format=str(len(specVec))+'D', array=np.array(noiseVec).T ))
             #print(cols)
