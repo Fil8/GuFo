@@ -319,8 +319,8 @@ class starsub(object):
 
             fits.setval(cfg_par['general']['outPixSpectra'],'VELSCALE',value=velscale)
             fits.setval(cfg_par['general']['outPixSpectra'],'CRPIX1',  value=1.0)
-            fits.setval(cfg_par['general']['outPixSpectra'],'CRVAL1',  value=tab[2].data[0])
-            fits.setval(cfg_par['general']['outPixSpectra'],'CDELT1',  value=tab[2].data[1]-tab[2].data[0])
+            fits.setval(cfg_par['general']['outPixSpectra'],'CRVAL1',  value=tab[2].data[0][0])
+            fits.setval(cfg_par['general']['outPixSpectra'],'CDELT1',  value=tab[2].data[1][0]-tab[2].data[0][0])
 
 
         # Table HDU for spectra
