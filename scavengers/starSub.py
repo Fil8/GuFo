@@ -309,7 +309,11 @@ class starsub(object):
             #sys.exit(0)
             dataHDU = fits.BinTableHDU.from_columns(fits.ColDefs(cols))
             dataHDU.name = 'SPECTRA'
-            hdl = fits.HDUList([priHDU,dataHDU['SPECTRA'],tab[2]])
+            
+            #loglamHDU = tab[2].data
+            #oglamHDU.name = 'LOGLAM'
+
+            hdl = fits.HDUList([priHDU,dataHDU,tab[2]])
 
             hdl.writeto(workDir+cfg_par['general']['outPixSpectra'],overwrite=True)
 
