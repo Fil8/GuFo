@@ -299,7 +299,7 @@ class starsub(object):
             priHDU = fits.PrimaryHDU()
             # Table HDU for spectra
             cols = []
-            print(len(tab[2].name))
+
             print(len(specVec),len(noiseVec))
             #sys.exit(0)
             cols.append( fits.Column(name='SPEC',  format=str(len(specVec))+'D', array=np.array(specVec).T  ))
@@ -315,12 +315,12 @@ class starsub(object):
 
             hdl = fits.HDUList([priHDU,dataHDU,tab[2]])
 
-            hdl.writeto(workDir+cfg_par['general']['outPixSpectra'],overwrite=True)
+            hdl.writeto(cfg_par['general']['outPixSpectra'],overwrite=True)
 
-            fits.setval(workDir+cfg_par['general']['outPixSpectra'],'VELSCALE',value=velscale)
-            fits.setval(workDir+cfg_par['general']['outPixSpectra'],'CRPIX1',  value=1.0)
-            fits.setval(workDir+cfg_par['general']['outPixSpectra'],'CRVAL1',  value=tab[2].data[0])
-            fits.setval(workDir+cfg_par['general']['outPixSpectra'],'CDELT1',  value=tab[2].data[1]-tab[2].data[0])
+            fits.setval(cfg_par['general']['outPixSpectra'],'VELSCALE',value=velscale)
+            fits.setval(cfg_par['general']['outPixSpectra'],'CRPIX1',  value=1.0)
+            fits.setval(cfg_par['general']['outPixSpectra'],'CRVAL1',  value=tab[2].data[0])
+            fits.setval(cfg_par['general']['outPixSpectra'],'CDELT1',  value=tab[2].data[1]-tab[2].data[0])
 
 
         # Table HDU for spectra
