@@ -296,16 +296,19 @@ class starsub(object):
 
         if cfg_par['gFit']['method'] == 'pixel':
             tab = fits.open(workDir+cfg_par['general']['tableAllSpecName'])
+            priHDU = fits.PrimaryHDU()
             # Table HDU for spectra
             cols = []
-            #print(specVec,noiseVec)
-            cols.append( fits.Column(name='SPEC',  format=str(len(specVec))+'D', array=specVec  ))
-            cols.append( fits.Column(name='ESPEC', format=str(len(specVec))+'D', array=noiseVec ))
+            print(len(tab[1].data['SPEC']))
+            print(len(specVec),len(noiseVec))
+            cols.append( fits.Column(name='SPEC',  format=str(len(specVec))+'D', array=np.array(specVec).T  ))
+            cols.append( fits.Column(name='ESPEC', format=str(len(specVec))+'D', array=np.array(noiseVec).T ))
             #print(cols)
-
+            print(len(cols))
+            #sys.exit(0)
             dataHDU = fits.BinTableHDU.from_columns(fits.ColDefs(cols))
             dataHDU.name = 'VOR_SPECTRA'
-            hdl = fits.HDUList([tab[0],dataHDU['VOR_SPECTRA'],tab[2]])
+            hdl = fits.HDUList([priHDU,dataHDU['VOR_SPECTRA'],tab[2]])
 
             hdl.writeto(workDir+cfg_par['general']['outPixSpectra'],overwrite=True)
 
