@@ -298,10 +298,10 @@ class starsub(object):
             tab = fits.open(workDir+cfg_par['general']['tableAllSpecName'])
             # Table HDU for spectra
             cols = []
-            print(specVec,noiseVec)
+            #print(specVec,noiseVec)
             cols.append( fits.Column(name='SPEC',  format=str(len(specVec))+'D', array=specVec  ))
             cols.append( fits.Column(name='ESPEC', format=str(len(specVec))+'D', array=noiseVec ))
-            print(cols)
+            #print(cols)
 
             dataHDU = fits.BinTableHDU.from_columns(fits.ColDefs(cols))
             dataHDU.name = 'VOR_SPECTRA'
