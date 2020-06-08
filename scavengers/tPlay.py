@@ -474,7 +474,7 @@ class tplay(object):
         nvarys = result.nvarys
         nfev = result.nfev
         success = result.success
-  
+        print(bic,aic,counter)
         fitResArr['BIN_ID'][counter] = binIDName
         fitResArr['fitSuccess'][counter] = success
         fitResArr['redChi'][counter] = redchi
