@@ -335,6 +335,8 @@ class starsub(object):
         t = Table(vorBinInfo)
         t.add_column(xxVecArr,index=0)
         t.add_column(yyVecArr,index=0) 
+        if self.cfg_par['gFit']['method'] == 'pixel':
+            t['BIN_ID'] = t['ID']        
 
         tab = fits.open(workDir+cfg_par['general']['tableBinName'])
         head = tab[0].header
