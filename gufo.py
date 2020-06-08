@@ -125,7 +125,7 @@ class gufo(object):
             self.cfg_par['general']['dataCubeName'] = self.cfg_par['general']['outCube']
             self.cfg_par['general']['outPixSpectra'] = self.cfg_par['general']['tableDir']+'GuFo_LinePixSpectra.fits'
             self.cfg_par['general']['outVorSpectra'] = self.cfg_par['general']['outPixSpectra']
-            self.cfg_par['general']['outVorLineTableName'] = self.cfg_par['general']['tableDir']+'GuFo_LinePixTable.fits'
+            self.cfg_par['general']['outVorLineTableName'] = self.cfg_par['general']['tableDir']+'GuFo_LineSpectra.fits'
 
         outTableName = self.cfg_par['general']['runNameDir']+'gPlayOut.fits'
 
