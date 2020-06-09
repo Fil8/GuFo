@@ -337,20 +337,20 @@ class momplay:
         fits.writeto(momModDir+'mom0_g1-'+lineName+'.fits',mom0G1,mom0Head,overwrite=True)
         fits.writeto(momModDir+'height_g1-'+lineName+'.fits',heightG1,mom0Head,overwrite=True)
         
-        mPl.mom0Plot(cfg_par, momModDir+'mom0_g1-'+lineName+'.fits',lineName,lineNameStr,lineThresh)
+        #mPl.mom0Plot(cfg_par, momModDir+'mom0_g1-'+lineName+'.fits',lineName,lineNameStr,lineThresh)
 
         mom1Head['WCSAXES'] = 2
         mom1Head['SPECSYS'] = 'topocent'
         mom1Head['BUNIT'] = 'km/s'
         fits.writeto(momModDir+'mom1_g1-'+lineName+'.fits',mom1G1,mom1Head,overwrite=True)
-        mPl.mom1Plot(cfg_par, momModDir+'mom1_g1-'+lineName+'.fits',lineName,
+        #mPl.mom1Plot(cfg_par, momModDir+'mom1_g1-'+lineName+'.fits',lineName,
             lineThresh, lineNameStr,'moments', vRange=[-cenRange,cenRange],modName='g1')
 
         mom2Head['WCSAXES'] = 2
         mom2Head['SPECSYS'] = 'topocent'
         mom2Head['BUNIT'] = 'km/s'
         fits.writeto(momModDir+'mom2_g1-'+lineName+'.fits',mom2G1,mom2Head,overwrite=True)
-        mPl.mom2Plot(cfg_par, momModDir+'mom2_g1-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'moments')
+        #mPl.mom2Plot(cfg_par, momModDir+'mom2_g1-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'moments')
 
         if modName != 'g1':
             fits.writeto(momModDir+'mom0_g2-'+lineName+'.fits',mom0G2,mom0Head,overwrite=True)
