@@ -212,8 +212,10 @@ class starsub(object):
 
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['tableBinName'],
             workDir+cfg_par['general']['tableAllSpecName'],workDir+cfg_par['general']['tableStarName'])
-        
-        pxSize *=3600.
+
+
+        header = self.makeHeader(cfg_par, wave, pxSize)
+
         cvel      = 299792.458
         velscale  = (wave[1]-wave[0])*cvel/np.mean(wave)
 
@@ -227,7 +229,6 @@ class starsub(object):
         Stars=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         noiseCube=np.empty([len(wave),yAxis.shape[0],xAxis.shape[0]])
         
-        header = self.makeHeader(cfg_par, wave, pxSize)
 
         hdu = fits.PrimaryHDU(data=dataSub,header=header)
 
@@ -354,6 +355,7 @@ class starsub(object):
         
         if outputs == 'lines':
             fits.writeto(cfg_par['general']['outLines'],dataSub,header,overwrite=True)
+            print(header)
             print('\n\t         +++\t\tLine Cube saved\t\t +++')
             return 
         else: 
