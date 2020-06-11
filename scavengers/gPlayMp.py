@@ -139,7 +139,10 @@ def gFitMp(cfg_par,lineInfo,vorBinInfo,wave,dd,noiseBin,counter,ii,ubins,binArr,
     y = dd[idxMin:idxMax,j,i]
     waveCut = wave[idxMin:idxMax]
 
-    if not np.isnan(y).all():
+
+    all_zeros = not np.all(y)
+    if not np.isnan(y).all() and all_zeros==True: 
+
         gMod,gPars = lineModDefMp(cfg_par,waveCut,y,lineInfo)
 
         if np.sum(index)>0: 
@@ -152,15 +155,14 @@ def gFitMp(cfg_par,lineInfo,vorBinInfo,wave,dd,noiseBin,counter,ii,ubins,binArr,
             return counter,binArr,fitResArr,lineArr
 
         noiseVec = noiseBin[binIDName][:]
-        print(noiseVec[idxMin])
+        print(binIdName)
         # FIT
-        all_zeros = not np.all(y)
-        if all_zeros != True:
-            result = gMod.fit(y, gPars, x=waveCut)
-        
-            save_modelresult(result, cfg_par['general']['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
-            fitResArr = tP.updateFitArray(cfg_par,fitResArr,result,binIDName,counter)
-            lineArr = tP.updateLineArray(cfg_par,waveCut,lineArr,result,noiseVec[idxMin],lineInfo,binIDName,counter)
+
+        result = gMod.fit(y, gPars, x=waveCut)
+    
+        save_modelresult(result, cfg_par['general']['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
+        fitResArr = tP.updateFitArray(cfg_par,fitResArr,result,binIDName,counter)
+        lineArr = tP.updateLineArray(cfg_par,waveCut,lineArr,result,noiseVec[idxMin],lineInfo,binIDName,counter)
         
         #plot Fit
         if cfg_par['gPlot']['enable'] == True:
