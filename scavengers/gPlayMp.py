@@ -154,11 +154,13 @@ def gFitMp(cfg_par,lineInfo,vorBinInfo,wave,dd,noiseBin,counter,ii,ubins,binArr,
         noiseVec = noiseBin[binIDName][:]
 
         # FIT
-        result = gMod.fit(y, gPars, x=waveCut)
+        all_zeros = not np.all()
+        if np.sum(y) != True:
+            result = gMod.fit(y, gPars, x=waveCut)
         
-        save_modelresult(result, cfg_par['general']['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
-        fitResArr = tP.updateFitArray(cfg_par,fitResArr,result,binIDName,counter)
-        lineArr = tP.updateLineArray(cfg_par,waveCut,lineArr,result,noiseVec[idxMin],lineInfo,binIDName,counter)
+            save_modelresult(result, cfg_par['general']['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
+            fitResArr = tP.updateFitArray(cfg_par,fitResArr,result,binIDName,counter)
+            lineArr = tP.updateLineArray(cfg_par,waveCut,lineArr,result,noiseVec[idxMin],lineInfo,binIDName,counter)
         
         #plot Fit
         if cfg_par['gPlot']['enable'] == True:

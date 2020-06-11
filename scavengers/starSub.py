@@ -213,9 +213,9 @@ class starsub(object):
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec,dataStar = tP.openPPXFforSubtraction(cfg_par,workDir+cfg_par['general']['tableBinName'],
             workDir+cfg_par['general']['tableAllSpecName'],workDir+cfg_par['general']['tableStarName'])
 
+        #pxSize*=3600.
 
         header = self.makeHeader(cfg_par, wave, pxSize)
-
         cvel      = 299792.458
         velscale  = (wave[1]-wave[0])*cvel/np.mean(wave)
 

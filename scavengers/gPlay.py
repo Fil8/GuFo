@@ -555,9 +555,10 @@ class gplay(object):
         f.close()
         
         #open datacube
-        f = fits.open(cfg_par[key]['outVorNoise'])
-        nn = f[0].data
-        f.close()
+        if cfg_par['gFit']['method'] != 'pixel':
+            f = fits.open(cfg_par[key]['outVorNoise'])
+            nn = f[0].data
+            f.close()
 
         lineInfo = tP.openLineList(cfg_par)
 
@@ -580,22 +581,31 @@ class gplay(object):
         idxTable = int(np.where(tabGen['BIN_ID'] == int(binID))[0][0])
         
         y = dd[idxMin:idxMax,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]
-        print(np.nansum(y))
+        all_zeros = not np.any(y)
+        print(all_zeros)
         waveCut = wave[idxMin:idxMax]
-
+        print(tabGen['PixY'][idxTable],tabGen['PixX'][idxTable])
         if doFit==False and os.path.exists(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav'):
             result = load_modelresult(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
         elif doFit==True:
             print('''\t+---------+\n\t ...fitting...\n\t+---------+''')
             gMod,gPars = self.lineModDef(cfg_par,waveCut,y,lineInfo)
-            result = gMod.fit(y, gPars, x=waveCut)
-            print(result.fit_report())
-            save_modelresult(result, cfg_par['general']['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
+            all_zeros = not np.any(y)
+            if all_zeros!=True:
+                result = gMod.fit(y, gPars, x=waveCut)
+                save_modelresult(result, cfg_par['general']['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
+            else:
+                print('''\t+---------+\n\t spectrum is empty\n\t+---------+''')
+                print('''\t+---------+\n\t EXIT with ERROR\n\t+---------+''')
+                sys.exit(0)
         
         cfg_par['gPlot']['loadModel'] = True
+        if cfg_par['gFit']['method'] != 'pixel':
 
-        noiseVec = nn[idxMin:idxMax,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]
-        print(noiseVec)
+            noiseVec = nn[idxMin:idxMax,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]
+        else:
+            noiseVec = np.zeros(len(waveCut))
+
         #noiseVec[idxMin:idxMax] -= np.nanmedian(noiseVec[idxMin:idxMax])
         #print(np.nanmean(noiseVec[idxMin:idxMax]),noiseVec[idxMin:idxMax])
         #print(np.nanmean(y),y)
