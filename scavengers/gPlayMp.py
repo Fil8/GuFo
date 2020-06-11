@@ -154,8 +154,8 @@ def gFitMp(cfg_par,lineInfo,vorBinInfo,wave,dd,noiseBin,counter,ii,ubins,binArr,
         noiseVec = noiseBin[binIDName][:]
 
         # FIT
-        all_zeros = not np.all()
-        if np.sum(y) != True:
+        all_zeros = not np.all(y)
+        if all_zeros != True:
             result = gMod.fit(y, gPars, x=waveCut)
         
             save_modelresult(result, cfg_par['general']['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
