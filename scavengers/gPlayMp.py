@@ -152,7 +152,7 @@ def gFitMp(cfg_par,lineInfo,vorBinInfo,wave,dd,noiseBin,counter,ii,ubins,binArr,
             return counter,binArr,fitResArr,lineArr
 
         noiseVec = noiseBin[binIDName][:]
-        print(len(noiseVec))
+        print(len(noiseVec[idxMin]))
         # FIT
         all_zeros = not np.all(y)
         if all_zeros != True:
