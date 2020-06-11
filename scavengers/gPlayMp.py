@@ -141,7 +141,7 @@ def gFitMp(cfg_par,lineInfo,vorBinInfo,wave,dd,noiseBin,counter,ii,ubins,binArr,
 
 
     all_zeros = not np.all(y)
-    if not np.isnan(y).all() and all_zeros==True: 
+    if not np.isnan(y).all() and all_zeros!=True: 
 
         gMod,gPars = lineModDefMp(cfg_par,waveCut,y,lineInfo)
 
