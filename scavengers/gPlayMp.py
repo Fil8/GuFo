@@ -154,8 +154,9 @@ def gFitMp(cfg_par,lineInfo,vorBinInfo,wave,dd,noiseBin,counter,ii,ubins,binArr,
             counter+=1
             return counter,binArr,fitResArr,lineArr
 
-        noiseVec = noiseBin[binIDName][:]
         print(binIDName)
+
+        noiseVec = noiseBin[binIDName][:]
         # FIT
 
         result = gMod.fit(y, gPars, x=waveCut)
