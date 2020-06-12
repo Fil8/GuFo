@@ -247,6 +247,8 @@ class momplay:
         hdul = fits.open(cfg_par['general']['outTableName'])
 
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
+        
+#        lines['BIN_ID'] = hdul['BININFO'].data['ID']
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
         linesG1 = hdul['LineRes_G1'].data
         
@@ -523,14 +525,16 @@ class momplay:
         #to load Voronoi Bin noise : noiseBin
         wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
             cfg_par['general']['outVorSpectra'])
-
+        #print(noiseBin.shape)
+        #print(cfg_par['general']['outVorLineTableName'])
+        #sys.exit(0)
         f = fits.open(cfg_par['general']['dataCubeName'])
         dd = f[0].data
         header = f[0].header
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
-
+        #lines['BIN_ID'] = hdul['BININFO'].data['ID']
         resNameList=['BIN_ID']
         frmList=['i4']
         tot = lines['BIN_ID']
@@ -617,8 +621,14 @@ class momplay:
 
                     idxRightRightNoise = int(np.where(abs(wave-rightrightNoise)==abs(wave-rightrightNoise).min())[0])
                     idxRightNoise = int(np.where(abs(wave-rightNoise)==abs(wave-rightNoise).min())[0])
-                    idxTable = int(np.where(tabGen['BIN_ID'] == int(lines['BIN_ID'][i]))[0][0])
+                    a = np.where(tabGen['BIN_ID'] == int(lines['BIN_ID'][i]))[0]
+                    #if not  a.size == 0:
+
+                    idxTable = a[0]
                     y = dd[:,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]                
+                    #else:
+                    #    y = np.zeros((dd.shape[0]))
+
 
                 if modName == 'g2':
                     amp = lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i]
@@ -650,11 +660,11 @@ class momplay:
                         idxLeft = np.min([idxLeft,idxLeftG3])
                         idxRight = np.max([idxRight,idxRightG3])
 
-                if ii==0 and cfg_par['residuals']['computeNoise']==True:
-                    noiseValue = noiseBin[lines['BIN_ID'][i]][idxLeft]*amp
+                #if ii==0 and cfg_par['residuals']['computeNoise']==True:
+                #    noiseValue = noiseBin[idxLeft][lines['BIN_ID'][i]][idxLeft]*amp
 
                 match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
-
+                #print(match_bin,lines['BIN_ID'][i])
 
                 #result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
                 if idxRight-idxLeft <2.:
@@ -681,15 +691,13 @@ class momplay:
                         linePeak = np.max(y[idxPeakLeft:idxPeakRight])
                         sn = np.divide(linePeak,noise)
                         snStd = np.divide(linePeak,stdValue)
-
                         noiseLine[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noise
-
                         SNLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = sn
                         SNStdLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = snStd
 
 
-                        if ii==0: 
-                            noiseMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
+                        #if ii==0: 
+                        #    noiseMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
 
                 stdArr[i] = stdValue
                 noiseArr[i] = noise
@@ -723,8 +731,8 @@ class momplay:
                 resNameList.append('snRes_'+lineName)
                 frmList.append('f8')
 
-                if ii==0:
-                    fits.writeto(noiseMapName,noiseMap,resHead,overwrite=True)
+                #if ii==0:
+                #    fits.writeto(noiseMapName,noiseMap,resHead,overwrite=True)
 
         t = Table(tot, names=(resNameList))
         hdul.append(fits.BinTableHDU(t.as_array(), name='Residuals_'+modName))
