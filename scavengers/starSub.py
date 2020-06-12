@@ -303,8 +303,8 @@ class starsub(object):
 
             print(len(specVec),len(noiseVec))
             #sys.exit(0)
-            cols.append( fits.Column(name='SPEC',  format=str(len(specVec))+'D', array=np.array(specVec) ))
-            cols.append( fits.Column(name='ESPEC', format=str(len(specVec))+'D', array=np.array(noiseVec) ))
+            cols.append( fits.Column(name='SPEC',  format=str(len(specVec.T))+'D', array=np.array(specVec) ))
+            cols.append( fits.Column(name='ESPEC', format=str(len(specVec.T))+'D', array=np.array(noiseVec) ))
             #print(cols)
             print(len(cols))
             #sys.exit(0)
