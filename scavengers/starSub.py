@@ -289,7 +289,10 @@ class starsub(object):
                 specVec.append([np.subtract(tmpD,starsScale)])
 
             else:
-                pass
+                noiseVec.append([np.zeros(len(noiseBin[i,:]))])
+                specVec.append([np.zeros(len(dataSpec[i,:]))])
+
+
 
         xxVecArr= Column(np.array(xxVec), name='PixX')
         yyVecArr= Column(np.array(yyVec), name='PixY')
