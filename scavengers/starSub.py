@@ -304,7 +304,7 @@ class starsub(object):
             # Table HDU for spectra
             cols = []
 
-            print(len(specVec),len(noiseVec))
+            #print(len(specVec),len(noiseVec))
             #sys.exit(0)
             cols.append( fits.Column(name='SPEC',  format=str(len(np.array(specVec).T))+'D', array=np.array(specVec) ))
             cols.append( fits.Column(name='ESPEC', format=str(len(np.array(specVec).T))+'D', array=np.array(noiseVec) ))

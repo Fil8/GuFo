@@ -284,7 +284,7 @@ class momplay:
 
             match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
             for index in match_bin:
-                thresHold = residuals['SN_OIII5006'][i]
+                thresHold = residuals['SN_NII6853'][i]
                 sigmaThresh = linesG1['g1_SigIntr_OIII5006'][i]
                                   
                 if modName=='g2':
