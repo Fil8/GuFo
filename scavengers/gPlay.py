@@ -598,10 +598,9 @@ class gplay(object):
                 print('''\t+---------+\n\t spectrum is empty\n\t+---------+''')
                 print('''\t+---------+\n\t EXIT with ERROR\n\t+---------+''')
                 sys.exit(0)
-        
+        print(result)
         cfg_par['gPlot']['loadModel'] = True
         if cfg_par['gFit']['method'] != 'pixel':
-
             noiseVec = nn[idxMin:idxMax,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]
         else:
             noiseVec = np.zeros(len(waveCut))
