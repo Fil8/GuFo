@@ -99,7 +99,7 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
                 centroidG2Lambda = cvP.vRadLambda(centroidG2,lambdaRest)
                 centroidToT = np.divide(np.sum([np.multiply(centroidG1Lambda,ampG1)+np.multiply(centroidG2Lambda,ampG2)]),
                     np.sum([ampG1,ampG2]))    
-                sigmaCen['centroid_'+lineName][indexCentroid] = cvP.lambdaVRad(centroidToT,lambdaRest)
+                sigmaCen['centroid_'+lineName][indexCentroid] = cvP.lambdaVRad(centroidToT,lambdaRest)/1e3
 
             elif modName=='g1':
                 centroidToT = lines['g1_Centre_'+str(lineNameID)][indexCentroid]
