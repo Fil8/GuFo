@@ -517,7 +517,12 @@ class tplay(object):
             
 
             waveInRed = cfg_par['general']['redshift']*lineInfo['Wave'][ii]+lineInfo['Wave'][ii]
+
             indexWaveInRed = int(np.where(abs(np.exp(wave)-waveInRed)==abs(np.exp(wave)-waveInRed).min())[0])
+            
+
+            
+
             dLIn = dLambda[indexWaveInRed]
             dLIn = np.log(waveInRed+dLIn/2.)-np.log(waveInRed-dLIn/2.)
 
@@ -574,8 +579,8 @@ class tplay(object):
                 lineArr['g2_Amp_'+lineName][counter] = amp
                 lineArr['g2_Height_'+lineName][counter] = height
                 lineArr['g2_Centre_'+lineName][counter] = g2Ctr
-                lineArr['g2_SigMeas_'+lineName][counter] = g1Sigma
-                lineArr['g2_SigIntr_'+lineName][counter] = g1SigmaInt
+                lineArr['g2_SigMeas_'+lineName][counter] = g2Sigma
+                lineArr['g2_SigIntr_'+lineName][counter] = g2SigmaInt
                 lineArr['g2_FWHM_'+lineName][counter] = g2FWHM
                 
                 lineArr['g2_SN_'+lineName][counter]=height/noiseValue         
@@ -606,8 +611,8 @@ class tplay(object):
                     lineArr['g3_Amp_'+lineName][counter] = amp
                     lineArr['g3_Height_'+lineName][counter] = height
                     lineArr['g3_Centre_'+lineName][counter] = g3Ctr
-                    lineArr['g3_SigMeas_'+lineName][counter] = g1Sigma
-                    lineArr['g3_SigIntr_'+lineName][counter] = g1SigmaInt
+                    lineArr['g3_SigMeas_'+lineName][counter] = g3Sigma
+                    lineArr['g3_SigIntr_'+lineName][counter] = g3SigmaInt
                     lineArr['g3_dLambda_'+lineName][counter] = g3dL
                     lineArr['g3_FWHM_'+lineName][counter] = g3FWHM
                     lineArr['g3_SN_'+lineName][counter]=height/noiseValue         

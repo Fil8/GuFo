@@ -611,16 +611,30 @@ class momplay:
  
                 if cfg_par['residuals']['computeNoise']==True:
             
-                    leftNoise = np.log(lineInfo['Wave'][ii]-60.)
-                    leftleftNoise = np.log(lineInfo['Wave'][ii]-80.)
-                    rightNoise = np.log(lineInfo['Wave'][ii]+60.)
-                    rightrightNoise = np.log(lineInfo['Wave'][ii]+80.)
+                    # leftNoise = np.log(lineInfo['Wave'][ii]-60.)
+                    # leftleftNoise = np.log(lineInfo['Wave'][ii]-80.)
+                    # rightNoise = np.log(lineInfo['Wave'][ii]+60.)
+                    # rightrightNoise = np.log(lineInfo['Wave'][ii]+80.)
+                    # idxLeftLeftNoise = int(np.where(abs(wave-leftleftNoise)==abs(wave-leftleftNoise).min())[0])
+                    # idxLeftNoise = int(np.where(abs(wave-leftNoise)==abs(wave-leftNoise).min())[0])
 
-                    idxLeftLeftNoise = int(np.where(abs(wave-leftleftNoise)==abs(wave-leftleftNoise).min())[0])
-                    idxLeftNoise = int(np.where(abs(wave-leftNoise)==abs(wave-leftNoise).min())[0])
+                    # idxRightRightNoise = int(np.where(abs(wave-rightrightNoise)==abs(wave-rightrightNoise).min())[0])
+                    # idxRightNoise = int(np.where(abs(wave-rightNoise)==abs(wave-rightNoise).min())[0])
+                    
 
-                    idxRightRightNoise = int(np.where(abs(wave-rightrightNoise)==abs(wave-rightrightNoise).min())[0])
-                    idxRightNoise = int(np.where(abs(wave-rightNoise)==abs(wave-rightNoise).min())[0])
+
+                    noiseMinRed = cfg_par['general']['redshift']*cfg_par['gFit']['noiseMin']+cfg_par['noiseMin']
+                    noiseMaxRed = cfg_par['general']['redshift']*cfg_par['gFit']['noiseMin']+cfg_par['noiseMin']
+                    indexNoiseMinRed = int(np.where(abs(np.exp(waveCut)-noiseMinRed)==abs(np.exp(waveCut)-noiseMinRed).min())[0])
+                    indexNoiseMaxRed = int(np.where(abs(np.exp(waveCut)-noiseMaxRed)==abs(np.exp(waveCut)-noiseMaxRed).min())[0])
+
+                    idxLeftNoise = int(np.where(abs(wave-indexNoiseMinRed)==abs(wave-indexNoiseMinRed).min())[0])
+
+                    idxRightNoise = int(np.where(abs(wave-indexNoiseMaxRed)==abs(wave-indexNoiseMaxRed).min())[0])
+                    #idxRightNoise = int(np.where(abs(wave-rightNoise)==abs(wave-rightNoise).min())[0])
+                    
+
+                    
                     a = np.where(tabGen['BIN_ID'] == int(lines['BIN_ID'][i]))[0]
                     #if not  a.size == 0:
 
@@ -687,7 +701,8 @@ class momplay:
                     resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = stdValue
                     
                     if cfg_par['residuals']['computeNoise']==True:
-                        noise = np.nanstd(np.concatenate([y[idxLeftLeftNoise:idxLeftNoise],y[idxRightNoise:idxRightRightNoise]]))
+                        #noise = np.nanstd(np.concatenate([y[idxLeftLeftNoise:idxLeftNoise],y[idxRightNoise:idxRightRightNoise]]))
+                        noise = np.nanstd(yy[indexNoiseMinRed:indexNoiseMaxRed])
                         linePeak = np.max(y[idxPeakLeft:idxPeakRight])
                         sn = np.divide(linePeak,noise)
                         snStd = np.divide(linePeak,stdValue)
