@@ -350,6 +350,14 @@ def main (argv):
         timeSpec = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeSpec))
 
+    if args.resPlot or gPar.cfg_par['residuals'].get('enable',False) == True:
+        time_start_load = time.time()
+        print ('\n\t +---------+\t\t   residuals\t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        mom.resLines(gPar.cfg_par)
+        timeRes = (time.time()- time_start_load)/60.
+        print('\n\t  +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeRes))
+
     if args.moments or gPar.cfg_par['moments'].get('enable',False) == True:
         time_start_load = time.time()
         print('\n\t +---------+\t\t    moments\t\t +---------+')
@@ -370,13 +378,6 @@ def main (argv):
         #gPar.cfg_par['general']['cleanTable'] = False
         print('\n\t ************ --- GuFo : DONE --- ************\n')
 
-    if args.resPlot or gPar.cfg_par['residuals'].get('enable',False) == True:
-        time_start_load = time.time()
-        print ('\n\t +---------+\t\t   residuals\t\t +---------+')
-        gPar = gufo.gufo(args.cfgFile)
-        mom.resLines(gPar.cfg_par)
-        timeRes = (time.time()- time_start_load)/60.
-        print('\n\t  +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeRes))
 
     if args.cubelets or gPar.cfg_par['cubePlay']['cubelets'].get('enable',False) == True:
         time_start_load = time.time()
