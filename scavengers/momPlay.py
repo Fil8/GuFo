@@ -625,14 +625,10 @@ class momplay:
 
                     noiseMinRed = cfg_par['general']['redshift']*cfg_par['gFit']['noiseMin']+cfg_par['gFit']['noiseMin']
                     noiseMaxRed = cfg_par['general']['redshift']*cfg_par['gFit']['noiseMin']+cfg_par['gFit']['noiseMin']
-                    indexNoiseMinRed = int(np.where(abs(np.exp(waveCut)-noiseMinRed)==abs(np.exp(waveCut)-noiseMinRed).min())[0])
-                    indexNoiseMaxRed = int(np.where(abs(np.exp(waveCut)-noiseMaxRed)==abs(np.exp(waveCut)-noiseMaxRed).min())[0])
+                    idxLeftNoise = int(np.where(abs(np.exp(wave)-noiseMinRed)==abs(np.exp(wave)-noiseMinRed).min())[0])
+                    idxRightNoise = int(np.where(abs(np.exp(wave)-noiseMaxRed)==abs(np.exp(wave)-noiseMaxRed).min())[0])
 
-                    idxLeftNoise = int(np.where(abs(wave-indexNoiseMinRed)==abs(wave-indexNoiseMinRed).min())[0])
 
-                    idxRightNoise = int(np.where(abs(wave-indexNoiseMaxRed)==abs(wave-indexNoiseMaxRed).min())[0])
-                    #idxRightNoise = int(np.where(abs(wave-rightNoise)==abs(wave-rightNoise).min())[0])
-                    
 
                     
                     a = np.where(tabGen['BIN_ID'] == int(lines['BIN_ID'][i]))[0]
