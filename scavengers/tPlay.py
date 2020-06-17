@@ -521,8 +521,6 @@ class tplay(object):
             indexWaveInRed = int(np.where(abs(np.exp(wave)-waveInRed)==abs(np.exp(wave)-waveInRed).min())[0])
             
 
-            
-
             dLIn = dLambda[indexWaveInRed]
             dLIn = np.log(waveInRed+dLIn/2.)-np.log(waveInRed-dLIn/2.)
 
