@@ -624,7 +624,7 @@ class momplay:
 
 
                     noiseMinRed = cfg_par['general']['redshift']*cfg_par['gFit']['noiseMin']+cfg_par['gFit']['noiseMin']
-                    noiseMaxRed = cfg_par['general']['redshift']*cfg_par['gFit']['noiseMin']+cfg_par['gFit']['noiseMin']
+                    noiseMaxRed = cfg_par['general']['redshift']*cfg_par['gFit']['noiseMax']+cfg_par['gFit']['noiseMax']
                     idxLeftNoise = int(np.where(abs(np.exp(wave)-noiseMinRed)==abs(np.exp(wave)-noiseMinRed).min())[0])
                     idxRightNoise = int(np.where(abs(np.exp(wave)-noiseMaxRed)==abs(np.exp(wave)-noiseMaxRed).min())[0])
 
