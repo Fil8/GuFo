@@ -160,7 +160,7 @@ def gFitMp(cfg_par,lineInfo,vorBinInfo,wave,dd,noiseBin,counter,ii,ubins,binArr,
         indexNoiseMinRed = int(np.where(abs(np.exp(waveCut)-noiseMinRed)==abs(np.exp(waveCut)-noiseMinRed).min())[0])
         indexNoiseMaxRed = int(np.where(abs(np.exp(waveCut)-noiseMaxRed)==abs(np.exp(waveCut)-noiseMaxRed).min())[0])
         
-        noiseVec = np.nanstd(yy[indexNoiseMinRed:indexNoiseMaxRed,j,i])
+        noiseVec = np.nanstd(y[indexNoiseMinRed:indexNoiseMaxRed,j,i])
         noiseVec = np.zeros(len(wave))+noiseVec
         # FIT
 
