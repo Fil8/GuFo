@@ -155,8 +155,8 @@ def gFitMp(cfg_par,lineInfo,vorBinInfo,wave,dd,noiseBin,counter,ii,ubins,binArr,
             return counter,binArr,fitResArr,lineArr
 
         #print(noiseBin.shape,binIDName)
-        noiseMinRed = cfg_par['general']['redshift']*cfg_par['gFit']['noiseMin']+cfg_par['noiseMin']
-        noiseMaxRed = cfg_par['general']['redshift']*cfg_par['gFit']['noiseMin']+cfg_par['noiseMin']
+        noiseMinRed = cfg_par['general']['redshift']*cfg_par['gFit']['noiseMin']+cfg_par['gFit']['noiseMin']
+        noiseMaxRed = cfg_par['general']['redshift']*cfg_par['gFit']['noiseMin']+cfg_par['gFit']['noiseMin']
         indexNoiseMinRed = int(np.where(abs(np.exp(waveCut)-noiseMinRed)==abs(np.exp(waveCut)-noiseMinRed).min())[0])
         indexNoiseMaxRed = int(np.where(abs(np.exp(waveCut)-noiseMaxRed)==abs(np.exp(waveCut)-noiseMaxRed).min())[0])
         

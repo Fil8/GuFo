@@ -210,7 +210,7 @@ class gplay(object):
                     sigmaIn2 = pars['g1ln'+str(i)+'_'+'sigma'] +lineInfo['deltaSigmaAng_12'][i]
                     sigmaMin = pars['g1ln'+str(i)+'_'+'sigma']
                 #    pars['g2ln'+str(i)+'_'+'sigma'].set(value=sigmaIn2,min=sigmaIn2/5.,max=sigmaIn2*5.)
-                    pars.add('g2intln'+str(i), value=sigmaMin*5,
+                    pars.add('g2intln'+str(i), value=sigmaMin*5.,
                         min=pars['g1intln'+str(i)].value,vary=True,max=sigmaMaxG2)
                     pars['g2ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g2intln'+str(i)+',2))')
 
@@ -419,8 +419,6 @@ class gplay(object):
 
                         # FIT
                         result = gMod.fit(y, gPars, x=waveCut)
-                        print(result.fit_report())
-
                         save_modelresult(result, cfg_par['general']['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
                         fitResArr = tP.updateFitArray(cfg_par,fitResArr,result,binIDName,counter)
                         lineArr = tP.updateLineArray(cfg_par,lineArr,result,lineInfo,binIDName,counter)
@@ -530,6 +528,7 @@ class gplay(object):
                         noiseVec[idxMin:idxMax] -= np.nanmean(noiseVec[idxMin:idxMax])
                         # FIT
                         result = load_modelresult(cfg_par[key]['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
+                        
                         cfg_par['gPlot']['loadModel'] = True
                         #plot Fit
                         if cfg_par['gPlot']['enable'] == True:
@@ -593,6 +592,8 @@ class gplay(object):
             all_zeros = not np.any(y)
             if all_zeros!=True:
                 result = gMod.fit(y, gPars, x=waveCut)
+                vals=result.params.valuesdict()
+                print(vals['g1ln0_sigma'],vals['g2ln0_sigma'])
                 save_modelresult(result, cfg_par['general']['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
             else:
                 print('''\t+---------+\n\t spectrum is empty\n\t+---------+''')
