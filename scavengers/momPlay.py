@@ -287,7 +287,7 @@ class momplay:
                 thresHold = residuals['SN_NII6583'][i]
                 sigmaThresh = linesG1['g1_SigIntr_NII6583'][i]
                 if cfg_par['gFit']['method'] == 'pixel':
-                    ['NSPAX'][index] = 1.           
+                    tabGen['NSPAX'][index] = 1.           
 
                 if modName=='g2':
                     ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i])/tabGen['NSPAX'][index]                   
