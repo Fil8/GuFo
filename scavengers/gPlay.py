@@ -155,15 +155,14 @@ class gplay(object):
 
                     pars.add(name='cenDistAng'+str(i),expr ='log((cenDist*1e3*lineWave'+str(i)+'*1e-10)/2.99792458e8/1e-10+lineWave'+str(i)+')')
 
-                    cenDist = cvP.lambdaVRad(np.exp(pars['g1ln'+str(0)+'_'+'center']),lineInfo['Wave'][0])
+                    cenDist = cvP.lambdaVRad(np.exp(pars['g1ln'+str(0)+'_'+'center'].value),lineInfo['Wave'][0])
                     cenDistAng = np.log(cvP.vRadLambda(cenDist,lineInfo['Wave'][i]))
                     #pars.add(name='cenDistln'+str(i), value=cenDistAng,vary=False)
                     pars['g1ln'+str(i)+'_'+'center'].set(expr='cenDistAng'+str(i))
                 else:
                     pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,
                     min=waveAmpIn1Min,max=waveAmpIn1Max,vary=True) 
-
-                pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=0,max=None)
+                pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=0.,max=None)
                 
                 #if lineInfo['Wave'][i] == 6583.34:
                 #    ampMin = pars['g1ln'+str(kk)+'_'+'height'] * 1./cfg_par['gFit']['ampRatioNII']
@@ -201,10 +200,13 @@ class gplay(object):
                 pars.update(gauss2.make_params())
                 cenIn2Pos = cenIn1
 
-                ampIn2 = ampIn1*cfg_par['gFit']['dltAmp12']    
-                heightMax = pars['g1ln'+str(i)+'_'+'amplitude']
-                pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn2,min=0.0,vary=True,max=None)
-                #pars['g2ln'+str(i)+'_'+'height'].set(value=1,min=10.0,max=heightMax,vary=True)
+                ampIn2 = ampIn1*cfg_par['gFit']['dltAmp12']
+                heightG1 = pars['g1ln'+str(i)+'_'+'amplitude'].value
+                heightMin = heightG1/100.
+                print(heightG1,heightMin)
+
+                #pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn2,min=0.0,vary=True,max=None)
+                pars['g2ln'+str(i)+'_'+'height'].set(value=heightG1/2.,min=heightMin,max=heightG1,vary=True)
 
                 if i == 0:
                     sigmaIn2 = pars['g1ln'+str(i)+'_'+'sigma'] +lineInfo['deltaSigmaAng_12'][i]
@@ -213,7 +215,7 @@ class gplay(object):
                     pars.add('g2intln'+str(i), value=sigmaMin*5.,
                         min=pars['g1intln'+str(i)].value,vary=True,max=sigmaMaxG2)
                     pars['g2ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g2intln'+str(i)+',2))')
-
+                    print(waveAmpIn1Min-lineInfo['deltaVAng_12'][i],waveAmpIn1Max+lineInfo['deltaVAng_12'][i])
                     pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
                         min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i],vary=True)
 
