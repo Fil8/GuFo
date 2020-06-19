@@ -746,7 +746,7 @@ class momplay:
                 #    fits.writeto(noiseMapName,noiseMap,resHead,overwrite=True)
 
         t = Table(tot, names=(resNameList))
-        hdul.append(fits.BinTableHDU(t.as_array(), name='Residuals_'+modName))
+#        hdul.append(fits.BinTableHDU(t.as_array(), name='Residuals_'+modName))
 
         try:
             tt = Table(hdul['Residuals_'+modName].data)
@@ -758,6 +758,13 @@ class momplay:
         
         hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
 
+        # try:
+        #     tt = Table(hdul['Ancels'+modName].data)
+        #     hdul['Ancels'+modName] = fits.BinTableHDU.from_columns(sigmaCenArr,name='Ancels'+modName)
+
+        # except KeyError as e:
+        #     tt=fits.BinTableHDU.from_columns(sigmaCenArr,name='Ancels'+modName)   
+        #     hdul.append(tt)  
 
 
         return 0
