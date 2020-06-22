@@ -586,14 +586,14 @@ class tplay(object):
                     sig1 = fitRes['g2ln'+str(ii)+'_sigma']
                     fwhm1 = fitRes['g2ln'+str(ii)+'_fwhm']
                     height1 = fitRes['g2ln'+str(ii)+'_height']
-                    
+
                 sigmaInt1 = np.sqrt(np.power(sig1,2)-np.power(dLIn,2))
 
                 g1Ctr = cvP.lambdaVRad(np.exp(ctr1),lineInfo['Wave'][ii])
 
                 g1SigmaInt = cvP.lambdaVRad(np.exp(ctr1+sigmaInt1),lineInfo['Wave'][ii])-g1Ctr
                 g1Sigma = cvP.lambdaVRad(np.exp(ctr1+sig1),lineInfo['Wave'][ii])-g1Ctr            
-                g1FWHM = cvP.lambdaVRad(np.exp(ctr1+fwhm),lineInfo['Wave'][ii])-g1Ctr
+                g1FWHM = cvP.lambdaVRad(np.exp(ctr1+fwhm1),lineInfo['Wave'][ii])-g1Ctr
                 g1dL = cvP.lambdaVRad(np.exp(ctr1+dLambda[indexWaveInRed]),lineInfo['Wave'][ii])-g1Ctr                    
 
 
