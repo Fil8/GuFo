@@ -340,12 +340,13 @@ class specplot(object):
 
             #ax1.fill_between(vel, yBFit-dely, yBFit+dely, color="#ABABAB",
             #        label='3-$\sigma$ uncertainty band')
+            comps = result.eval_components()
+
             if cfg_par['gFit']['modName'] =='g1':
 
-                x.plot(x_data_plot, comps['g1ln'+str(ii)+'_'][idxMin:idxMax], 'g--')
+                ax.plot(x_data_plot, comps['g1ln'+str(i)+'_'][idxMin:idxMax], 'g--')
             
             elif cfg_par['gFit']['modName'] !='g1':
-                comps = result.eval_components()
                 # for ii in range(0,len(lineInfo['ID'])):
                     # 
                 

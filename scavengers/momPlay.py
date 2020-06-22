@@ -599,8 +599,8 @@ class momplay:
                     sigKmsG1=2.e3
 
                 cenG1 = np.log(cvP.vRadLambda(cenKmsG1,lineInfo['Wave'][ii]))
-                leftG1 = np.log(cvP.vRadLambda(cenKmsG1-6.*sigKmsG1,lineInfo['Wave'][ii]))
-                rightG1 = np.log(cvP.vRadLambda(cenKmsG1+6.*sigKmsG1,lineInfo['Wave'][ii]))
+                leftG1 = np.log(cvP.vRadLambda(cenKmsG1-lineInfo['cenRange'][ii],lineInfo['Wave'][ii]))
+                rightG1 = np.log(cvP.vRadLambda(cenKmsG1+lineInfo['cenRange'][ii],lineInfo['Wave'][ii]))
 
                 idxLeft = int(np.where(abs(wave-leftG1)==abs(wave-leftG1).min())[0])
                 idxRight = int(np.where(abs(wave-rightG1)==abs(wave-rightG1).min())[0])
@@ -624,15 +624,10 @@ class momplay:
                     idxRightRightNoise = int(np.where(abs(wave-rightrightNoise)==abs(wave-rightrightNoise).min())[0])
                     idxRightNoise = int(np.where(abs(wave-rightNoise)==abs(wave-rightNoise).min())[0])
                     
-
-
                     # noiseMinRed = cfg_par['general']['redshift']*cfg_par['gFit']['noiseMin']+cfg_par['gFit']['noiseMin']
                     # noiseMaxRed = cfg_par['general']['redshift']*cfg_par['gFit']['noiseMax']+cfg_par['gFit']['noiseMax']
                     # idxLeftNoise = int(np.where(abs(np.exp(wave)-noiseMinRed)==abs(np.exp(wave)-noiseMinRed).min())[0])
                     # idxRightNoise = int(np.where(abs(np.exp(wave)-noiseMaxRed)==abs(np.exp(wave)-noiseMaxRed).min())[0])
-
-
-
                     
                     a = np.where(tabGen['BIN_ID'] == int(lines['BIN_ID'][i]))[0]
                     #if not  a.size == 0:
@@ -649,8 +644,8 @@ class momplay:
                     sigKmsG2 = lines['g2_SigMeas_'+lineName][i]
             
                     cenG2 = np.log(cvP.vRadLambda(cenKmsG2,lineInfo['Wave'][ii]))
-                    leftG2 = np.log(cvP.vRadLambda(cenKmsG2-3.*sigKmsG2,lineInfo['Wave'][ii]))
-                    rightG2 = np.log(cvP.vRadLambda(cenKmsG2+3.*sigKmsG2,lineInfo['Wave'][ii]))
+                    leftG2 = np.log(cvP.vRadLambda(cenKmsG2-lineInfo['cenRange'][ii],lineInfo['Wave'][ii]))
+                    rightG2 = np.log(cvP.vRadLambda(cenKmsG2+lineInfo['cenRange'][ii],lineInfo['Wave'][ii]))
                     
                     idxLeftG2 = int(np.where(abs(wave-leftG2)==abs(wave-leftG2).min())[0])
                     idxRightG2 = int(np.where(abs(wave-rightG2)==abs(wave-rightG2).min())[0])
