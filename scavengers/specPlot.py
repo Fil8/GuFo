@@ -350,11 +350,7 @@ class specplot(object):
                     # 
                 
                 if cfg_par['gFit']['modName'] =='g2':
-#                        print(result.params['g1ln'+str(ii)+'_height'].value,result.params['g2ln'+str(ii)+'_height'].value)
-                    print(np.nanmax(comps['g1ln'+str(i)+'_'][idxMin:idxMax]),np.nanmax(comps['g2ln'+str(i)+'_'][idxMin:idxMax]))   
-                    print(result.params['g1ln'+str(i)+'_height'].value,result.params['g2ln'+str(i)+'_height'].value)   
-                    print(result.params['g1ln'+str(i)+'_sigma'].value,result.params['g2ln'+str(i)+'_sigma'].value)   
-                    print(result.params['g1ln'+str(i)+'_amplitude'].value,result.params['g2ln'+str(i)+'_amplitude'].value)   
+#                        print(result.params['g1ln'+str(ii)+'_height'].value,result.params['g2ln'+str(ii)+'_height'].value)  
 
                     if result.params['g2ln'+str(i)+'_sigma'].value >= result.params['g1ln'+str(i)+'_sigma'].value :
                         ax.plot(x_data_plot, comps['g1ln'+str(i)+'_'][idxMin:idxMax], 'g--')

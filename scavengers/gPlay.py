@@ -134,12 +134,7 @@ class gplay(object):
             ampMaxG2 = heightG1*sigmaMaxG2/0.3989423
             
             ampMin = heightMin*(sigmaMin)/0.3989423
-            
-
-
-            print(heightG1,heightMin)
-            print(ampMin,ampMaxG1,ampMaxG2)
-            
+        
 
             if i == 0:
 
@@ -608,7 +603,6 @@ class gplay(object):
                 result = gMod.fit(y, gPars, x=waveCut)
                 
                 vals=result.params.valuesdict()
-                print(vals)
                 save_modelresult(result, cfg_par['general']['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
             else:
                 print('''\t+---------+\n\t spectrum is empty\n\t+---------+''')
