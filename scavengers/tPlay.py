@@ -508,14 +508,6 @@ class tplay(object):
 
             intR = fitRes['Wintln'+str(ii)]
 
-            amp = fitRes['g1ln'+str(ii)+'_amplitude']
-            ctr = fitRes['g1ln'+str(ii)+'_center']
-            sig = fitRes['g1ln'+str(ii)+'_sigma']
-
-            fwhm = fitRes['g1ln'+str(ii)+'_fwhm']
-            height = fitRes['g1ln'+str(ii)+'_height']
-            
-
             waveInRed = cfg_par['general']['redshift']*lineInfo['Wave'][ii]+lineInfo['Wave'][ii]
 
             indexWaveInRed = int(np.where(abs(np.exp(wave)-waveInRed)==abs(np.exp(wave)-waveInRed).min())[0])
@@ -524,66 +516,123 @@ class tplay(object):
             dLIn = dLambda[indexWaveInRed]
             dLIn = np.log(waveInRed+dLIn/2.)-np.log(waveInRed-dLIn/2.)
 
-            sigmaInt = np.sqrt(np.power(sig,2)-np.power(dLIn,2))
+            if modName == 'g1':
 
-            g1Ctr = cvP.lambdaVRad(np.exp(ctr),lineInfo['Wave'][ii])
+                amp = fitRes['g1ln'+str(ii)+'_amplitude']
+                ctr = fitRes['g1ln'+str(ii)+'_center']
+                sig = fitRes['g1ln'+str(ii)+'_sigma']
 
-            g1SigmaInt = cvP.lambdaVRad(np.exp(ctr+sigmaInt),lineInfo['Wave'][ii])-g1Ctr
-            g1Sigma = cvP.lambdaVRad(np.exp(ctr+sig),lineInfo['Wave'][ii])-g1Ctr            
-            g1FWHM = cvP.lambdaVRad(np.exp(ctr+fwhm),lineInfo['Wave'][ii])-g1Ctr
-            g1dL = cvP.lambdaVRad(np.exp(ctr+dLambda[indexWaveInRed]),lineInfo['Wave'][ii])-g1Ctr
-
-            #amp_err = result.params[modName+'ln'+str(i)+'_amplitude'].stderr
-            #sig_err = result.params[modName+'ln'+str(i)+'_sigma'].stderr
-            #g1SigmaErr = self.lambdaVRad(np.exp(sig_err),lineInfo['Wave'][i])
-            #cen_err = result.params[modName+'ln'+str(i)+'_center'].stderr  
-            #g1CtrErr = self.lambdaVRad(np.exp(cen_err),lineInfo['Wave'][i])
-            lineArr[lineName][counter] = int(lineInfo['Wave'][ii])     
-            
-            lineArr['g1_Amp_'+lineName][counter] = amp
-            lineArr['g1_Height_'+lineName][counter] = height
-            lineArr['g1_SN_'+lineName][counter]=height/noiseValue         
-            lineArr['g1_Centre_'+lineName][counter] = g1Ctr
-            lineArr['g1_SigMeas_'+lineName][counter] = g1Sigma
-            lineArr['g1_SigIntr_'+lineName][counter] = g1SigmaInt
-            lineArr['g1_FWHM_'+lineName][counter] = g1FWHM
-
-            lineArr['g1_dLambda_'+lineName][counter] = g1dL
-            lineArr['g1_centre_'+lineName][counter]=ctr         
-            lineArr['g1_sigLambda_'+lineName][counter]=sig       
-
-            if modName != 'g1':
-
-                amp = fitRes['g2ln'+str(ii)+'_amplitude']
-                ctr = fitRes['g2ln'+str(ii)+'_center']
-                sig = fitRes['g2ln'+str(ii)+'_sigma']
-                fwhm = fitRes['g2ln'+str(ii)+'_fwhm']
-                height = fitRes['g2ln'+str(ii)+'_height']
-
+                fwhm = fitRes['g1ln'+str(ii)+'_fwhm']
+                height = fitRes['g1ln'+str(ii)+'_height']
 
                 sigmaInt = np.sqrt(np.power(sig,2)-np.power(dLIn,2))
 
-                g2Ctr = cvP.lambdaVRad(np.exp(ctr),lineInfo['Wave'][ii])
-                g2SigmaInt = cvP.lambdaVRad(np.exp(ctr+sigmaInt),lineInfo['Wave'][ii])-g2Ctr
-                g2Sigma = cvP.lambdaVRad(np.exp(ctr+sig),lineInfo['Wave'][ii])-g2Ctr
-                g2FWHM = cvP.lambdaVRad(np.exp(ctr+fwhm),lineInfo['Wave'][ii])-g2Ctr
+                g1Ctr = cvP.lambdaVRad(np.exp(ctr),lineInfo['Wave'][ii])
+
+                g1SigmaInt = cvP.lambdaVRad(np.exp(ctr+sigmaInt),lineInfo['Wave'][ii])-g1Ctr
+                g1Sigma = cvP.lambdaVRad(np.exp(ctr+sig),lineInfo['Wave'][ii])-g1Ctr            
+                g1FWHM = cvP.lambdaVRad(np.exp(ctr+fwhm),lineInfo['Wave'][ii])-g1Ctr
+                g1dL = cvP.lambdaVRad(np.exp(ctr+dLambda[indexWaveInRed]),lineInfo['Wave'][ii])-g1Ctr
 
                 #amp_err = result.params[modName+'ln'+str(i)+'_amplitude'].stderr
                 #sig_err = result.params[modName+'ln'+str(i)+'_sigma'].stderr
                 #g1SigmaErr = self.lambdaVRad(np.exp(sig_err),lineInfo['Wave'][i])
                 #cen_err = result.params[modName+'ln'+str(i)+'_center'].stderr  
                 #g1CtrErr = self.lambdaVRad(np.exp(cen_err),lineInfo['Wave'][i])
+                lineArr[lineName][counter] = int(lineInfo['Wave'][ii])     
+                
+                lineArr['g1_Amp_'+lineName][counter] = amp
+                lineArr['g1_Height_'+lineName][counter] = height
+                lineArr['g1_SN_'+lineName][counter]=height/noiseValue         
+                lineArr['g1_Centre_'+lineName][counter] = g1Ctr
+                lineArr['g1_SigMeas_'+lineName][counter] = g1Sigma
+                lineArr['g1_SigIntr_'+lineName][counter] = g1SigmaInt
+                lineArr['g1_FWHM_'+lineName][counter] = g1FWHM
+
+                lineArr['g1_dLambda_'+lineName][counter] = g1dL
+                lineArr['g1_centre_'+lineName][counter]=ctr         
+                lineArr['g1_sigLambda_'+lineName][counter]=sig       
+
+            elif modName == 'g2':
+
+                sigTmp1 = fitRes['g1ln'+str(ii)+'_sigma']
+                sigTmp2 = fitRes['g1ln'+str(ii)+'_sigma']
+
+                if sigTmp1 <= sigTmp2:
+
+                    amp1 = fitRes['g1ln'+str(ii)+'_amplitude']
+                    ctr1 = fitRes['g1ln'+str(ii)+'_center']
+                    sig1 = fitRes['g1ln'+str(ii)+'_sigma']
+
+                    fwhm1 = fitRes['g1ln'+str(ii)+'_fwhm']
+                    height1 = fitRes['g1ln'+str(ii)+'_height']
+
+                    amp2 = fitRes['g2ln'+str(ii)+'_amplitude']
+                    ctr2 = fitRes['g2ln'+str(ii)+'_center']
+                    sig2 = fitRes['g2ln'+str(ii)+'_sigma']
+                    fwhm2 = fitRes['g2ln'+str(ii)+'_fwhm']
+                    height2 = fitRes['g2ln'+str(ii)+'_height']
+                
+                else:
+                    
+                    amp2 = fitRes['g1ln'+str(ii)+'_amplitude']
+                    ctr2 = fitRes['g1ln'+str(ii)+'_center']
+                    sig2 = fitRes['g1ln'+str(ii)+'_sigma']
+                    fwhm2 = fitRes['g1ln'+str(ii)+'_fwhm']
+                    height2 = fitRes['g1ln'+str(ii)+'_height']
+
+                    amp1 = fitRes['g2ln'+str(ii)+'_amplitude']
+                    ctr1 = fitRes['g2ln'+str(ii)+'_center']
+                    sig1 = fitRes['g2ln'+str(ii)+'_sigma']
+                    fwhm1 = fitRes['g2ln'+str(ii)+'_fwhm']
+                    height1 = fitRes['g2ln'+str(ii)+'_height']
+                    
+                sigmaInt1 = np.sqrt(np.power(sig1,2)-np.power(dLIn,2))
+
+                g1Ctr = cvP.lambdaVRad(np.exp(ctr1),lineInfo['Wave'][ii])
+
+                g1SigmaInt = cvP.lambdaVRad(np.exp(ctr1+sigmaInt1),lineInfo['Wave'][ii])-g1Ctr
+                g1Sigma = cvP.lambdaVRad(np.exp(ctr1+sig1),lineInfo['Wave'][ii])-g1Ctr            
+                g1FWHM = cvP.lambdaVRad(np.exp(ctr1+fwhm),lineInfo['Wave'][ii])-g1Ctr
+                g1dL = cvP.lambdaVRad(np.exp(ctr1+dLambda[indexWaveInRed]),lineInfo['Wave'][ii])-g1Ctr                    
+
+
+                sigmaInt2 = np.sqrt(np.power(sig2,2)-np.power(dLIn,2))
+
+                g2Ctr = cvP.lambdaVRad(np.exp(ctr2),lineInfo['Wave'][ii])
+                g2SigmaInt = cvP.lambdaVRad(np.exp(ctr2+sigmaInt2),lineInfo['Wave'][ii])-g2Ctr
+                g2Sigma = cvP.lambdaVRad(np.exp(ctr2+sig2),lineInfo['Wave'][ii])-g2Ctr
+                g2FWHM = cvP.lambdaVRad(np.exp(ctr2+fwhm2),lineInfo['Wave'][ii])-g2Ctr
+
+                #amp_err = result.params[modName+'ln'+str(i)+'_amplitude'].stderr
+                #sig_err = result.params[modName+'ln'+str(i)+'_sigma'].stderr
+                #g1SigmaErr = self.lambdaVRad(np.exp(sig_err),lineInfo['Wave'][i])
+                #cen_err = result.params[modName+'ln'+str(i)+'_center'].stderr  
+                #g1CtrErr = self.lambdaVRad(np.exp(cen_err),lineInfo['Wave'][i])
+
+                lineArr[lineName][counter] = int(lineInfo['Wave'][ii])     
+                
+                lineArr['g1_Amp_'+lineName][counter] = amp1
+                lineArr['g1_Height_'+lineName][counter] = height1
+                lineArr['g1_SN_'+lineName][counter]=height1/noiseValue         
+                lineArr['g1_Centre_'+lineName][counter] = g1Ctr
+                lineArr['g1_SigMeas_'+lineName][counter] = g1Sigma
+                lineArr['g1_SigIntr_'+lineName][counter] = g1SigmaInt
+                lineArr['g1_FWHM_'+lineName][counter] = g1FWHM
+
+                lineArr['g1_dLambda_'+lineName][counter] = g1dL
+                lineArr['g1_centre_'+lineName][counter]=ctr1         
+                lineArr['g1_sigLambda_'+lineName][counter]=sig1  
           
-                lineArr['g2_Amp_'+lineName][counter] = amp
-                lineArr['g2_Height_'+lineName][counter] = height
+                lineArr['g2_Amp_'+lineName][counter] = amp2
+                lineArr['g2_Height_'+lineName][counter] = height2
                 lineArr['g2_Centre_'+lineName][counter] = g2Ctr
                 lineArr['g2_SigMeas_'+lineName][counter] = g2Sigma
                 lineArr['g2_SigIntr_'+lineName][counter] = g2SigmaInt
                 lineArr['g2_FWHM_'+lineName][counter] = g2FWHM
-                
-                lineArr['g2_SN_'+lineName][counter]=height/noiseValue         
+                lineArr['g2_SN_'+lineName][counter]=height2/noiseValue         
 
-                if modName == 'g3':
+            elif modName == 'g3':
 
                     amp = fitRes['g3ln'+str(ii)+'_amplitude']
                     ctr = fitRes['g3ln'+str(ii)+'_center']

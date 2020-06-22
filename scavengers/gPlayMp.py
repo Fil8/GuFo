@@ -244,10 +244,17 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
         sigmaMaxG1 = lineInfo['deltaSigmaAng_MaxG1'][i]
         sigmaMaxG2 = lineInfo['deltaSigmaAng_MaxG2'][i]
         sigmaMaxG3 = lineInfo['deltaSigmaAng_MaxG3'][i]
-        ampIn1 = np.max(y[indexMin:indexMax])*max(2.220446049250313e-16, sigmaMin)/0.3989423
         smallWave = wave[indexMin:indexMax]
         cenIn1 = smallWave[np.argmax(y[indexMin:indexMax])]
 
+        ampIn1 = np.nanmax(y[indexMin:indexMax])*max(2.220446049250313e-16, sigmaMin)/0.3989423
+        heightG1 = np.nanmax(y[indexMin:indexMax])
+        heightMin = heightG1/10.
+        
+        ampMaxG1 = heightG1*sigmaMaxG1/0.3989423
+        ampMaxG2 = heightG1*sigmaMaxG2/0.3989423
+        
+        ampMin = heightMin*(sigmaMin)/0.3989423
 
         if i == 0:
 
@@ -266,7 +273,9 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
             pars.add(name='lineWave'+str(i),value=lineInfo['Wave'][i],vary=False)
             pars.add(name='cenDist',expr ='((exp(g1ln'+str(i)+'_'+'center)-lineWave'+str(i)+')/lineWave'+str(0)+')*2.99792458e8/1e3',vary=False)
 
-            pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=0,max=None)
+            # pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=0,max=None)
+            pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=ampMin,max=ampMaxG1,vary=True)
+
             mod = gauss1
       
         else:
@@ -285,7 +294,8 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
                 pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,
                 min=waveAmpIn1Min,max=waveAmpIn1Max,vary=True) 
 
-            pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=0,max=None)
+            #pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=0,max=None)
+            pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=ampMin,max=ampMaxG1,vary=True)
            
             pars.add(name = 'Wintln'+str(i), value=dLIn,vary=False)
             if cfg_par['gFit']['fixSigma'] == True:
@@ -304,8 +314,10 @@ def lineModDefMp(cfg_par,wave,y,lineInfo):
             pars.update(gauss2.make_params())
             cenIn2Pos = cenIn1
 
-            ampIn2 = ampIn1*cfg_par['gFit']['dltAmp12']      
-            pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn2,min=0,max=None)
+            #ampIn2 = ampIn1*cfg_par['gFit']['dltAmp12']      
+            #pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn2,min=0,max=None)
+            pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=ampMin,vary=True,max=ampMaxG2)
+
 
             if i == 0:
                 sigmaIn2 = pars['g1ln'+str(i)+'_'+'sigma'] +lineInfo['deltaSigmaAng_12'][i]

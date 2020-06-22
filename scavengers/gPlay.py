@@ -123,9 +123,23 @@ class gplay(object):
             sigmaMaxG2 = lineInfo['deltaSigmaAng_MaxG2'][i]
             sigmaMaxG3 = lineInfo['deltaSigmaAng_MaxG3'][i]
 
-            ampIn1 = np.max(y[indexMin:indexMax])*max(2.220446049250313e-16, sigmaMin)/0.3989423
             smallWave = wave[indexMin:indexMax]
             cenIn1 = smallWave[np.argmax(y[indexMin:indexMax])]
+
+            ampIn1 = np.nanmax(y[indexMin:indexMax])*max(2.220446049250313e-16, sigmaMin)/0.3989423
+            heightG1 = np.nanmax(y[indexMin:indexMax])
+            heightMin = heightG1/10.
+            
+            ampMaxG1 = heightG1*sigmaMaxG1/0.3989423
+            ampMaxG2 = heightG1*sigmaMaxG2/0.3989423
+            
+            ampMin = heightMin*(sigmaMin)/0.3989423
+            
+
+
+            print(heightG1,heightMin)
+            print(ampMin,ampMaxG1,ampMaxG2)
+            
 
             if i == 0:
 
@@ -142,8 +156,9 @@ class gplay(object):
 
                 pars.add(name='lineWave'+str(i),value=lineInfo['Wave'][i],vary=False)
                 pars.add(name='cenDist',expr ='((exp(g1ln'+str(i)+'_'+'center)-lineWave'+str(i)+')/lineWave'+str(0)+')*2.99792458e8/1e3',vary=False)
-
-                pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=0,max=None)
+                
+                #pars['g1ln'+str(i)+'_'+'height'].set(min=heightMin,max=heightG1,vary=True)
+                pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=ampMin,max=ampMaxG1,vary=True)
                 mod = gauss1
           
             else:
@@ -162,8 +177,9 @@ class gplay(object):
                 else:
                     pars['g1ln'+str(i)+'_'+'center'].set(value=cenIn1,
                     min=waveAmpIn1Min,max=waveAmpIn1Max,vary=True) 
-                pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=0.,max=None)
-                
+                pars['g1ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=ampMin,max=ampMaxG1,vary=True)
+                #pars['g1ln'+str(i)+'_'+'height'].set(min=heightMin,max=heightG1,vary=True)
+
                 #if lineInfo['Wave'][i] == 6583.34:
                 #    ampMin = pars['g1ln'+str(kk)+'_'+'height'] * 1./cfg_par['gFit']['ampRatioNII']
                 #    ampIn1 = np.max(y[indexMin:indexMax])
@@ -201,12 +217,10 @@ class gplay(object):
                 cenIn2Pos = cenIn1
 
                 ampIn2 = ampIn1*cfg_par['gFit']['dltAmp12']
-                heightG1 = pars['g1ln'+str(i)+'_'+'amplitude'].value
-                heightMin = heightG1/100.
-                print(heightG1,heightMin)
 
-                #pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn2,min=0.0,vary=True,max=None)
-                pars['g2ln'+str(i)+'_'+'height'].set(value=heightG1/2.,min=heightMin,max=heightG1,vary=True)
+
+                pars['g2ln'+str(i)+'_'+'amplitude'].set(value=ampIn1,min=ampMin,vary=True,max=ampMaxG2)
+                #pars['g2ln'+str(i)+'_'+'height'].set(min=heightMin,max=heightG1,vary=True)
 
                 if i == 0:
                     sigmaIn2 = pars['g1ln'+str(i)+'_'+'sigma'] +lineInfo['deltaSigmaAng_12'][i]
@@ -215,7 +229,7 @@ class gplay(object):
                     pars.add('g2intln'+str(i), value=sigmaMin*5.,
                         min=pars['g1intln'+str(i)].value,vary=True,max=sigmaMaxG2)
                     pars['g2ln'+str(i)+'_'+'sigma'].set(expr='sqrt(pow(Wintln'+str(i)+',2)+pow(g2intln'+str(i)+',2))')
-                    print(waveAmpIn1Min-lineInfo['deltaVAng_12'][i],waveAmpIn1Max+lineInfo['deltaVAng_12'][i])
+#                    print(waveAmpIn1Min-lineInfo['deltaVAng_12'][i],waveAmpIn1Max+lineInfo['deltaVAng_12'][i])
                     pars['g2ln'+str(i)+'_'+'center'].set(value=cenIn2Pos,
                         min=waveAmpIn1Min-lineInfo['deltaVAng_12'][i],max=waveAmpIn1Max+lineInfo['deltaVAng_12'][i],vary=True)
 
@@ -583,9 +597,7 @@ class gplay(object):
         
         y = dd[idxMin:idxMax,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]
         all_zeros = not np.any(y)
-        print(all_zeros)
         waveCut = wave[idxMin:idxMax]
-        print(tabGen['PixY'][idxTable],tabGen['PixX'][idxTable])
         if doFit==False and os.path.exists(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav'):
             result = load_modelresult(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
         elif doFit==True:
@@ -594,14 +606,14 @@ class gplay(object):
             all_zeros = not np.any(y)
             if all_zeros!=True:
                 result = gMod.fit(y, gPars, x=waveCut)
+                
                 vals=result.params.valuesdict()
-                print(vals['g1ln0_sigma'],vals['g2ln0_sigma'])
+                print(vals)
                 save_modelresult(result, cfg_par['general']['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
             else:
                 print('''\t+---------+\n\t spectrum is empty\n\t+---------+''')
                 print('''\t+---------+\n\t EXIT with ERROR\n\t+---------+''')
                 sys.exit(0)
-        print(result)
         cfg_par['gPlot']['loadModel'] = True
         if cfg_par['gFit']['method'] != 'pixel':
             noiseVec = nn[idxMin:idxMax,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]
