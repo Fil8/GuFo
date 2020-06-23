@@ -481,11 +481,23 @@ class momplay:
             - voroni binned line subtracted datacube
             - table of voronoi binned datacube and spectra
             -
-        Returns (located in /moments/modName/):
+        Returns (located in /residuals/modName/):
             - resAbs_linename:  residuals computed as sum of the absolute value of line-fit
                                 within a velocity range given by 6*sigmag1 weighted on the fitted amplitude of the line
             - resSTD_linename:  residuals computed as the standard deviation of line-fit
                                 within a velocity range given by 6*sigmag1 weighted on the fitted amplitude of the line
+            - resAbsPeak_linename:  residuals computed as sum of the absolute value of line-fit
+                                within a velocity range given by 6*sigmag1 weighted on the observed peak of the line
+            - resSTDPeak_linename:  residuals computed as the standard deviation of line-fit
+                                within a velocity range given by 6*sigmag1 weighted on the observed amplitude of the line
+        Options:
+            - compute noise: 
+                when set to True in the parameter file, it computes the noise as the rms in within [-80,-60]AA and [+60,+80]AA with respect to the 
+                rest wavelenght of each line
+                computes the S/N of each line as the peak/noise in each pixel
+            Returns:
+                - SN_linename: S/N map of each line
+                - noise_linename: noise map of each line        
         '''
 
 
@@ -719,7 +731,7 @@ class momplay:
                         #if ii==0: 
                         #    noiseMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
 
-                stdArr[i] = stdValue
+                stdArr[i] = stdValuePeak
                 noiseArr[i] = noise
                 SNValues[i] = sn
                 SNStdValues[i] = snStd
