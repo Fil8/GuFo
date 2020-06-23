@@ -722,7 +722,7 @@ class momplay:
                         noise = np.nanstd(np.concatenate([y[idxLeftLeftNoise:idxLeftNoise],y[idxRightNoise:idxRightRightNoise]]))
                         #noise = np.nanstd(y[idxLeftNoise:idxRightNoise])
                         sn = np.divide(linePeak,noise)
-                        snStd = np.divide(linePeak,stdValue)
+                        snStd = np.divide((stdValuePeak,linePeak),noise)
                         noiseLine[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noise
                         SNLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = sn
                         SNStdLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = snStd
