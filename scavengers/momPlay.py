@@ -697,7 +697,7 @@ class momplay:
                     if cfg_par['residuals']['computeNoise']==True:
                         noise = np.nanstd(np.concatenate([y[idxLeftLeftNoise:idxLeftNoise],y[idxRightNoise:idxRightRightNoise]]))
                         #noise = np.nanstd(y[idxLeftNoise:idxRightNoise])
-                        linePeak = np.max(y[idxPeakLeft:idxPeakRight])
+                        linePeak = np.max(y[idxLeft:idxRight])
                         sn = np.divide(linePeak,noise)
                         snStd = np.divide(linePeak,stdValue)
                         noiseLine[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noise
