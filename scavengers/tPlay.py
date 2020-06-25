@@ -793,7 +793,7 @@ class tplay(object):
 
         for i in range(len(res[0]['BIN_ID'])):
             resArray = res[:][:]
-            bestFitIdx = np.argmin([res[:][]]) 
+            bestFitIdx = np.argmin([res[:][:]]) 
 
 
 
