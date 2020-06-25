@@ -776,6 +776,27 @@ class tplay(object):
         hdl.writeto(cfg_par['general']['runNameDir']+'gPlayOutReord.fits',overwrite=True)
 
 
+    def selectBestFit(self,tableNames):
+
+
+        hdul=np.array(len(tableNames))
+
+        lines=np.array(len(tableNames))
+
+        residuals=np.array(len(tableNames))
+
+        for i in range(len(tableNames)):
+
+            hdul[i] = fits.open(cfg_par['general']['outTableName'])
+            lines[i] = hdul['lineRes_g2'].data            
+            res[i] = hdul['residuals_g2'].data
+
+        for i in range(len(res[0]['BIN_ID'])):
+            resArray = res[:][:]
+            bestFitIdx = np.argmin([res[:][]]) 
+
+
+
     def binLineRatio(self,cfg_par,lineInfo):
 
         lineNameID=[]
@@ -1559,6 +1580,7 @@ class tplay(object):
         #hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
 
         return
+
 
 
     def saveAncelsTable(self,cfg_par, sigmaCenArr):

@@ -574,6 +574,7 @@ class momplay:
             noiseArr = np.empty(len(lines['BIN_ID']))
             SNValues = np.empty(len(lines['BIN_ID']))
             SNStdValues = np.empty(len(lines['BIN_ID']))
+            resPeak = np.empty(len(lines['BIN_ID']))
 
             lineName = str(lineInfo['Name'][ii])
             if '[' in lineName:
@@ -736,7 +737,8 @@ class momplay:
                 noiseArr[i] = noise
                 SNValues[i] = sn
                 SNStdValues[i] = snStd
- 
+                resPeak[i] = stdValuePeak
+
             tot = np.column_stack((tot,stdArr))
             resNameList.append('res_'+lineName)
             frmList.append('f8')
@@ -765,7 +767,10 @@ class momplay:
                 tot = np.column_stack((tot,SNStdValues))
                 resNameList.append('snRes_'+lineName)
                 frmList.append('f8')
-
+                
+                tot = np.column_stack((tot,resPeak))
+                resNameList.append('resPeak_'+lineName)
+                frmList.append('f8')
                 #if ii==0:
                 #    fits.writeto(noiseMapName,noiseMap,resHead,overwrite=True)
 
