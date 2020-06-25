@@ -752,6 +752,7 @@ class momplay:
             fits.writeto(resNameOutStdPeak,resG1StdPeak,resHead,overwrite=True)
 
             if cfg_par['residuals']['computeNoise']==True:
+                
                 fits.writeto(noiseNameLine,noiseLine,resHead,overwrite=True)
                 fits.writeto(SNMapName,SNLineMap,resHead,overwrite=True)
                 fits.writeto(SNStdMapName,SNStdLineMap,resHead,overwrite=True)
@@ -779,8 +780,7 @@ class momplay:
 
         try:
             tt = Table(hdul['Residuals_'+modName].data)
-            hdul['Residuals_'+modName] = fits.BinTableHDU(tt.as_array(),name='Residuals_'+modName)
-
+            hdul['Residuals_'+modName] = fits.BinTableHDU(t.as_array(),name='Residuals_'+modName)
         except KeyError as e:
             tt=fits.BinTableHDU.from_columns(t.as_array(),name='Residuals_'+modName)   
             hdul.append(tt)          

@@ -201,6 +201,11 @@ def main (argv):
         default = False,
         help= 'subtract median value from spectra in cube')
 
+    add('-sBf', '--selBF',
+        action = 'store_true',
+        default = False,
+        help= 'select Best Fit')
+
     add('-rT', '--reordTable',
         action = 'store_true',
         default = False,
@@ -297,12 +302,12 @@ def main (argv):
         tP.reorderTable(gPar.cfg_par)
         print('\n\t************ --- GuFo : DONE --- ************\n') 
 
-    # if args.selBF:
+    if args.selBF  or gPar.cfg_par['bestFitSel'].get('enable',False) == True:
         
-    #     print ('\n\t************ --- GuFo : reorder Table --- ************\n')
-    #     gPar = gufo.gufo(args.cfgFile)
-    #     tP.selectBestFit(args.cfgFile)
-    #     print('\n\t************ --- GuFo : DONE --- ************\n')         
+        print ('\n\t************ --- GuFo : select Best Fit --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        tP.selectBestFit(gPar.cfg_par)
+        print('\n\t************ --- GuFo : DONE --- ************\n')         
 
     if args.starSub or gPar.cfg_par['starSub'].get('enable',False) == True:
         time_start_load = time.time()        

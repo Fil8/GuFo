@@ -778,26 +778,80 @@ class tplay(object):
 
     def selectBestFit(self,cfg_par):
 
-        tableNames = cfg_par['bestFitSel']['tableNames']
+        print(cfg_par['bestFitSel']['tableNames'])
+        
+        tableNames = np.array(cfg_par['bestFitSel']['tableNames'])
+        
+        hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[0])
+        bins = hdul['lineRes_g2'].data['BIN_ID']
+        nrows = hdul['lineRes_g2'].data.shape[0]
 
-        hdul=np.array(len(tableNames))
+        linesG1 = hdul['lineRes_g1'].data
+        resG1 = hdul['residuals_g1'].data
+        fitG1 = hdul['fitRes_g1'].data
 
-        lines=np.array(len(tableNames))
+        linesG2R1 = hdul['lineRes_g2'].data
+        resG2R1 = hdul['residuals_g2'].data
+        fitG2R1 = hdul['fitRes_g2'].data
+        
+        linesG2R2 = hdul['lineRes_g2'].data
+        resG2R2 = hdul['residuals_g2'].data
+        fitG2R2 = hdul['fitRes_g2'].data
 
-        residuals=np.array(len(tableNames))
+        linesG2R3 = hdul['lineRes_g2'].data
+        resG2R3 = hdul['residuals_g2'].data
+        fitG2R3 = hdul['fitRes_g2'].data
+        
+        res=np.zeros([len(tableNames),nrows])
 
-        for i in range(len(tableNames)):
 
-            hdul[i] = fits.open(cfg_par['general']['outTableName'])
-            lines[i] = hdul['lineRes_g2'].data            
-            res[i] = hdul['residuals_g2'].data
+        #for i in range(len(tableNames)):
 
-        for i in range(len(res[0]['BIN_ID'])):
-            resArray = res[:]['resPeak'][i]
-            print(resArray)
-            sys.exit()
-            #bestFitIdx = np.argmin([res[:][:]]) 
+        res[0,:] = np.array(resG1['res_NII6583'])
+        res[1,:] = np.array(resG2R1['res_NII6583'])
+        res[2,:] = np.array(resG2R2['res_NII6583'])
+        res[3,:] = np.array(resG2R3['res_NII6583'])
 
+        bestFitTable = fits.BinTableHDU.from_columns(hdul['lineRes_g2'].columns, nrows=nrows)
+        resTable = fits.BinTableHDU.from_columns(hdul['residuals_g2'].columns, nrows=nrows)
+        fitResTable = fits.BinTableHDU.from_columns(hdul['fitres_g2'].columns, nrows=nrows)
+        #print(fitResTable.columns.names,linesG1.columns.names)
+        bestres = []
+        
+        for i in range(nrows):
+            bestres.append(np.argmin(res[:,i]))
+        
+            if bestres[i] == 0:
+                for colname in linesG1.columns.names:
+                    bestFitTable.data[colname][i] = linesG1[colname][i]
+                
+                fitResTable.data[:][i] = fitG1[:][i]
+                resTable.data[:][i] = resG1[:][i]
+
+            elif bestres[i] ==1:
+                bestFitTable.data[:][i] = linesG2R1[:][i]
+                fitResTable.data[:][i] = fitG2R1[:][i]
+                resTable.data[:][i] = resG2R1[:][i]
+            elif bestres[i] ==2:
+                bestFitTable.data[:][i] = linesG2R2[:][i]
+                fitResTable.data[:][i] = fitG2R2[:][i]
+                resTable.data[:][i] = resG2R2[:][i]
+            elif bestres[i] ==3:
+                bestFitTable.data[:][i] = linesG2R3[:][i]
+                fitResTable.data[:][i] = fitG2R3[:][i]
+                resTable.data[:][i] = resG2R3[:][i]
+
+        #tot = np.column_stack(( resTable.data.columns,bestres))
+
+        new_col = fits.ColDefs([fits.Column(name='bestFit', format='D', array=bestres)])
+        
+        orig_cols = resTable.data.columns
+        
+        hduBF = fits.BinTableHDU.from_columns(orig_cols + new_cols)
+        
+        hdl = fits.HDUList([hdul[0],hdul['BININFO'],fitResTable,bestFitTable,resTable])
+
+        hdl.writeto(cfg_par['general']['runNameDir']+'gPlayOutBF.fits',overwrite=True)
 
 
     def binLineRatio(self,cfg_par,lineInfo):
