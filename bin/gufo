@@ -201,6 +201,11 @@ def main (argv):
         default = False,
         help= 'subtract median value from spectra in cube')
 
+    add('-rT', '--reordTable',
+        action = 'store_true',
+        default = False,
+        help= 'reorder table so g2 is always broadest line')
+
     add('-rC', '--rebCube',
         action = 'store_true',
         default = False,
@@ -282,6 +287,14 @@ def main (argv):
         print ('\n\t************ --- GuFo : clean Table --- ************\n')
         gPar = gufo.gufo(args.cfgFile)
         tP.cleanTable(gPar.cfg_par)
+        print('\n\t************ --- GuFo : DONE --- ************\n') 
+
+
+    if args.reordTable:
+        
+        print ('\n\t************ --- GuFo : reorder Table --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        tP.reorderTable(gPar.cfg_par)
         print('\n\t************ --- GuFo : DONE --- ************\n') 
 
     if args.starSub or gPar.cfg_par['starSub'].get('enable',False) == True:

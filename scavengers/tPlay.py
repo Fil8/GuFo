@@ -556,7 +556,7 @@ class tplay(object):
             elif modName == 'g2':
 
                 sigTmp1 = fitRes['g1ln'+str(ii)+'_sigma']
-                sigTmp2 = fitRes['g1ln'+str(ii)+'_sigma']
+                sigTmp2 = fitRes['g2ln'+str(ii)+'_sigma']
 
                 if sigTmp1 <= sigTmp2:
 
@@ -631,6 +631,7 @@ class tplay(object):
                 lineArr['g2_SigIntr_'+lineName][counter] = g2SigmaInt
                 lineArr['g2_FWHM_'+lineName][counter] = g2FWHM
                 lineArr['g2_SN_'+lineName][counter]=height2/noiseValue         
+                lineArr['g2_sigLambda_'+lineName][counter]=sig2  
 
             elif modName == 'g3':
 
@@ -710,6 +711,70 @@ class tplay(object):
         hdl.writeto(cfg_par['general']['outTableName'],overwrite=True)
 
         return
+
+
+    def reorderTable(self,cfg_par):
+
+        lineInfo = self.openLineList(cfg_par)
+
+        hdul = fits.open(cfg_par['general']['outTableName'])
+
+        lines = hdul['LineRes_g2'].data
+
+        for i in range(0,len(lines['BIN_ID'])):
+
+            sigTmp1 = lines['g1_SigIntr_OIII5006'][i]
+            sigTmp2 = lines['g2_SigIntr_OIII5006'][i]
+
+            if sigTmp1 <= sigTmp2:
+                pass
+            else:
+                
+                for ii in range(0,len(lineInfo['ID'])):
+
+                    lineName = str(lineInfo['Name'][ii])
+                    if '[' in lineName:
+                        lineName = lineName.replace("[", "")
+                        lineName = lineName.replace("]", "")
+                    
+                    lineName = lineName+str(int(lineInfo['Wave'][ii]))
+
+                    amp2 = lines['g1_Amp_'+lineName][i]
+                    height2 = lines['g1_Height_'+lineName][i]
+                    g2Ctr = lines['g1_Centre_'+lineName][i]
+                    g2Sigma = lines['g1_SigMeas_'+lineName][i]
+                    g2SigmaInt = lines['g1_SigIntr_'+lineName][i]
+                    g2FWHM = lines['g1_FWHM_'+lineName][i]
+                    g2SN = lines['g1_SN_'+lineName][i]
+                    g2Centre = lines['g1_centre_'+lineName][i]
+                    g2SigL = lines['g1_sigLambda_'+lineName][i]
+                    
+                    lines['g1_Amp_'+lineName][i] = lines['g2_Amp_'+lineName][i]
+                    lines['g1_Height_'+lineName][i] = lines['g2_Height_'+lineName][i]
+                    lines['g1_SN_'+lineName][i]=lines['g2_SN_'+lineName][i]        
+                    lines['g1_Centre_'+lineName][i] = lines['g2_Centre_'+lineName][i]
+                    lines['g1_SigMeas_'+lineName][i] = lines['g2_SigMeas_'+lineName][i]
+                    lines['g1_SigIntr_'+lineName][i] = lines['g2_SigIntr_'+lineName][i]
+                    lines['g1_FWHM_'+lineName][i] = lines['g2_FWHM_'+lineName][i]
+
+                    lines['g1_centre_'+lineName][i]=lines['g2_centre_'+lineName][i]       
+                    lines['g1_sigLambda_'+lineName][i]=lines['g2_sigLambda_'+lineName][i]
+          
+                    lines['g2_Amp_'+lineName][i] = amp2
+                    lines['g2_Height_'+lineName][i] = height2
+                    lines['g2_Centre_'+lineName][i] = g2Ctr
+                    lines['g2_SigMeas_'+lineName][i] = g2Sigma
+                    lines['g2_SigIntr_'+lineName][i] = g2SigmaInt
+                    lines['g2_FWHM_'+lineName][i] = g2FWHM
+                    lines['g2_SN_'+lineName][i]=g2SN         
+                    lines['g2_sigLambda_'+lineName][i]= g2SigL 
+                    lines['g2_centre_'+lineName][i]=g2Centre    
+
+        hdl = fits.HDUList([hdul[0],hdul['BININFO'],hdul['FitRes_g1'],hdul['LineRes_g1'],hdul['Residuals_g1'],
+            hdul['FitRes_g2'],hdul['LineRes_g2'],hdul['Residuals_g2']])
+        
+        hdl.writeto(cfg_par['general']['runNameDir']+'gPlayOutReord.fits',overwrite=True)
+
 
     def binLineRatio(self,cfg_par,lineInfo):
 
