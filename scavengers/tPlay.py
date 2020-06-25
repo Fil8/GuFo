@@ -776,8 +776,9 @@ class tplay(object):
         hdl.writeto(cfg_par['general']['runNameDir']+'gPlayOutReord.fits',overwrite=True)
 
 
-    def selectBestFit(self,tableNames):
+    def selectBestFit(self,cfg_par):
 
+        tableNames = cfg_par['bestFitSel']['tableNames']
 
         hdul=np.array(len(tableNames))
 
@@ -792,8 +793,10 @@ class tplay(object):
             res[i] = hdul['residuals_g2'].data
 
         for i in range(len(res[0]['BIN_ID'])):
-            resArray = res[:][:]
-            bestFitIdx = np.argmin([res[:][:]]) 
+            resArray = res[:]['resPeak'][i]
+            print(resArray)
+            sys.exit()
+            #bestFitIdx = np.argmin([res[:][:]]) 
 
 
 

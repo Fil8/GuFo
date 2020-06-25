@@ -239,7 +239,7 @@ def main (argv):
     add('-c', '--cfgFile',
         type=str,
         default=False,
-        help='''input .fits file''')
+        help='''input .yml file''')
 
     args, unknown = parser.parse_known_args()
 
@@ -296,6 +296,13 @@ def main (argv):
         gPar = gufo.gufo(args.cfgFile)
         tP.reorderTable(gPar.cfg_par)
         print('\n\t************ --- GuFo : DONE --- ************\n') 
+
+    if args.selBF:
+        
+        print ('\n\t************ --- GuFo : reorder Table --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        tP.selectBestFit(args.cfgFile)
+        print('\n\t************ --- GuFo : DONE --- ************\n')         
 
     if args.starSub or gPar.cfg_par['starSub'].get('enable',False) == True:
         time_start_load = time.time()        
