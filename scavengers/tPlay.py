@@ -847,7 +847,7 @@ class tplay(object):
         
         orig_cols = resTable.data.columns
         
-        hduBF = fits.BinTableHDU.from_columns(orig_cols + new_cols)
+        hduBF = fits.BinTableHDU.from_columns(orig_cols + new_col)
         
         hdl = fits.HDUList([hdul[0],hdul['BININFO'],fitResTable,bestFitTable,resTable])
 
