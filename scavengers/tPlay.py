@@ -789,18 +789,22 @@ class tplay(object):
         linesG1 = hdul['lineRes_g1'].data
         resG1 = hdul['residuals_g1'].data
         fitG1 = hdul['fitRes_g1'].data
+        ancG1 = hdul['ancelsg1'].data
 
         linesG2R1 = hdul['lineRes_g2'].data
         resG2R1 = hdul['residuals_g2'].data
         fitG2R1 = hdul['fitRes_g2'].data
-        
+        ancG2R1 = hdul['ancelsg2'].data
+       
         linesG2R2 = hdul['lineRes_g2'].data
         resG2R2 = hdul['residuals_g2'].data
         fitG2R2 = hdul['fitRes_g2'].data
+        ancG2R2 = hdul['ancelsg2'].data
 
         linesG2R3 = hdul['lineRes_g2'].data
         resG2R3 = hdul['residuals_g2'].data
         fitG2R3 = hdul['fitRes_g2'].data
+        ancG2R3 = hdul['ancelsg2'].data
         
         res=np.zeros([len(tableNames),nrows])
 
