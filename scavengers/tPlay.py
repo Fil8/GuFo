@@ -815,7 +815,7 @@ class tplay(object):
         bestFitTable = fits.BinTableHDU.from_columns(hdul['lineRes_g2'].columns, nrows=nrows)
         resTable = fits.BinTableHDU.from_columns(hdul['residuals_g2'].columns, nrows=nrows)
         fitResTable = fits.BinTableHDU.from_columns(hdul['fitres_g2'].columns, nrows=nrows)
-        ancTable = fits.BinTableHDU.from_columns(hdul['ancels_g2'].columns, nrows=nrows)
+        ancTable = fits.BinTableHDU.from_columns(hdul['ancelsg2'].columns, nrows=nrows)
         #print(fitResTable.columns.names,linesG1.columns.names)
         bestres = []
         
