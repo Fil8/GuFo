@@ -815,6 +815,7 @@ class tplay(object):
         bestFitTable = fits.BinTableHDU.from_columns(hdul['lineRes_g2'].columns, nrows=nrows)
         resTable = fits.BinTableHDU.from_columns(hdul['residuals_g2'].columns, nrows=nrows)
         fitResTable = fits.BinTableHDU.from_columns(hdul['fitres_g2'].columns, nrows=nrows)
+        ancTable = fits.BinTableHDU.from_columns(hdul['ancels_g2'].columns, nrows=nrows)
         #print(fitResTable.columns.names,linesG1.columns.names)
         bestres = []
         
@@ -827,19 +828,22 @@ class tplay(object):
                 
                 fitResTable.data[:][i] = fitG1[:][i]
                 resTable.data[:][i] = resG1[:][i]
-
+                ancTable.data[:][i] = ancG1[:][i]
             elif bestres[i] ==1:
                 bestFitTable.data[:][i] = linesG2R1[:][i]
                 fitResTable.data[:][i] = fitG2R1[:][i]
                 resTable.data[:][i] = resG2R1[:][i]
+                ancTable.data[:][i] = ancG2R2[:][i]
             elif bestres[i] ==2:
                 bestFitTable.data[:][i] = linesG2R2[:][i]
                 fitResTable.data[:][i] = fitG2R2[:][i]
                 resTable.data[:][i] = resG2R2[:][i]
+                ancTable.data[:][i] = ancG2R2[:][i]
             elif bestres[i] ==3:
                 bestFitTable.data[:][i] = linesG2R3[:][i]
                 fitResTable.data[:][i] = fitG2R3[:][i]
                 resTable.data[:][i] = resG2R3[:][i]
+                ancTable.data[:][i] = ancG2R3[:][i]
 
         #tot = np.column_stack(( resTable.data.columns,bestres))
 
@@ -849,7 +853,7 @@ class tplay(object):
         
         hduBF = fits.BinTableHDU.from_columns(orig_cols + new_col)
         
-        hdl = fits.HDUList([hdul[0],hdul['BININFO'],fitResTable,bestFitTable,resTable])
+        hdl = fits.HDUList([hdul[0],hdul['BININFO'],fitResTable,hduBF,resTable])
 
         hdl.writeto(cfg_par['general']['runNameDir']+'gPlayOutBF.fits',overwrite=True)
 

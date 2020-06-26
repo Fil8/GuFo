@@ -170,7 +170,9 @@ class momplay:
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['Ancels'+cfg_par['gFit']['modName']].data
-        
+        residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
+        linesG1 = hdul['LineRes_G1'].data
+
         hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
 
@@ -178,15 +180,20 @@ class momplay:
         momCentroid = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         momW80 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         
+
+
         for i in range(0,len(lines['BIN_ID'])):
 
             match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
-
+            thresHold = residuals['SN_NII6583'][i]
+            sigmaThresh = linesG1['g1_SigIntr_NII6583'][i]
+            
             for index in match_bin:
                 
-                momW80[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['w80_'+lineName][i]
-                momSigma[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['sigma_'+lineName][i]
-                momCentroid[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['centroid_'+lineName][i]
+                if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
+                    momW80[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['w80_'+lineName][i]
+                    momSigma[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['sigma_'+lineName][i]
+                    momCentroid[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['centroid_'+lineName][i]
 
         del momSigmaHead['CRDER3']
         del momCentroidHead['CRDER3']
