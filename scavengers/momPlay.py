@@ -317,7 +317,7 @@ class momplay:
                     if doBinMap==True:
                         binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
                     
-                    if modName != 'g1':
+                    if modName != 'g1' and lines['g2_Amp_'+lineName][i]!=0.0:
                         mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Amp_'+lineName][i]/tabGen['NSPAX'][index]
                         mom1G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Centre_'+lineName][i]
                         mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_SigIntr_'+lineName][i]

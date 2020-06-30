@@ -863,7 +863,7 @@ class tplay(object):
         
         hduBF = fits.BinTableHDU.from_columns(orig_cols + new_col)
         
-        hdl = fits.HDUList([hdul[0],hdul['BININFO'],fitResTable,hduBF,resTable,ancTable])
+        hdl = fits.HDUList([hdul[0],hdul['BININFO'],fitResTable,hduBF,bestFitTable,ancTable])
 
         hdl.writeto(cfg_par['general']['runNameDir']+'gPlayOutBF.fits',overwrite=True)
 
