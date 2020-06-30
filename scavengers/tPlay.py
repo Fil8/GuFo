@@ -816,20 +816,19 @@ class tplay(object):
         res[2,:] = np.array(resG2R2['res_NII6583'])
         res[3,:] = np.array(resG2R3['res_NII6583'])
 
-        bestFitTable = fits.BinTableHDU.from_columns(hdul['lineRes_g2'].columns, nrows=nrows)
-        resTable = fits.BinTableHDU.from_columns(hdul['residuals_g2'].columns, nrows=nrows)
-        fitResTable = fits.BinTableHDU.from_columns(hdul['fitres_g2'].columns, nrows=nrows)
-        ancTable = fits.BinTableHDU.from_columns(hdul['ancelsg2'].columns, nrows=nrows)
+        bestFitTable = fits.BinTableHDU.from_columns(hdul['lineRes_g2'].columns, nrows=nrows,name='lineRes_g2')
+        resTable = fits.BinTableHDU.from_columns(hdul['residuals_g2'].columns, nrows=nrows,name='residuals_g2')
+        fitResTable = fits.BinTableHDU.from_columns(hdul['fitres_g2'].columns, nrows=nrows,name='fitRes_g2')
+        ancTable = fits.BinTableHDU.from_columns(hdul['ancelsg2'].columns, nrows=nrows,name='ancelsg2')
         #print(fitResTable.columns.names,linesG1.columns.names)
         bestres = []
         
         for i in range(nrows):
             bestres.append(np.argmin(res[:,i]))
-        
+            print(res[:,i])
             if bestres[i] == 0:
                 for colname in linesG1.columns.names:
                     bestFitTable.data[colname][i] = linesG1[colname][i]
-                
                 fitResTable.data[:][i] = fitG1[:][i]
                 resTable.data[:][i] = resG1[:][i]
                 ancTable.data[:][i] = ancG1[:][i]

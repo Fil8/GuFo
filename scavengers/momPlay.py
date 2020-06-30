@@ -191,7 +191,7 @@ class momplay:
             
             for index in match_bin:
 
-                if thresHold >= lineThresh:
+                #if thresHold >= lineThresh:
                     
                     momW80[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['w80_'+lineName][i]
                     momSigma[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['sigma_'+lineName][i]
@@ -254,7 +254,7 @@ class momplay:
 
 
         hdul = fits.open(cfg_par['general']['outTableName'])
-
+ 
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
         
 #        lines['BIN_ID'] = hdul['BININFO'].data['ID']
