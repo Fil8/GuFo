@@ -569,6 +569,8 @@ class momplay:
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
+        linesG1 = hdul['LineRes_g1'].data
+
         #lines['BIN_ID'] = hdul['BININFO'].data['ID']
         resNameList=['BIN_ID']
         frmList=['i4']
@@ -629,11 +631,11 @@ class momplay:
         
                 amp = lines['g1_Amp_'+lineName][i]
                 
-                cenKmsG1 = lines['g1_Centre_'+lineName][i]
-                sigKmsG1 = lines['g1_SigIntr_'+lineName][i]
+                cenKmsG1 = linesG1['g1_Centre_'+lineName][i]
+                #sigKmsG1 = linesG1['g1_SigIntr_'+lineName][i]
                 
-                if sigKmsG1 >=2.e3:
-                    sigKmsG1=2.e3
+                #if sigKmsG1 >=2.e3:
+                #    sigKmsG1=2.e3
 
                 cenG1 = np.log(cvP.vRadLambda(cenKmsG1,lineInfo['Wave'][ii]))
                 leftG1 = np.log(cvP.vRadLambda(cenKmsG1-lineInfo['cenRange'][ii],lineInfo['Wave'][ii]))
@@ -687,23 +689,23 @@ class momplay:
                     idxLeftG2 = int(np.where(abs(wave-leftG2)==abs(wave-leftG2).min())[0])
                     idxRightG2 = int(np.where(abs(wave-rightG2)==abs(wave-rightG2).min())[0])
                     
-                    #idxLeft = np.min([idxLeft,idxLeftG2])
-                    #idxRight = np.max([idxRight,idxRightG2])
+                    idxLeft = np.min([idxLeft,idxLeftG2])
+                    idxRight = np.max([idxRight,idxRightG2])
 
-                    if modName =='g3':
+                #     if modName =='g3':
 
-                        cenKmsG3 = lines['g3_Centre_'+lineName][i]
-                        sigKmsG3 = lines['g3_SigMeas_'+lineName][i]
+                #         cenKmsG3 = lines['g3_Centre_'+lineName][i]
+                #         sigKmsG3 = lines['g3_SigMeas_'+lineName][i]
                 
-                        cenG2 = np.log(cvP.vRadLambda(cenKmsG1,lineInfo['Wave'][ii]))
-                        leftG2 = np.log(cvP.vRadLambda(cenKmsG1-3.*sigKmsG3,lineInfo['Wave'][ii]))
-                        rightG2 = np.log(cvP.vRadLambda(cenKmsG1+3.*sigKmsG3,lineInfo['Wave'][ii]))
+                #         cenG2 = np.log(cvP.vRadLambda(cenKmsG1,lineInfo['Wave'][ii]))
+                #         leftG2 = np.log(cvP.vRadLambda(cenKmsG1-3.*sigKmsG3,lineInfo['Wave'][ii]))
+                #         rightG2 = np.log(cvP.vRadLambda(cenKmsG1+3.*sigKmsG3,lineInfo['Wave'][ii]))
                         
-                        idxLeftG3 = int(np.where(abs(wave-leftG3)==abs(wave-leftG3).min())[0])
-                        idxRightG3 = int(np.where(abs(wave-rightG3)==abs(wave-rightG3).min())[0])
+                #         idxLeftG3 = int(np.where(abs(wave-leftG3)==abs(wave-leftG3).min())[0])
+                #         idxRightG3 = int(np.where(abs(wave-rightG3)==abs(wave-rightG3).min())[0])
                         
-                        idxLeft = np.min([idxLeft,idxLeftG3])
-                        idxRight = np.max([idxRight,idxRightG3])
+                        #idxLeft = np.min([idxLeft,idxLeftG3])
+                        #idxRight = np.max([idxRight,idxRightG3])
 
                 #if ii==0 and cfg_par['residuals']['computeNoise']==True:
                 #    noiseValue = noiseBin[idxLeft][lines['BIN_ID'][i]][idxLeft]*amp
@@ -725,7 +727,7 @@ class momplay:
                     #     thresHold = (lines['g1_Amp_Hb4861'][i]+lines['g2_Amp_Hb4861'][i]+lines['g3_Amp_Hb4861'][i])/tabGen['NSPAX'][index]
                     
                     # if thresHold >= lineThresh:
-                    linePeak = np.max(y[idxLeft:idxRight])
+                    linePeak = np.max(y[idxPeakLeft:idxPeakRight])
 
                     absValue = np.multiply(np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0),amp)
                     stdValue = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
