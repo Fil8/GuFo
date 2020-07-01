@@ -151,7 +151,7 @@ class MOMplot(object):
     outFig = cfg_par['general']['plotMomModDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
             #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
-
+    fig.close()
     return 0
 
   def mom1Plot(self,cfg_par,imageName,lineName,lineThresh,lineNameStr,keyword,
@@ -262,6 +262,9 @@ class MOMplot(object):
     outFig = cfg_par['general']['plotMomModDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
             #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
+
+    fig.close()
+
     return 0
 
   def mom2Plot(self,cfg_par,imageName,lineName,lineThresh,lineNameStr,keyword,
@@ -369,6 +372,9 @@ class MOMplot(object):
     outFig = cfg_par['general']['plotMomModDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
             #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
+
+    fig.close()
+
     return 0
 
 
@@ -504,6 +510,9 @@ class MOMplot(object):
     outFig = cfg_par['general']['momDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
             #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
+
+    fig.close()
+
 
     return 0
 

@@ -292,21 +292,26 @@ class momplay:
             #else:
 
             match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
+            
             for index in match_bin:
+            
                 thresHold = residuals['SN_NII6583'][i]
                 sigmaThresh = linesG1['g1_SigIntr_NII6583'][i]
                 
                 if cfg_par['gFit']['method'] == 'pixel':
                     tabGen['NSPAX'][index] = 1.           
 
-                if modName=='g2':
-                    ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i])/tabGen['NSPAX'][index]                   
-                elif modName=='g3':
-                    ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i]+lines['g3_Amp_'+lineName][i])/tabGen['NSPAX'][index]  
+                else:
+                    
+                    if modName=='g2':
+                        ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i])/tabGen['NSPAX'][index]                   
+                    elif modName=='g3':
+                        ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i]+lines['g3_Amp_'+lineName][i])/tabGen['NSPAX'][index]  
 
                 #thresHold = lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
                 #print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
                 #print(thresHold,lineThresh)
+                
                 if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
 
                     mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]
@@ -324,7 +329,7 @@ class momplay:
                         mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_SigIntr_'+lineName][i]
                     
                         if modName == 'g3':
-                            mom0G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[index]
+                            mom0G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Amp_'+lineName][i]/tabGen['NSPAX'][index]
                             mom1G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Centre_'+lineName][i]
                             mom2G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_SigIntr_'+lineName][i]
                         
@@ -743,7 +748,7 @@ class momplay:
                         #if ii==0: 
                         #    noiseMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
 
-                stdArr[i] = stdValuePeak
+                stdArr[i] = stdValuePeak/linePeak
                 noiseArr[i] = noise
                 SNValues[i] = sn
                 SNStdValues[i] = snStd
