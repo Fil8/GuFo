@@ -258,7 +258,9 @@ class momplay:
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
         
 #        lines['BIN_ID'] = hdul['BININFO'].data['ID']
-        residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
+        #residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
+        residuals = hdul['Residuals_G1']['modName']].data
+        
         linesG1 = hdul['LineRes_G1'].data
         
         hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
@@ -683,8 +685,8 @@ class momplay:
                     idxLeftG2 = int(np.where(abs(wave-leftG2)==abs(wave-leftG2).min())[0])
                     idxRightG2 = int(np.where(abs(wave-rightG2)==abs(wave-rightG2).min())[0])
                     
-                    idxLeft = np.min([idxLeft,idxLeftG2])
-                    idxRight = np.max([idxRight,idxRightG2])
+                    #idxLeft = np.min([idxLeft,idxLeftG2])
+                    #idxRight = np.max([idxRight,idxRightG2])
 
                     if modName =='g3':
 
