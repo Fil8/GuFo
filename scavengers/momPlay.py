@@ -183,15 +183,15 @@ class momplay:
 
 
         for i in range(0,len(lines['BIN_ID'])):
-
-            match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
             
+            match_bin = np.where(tabGen['BIN_ID']==residuals['BIN_ID'][i])[0]
+
             thresHold = residuals['SN_NII6583'][i]
             sigmaThresh = linesG1['g1_SigIntr_NII6583'][i]
             
             for index in match_bin:
 
-                #if thresHold >= lineThresh:
+                if thresHold >= lineThresh:
                     
                     momW80[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['w80_'+lineName][i]
                     momSigma[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['sigma_'+lineName][i]
@@ -295,6 +295,7 @@ class momplay:
             for index in match_bin:
                 thresHold = residuals['SN_NII6583'][i]
                 sigmaThresh = linesG1['g1_SigIntr_NII6583'][i]
+                
                 if cfg_par['gFit']['method'] == 'pixel':
                     tabGen['NSPAX'][index] = 1.           
 

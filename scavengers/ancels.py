@@ -44,7 +44,7 @@ def workerAncels(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,tabGen,residuals,r
     return sigmaCen  
     
 
-def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tabGen,residuals):
+def widthCentroid(cfg_par,lines,linesG1,wave,lineInfo,dLambda,sigmaCen,counter,binID,tabGen,residuals):
 
     #tt=Table([lines['BIN_ID']])
     modName = cfg_par['gFit']['modName']
@@ -173,6 +173,7 @@ def main(cfg_par):
 
     hdul = fits.open(cfg_par['general']['outTableName'])
     lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data 
+
     residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data 
     
     dLambda = cvP.specRes(cfg_par)
