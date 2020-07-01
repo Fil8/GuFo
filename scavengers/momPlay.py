@@ -173,23 +173,23 @@ class momplay:
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
         linesG1 = hdul['LineRes_G1'].data
 
-        hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
-        tabGen = hduGen[1].data
+        #hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
+        tabGen = hdul['BININFO'].data
 
         momSigma = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         momCentroid = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         momW80 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         
 
-
         for i in range(0,len(lines['BIN_ID'])):
             
-            match_bin = np.where(tabGen['BIN_ID']==residuals['BIN_ID'][i])[0]
+            match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
-            thresHold = residuals['SN_NII6583'][i]
-            sigmaThresh = linesG1['g1_SigIntr_NII6583'][i]
             
             for index in match_bin:
+
+                thresHold = residuals['SN_NII6583'][index]
+                sigmaThresh = linesG1['g1_SigIntr_NII6583'][index]
 
                 if thresHold >= lineThresh:
                     
@@ -322,15 +322,17 @@ class momplay:
                     if doBinMap==True:
                         binMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['BIN_ID'][i]
                     
-                    if modName != 'g1' and lines['g2_Amp_'+lineName][i]!=0.0:
-                        mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Amp_'+lineName][i]/tabGen['NSPAX'][index]
-                        mom1G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Centre_'+lineName][i]
-                        mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_SigIntr_'+lineName][i]
+                    if modName != 'g1': 
+                            mom0G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Amp_'+lineName][i]/tabGen['NSPAX'][index]
+                        if lines['g2_Amp_'+lineName][i]!=0.0:
+                                mom1G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_Centre_'+lineName][i]
+                                mom2G2[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g2_SigIntr_'+lineName][i]
                     
                         if modName == 'g3':
                             mom0G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Amp_'+lineName][i]/tabGen['NSPAX'][index]
-                            mom1G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Centre_'+lineName][i]
-                            mom2G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_SigIntr_'+lineName][i]
+                            if lines['g2_Amp_'+lineName][i]!=0.0:
+                                mom1G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Centre_'+lineName][i]
+                                mom2G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_SigIntr_'+lineName][i]
                         
                         #mom0Tot[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[i]
 
