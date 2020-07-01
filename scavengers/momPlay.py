@@ -261,7 +261,7 @@ class momplay:
         
 #        lines['BIN_ID'] = hdul['BININFO'].data['ID']
         #residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
-        residuals = hdul['Residuals_G1']['modName'].data
+        residuals = hdul['Residuals_G1'].data
         
         linesG1 = hdul['LineRes_G1'].data
         
