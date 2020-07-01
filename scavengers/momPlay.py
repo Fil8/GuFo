@@ -384,7 +384,7 @@ class momplay:
             mPl.mom2Plot(cfg_par, momModDir+'mom2_g2-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'moments')
 
             if modName == 'g2':
-                fits.writeto(momModDir+'mom0_tot-'+lineName+'.fits',mom0G1+mom0G2,mom0Head,overwrite=True)
+                fits.writeto(momModDir+'mom0_tot-'+lineName+'.fits', mom0Tot,mom0Head,overwrite=True)
                 
                 mPl.mom0Plot(cfg_par, momModDir+'mom0_tot-'+lineName+'.fits',lineName,lineNameStr,lineThresh)
                 
