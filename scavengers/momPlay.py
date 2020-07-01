@@ -301,12 +301,11 @@ class momplay:
                 if cfg_par['gFit']['method'] == 'pixel':
                     tabGen['NSPAX'][index] = 1.           
 
-                else:
                     
-                    if modName=='g2':
-                        ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i])/tabGen['NSPAX'][index]                   
-                    elif modName=='g3':
-                        ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i]+lines['g3_Amp_'+lineName][i])/tabGen['NSPAX'][index]  
+                if modName=='g2':
+                    ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i])/tabGen['NSPAX'][index]                   
+                elif modName=='g3':
+                    ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i]+lines['g3_Amp_'+lineName][i])/tabGen['NSPAX'][index]  
 
                 #thresHold = lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
                 #print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
