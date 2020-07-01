@@ -302,10 +302,10 @@ class momplay:
                     tabGen['NSPAX'][index] = 1.           
 
                     
-                if modName=='g2':
-                    ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i])/tabGen['NSPAX'][index]                   
-                elif modName=='g3':
-                    ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i]+lines['g3_Amp_'+lineName][i])/tabGen['NSPAX'][index]  
+                #if modName=='g2':
+                #    ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i])/tabGen['NSPAX'][index]                   
+                #elif modName=='g3':
+                #    ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i]+lines['g3_Amp_'+lineName][i])/tabGen['NSPAX'][index]  
 
                 #thresHold = lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i]/noise[0,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
                 #print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
@@ -332,7 +332,7 @@ class momplay:
                             mom1G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_Centre_'+lineName][i]
                             mom2G3[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g3_SigIntr_'+lineName][i]
                         
-                        mom0Tot[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[i]
+                        #mom0Tot[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = ampSpax[i]
 
 
                     #else#:
@@ -383,7 +383,7 @@ class momplay:
             mPl.mom2Plot(cfg_par, momModDir+'mom2_g2-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'moments')
 
             if modName == 'g2':
-                fits.writeto(momModDir+'mom0_tot-'+lineName+'.fits', mom0Tot,mom0Head,overwrite=True)
+                fits.writeto(momModDir+'mom0_tot-'+lineName+'.fits', mom0G1+mom0G2,mom0Head,overwrite=True)
                 
                 mPl.mom0Plot(cfg_par, momModDir+'mom0_tot-'+lineName+'.fits',lineName,lineNameStr,lineThresh)
                 
