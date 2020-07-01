@@ -266,6 +266,7 @@ class momplay:
         linesG1 = hdul['LineRes_G1'].data
         
         hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
+
         tabGen = hduGen[1].data
 
         ampSpax = np.empty(len(tabGen['BIN_ID']))

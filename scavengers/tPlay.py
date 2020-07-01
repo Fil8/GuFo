@@ -816,10 +816,15 @@ class tplay(object):
 
         #for i in range(len(tableNames)):
 
-        res[0,:] = np.array(resG1['res_NII6583'])
-        res[1,:] = np.array(resG2R1['res_NII6583'])
-        res[2,:] = np.array(resG2R2['res_NII6583'])
-        res[3,:] = np.array(resG2R3['res_NII6583'])
+        # res[0,:] = np.array(resG1['res_NII6583'])
+        # res[1,:] = np.array(resG2R1['res_NII6583'])
+        # res[2,:] = np.array(resG2R2['res_NII6583'])
+        # res[3,:] = np.array(resG2R3['res_NII6583'])
+
+        res[0,:] = np.array(resG1['res_OIII5006'])
+        res[1,:] = np.array(resG2R1['res_OIII5006'])
+        res[2,:] = np.array(resG2R2['res_OIII5006'])
+        res[3,:] = np.array(resG2R3['res_OIII5006'])
 
         bestFitTable = fits.BinTableHDU.from_columns(hdul['lineRes_g2'].columns, nrows=nrows,name='lineRes_g2')
         resTable = fits.BinTableHDU.from_columns(hdul['residuals_g2'].columns, nrows=nrows,name='residuals_g2')
