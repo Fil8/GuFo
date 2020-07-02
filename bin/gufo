@@ -412,7 +412,7 @@ def main (argv):
             mom.resLinesFromTable(gPar.cfg_par)
             timeRes = (time.time()- time_start_load)/60.
             print('\n\t  +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeRes))
-            break
+            sys.exit(0)
         mom.resLines(gPar.cfg_par)
         timeRes = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeRes))
