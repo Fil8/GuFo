@@ -917,7 +917,7 @@ class tplay(object):
             bestres.append(np.argmin(res[:,i]))
             #print(res[:,i],np.argmin(res[:,i]))
             if bestres[i] == 0:
-                for colname in linesG2R2.columns.names:
+                for colname in linesG2R1.columns.names:
                     bestFitTable.data[colname][i] = 0.0
                 for colname in linesG1.columns.names:
                     bestFitTable.data[colname][i] = linesG1[colname][i]
