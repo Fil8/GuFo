@@ -928,7 +928,7 @@ class tplay(object):
                 bestFitTable.data[:][i] = linesG2R1[:][i]
                 fitResTable.data[:][i] = fitG2R1[:][i]
                 resTable.data[:][i] = resG2R1[:][i]
-                ancTable.data[:][i] = ancG2R2[:][i]
+                ancTable.data[:][i] = ancG2R1[:][i]
             # elif bestres[i] ==2:
             #     bestFitTable.data[:][i] = linesG2R2[:][i]
             #     fitResTable.data[:][i] = fitG2R2[:][i]
