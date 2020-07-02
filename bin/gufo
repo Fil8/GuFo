@@ -408,7 +408,7 @@ def main (argv):
         time_start_load = time.time()
         gPar = gufo.gufo(args.cfgFile)
         if gPar.cfg_par['residuals'].get('fromTable',False) == True:
-            print ('\n\t +---------+\t\t  plot residuals\t\t +---------+')
+            print ('\n\t +---------+\t\t  plot residuals\t +---------+')
             mom.resLinesFromTable(gPar.cfg_par)
             timeRes = (time.time()- time_start_load)/60.
             print('\n\t  +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeRes))

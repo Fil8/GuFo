@@ -171,10 +171,10 @@ class momplay:
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['Ancels'+cfg_par['gFit']['modName']].data
-        #residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
-        residuals = hdul['Residuals_G1'].data
+        residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
+        #esiduals = hdul['Residuals_G1'].data
         
-        linesG1 = hdul['LineRes_G1'].data
+        #linesG1 = hdul['LineRes_G1'].data
 
         #hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hdul['BININFO'].data
@@ -302,12 +302,11 @@ class momplay:
             for index in match_bin:
             
                 thresHold = residuals['SN_NII6583'][i]
-                #sigmaThresh = linesG1['g1_SigIntr_NII6583'][i]
+                sigmaThresh = linesG1['g1_SigIntr_NII6583'][i]
                 
                 if cfg_par['gFit']['method'] == 'pixel':
                     tabGen['NSPAX'][index] = 1.           
 
-                    
                 #if modName=='g2':
                 #    ampSpax[index] = (lines['g1_Amp_'+lineName][i]+lines['g2_Amp_'+lineName][i])/tabGen['NSPAX'][index]                   
                 #elif modName=='g3':
@@ -829,7 +828,7 @@ class momplay:
                     stdValuePeak = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),linePeak)
 
                     resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = absValue
-                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = stdValue
+                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
                     
                     resG1AbsPeak[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = absValuePeak
                     resG1StdPeak[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = stdValuePeak
