@@ -174,7 +174,7 @@ class momplay:
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
         #esiduals = hdul['Residuals_G1'].data
         
-        #linesG1 = hdul['LineRes_G1'].data
+        linesG1 = hdul['LineRes_G1'].data
 
         #hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hdul['BININFO'].data
@@ -194,7 +194,9 @@ class momplay:
                 thresHold = residuals['SN_NII6583'][index]
                 sigmaThresh = linesG1['g1_SigIntr_NII6583'][index]
 
-                if thresHold >= lineThresh:
+                if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
+
+#                if thresHold >= lineThresh :
                     
                     momW80[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['w80_'+lineName][i]
                     momSigma[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['sigma_'+lineName][i]
@@ -316,8 +318,8 @@ class momplay:
                 #print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
                 #print(thresHold,lineThresh)
                 
-#                if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
-                if thresHold >= lineThresh:
+                if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
+#                if thresHold >= lineThresh:
 
                     mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]
 #                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Height_'+lineName][i]/tabGen['NSPAX'][index]
