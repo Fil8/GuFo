@@ -557,7 +557,7 @@ class momplay:
 
             resNameOutStd =resModDir+'resStd_'+lineName+'.fits'
             resNameOutStdPeak =resModDir+'resStdPeak_'+lineName+'.fits'            
-            SNResMapName =resModDir+'SNRes_'+lineName+'.fits'
+            SNResNameOut =resModDir+'SNRes_'+lineName+'.fits'
 
             for i in range(0,len(res['BIN_ID'])):
 
@@ -565,13 +565,17 @@ class momplay:
 
                 for index in match_bin:
 
-                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = res['res_'+linename]
-                    resG1StdPeak[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = res['resPeak_'+linename]
-                    SNResLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = res['snRes_'+linename]
+                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = res['res_'+linename][i]
+                    resG1StdPeak[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = res['resPeak_'+linename][i]
+                    SNResLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = res['snRes_'+linename][i]
 
+        resHead['WCSAXES'] = 2
+                  
+        fits.writeto(resNameOutStd,resG1Std,resHead,overwrite=True)
+        fits.writeto(resNameOutStdPeak,resG1StdPeak,resHead,overwrite=True)
+        fits.writeto(SNResNameOut,SNResLineMap,resHead,overwrite=True)
 
-
-
+        return
 
     def resLines(self,cfg_par): 
  
