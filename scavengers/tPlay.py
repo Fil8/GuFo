@@ -920,7 +920,7 @@ class tplay(object):
         for i in range(nrows):
             bestres.append(np.argmin(res[:,i]))
             #print(res[:,i],np.argmin(res[:,i]))
-            if bestres[i] == 0 or resN[0,i]<1.2:
+            if bestres[i] == 0 or resN[0,i]<=1.2:
                 for colname in linesG2R1.columns.names:
                     bestFitTable.data[colname][i] = 0.0
                 for colname in linesG1.columns.names:
