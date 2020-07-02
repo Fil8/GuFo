@@ -479,7 +479,7 @@ def main (argv):
         print ('\n\t +---------+\t\t ancillary Info\t\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
         print('\n\t         +++\t\tsigma & centroid\t +++')
-        #ancels.main(gPar.cfg_par)
+        ancels.main(gPar.cfg_par)
         print('\n\t         +++\t\t plotting maps\t +++')
         mom.makeSigmaCentroidMaps(gPar.cfg_par)
         timeAnc = (time.time()- time_start_load)/60.

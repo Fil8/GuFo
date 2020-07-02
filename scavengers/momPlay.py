@@ -260,8 +260,8 @@ class momplay:
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
         
 #        lines['BIN_ID'] = hdul['BININFO'].data['ID']
-        #residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
-        residuals = hdul['Residuals_G1'].data
+        residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
+        #residuals = hdul['Residuals_G1'].data
         
         linesG1 = hdul['LineRes_G1'].data
         
@@ -301,7 +301,7 @@ class momplay:
             for index in match_bin:
             
                 thresHold = residuals['SN_NII6583'][i]
-                sigmaThresh = linesG1['g1_SigIntr_NII6583'][i]
+                #sigmaThresh = linesG1['g1_SigIntr_NII6583'][i]
                 
                 if cfg_par['gFit']['method'] == 'pixel':
                     tabGen['NSPAX'][index] = 1.           
@@ -316,7 +316,8 @@ class momplay:
                 #print(lines['g1_Height_'+lineName][i]/0.3989423*lines['g1_Sigma_'+lineName][i],lines['g1_Sigma_'+lineName][i],lines['g1_Height_'+lineName][i])
                 #print(thresHold,lineThresh)
                 
-                if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
+#                if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
+                if thresHold >= lineThresh:
 
                     mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Amp_'+lineName][i]/tabGen['NSPAX'][index]
 #                        mom0G1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['g1_Height_'+lineName][i]/tabGen['NSPAX'][index]
@@ -570,7 +571,6 @@ class momplay:
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
-        linesG1 = hdul['LineRes_g1'].data
 
         #lines['BIN_ID'] = hdul['BININFO'].data['ID']
         resNameList=['BIN_ID']
