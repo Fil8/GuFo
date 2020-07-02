@@ -572,11 +572,11 @@ class momplay:
                     resG1StdPeak[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['resPeak_'+lineName][i]
                     SNResLineMap[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['snRes_'+lineName][i]
 
-        resHead['WCSAXES'] = 2
+            resHead['WCSAXES'] = 2
                   
-        fits.writeto(resNameOutStd,resG1Std,resHead,overwrite=True)
-        fits.writeto(resNameOutStdPeak,resG1StdPeak,resHead,overwrite=True)
-        fits.writeto(SNResNameOut,SNResLineMap,resHead,overwrite=True)
+            fits.writeto(resNameOutStd,resG1Std,resHead,overwrite=True)
+            fits.writeto(resNameOutStdPeak,resG1StdPeak,resHead,overwrite=True)
+            fits.writeto(SNResNameOut,SNResLineMap,resHead,overwrite=True)
 
         return
 
