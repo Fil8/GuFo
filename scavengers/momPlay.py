@@ -568,9 +568,9 @@ class momplay:
 
                 for index in match_bin:
 
-                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = res['res_'+lineName][i]
-                    resG1StdPeak[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = res['resPeak_'+lineName][i]
-                    SNResLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = res['snRes_'+lineName][i]
+                    resG1Std[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['res_'+lineName][i]
+                    resG1StdPeak[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['resPeak_'+lineName][i]
+                    SNResLineMap[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['snRes_'+lineName][i]
 
         resHead['WCSAXES'] = 2
                   
