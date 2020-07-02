@@ -516,7 +516,7 @@ class momplay:
 
         lineInfo = tP.openLineList(cfg_par)
         
-        cubeDir = cfg_par[key]['cubeDir'] 
+        cubeDir = cfg_par['general']['cubeDir'] 
         resName = cubeDir+'resCube_'+modName+'.fits'
 
         f = fits.open(resName)
