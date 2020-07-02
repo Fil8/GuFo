@@ -515,6 +515,9 @@ class momplay:
         resModDir = cfg_par['general']['resDir']+modName+'/'
 
         lineInfo = tP.openLineList(cfg_par)
+        
+        cubeDir = cfg_par[key]['cubeDir'] 
+        resName = cubeDir+'resCube_'+modName+'.fits'
 
         f = fits.open(resName)
         resHead = f[0].header
