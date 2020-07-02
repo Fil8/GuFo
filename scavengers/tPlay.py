@@ -892,6 +892,7 @@ class tplay(object):
         # ancG2R3 = hdul['ancelsg2'].data
 
         res=np.zeros([len(tableNames),nrows])
+        resN=np.zeros([len(tableNames),nrows])
 
 
         #for i in range(len(tableNames)):
@@ -906,7 +907,6 @@ class tplay(object):
 
 
         resN[0,:] = np.array(resG1['res_NII6583'])
-        resN[1,:] = np.array(resG2R1['res_NII6583'])        
         #res[2,:] = np.array(resG2R2['res_OIII5006'])
         # res[3,:] = np.array(resG2R3['res_OIII5006'])
 
