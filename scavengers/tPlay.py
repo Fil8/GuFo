@@ -884,12 +884,12 @@ class tplay(object):
         ancG2R2 = hdul['ancelsg2'].data
 
 
-        hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[3])
-        linesG2R3 = hdul['lineRes_g2'].data
-        resG2R3 = hdul['residuals_g2'].data
-        fitG2R3 = hdul['fitRes_g2'].data
-        ancG2R3 = hdul['ancelsg2'].data
-        ancG1 = hdul['ancelsg1'].data
+        # hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[3])
+        # linesG2R3 = hdul['lineRes_g2'].data
+        # resG2R3 = hdul['residuals_g2'].data
+        # fitG2R3 = hdul['fitRes_g2'].data
+        # ancG2R3 = hdul['ancelsg2'].data
+        # ancG1 = hdul['ancelsg1'].data
 
         res=np.zeros([len(tableNames),nrows])
 
@@ -904,7 +904,7 @@ class tplay(object):
         res[0,:] = np.array(resG1['res_OIII5006'])
         res[1,:] = np.array(resG2R1['res_OIII5006'])
         res[2,:] = np.array(resG2R2['res_OIII5006'])
-        res[3,:] = np.array(resG2R3['res_OIII5006'])
+        # res[3,:] = np.array(resG2R3['res_OIII5006'])
 
         bestFitTable = fits.BinTableHDU.from_columns(hdul['lineRes_g2'].columns, nrows=nrows,name='lineRes_g2')
         resTable = fits.BinTableHDU.from_columns(hdul['residuals_g2'].columns, nrows=nrows,name='residuals_g2')
@@ -934,11 +934,11 @@ class tplay(object):
                 fitResTable.data[:][i] = fitG2R2[:][i]
                 resTable.data[:][i] = resG2R2[:][i]
                 ancTable.data[:][i] = ancG2R2[:][i]
-            elif bestres[i] ==3:
-                bestFitTable.data[:][i] = linesG2R3[:][i]
-                fitResTable.data[:][i] = fitG2R3[:][i]
-                resTable.data[:][i] = resG2R3[:][i]
-                ancTable.data[:][i] = ancG2R3[:][i]
+            # elif bestres[i] ==3:
+            #     bestFitTable.data[:][i] = linesG2R3[:][i]
+            #     fitResTable.data[:][i] = fitG2R3[:][i]
+            #     resTable.data[:][i] = resG2R3[:][i]
+            #     ancTable.data[:][i] = ancG2R3[:][i]
 
         #tot = np.column_stack(( resTable.data.columns,bestres))
 
@@ -948,7 +948,8 @@ class tplay(object):
         
         hduBF = fits.BinTableHDU.from_columns(orig_cols + new_col, name='residuals_g2')
         
-        hdl = fits.HDUList([hdul[0],hdul['BININFO'],fitResTable,hduBF,bestFitTable,ancTable])
+        hdl = fits.HDUList([hdul[0],hdul['BININFO'],hdul['fitRes_g1'],hdul['lineRes_g1'],hdul['residuals_g1'],
+            fitResTable,hduBF,bestFitTable,ancTable])
 
         hdl.writeto(cfg_par['general']['runNameDir']+'gPlayOutBF.fits',overwrite=True)
 
