@@ -878,11 +878,11 @@ class tplay(object):
         fitG2R1 = hdul['fitRes_g2'].data
         ancG2R1 = hdul['ancelsg2'].data
 
-        hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[2])       
-        linesG2R2 = hdul['lineRes_g2'].data
-        resG2R2 = hdul['residuals_g2'].data
-        fitG2R2 = hdul['fitRes_g2'].data
-        ancG2R2 = hdul['ancelsg2'].data
+        # hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[2])       
+        # linesG2R2 = hdul['lineRes_g2'].data
+        # resG2R2 = hdul['residuals_g2'].data
+        # fitG2R2 = hdul['fitRes_g2'].data
+        # ancG2R2 = hdul['ancelsg2'].data
 
 
         # hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[3])
@@ -929,11 +929,11 @@ class tplay(object):
                 fitResTable.data[:][i] = fitG2R1[:][i]
                 resTable.data[:][i] = resG2R1[:][i]
                 ancTable.data[:][i] = ancG2R2[:][i]
-            elif bestres[i] ==2:
-                bestFitTable.data[:][i] = linesG2R2[:][i]
-                fitResTable.data[:][i] = fitG2R2[:][i]
-                resTable.data[:][i] = resG2R2[:][i]
-                ancTable.data[:][i] = ancG2R2[:][i]
+            # elif bestres[i] ==2:
+            #     bestFitTable.data[:][i] = linesG2R2[:][i]
+            #     fitResTable.data[:][i] = fitG2R2[:][i]
+            #     resTable.data[:][i] = resG2R2[:][i]
+            #     ancTable.data[:][i] = ancG2R2[:][i]
             # elif bestres[i] ==3:
             #     bestFitTable.data[:][i] = linesG2R3[:][i]
             #     fitResTable.data[:][i] = fitG2R3[:][i]

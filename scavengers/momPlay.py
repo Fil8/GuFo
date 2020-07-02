@@ -490,8 +490,7 @@ class momplay:
 
         return
 
-
-    def resLines(self,cfg_par): 
+    def resLinesFromTable(self,cfg_par):
         '''
         Computes for each the residuals of the fit. Within which velocity range? 
             At the moment is within 6*sigmaG1 and 3*sigmaG2
@@ -505,6 +504,90 @@ class momplay:
             - table of voronoi binned datacube and spectra
             -
         Returns (located in /residuals/modName/):
+            - res_linename: residuals computed as the standard deviation of line-fit
+                            within a velocity range given by cenRange centred at the peak of the observed line
+            - resSTDPeak_linename:  residuals computed as the standard deviation of line-fit
+                            within a velocity range given by cenRange centred at the peak of the observed line multiplied by the peak of the line
+            - snRes_linename: residuals divided by the noise
+        '''
+
+        modName = cfg_par['gFit']['modName']
+        resModDir = cfg_par['general']['resDir']+modName+'/'
+
+        lineInfo = tP.openLineList(cfg_par)
+
+        f = fits.open(resName)
+        resHead = f[0].header
+        if 'CUNIT3' in resHead:
+            del resHead['CUNIT3']
+        if 'CTYPE3' in resHead:
+            del resHead['CTYPE3']
+        if 'CDELT3' in resHead:
+            del resHead['CDELT3']
+        if 'CRVAL3' in resHead:  
+            del resHead['CRVAL3']
+        if 'CRPIX3' in resHead:
+            del resHead['CRPIX3'] 
+        if 'NAXIS3' in resHead:
+            del resHead['NAXIS3']
+        if 'CRDER3'in resHead:
+            del resHead['CRDER3']
+
+        hdul = fits.open(cfg_par['general']['outTableName'])
+        binInfo = hdul['BININFO'].data
+
+        res = hdul['residuals_'+modName].data
+
+        for ii in range(0,len(lineInfo['ID'])):
+            
+
+            lineName = str(lineInfo['Name'][ii])
+            if '[' in lineName:
+                lineName = lineName.replace("[", "")
+                lineName = lineName.replace("]", "")
+
+            lineName = lineName+str(int(lineInfo['Wave'][ii]))            
+            lineThresh = float(lineInfo['SNThresh'][ii])
+            print('\n\t         +++\t\t    '+lineName+'\t\t +++')
+          
+            resG1Std = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+            resG1StdPeak = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan            
+            SNResLineMap = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+
+
+            resNameOutStd =resModDir+'resStd_'+lineName+'.fits'
+            resNameOutStdPeak =resModDir+'resStdPeak_'+lineName+'.fits'            
+            SNResMapName =resModDir+'SNRes_'+lineName+'.fits'
+
+            for i in range(0,len(res['BIN_ID'])):
+
+                match_bin = np.where(binInfo['BIN_ID']==res['BIN_ID'][i])[0]
+
+                for index in match_bin:
+
+                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = res['res_'+linename]
+                    resG1StdPeak[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = res['resPeak_'+linename]
+                    SNResLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = res['snRes_'+linename]
+
+
+
+
+
+    def resLines(self,cfg_par): 
+ 
+        '''
+        Makes the residual maps from the residual table
+
+        Parameters:
+            cfg_par: parameter file
+                gFit_modName: specifies # of gaussian components used for the fit
+
+        Uses:
+            - voroni binned line subtracted datacube
+            - table of voronoi binned datacube and spectra
+
+        Returns (located in /residuals/modName/):
+
             - resAbs_linename:  residuals computed as sum of the absolute value of line-fit
                                 within a velocity range given by 6*sigmag1 weighted on the fitted amplitude of the line
             - resSTD_linename:  residuals computed as the standard deviation of line-fit
@@ -520,7 +603,8 @@ class momplay:
                 computes the S/N of each line as the peak/noise in each pixel
             Returns:
                 - SN_linename: S/N map of each line
-                - noise_linename: noise map of each line        
+                - noise_linename: noise map of each line   
+
         '''
 
 
