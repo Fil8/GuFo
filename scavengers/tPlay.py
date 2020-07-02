@@ -903,7 +903,7 @@ class tplay(object):
 
         res[0,:] = np.array(resG1['res_OIII5006'])
         res[1,:] = np.array(resG2R1['res_OIII5006'])
-        res[2,:] = np.array(resG2R2['res_OIII5006'])
+        #res[2,:] = np.array(resG2R2['res_OIII5006'])
         # res[3,:] = np.array(resG2R3['res_OIII5006'])
 
         bestFitTable = fits.BinTableHDU.from_columns(hdul['lineRes_g2'].columns, nrows=nrows,name='lineRes_g2')
