@@ -211,10 +211,30 @@ def main (argv):
         default = False,
         help= 'reorder table so g2 is always broadest line')
 
+    add('-mkTb', '--makeTable',
+        action = 'store_true',
+        default = False,
+        help= 'make table from moment maps')
+
     add('-rC', '--rebCube',
         action = 'store_true',
         default = False,
         help= 'rebin input cube according to template cube')
+
+    add('-rgM', '--regMom',
+        action = 'store_true',
+        default = False,
+        help= 'regrid moment image according to template image')
+
+    add('-mT', '--momTemp',
+        type= str,
+        default= False,
+        help = 'input image for regrid')
+
+    add('-mI', '--momIn',
+        type= str,
+        default= False,
+        help = 'input image for regrid')  
 
     add('-cT', '--cubeTemp',
         type= str,
@@ -295,11 +315,19 @@ def main (argv):
         print('\n\t************ --- GuFo : DONE --- ************\n') 
 
 
-    if args.reordTable:
+    if args.reordTable :
         
         print ('\n\t************ --- GuFo : reorder Table --- ************\n')
         gPar = gufo.gufo(args.cfgFile)
-        tP.reorderTable(gPar.cfg_par)
+        tP.reordTable(gPar.cfg_par)
+        print('\n\t************ --- GuFo : DONE --- ************\n') 
+
+
+    if args.makeTable or gPar.cfg_par['moments']['makeTable'].get('enable',False) == True:
+        
+        print ('\n\t************ --- GuFo : make Table --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        tP.fromMomsToTable(gPar.cfg_par)
         print('\n\t************ --- GuFo : DONE --- ************\n') 
 
     if args.selBF  or gPar.cfg_par['bestFitSel'].get('enable',False) == True:
@@ -456,6 +484,15 @@ def main (argv):
         timeMS = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMS))    
 
+
+    if args.regMom or gPar.cfg_par['moments']['regrid'].get('enable',False) == True: 
+        time_start_load = time.time()
+        print('\n\t +---------+\t\t  regrid MoM\t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        mom.regridMoms(args.momTemp,args.momIn)
+        timeMS = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMS))    
+
     if args.medSub or gPar.cfg_par['cubePlay']['medSub'].get('enable',False) == True: 
         time_start_load = time.time()
         print('\n\t +---------+\t\t  median Sub\t\t +---------+')
@@ -479,7 +516,8 @@ def main (argv):
         print ('\n\t +---------+\t\t ancillary Info\t\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
         print('\n\t         +++\t\tsigma & centroid\t +++')
-        ancels.main(gPar.cfg_par)
+        if gPar.cfg_par['ancillary']['compute']==True:
+            ancels.main(gPar.cfg_par)
         print('\n\t         +++\t\t plotting maps\t +++')
         mom.makeSigmaCentroidMaps(gPar.cfg_par)
         timeAnc = (time.time()- time_start_load)/60.

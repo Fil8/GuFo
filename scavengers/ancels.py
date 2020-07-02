@@ -105,7 +105,7 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
                 centroidToT = lines['g1_Centre_'+str(lineNameID)][indexCentroid]
                 sigmaCen['centroid_'+lineName][indexCentroid] = centroidToT
 
-            sigmaCen['logCentroid_'+lineName][indexCentroid] =  np.log10(sigmaCen['centroid_'+lineName][indexCentroid])
+            sigmaCen['logCentroid_'+lineName][indexCentroid] =  np.log10(np.abs(sigmaCen['centroid_'+lineName][indexCentroid]))
             
             #sigma & W80
             height =np.max(lineFit)

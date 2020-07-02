@@ -8,6 +8,7 @@ from lmfit.models import GaussianModel
 from lmfit.model import save_modelresult
 from lmfit.model import load_modelresult
 
+from reproject import reproject_exact
 
 from astropy.io import ascii, fits
 from astropy.table import Table, Column
@@ -1040,3 +1041,42 @@ class momplay:
                 bpt.cDistIM(cfg_par,outBPTG3)
 
         return
+
+    def regridMoms(self,basename,slavename):
+        
+
+        outName = slavename.split('.fits')[0]
+        outName = outName+'_rg.fits'            
+
+        base = fits.open(basename)
+        bheader = base[0].header
+
+        if 'WCSAXES' in bheader:
+            bheader['WCSAXES'] = 2
+        bheader['NAXIS'] = 2
+
+        slave = fits.open(slavename)
+        sheader = slave[0].header
+        if 'WCSAXES' in sheader:
+            sheader['WCSAXES'] = 2
+        slave = fits.open(slavename)[0]
+        sheader['NAXIS'] = 2
+
+        bheader['BMIN'] = sheader['BMIN']
+        bheader['BMAJ'] = sheader['BMAJ']
+        # if 'FREQ' in slave.header:
+        #     bheader['FREQ'] = sheader['FREQ']
+        # elif 'CRVAL3' in sheader:
+        #     bheader['FREQ'] = sheader['CRVAL3']
+
+        #print basename
+        #for i in base.header.keys():
+        #    print i,'\t',base.header[i]
+        #print slavename
+        #for i in slave.header.keys():
+        #    print i,'\t',slave.header[i]
+        
+        newslave, footprint = reproject_exact(slave, bheader)
+        fits.writeto(outName, newslave, bheader, overwrite=True)
+
+        return outName

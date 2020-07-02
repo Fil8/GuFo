@@ -699,6 +699,86 @@ class tplay(object):
 
         return
 
+
+    def fromMomsToTable(self,cfg_par):
+
+        lineName = cfg_par['moments']['makeTable']['line']
+
+
+        hdul = fits.open(cfg_par['general']['outTableName'])
+        tabGen = hdul[1].data
+    
+
+        namBins = tuple(['BIN_ID', 'PixX', 'PixY'])
+        namLines = tuple(['BIN_ID','g1_Amp_'+lineName])
+        namAncels = tuple(['BIN_ID','sigma_'+lineName, 
+            'logSigma_'+lineName, 'w80_'+lineName,'logW80_'+lineName, 'centroid_'+lineName,'logCentroid_'+lineName])
+        
+
+        bArr = np.zeros([len(tabGen)], dtype={'names':namBins,
+                          'formats':( 'i4', 'i4', 'i4')})
+        lArr = np.zeros([len(tabGen)], dtype={'names':namLines,
+                          'formats':( 'i4', 'f8')})
+        anArr = np.zeros([len(tabGen)], dtype={'names':namAncels,
+                          'formats':( 'i4', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')})  
+
+        mom0File = fits.open(cfg_par['moments']['makeTable']['mom0'])
+        mom0  = mom0File[0].data
+        
+        mom1File = fits.open(cfg_par['moments']['makeTable']['mom1'])
+        mom1  = mom1File[0].data
+
+        mom2File = fits.open(cfg_par['moments']['makeTable']['mom2'])
+        mom2  = mom2File[0].data
+
+        print(cfg_par['moments']['makeTable']['mom0'])
+        
+        for i in range(0,mom0.shape[1]):
+            for j in range(0,mom0.shape[0]):
+
+                indexBin = np.where(np.logical_and(tabGen['PixX']==i,tabGen['PixY']==j))[0]
+                
+
+                if not indexBin is None:
+
+                    bArr['BIN_ID'][indexBin] = tabGen['BIN_ID'][indexBin]
+                    lArr['BIN_ID'][indexBin] = tabGen['BIN_ID'][indexBin]
+                    anArr['BIN_ID'][indexBin] = tabGen['BIN_ID'][indexBin]
+
+                    bArr['PixX'][indexBin] = i
+                    bArr['PixY'][indexBin] = j
+
+                    lArr['g1_Amp_'+lineName][indexBin]= mom0[j,i]
+                    anArr['centroid_'+lineName][indexBin]= mom1[j,i]
+                    anArr['logCentroid_'+lineName][indexBin]= np.log10(np.abs(mom1[j,i]))
+
+                    anArr['sigma_'+lineName][indexBin]= mom2[j,i]
+                    anArr['logSigma_'+lineName][indexBin]= np.log10(mom2[j,i])
+                
+                    fwhm=mom2[j,i]*2.*np.sqrt(2.*np.log(2))
+                    anArr['w80_'+lineName][indexBin] = fwhm*0.919
+                    anArr['logW80_'+lineName][indexBin] = np.log10(fwhm*0.919)
+
+        hdr = fits.Header()
+        hdr['COMMENT'] = "Here are the outputs of gPlay"
+        hdr['COMMENT'] = "Ext 1 = binInfo Ext 2 = fit result Ext 3 = line parameters"
+        
+        empty_primary = fits.PrimaryHDU(header=hdr)
+       
+        t1 = fits.BinTableHDU.from_columns(bArr,name='BinInfo')  
+        hdl = fits.HDUList([empty_primary,t1])        
+
+        t2 = fits.BinTableHDU.from_columns(lArr,name='FitRes_g1')
+        hdl.append(t2)  
+
+        t3 = fits.BinTableHDU.from_columns(anArr,name='ancelsg1')
+        hdl.append(t3) 
+  
+        hdl.writeto(cfg_par['moments']['makeTable']['outTableName'],overwrite=True)
+
+
+        return
+
     def cleanTable(self,cfg_par):
         
         hdul = fits.open(cfg_par['general']['outTableName'])
@@ -1885,6 +1965,7 @@ class tplay(object):
         
         hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
         return
+
 
 
 
