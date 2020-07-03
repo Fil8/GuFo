@@ -132,7 +132,7 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
 
 
             sigmaCen['sigma_'+lineName][indexCentroid] =  cvP.lambdaVRad(lambdaRest+sigmaInt50,lambdaRest)
-            print(binID,indexWaveLeft50,indexWaveRight50,np.exp(waveNew[indexWaveRight50]),np.exp(waveNew[indexWaveRLeft50]),
+            print(binID,indexWaveLeft50,indexWaveRight50,np.exp(waveNew[indexWaveRight50]),np.exp(waveNew[indexWaveLeft50]),
                 waveDist50,sigmaCen['sigma_'+lineName][indexCentroid])
 
             sigmaCen['logSigma_'+lineName][indexCentroid] =  np.log10(sigmaCen['sigma_'+lineName][indexCentroid])
