@@ -84,7 +84,7 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
         thresHold = residuals['SN_NII6583'][indexCentroid]
         sigmaThresh = lines['g1_sigIntr_NII6583'][indexCentroid]
 
-        if thresHold >= lineThresh and amp!=0:
+        if amp!=0:
             tck = interpolate.splrep(wave[:-1], lineFit, s=0)
             waveNew = np.linspace(np.min(wave),np.max(wave),1e5)
             lineFit = interpolate.splev(waveNew, tck, der=0)
@@ -132,8 +132,8 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
 
 
             sigmaCen['sigma_'+lineName][indexCentroid] =  cvP.lambdaVRad(lambdaRest+sigmaInt50,lambdaRest)
-            print(binID,indexWaveLeft50,indexWaveRight50,np.exp(waveNew[indexWaveRight50]),np.exp(waveNew[indexWaveLeft50]),
-                waveDist50,sigmaCen['sigma_'+lineName][indexCentroid])
+            #print(binID,indexWaveLeft50,indexWaveRight50,np.exp(waveNew[indexWaveRight50]),np.exp(waveNew[indexWaveLeft50]),
+            #    waveDist50,sigmaCen['sigma_'+lineName][indexCentroid])
 
             sigmaCen['logSigma_'+lineName][indexCentroid] =  np.log10(sigmaCen['sigma_'+lineName][indexCentroid])
 
@@ -152,8 +152,8 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
 
     sigmaCen['BIN_ID'][indexCentroid]=binID
     
-    if binID==33511:
-        sys.exit(0)
+    #if binID==33511:
+    #    sys.exit(0)
     
     counter +=1
     
