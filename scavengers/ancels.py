@@ -149,7 +149,10 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
             sigmaCen['logCentroid_'+lineName][indexCentroid]=np.nan
 
     sigmaCen['BIN_ID'][indexCentroid]=binID
-
+    
+    if binID==33511:
+        sys.exit(0)
+    
     counter +=1
     
     return counter, sigmaCen
