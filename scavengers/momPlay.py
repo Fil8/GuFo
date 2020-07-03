@@ -701,18 +701,14 @@ class momplay:
             lineThresh = float(lineInfo['SNThresh'][ii])
             print('\n\t         +++\t\t    '+lineName+'\t\t +++')
           
-            resG1Abs = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
             resG1Std = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
-            resG1AbsPeak = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
             resG1StdPeak = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan            
             noiseLine = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
             SNLineMap = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
             SNStdLineMap = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
 
 
-            resNameOutAbs =resModDir+'resAbs_'+lineName+'.fits'
-            resNameOutStd =resModDir+'resStd_'+lineName+'.fits'
-            resNameOutAbsPeak =resModDir+'resAbsPeak_'+lineName+'.fits'
+            resNameOutStd =resModDir+'res_'+lineName+'.fits'
             resNameOutStdPeak =resModDir+'resStdPeak_'+lineName+'.fits'            
             noiseNameLine =noiseDir+'noise_'+lineName+'.fits'
             SNMapName =noiseDir+'SN_'+lineName+'.fits'
@@ -823,17 +819,13 @@ class momplay:
                     # if thresHold >= lineThresh:
                     linePeak = np.max(y[idxPeakLeft:idxPeakRight])
 
-                    absValue = np.multiply(np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0),amp)
-                    stdValue = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),amp)
+                    stdValue = np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
 
-                    absValuePeak = np.multiply(np.nansum(np.abs(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),axis=0),linePeak)
                     stdValuePeak = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),linePeak)
-
-                    resG1Abs[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = absValue
-                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
-                    
-                    resG1AbsPeak[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = absValuePeak
                     resG1StdPeak[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = stdValuePeak
+
+                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = stdValue
+                    
 
                     if cfg_par['residuals']['computeNoise']==True:
                         noise = np.nanstd(np.concatenate([y[idxLeftLeftNoise:idxLeftNoise],y[idxRightNoise:idxRightRightNoise]]))
@@ -849,7 +841,7 @@ class momplay:
                         #if ii==0: 
                         #    noiseMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
 
-                stdArr[i] = stdValuePeak/linePeak
+                stdArr[i] = stdValue
                 noiseArr[i] = noise
                 SNValues[i] = sn
                 SNStdValues[i] = snStd
@@ -862,9 +854,7 @@ class momplay:
 
             resHead['WCSAXES'] = 2
                       
-            fits.writeto(resNameOutAbs,resG1Abs,resHead,overwrite=True)
             fits.writeto(resNameOutStd,resG1Std,resHead,overwrite=True)
-            fits.writeto(resNameOutAbsPeak,resG1AbsPeak,resHead,overwrite=True)
             fits.writeto(resNameOutStdPeak,resG1StdPeak,resHead,overwrite=True)
 
             if cfg_par['residuals']['computeNoise']==True:

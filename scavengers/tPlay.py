@@ -749,8 +749,9 @@ class tplay(object):
                     bArr['PixY'][indexBin] = j
 
                     lArr['g1_Amp_'+lineName][indexBin]= mom0[j,i]
-                    anArr['centroid_'+lineName][indexBin]= mom1[j,i]
-                    anArr['logCentroid_'+lineName][indexBin]= np.log10(np.abs(mom1[j,i]))
+
+                    anArr['centroid_'+lineName][indexBin]= float(mom1[j,i])-float(cfg_par['general']['velsys'])
+                    anArr['logCentroid_'+lineName][indexBin]= np.log10(abs(float(mom1[j,i])-float(cfg_par['general']['velsys'])))
 
                     anArr['sigma_'+lineName][indexBin]= mom2[j,i]
                     anArr['logSigma_'+lineName][indexBin]= np.log10(mom2[j,i])
