@@ -660,6 +660,7 @@ class momplay:
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
+        linesG1 = hdul['LineRes_g1'].data
 
         #lines['BIN_ID'] = hdul['BININFO'].data['ID']
         resNameList=['BIN_ID']
