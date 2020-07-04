@@ -839,13 +839,15 @@ class momplay:
                     rmsValue = np.sqrt(np.power(stdValue,2)+np.power(np.nanmean(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),2))
                     rmsValuePeak = np.multiply(rmsValue,linePeak)
                     
-                    resG1StdPeak[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = stdValuePeak
-                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = stdValue
+                    stdResPeak[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = stdValuePeak
+                    stdRes[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = stdValue
                         
+                    rmsResPeak[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = rmsValuePeak
+                    rmsRes[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = rmsValue                        
 
                     if cfg_par['residuals']['computeNoise']==True:
+
                         noise = np.nanstd(np.concatenate([y[idxLeftLeftNoise:idxLeftNoise],y[idxRightNoise:idxRightRightNoise]]))
-                        #noise = np.nanstd(y[idxLeftNoise:idxRightNoise])
                         sn = np.divide(linePeak,noise)
                         snStd = np.divide(stdValue,noise)
 
@@ -860,6 +862,7 @@ class momplay:
 
                         chiSq=np.divide(np.divide(np.nansum(np.power(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]-y[idxLeft:idxRight],2)),
                         np.power(noise,2)),idxRight-idxLeft-nvar)
+                        chiRes[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = chiSq                        
 
                         #if ii==0: 
                         #    noiseMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
@@ -897,14 +900,19 @@ class momplay:
 
             resHead['WCSAXES'] = 2
                       
-            fits.writeto(resNameOutStd,resG1Std,resHead,overwrite=True)
-            fits.writeto(resNameOutStdPeak,resG1StdPeak,resHead,overwrite=True)
+            fits.writeto(stdResName,stdRes,resHead,overwrite=True)
+            fits.writeto(stdResPeakName,stdResPeak,resHead,overwrite=True)
+
+            fits.writeto(rmsResName,rmsRes,resHead,overwrite=True)
+            fits.writeto(rmsResPeakName,rmsResPeak,resHead,overwrite=True)
 
             if cfg_par['residuals']['computeNoise']==True:
                 
                 fits.writeto(noiseNameLine,noiseLine,resHead,overwrite=True)
                 fits.writeto(SNMapName,SNLineMap,resHead,overwrite=True)
                 fits.writeto(SNStdMapName,SNStdLineMap,resHead,overwrite=True)
+
+                fits.writeto(chiResName,chiRes,resHead,overwrite=True)
 
                 tot = np.column_stack((tot,noiseArr))
                 resNameList.append('noise_'+lineName)
