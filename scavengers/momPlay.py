@@ -689,6 +689,8 @@ class momplay:
             rmsPeakArr = np.empty(len(lines['BIN_ID']))
             peakArr = np.empty(len(lines['BIN_ID']))
 
+            chiSqArr = np.empty(len(lines['BIN_ID']))
+
             noiseArr = np.empty(len(lines['BIN_ID']))
             SNValues = np.empty(len(lines['BIN_ID']))
             SNStdValues = np.empty(len(lines['BIN_ID']))
