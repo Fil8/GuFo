@@ -596,12 +596,8 @@ class momplay:
 
         Returns (located in /residuals/modName/):
 
-            - resAbs_linename:  residuals computed as sum of the absolute value of line-fit
-                                within a velocity range given by 6*sigmag1 weighted on the fitted amplitude of the line
             - resSTD_linename:  residuals computed as the standard deviation of line-fit
                                 within a velocity range given by 6*sigmag1 weighted on the fitted amplitude of the line
-            - resAbsPeak_linename:  residuals computed as sum of the absolute value of line-fit
-                                within a velocity range given by 6*sigmag1 weighted on the observed peak of the line
             - resSTDPeak_linename:  residuals computed as the standard deviation of line-fit
                                 within a velocity range given by 6*sigmag1 weighted on the observed amplitude of the line
         Options:
@@ -687,10 +683,14 @@ class momplay:
         for ii in range(0,len(lineInfo['ID'])):
             
             stdArr = np.empty(len(lines['BIN_ID']))
+            stdPeakArr = np.empty(len(lines['BIN_ID']))
+            rmsArr = np.empty(len(lines['BIN_ID']))
+            rmsPeakArr = np.empty(len(lines['BIN_ID']))
+            peakArr = np.empty(len(lines['BIN_ID']))
+
             noiseArr = np.empty(len(lines['BIN_ID']))
             SNValues = np.empty(len(lines['BIN_ID']))
             SNStdValues = np.empty(len(lines['BIN_ID']))
-            resPeak = np.empty(len(lines['BIN_ID']))
 
             lineName = str(lineInfo['Name'][ii])
             if '[' in lineName:
@@ -701,18 +701,31 @@ class momplay:
             lineThresh = float(lineInfo['SNThresh'][ii])
             print('\n\t         +++\t\t    '+lineName+'\t\t +++')
           
-            resG1Std = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
-            resG1StdPeak = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan            
+            stdRes = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+            stdResPeak = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan            
+            rmsRes = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+            rmsResPeak = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+
+            chiRes = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+
             noiseLine = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
             SNLineMap = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
-            SNStdLineMap = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+            
+            SNRes = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
 
 
-            resNameOutStd =resModDir+'res_'+lineName+'.fits'
-            resNameOutStdPeak =resModDir+'resStdPeak_'+lineName+'.fits'            
+            stdResName =resModDir+'std_'+lineName+'.fits'
+            stdResPeakName =resModDir+'stdPeak_'+lineName+'.fits'            
+            
+            rmsResName =resModDir+'rms_'+lineName+'.fits'
+            rmsResPeakName =resModDir+'rmsPeak_'+lineName+'.fits'            
+
+            chiResName = =resModDir+'chiRes_'+lineName+'.fits'
+
             noiseNameLine =noiseDir+'noise_'+lineName+'.fits'
             SNMapName =noiseDir+'SN_'+lineName+'.fits'
-            SNStdMapName =resModDir+'SNRes_'+lineName+'.fits'
+            
+            SNResName =resModDir+'SN_rms-noise'+lineName+'.fits'
    
             for i in range(0,len(lines['BIN_ID'])):
 
@@ -820,37 +833,66 @@ class momplay:
                     linePeak = np.max(y[idxPeakLeft:idxPeakRight])
 
                     stdValue = np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
+                    stdValuePeak = np.multiply(stdValue,linePeak)
 
-                    stdValuePeak = np.multiply(np.nanstd(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),linePeak)
-                    resG1StdPeak[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = stdValuePeak
-
-                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = stdValue
+                    rmsValue = np.sqrt(np.power(stdValue,2)+np.power(np.nanmean(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]),2))
+                    rmsValuePeak = np.multiply(rmsValue,linePeak)
                     
+                    resG1StdPeak[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = stdValuePeak
+                    resG1Std[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = stdValue
+                        
 
                     if cfg_par['residuals']['computeNoise']==True:
                         noise = np.nanstd(np.concatenate([y[idxLeftLeftNoise:idxLeftNoise],y[idxRightNoise:idxRightRightNoise]]))
                         #noise = np.nanstd(y[idxLeftNoise:idxRightNoise])
                         sn = np.divide(linePeak,noise)
-                        snStd = np.divide(np.divide(stdValuePeak,linePeak),noise)
+                        snStd = np.divide(stdValue,noise)
 
                         noiseLine[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noise
                         SNLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = sn
                         SNStdLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = snStd
 
+                        if modName =='g1':
+                            nvar = 3
+                        elif modName =='g2':
+                            nvar = 6
+
+                        chiSq=np.divide(np.divide(np.nansum(np.power(resCube[idxLeft:idxRight,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]-y[idxLeft:idxRight],2)),
+                        np.power(noise,2)),idxRight-idxLeft-nvar)
 
                         #if ii==0: 
                         #    noiseMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noiseValue
 
+
+                peakArr[i] = linePeak
+                chiSqArr[i] = chiSq
                 stdArr[i] = stdValue
+                stdPeakArr[i] = stdValuePeak
+                rmsArr[i] = rmsValue
+                rmsPeakArr[i] = rmsValuePeak
                 noiseArr[i] = noise
                 SNValues[i] = sn
                 SNStdValues[i] = snStd
-                resPeak[i] = stdValuePeak
 
             tot = np.column_stack((tot,stdArr))
-            resNameList.append('res_'+lineName)
+            resNameList.append('std_'+lineName)
             frmList.append('f8')
 
+            tot = np.column_stack((tot,stdPeakArr))
+            resNameList.append('stdPeak_'+lineName)
+            frmList.append('f8')
+
+            tot = np.column_stack((tot,rmsArr))
+            resNameList.append('rms_'+lineName)
+            frmList.append('f8')
+
+            tot = np.column_stack((tot,rmsPeakArr))
+            resNameList.append('rmsPeak_'+lineName)
+            frmList.append('f8')
+
+            tot = np.column_stack((tot,rmsArr))
+            resNameList.append('peak_'+lineName)
+            frmList.append('f8')
 
             resHead['WCSAXES'] = 2
                       
@@ -872,11 +914,11 @@ class momplay:
                 frmList.append('f8')
                 
                 tot = np.column_stack((tot,SNStdValues))
-                resNameList.append('snRes_'+lineName)
+                resNameList.append('SN_rms-noise'+lineName)
                 frmList.append('f8')
-                
+
                 tot = np.column_stack((tot,resPeak))
-                resNameList.append('resPeak_'+lineName)
+                resNameList.append('chiSq_'+lineName)
                 frmList.append('f8')
                 #if ii==0:
                 #    fits.writeto(noiseMapName,noiseMap,resHead,overwrite=True)
