@@ -928,7 +928,7 @@ class momplay:
                 resNameList.append('SN_rms-noise'+lineName)
                 frmList.append('f8')
 
-                tot = np.column_stack((tot,resPeak))
+                tot = np.column_stack((tot,chiSqArr))
                 resNameList.append('chiSq_'+lineName)
                 frmList.append('f8')
                 #if ii==0:
