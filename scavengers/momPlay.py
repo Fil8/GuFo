@@ -912,7 +912,7 @@ class momplay:
                 
                 fits.writeto(noiseNameLine,noiseLine,resHead,overwrite=True)
                 fits.writeto(SNMapName,SNLineMap,resHead,overwrite=True)
-                fits.writeto(SNStdMapName,SNRes,resHead,overwrite=True)
+                fits.writeto(SNResName,SNRes,resHead,overwrite=True)
 
                 fits.writeto(chiResName,chiRes,resHead,overwrite=True)
 
