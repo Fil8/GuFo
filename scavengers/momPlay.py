@@ -853,7 +853,7 @@ class momplay:
 
                         noiseLine[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = noise
                         SNLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = sn
-                        SNStdLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = snStd
+                        SNRes[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = snStd
 
                         if modName =='g1':
                             nvar = 3
@@ -910,7 +910,7 @@ class momplay:
                 
                 fits.writeto(noiseNameLine,noiseLine,resHead,overwrite=True)
                 fits.writeto(SNMapName,SNLineMap,resHead,overwrite=True)
-                fits.writeto(SNStdMapName,SNStdLineMap,resHead,overwrite=True)
+                fits.writeto(SNStdMapName,SNRes,resHead,overwrite=True)
 
                 fits.writeto(chiResName,chiRes,resHead,overwrite=True)
 
