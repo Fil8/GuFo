@@ -720,7 +720,7 @@ class momplay:
             rmsResName =resModDir+'rms_'+lineName+'.fits'
             rmsResPeakName =resModDir+'rmsPeak_'+lineName+'.fits'            
 
-            chiResName = =resModDir+'chiRes_'+lineName+'.fits'
+            chiResName = resModDir+'chiRes_'+lineName+'.fits'
 
             noiseNameLine =noiseDir+'noise_'+lineName+'.fits'
             SNMapName =noiseDir+'SN_'+lineName+'.fits'
