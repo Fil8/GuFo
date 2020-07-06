@@ -60,6 +60,7 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
         dLIn1 = np.log(waveInRed+dLIn/2.)-np.log(waveInRed-dLIn/2.)
         
         dLIn1kms = cvP.lambdaVRad(dLIn,lambdaRest)
+        print(dLIn1kms)
 
         lineName = str(lineInfo['Name'][ii])+str(int(lineInfo['Wave'][ii]))
         if '[' in lineName:
