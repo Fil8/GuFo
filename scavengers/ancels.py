@@ -59,7 +59,7 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
         dLIn = dLambda[indexWaveInRed]  
         dLIn1 = np.log(waveInRed+dLIn/2.)-np.log(waveInRed-dLIn/2.)
         
-        dLIn1kms = cvP.lambdaVRad(dLIn,lambdaRest)
+        dLIn1kms = cvP.lambdaVRad(dLIn,lambdaRest)/1e3
         print(dLIn1kms)
 
         lineName = str(lineInfo['Name'][ii])+str(int(lineInfo['Wave'][ii]))
