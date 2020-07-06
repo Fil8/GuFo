@@ -60,7 +60,7 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
         dLIn1 = np.log(waveInRed+dLIn/2.)-np.log(waveInRed-dLIn/2.)
         
         print(waveInRed,dLIn,lambdaRest)
-        dLIn1kms = cvP.lambdaVRad(waveInRed+dLIn/2.,lambdaRest)
+        dLIn1kms = cvP.lambdaVRad(waveInRed+dLIn/2.,lambdaRest)-cfg_par['general']['velsys']
         print(dLIn1kms)
 
         lineName = str(lineInfo['Name'][ii])+str(int(lineInfo['Wave'][ii]))
