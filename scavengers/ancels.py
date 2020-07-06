@@ -91,6 +91,8 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
             waveNew = np.linspace(np.min(wave),np.max(wave),1e5)
             lineFit = interpolate.splev(waveNew, tck, der=0)
             waveVel = cvP.lambdaVRad(np.exp(waveNew),lineInfo['Wave'][ii])
+            print(waveVel)
+            sys.exit(0)
             #centroid
             if modName=='g2':
                 centroidG1 = lines['g1_Centre_'+str(lineNameID)][indexCentroid]
@@ -134,7 +136,7 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
 
             nvar = np.sum(lineFit>=1e-5)
 
-            disp = np.sqrt(np.divide(np.divide(np.sum(np.multiply(waveNew,np.power(lineFit-centroidToT,2))),nvar-1),
+            disp = np.sqrt(np.divide(np.divide(np.sum(np.multiply(lineFit,np.power(waveVel-centroidToT,2))),nvar-1),
                 np.divide(np.sum(lineFit),nvar)))
 
             dispIntr =  np.sqrt(np.power(disp,2)-np.power(dLIn1kms,2))
