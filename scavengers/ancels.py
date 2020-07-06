@@ -133,13 +133,13 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
             sigmaInt50 = np.sqrt(np.power(sigmaLambda50,2)-np.power(dLIn1,2)) 
             width80 = np.sqrt(np.power(waveDist80,2)-np.power(dLIn1,2))    
 
-            nvar = np.sum(lineFit>=1e-5)
+            nvar = np.nansum(lineFit>=1e-5)
 
-            disp = np.sqrt(np.divide(np.divide(np.sum(np.multiply(lineFit,np.power(waveVel-centroidToT,2))),nvar-1),
-                np.divide(np.sum(lineFit),nvar)))
+            disp = np.sqrt(np.divide(np.divide(np.nansum(np.multiply(lineFit,np.power(waveVel-centroidToT,2))),nvar-1),
+                np.divide(np.nansum(lineFit),nvar)))
 
             dispIntr =  np.sqrt(np.power(disp,2)-np.power(dLIn1kms,2))
-            print(dispIntr)
+            print(disp,dispIntr)
             sigmaCen['disp_'+lineName][indexCentroid] = disp
             sigmaCen['dispIntr_'+lineName][indexCentroid] = dispIntr
             
