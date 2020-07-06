@@ -116,7 +116,7 @@ def widthCentroid(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,counter,binID,tab
 
             height50 =np.divide(height,2.)
             height80 = np.divide(height,5.)
-            print(waveVel[indexHeight],centroidTot)
+            print(waveVel[indexHeight],centroidToT)
             sys.exit(0)            
 
             lineFitLeft = lineFit[:indexHeight]
