@@ -903,11 +903,11 @@ class tplay(object):
         # res[2,:] = np.array(resG2R2['res_NII6583'])
         # res[3,:] = np.array(resG2R3['res_NII6583'])
 
-        res[0,:] = np.array(resG1['res_OIII5006'])
-        res[1,:] = np.array(resG2R1['res_OIII5006'])
+        res[0,:] = np.array(resG1['SN_rms-noise_NII6583'])
+        res[1,:] = np.array(resG2R1['SN_rms-noise_NII6583'])
 
 
-        resN[0,:] = np.array(resG1['res_NII6583'])
+        #resN[0,:] = np.array(resG1['res_NII6583'])
         #res[2,:] = np.array(resG2R2['res_OIII5006'])
         # res[3,:] = np.array(resG2R3['res_OIII5006'])
 
@@ -919,9 +919,10 @@ class tplay(object):
         bestres = []
         
         for i in range(nrows):
-            bestres.append(np.argmin(res[:,i]))
+            cutOff = res[0,i]+float(cfg_par['bestFitSel']['cutOff'])
             #print(res[:,i],np.argmin(res[:,i]))
-            if bestres[i] == 0 or resN[0,i]<=1.2:
+            if res[1,i] <= cutOff:
+                bestres.append(0)
                 for colname in linesG2R1.columns.names:
                     bestFitTable.data[colname][i] = 0.0
                 for colname in linesG1.columns.names:
@@ -929,11 +930,13 @@ class tplay(object):
                 fitResTable.data[:][i] = fitG1[:][i]
                 resTable.data[:][i] = resG1[:][i]
                 ancTable.data[:][i] = ancG1[:][i]
-            elif bestres[i] ==1 and resN[0,i]>1.2:
+            else:
+                bestres.append(1)
                 bestFitTable.data[:][i] = linesG2R1[:][i]
                 fitResTable.data[:][i] = fitG2R1[:][i]
                 resTable.data[:][i] = resG2R1[:][i]
                 ancTable.data[:][i] = ancG2R1[:][i]
+            
             # elif bestres[i] ==2:
             #     bestFitTable.data[:][i] = linesG2R2[:][i]
             #     fitResTable.data[:][i] = fitG2R2[:][i]
