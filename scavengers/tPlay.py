@@ -921,7 +921,7 @@ class tplay(object):
         for i in range(nrows):
             cutOff = res[0,i]+float(cfg_par['bestFitSel']['cutOff'])
             #print(res[:,i],np.argmin(res[:,i]))
-            if res[1,i] <= cutOff:
+            if res[1,i] >= cutOff:
                 bestres.append(0)
                 for colname in linesG2R1.columns.names:
                     bestFitTable.data[colname][i] = 0.0
