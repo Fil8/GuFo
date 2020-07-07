@@ -560,14 +560,21 @@ class momplay:
             lineThresh = float(lineInfo['SNThresh'][ii])
             print('\n\t         +++\t\t    '+lineName+'\t\t +++')
           
-            resG1Std = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
-            resG1StdPeak = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan            
+            rmsRes = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+            rmsResPeak = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan  
+            stdRes = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
+            stdResPeak = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan            
+            chiSq = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan            
+
             SNResLineMap = np.empty([resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
 
 
-            resNameOutStd =resModDir+'resStd_'+lineName+'.fits'
-            resNameOutStdPeak =resModDir+'resStdPeak_'+lineName+'.fits'            
-            SNResNameOut =resModDir+'SNRes_'+lineName+'.fits'
+            rmsName =resModDir+'rms_'+lineName+'.fits'
+            rmsPeakName =resModDir+'rmsPeak_'+lineName+'.fits'
+            stdName =resModDir+'std_'+lineName+'.fits'
+            stdPeakName =resModDir+'stdPeak_'+lineName+'.fits'             
+            chiSqName = resModDir+'chiRes_'+lineName+'.fits'         
+            SNResNameOut =resModDir+'SN_rms-noise'+lineName+'.fits'
 
             for i in range(0,len(res['BIN_ID'])):
 
@@ -575,9 +582,12 @@ class momplay:
 
                 for index in match_bin:
 
-                    resG1Std[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['res_'+lineName][i]
-                    resG1StdPeak[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['resPeak_'+lineName][i]
-                    SNResLineMap[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['snRes_'+lineName][i]
+                    rmsRes[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['rms_'+lineName][i]
+                    rmsResPeak[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['rmsPeak_'+lineName][i]
+                    stdRes[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['std_'+lineName][i]
+                    stdResPeak[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['stdPeak_'+lineName][i]
+                    chiSq[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['chiSq_'+lineName][i]
+                    SNResLineMap[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['SN_rms-noise'+lineName+][i]
 
             resHead['WCSAXES'] = 2
                   
