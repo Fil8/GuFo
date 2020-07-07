@@ -903,8 +903,8 @@ class tplay(object):
         # res[2,:] = np.array(resG2R2['res_NII6583'])
         # res[3,:] = np.array(resG2R3['res_NII6583'])
 
-        res[0,:] = np.array(resG1['SN_rms-noise_NII6583'])
-        res[1,:] = np.array(resG2R1['SN_rms-noise_NII6583'])
+        res[0,:] = np.array(resG1['SN_rms-noiseNII6583'])
+        res[1,:] = np.array(resG2R1['SN_rms-noiseNII6583'])
 
 
         #resN[0,:] = np.array(resG1['res_NII6583'])
