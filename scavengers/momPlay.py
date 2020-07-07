@@ -182,6 +182,7 @@ class momplay:
         momSigma = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         momCentroid = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         momW80 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
+        momDisp = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         
 
         for i in range(0,len(lines['BIN_ID'])):
@@ -201,6 +202,7 @@ class momplay:
                     momW80[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['w80_'+lineName][i]
                     momSigma[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['sigma_'+lineName][i]
                     momCentroid[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['centroid_'+lineName][i]
+                    momDisp[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['dispIntr_'+lineName][i]
 
         del momSigmaHead['CRDER3']
         del momCentroidHead['CRDER3']
@@ -213,6 +215,10 @@ class momplay:
         fits.writeto(momModDir+'momSigma-'+lineName+'.fits',momSigma,momSigmaHead,overwrite=True)
 
         mPl.mom2Plot(cfg_par, momModDir+'momSigma-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'ancillary')
+
+        fits.writeto(momModDir+'momDisp-'+lineName+'.fits',momDisp,momSigmaHead,overwrite=True)
+
+        mPl.mom2Plot(cfg_par, momModDir+'momDisp-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'ancillary')
 
         momCentroidHead['WCSAXES'] = 2
         momCentroidHead['SPECSYS'] = 'topocent'
