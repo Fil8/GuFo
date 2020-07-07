@@ -587,7 +587,7 @@ class momplay:
                     stdRes[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['std_'+lineName][i]
                     stdResPeak[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['stdPeak_'+lineName][i]
                     chiSq[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['chiSq_'+lineName][i]
-                    SNResLineMap[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['SN_rms-noise'+lineName+][i]
+                    SNResLineMap[int(binInfo['PixY'][index]),int(binInfo['PixX'][index])] = res['SN_rms-noise'+lineName][i]
 
             resHead['WCSAXES'] = 2
                   
