@@ -591,8 +591,12 @@ class momplay:
 
             resHead['WCSAXES'] = 2
                   
-            fits.writeto(resNameOutStd,resG1Std,resHead,overwrite=True)
-            fits.writeto(resNameOutStdPeak,resG1StdPeak,resHead,overwrite=True)
+            fits.writeto(rmsName,rmsRes,resHead,overwrite=True)
+            fits.writeto(rmsPeakName,rmsResPeak,resHead,overwrite=True)
+            fits.writeto(stdName,stdRes,resHead,overwrite=True)
+            fits.writeto(stdPeakName,stdResPeak,resHead,overwrite=True)
+            fits.writeto(chiSqName,chiSq,resHead,overwrite=True)
+
             fits.writeto(SNResNameOut,SNResLineMap,resHead,overwrite=True)
 
         return
