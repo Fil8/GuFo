@@ -163,6 +163,8 @@ class momplay:
             del header['CRPIX3'] 
         if 'NAXIS3' in header:
             del header['NAXIS3']
+        if 'CRDER3' in header:
+            del header['CRDER3']
 
         momSigmaHead = header.copy()
         momCentroidHead = header.copy()
@@ -212,12 +214,12 @@ class momplay:
         mPl.mom2Plot(cfg_par, momModDir+'momSigma-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'ancillary')
 
         fits.writeto(momModDir+'momDisp-'+lineName+'.fits',momDisp,momSigmaHead,overwrite=True)
-
         mPl.mom2Plot(cfg_par, momModDir+'momDisp-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'ancillary')
 
         momCentroidHead['WCSAXES'] = 2
         momCentroidHead['SPECSYS'] = 'topocent'
         momCentroidHead['BUNIT'] = 'km/s'
+        
         fits.writeto(momModDir+'momCentroid-'+lineName+'.fits',momCentroid,momCentroidHead,overwrite=True)
         mPl.mom1Plot(cfg_par, momModDir+'momCentroid-'+lineName+'.fits',lineName,lineThresh,
             lineNameStr,'ancillary',vRange=[-cenRange,cenRange],modName=cfg_par['gFit']['modName'])
