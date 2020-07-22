@@ -22,10 +22,11 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import ListedColormap
 import matplotlib.axes as maxes
 
-import cvPlay, tPlay
+import cvPlay, tPlay, momPlay
 
 cvP = cvPlay.convert()
 tP = tPlay.tplay()
+mPl = momPlot.MOMplot()
 
 class ancelsplot(object):
 
@@ -400,8 +401,6 @@ class ancelsplot(object):
 
         fits.writeto(cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'.fits',CCAMap,momHead,overwrite=True)
         mPl.momAncPlot(cfg_par, cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'.fits',cfg_par['ancillary']['coldGas']['Name'],lineThresh,lineNameStr,'ancillary')
-
-
 
         t=Table(anc)
  
