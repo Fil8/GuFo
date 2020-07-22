@@ -326,7 +326,7 @@ class ancelsplot(object):
 
         anc = hdul['ancels'+cfg_par['gFit']['modName']].data
         bins = hdul['BININFO'].data
-        lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
+        linesG1 = hdul['LineRes_G1'].data
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
 
         x=anc['logCentroid_'+cfg_par['ancillary']['coldGas']['Name']]
