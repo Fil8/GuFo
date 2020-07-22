@@ -317,7 +317,11 @@ class ancelsplot(object):
         return 0     
 
     def inCCARegionTable(self,cfg_par):
-        
+ 
+        lineInfo = tP.openLineList(cfg_par)
+        lineThresh = float(lineInfo['SNThresh'][0])
+
+
         f = fits.open(cfg_par['general']['dataCubeName'])
         momHead = f[0].header
         f.close()
