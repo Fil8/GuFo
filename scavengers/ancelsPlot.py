@@ -366,7 +366,7 @@ class ancelsplot(object):
 
         for i in range(0,len(rad_cc)):
             
-            match_bin = np.where(bins['BIN_ID']==lines['BIN_ID'][i])[0]
+            match_bin = np.where(bins['BIN_ID']==anc['BIN_ID'][i])[0]
 
             for index in match_bin:
 
