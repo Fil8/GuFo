@@ -373,7 +373,7 @@ class ancelsplot(object):
 
         rad_cc = (xct**2/(ellWidth/2.)**2) + (yct**2/(ellHeight/2.)**2)
 
-        CCAvec = np.empty(len(anc['BIN_ID']))
+        CCAvec = np.empty(len(anc['BIN_ID']))*np.nan
         
         CCAMap = np.zeros([momHead['NAXIS2'],momHead['NAXIS1']])*np.nan
 
@@ -401,6 +401,7 @@ class ancelsplot(object):
                     CCAMap[int(bins['PixY'][index]),int(bins['PixX'][index])] = CCAvec[i]
 
                 else:
+                    
                     if not np.isnan(x[i]):
                         if rad_cc[i] <= 1.:
                             # point in ellipse
