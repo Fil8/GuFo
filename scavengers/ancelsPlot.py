@@ -388,7 +388,7 @@ class ancelsplot(object):
                         # point not in ellipse
                         CCAvec[i] = 0 
 
-                    CCAMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = CCAvec[i]
+                    CCAMap[int(bins['PixY'][index]),int(bins['PixX'][index])] = CCAvec[i]
 
 
         del momHead['CRDER3']
