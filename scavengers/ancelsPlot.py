@@ -337,8 +337,11 @@ class ancelsplot(object):
             linesG1 = hdul['LineRes_G1'].data
             residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
 
-        x=anc['logCentroid_'+cfg_par['ancillary']['coldGas']['Name']]
-        y=anc['logDispIntr_'+cfg_par['ancillary']['coldGas']['Name']]
+            x=anc['logCentroid_'+cfg_par['ancillary']['coldGas']['Name']]
+            y=anc['logDispIntr_'+cfg_par['ancillary']['coldGas']['Name']]
+        else:
+            x=anc['logCentroid_'+cfg_par['ancillary']['coldGas']['Name']]
+            y=anc['logSigma_'+cfg_par['ancillary']['coldGas']['Name']]
 
         if cfg_par['ancillary']['theoreticalCCA'] == 'Ensemble':
             Mean_sigmav = 2.13 
