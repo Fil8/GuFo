@@ -332,7 +332,7 @@ class ancelsplot(object):
         anc = hdul['ancels'+cfg_par['gFit']['modName']].data
         bins = hdul['BININFO'].data
         
-        if not cfg_par['ancillary']['coldGas']['enable']: True:
+        if not cfg_par['ancillary']['coldGas']['enable']== True:
             
             linesG1 = hdul['LineRes_G1'].data
             residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
