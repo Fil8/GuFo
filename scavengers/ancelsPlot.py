@@ -331,7 +331,7 @@ class ancelsplot(object):
 
         anc = hdul['ancels'+cfg_par['gFit']['modName']].data
         bins = hdul['BININFO'].data
-        linesG1 = hdul['LineRes_G1'].data
+        #linesG1 = hdul['LineRes_G1'].data
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
 
         x=anc['logCentroid_'+cfg_par['ancillary']['coldGas']['Name']]
@@ -378,9 +378,10 @@ class ancelsplot(object):
             for index in match_bin:
 
                 thresHold = residuals['SN_NII6583'][index]
-                sigmaThresh = linesG1['g1_SigIntr_NII6583'][index]
+                #sigmaThresh = linesG1['g1_SigIntr_NII6583'][index]
 
-                if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
+                #if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
+                if thresHold >= lineThresh:
                 
                     if rad_cc[i] <= 1.:
                         # point in ellipse
