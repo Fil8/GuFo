@@ -401,12 +401,14 @@ class ancelsplot(object):
                     CCAMap[int(bins['PixY'][index]),int(bins['PixX'][index])] = CCAvec[i]
 
                 else:
-                    if rad_cc[i] <= 1.:
-                        # point in ellipse
-                        CCAvec[i] = 1 
-                    else:
-                        # point not in ellipse
-                        CCAvec[i] = 0 
+                    if not np.isnan(x[i]):
+                        if rad_cc[i] <= 1.:
+                            # point in ellipse
+                            CCAvec[i] = 1 
+                    
+                        else:
+                            # point not in ellipse
+                            CCAvec[i] = 0 
 
                     CCAMap[int(bins['PixY'][index]),int(bins['PixX'][index])] = CCAvec[i]
 
