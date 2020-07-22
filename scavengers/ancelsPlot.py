@@ -331,8 +331,11 @@ class ancelsplot(object):
 
         anc = hdul['ancels'+cfg_par['gFit']['modName']].data
         bins = hdul['BININFO'].data
-        #linesG1 = hdul['LineRes_G1'].data
-        residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
+        
+        if not cfg_par['ancillary']['coldGas']['enable']: True:
+            
+            linesG1 = hdul['LineRes_G1'].data
+            residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
 
         x=anc['logCentroid_'+cfg_par['ancillary']['coldGas']['Name']]
         y=anc['logDispIntr_'+cfg_par['ancillary']['coldGas']['Name']]
@@ -377,12 +380,24 @@ class ancelsplot(object):
 
             for index in match_bin:
 
-                thresHold = residuals['SN_NII6583'][index]
-                #sigmaThresh = linesG1['g1_SigIntr_NII6583'][index]
+                if not cfg_par['ancillary']['coldGas']['enable']: True:
 
-                #if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
-                if thresHold >= lineThresh:
-                
+                    thresHold = residuals['SN_NII6583'][index]
+                    sigmaThresh = linesG1['g1_SigIntr_NII6583'][index]
+
+                    #if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
+                    if thresHold >= lineThresh:
+                    
+                        if rad_cc[i] <= 1.:
+                            # point in ellipse
+                            CCAvec[i] = 1 
+                        else:
+                            # point not in ellipse
+                            CCAvec[i] = 0 
+
+                    CCAMap[int(bins['PixY'][index]),int(bins['PixX'][index])] = CCAvec[i]
+
+                else:
                     if rad_cc[i] <= 1.:
                         # point in ellipse
                         CCAvec[i] = 1 
@@ -391,7 +406,6 @@ class ancelsplot(object):
                         CCAvec[i] = 0 
 
                     CCAMap[int(bins['PixY'][index]),int(bins['PixX'][index])] = CCAvec[i]
-
 
 
         if 'CUNIT3' in momHead:
