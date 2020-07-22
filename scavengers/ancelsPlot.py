@@ -22,7 +22,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import ListedColormap
 import matplotlib.axes as maxes
 
-import cvPlay, tPlay, momPlay
+import cvPlay, tPlay, momPlot
 
 cvP = cvPlay.convert()
 tP = tPlay.tplay()
