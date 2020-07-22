@@ -7,7 +7,7 @@ import time
 
 import gufo
 from scavengers import gPlay, starSub, momPlay, tPlay, cubePlay
-from scavengers import gPlayMp, bptPlot, vorPlay, ancels
+from scavengers import gPlayMp, bptPlot, vorPlay, ancels, ancelsPlot
 from scavengers import util as pretty
 
 import argparse
@@ -29,6 +29,7 @@ tP = tPlay.tplay()
 cP = cubePlay.cubeplay()
 bpt = bptPlot.BPTplot()
 vor = vorPlay.vorplay()
+aPl = ancelsPlot.ancelsplot()
 
 class MultilineFormatter(argparse.HelpFormatter):
     '''
@@ -525,11 +526,20 @@ def main (argv):
         if gPar.cfg_par['ancillary']['compute']==True:
             ancels.main(gPar.cfg_par)
         print('\n\t         +++\t\t plotting maps\t +++')
+        aPl.inCCARegionTable(gPar.cfg_par)
+        aPl.sigmaCentroid(gPar.cfg_par)
         mom.makeSigmaCentroidMaps(gPar.cfg_par)
         timeAnc = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
 
         #ap.centroid(gPar.cfg_par)
+
+    if gPar.cfg_par['ancillary']['coldGas'].get('enable',False) == True:
+        time_start_load = time.time()
+        print ('\n\t +---------+\t\t cold Gas CCA \t\t +---------+')
+        aPl.sigmaCentroidColdGas(gPar.cfg_par)
+        timeAnc = (time.time()- time_start_load)/60.
+        print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
 
     if args.lineRatios or gPar.cfg_par['lineRatios'].get('enable',False) == True:
         
