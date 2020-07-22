@@ -400,7 +400,8 @@ class ancelsplot(object):
         momHead['BUNIT'] = 'Jy'
 
         fits.writeto(cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'.fits',CCAMap,momHead,overwrite=True)
-        mPl.momAncPlot(cfg_par, cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'.fits',cfg_par['ancillary']['coldGas']['Name'],lineThresh,lineNameStr,'ancillary')
+        mPl.momAncPlot(cfg_par, cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'.fits',
+            cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],'ancillary')
 
         t=Table(anc)
  
