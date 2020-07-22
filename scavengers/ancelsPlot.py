@@ -309,7 +309,7 @@ class ancelsplot(object):
             os.mkdir(outPlotDir)
 
         outPlot = outPlotDir+'sigmaCentroid-g1-'+cfg_par['ancillary']['coldGas']['Name']+'.png'
-       
+        print(outPlot)
         plt.savefig(outPlot,format=cfg_par['lineRatios']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
                 # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
         plt.show()
