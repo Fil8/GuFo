@@ -391,10 +391,15 @@ class ancelsplot(object):
 
                     CCAMap[int(bins['PixY'][index]),int(bins['PixX'][index])] = CCAvec[i]
 
-
-        del momHead['CRDER3']
-
-
+        if 'CRDER3' in momHead:
+            del momHead['CRDER3']
+        if 'CTYPE3' in momHead:
+            del momHead['CTYPE3']
+        if 'CRVAL3' in momHead:
+            del momHead['CRVAL3']
+        if 'CRPIX3' in momHead:
+            del momHead['CRPIX3']
+            
         momHead['WCSAXES'] = 2
         momHead['SPECSYS'] = 'topocent'
         momHead['BUNIT'] = 'Jy'
