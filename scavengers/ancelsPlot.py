@@ -325,7 +325,7 @@ class ancelsplot(object):
         hdul = fits.open(cfg_par['general']['outTableName'])
 
         anc = hdul['ancels'+cfg_par['gFit']['modName']].data
-        bins = hdul['BININFO']['modName'].data
+        bins = hdul['BININFO'].data
 
         x=anc['logCentroid_'+cfg_par['ancillary']['coldGas']['Name']]
         y=anc['logDispIntr_'+cfg_par['ancillary']['coldGas']['Name']]
