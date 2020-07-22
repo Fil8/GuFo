@@ -380,7 +380,7 @@ class ancelsplot(object):
 
             for index in match_bin:
 
-                if not cfg_par['ancillary']['coldGas']['enable']: True:
+                if not cfg_par['ancillary']['coldGas']['enable']== True:
 
                     thresHold = residuals['SN_NII6583'][index]
                     sigmaThresh = linesG1['g1_SigIntr_NII6583'][index]
