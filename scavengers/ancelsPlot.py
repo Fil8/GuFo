@@ -319,7 +319,7 @@ class ancelsplot(object):
     def inCCARegionTable(self,cfg_par):
         
         f = fits.open(cfg_par['general']['dataCubeName'])
-        dd = f[0].header
+        momHead = f[0].header
         f.close()
 
         hdul = fits.open(cfg_par['general']['outTableName'])
@@ -362,7 +362,7 @@ class ancelsplot(object):
 
         CCAvec = np.empty(len(anc['BIN_ID']))
         
-        CCAMap = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
+        CCAMap = np.zeros([momHead['NAXIS2'],momHead['NAXIS1']])*np.nan
 
         for i in range(0,len(rad_cc)):
             
