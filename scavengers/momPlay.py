@@ -182,15 +182,12 @@ class momplay:
         momCentroid = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         momW80 = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         momDisp = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
-        CCAMap = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
         
 
         for i in range(0,len(lines['BIN_ID'])):
             
             match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
-
-            
             for index in match_bin:
 
                 thresHold = residuals['SN_NII6583'][index]
@@ -204,19 +201,7 @@ class momplay:
                     momSigma[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['sigma_'+lineName][i]
                     momCentroid[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['centroid_'+lineName][i]
                     momDisp[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['dispIntr_'+lineName][i]
-                    CCAMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lines['CCAIN'][i]
 
-
-        del momSigmaHead['CRDER3']
-        del momCentroidHead['CRDER3']
-        del momW80Head['CRDER3']
-
-        momSigmaHead['WCSAXES'] = 2
-        momSigmaHead['SPECSYS'] = 'topocent'
-        momSigmaHead['BUNIT'] = 'Jy'
-
-        fits.writeto(momModDir+'ccaMap-'+lineName+'.fits',CCAMap,momSigmaHead,overwrite=True)
-        mPl.momAncPlot(cfg_par, momModDir+'ccaMap-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'ancillary')
 
         momSigmaHead['WCSAXES'] = 2
         momSigmaHead['SPECSYS'] = 'topocent'

@@ -104,8 +104,6 @@ class ancelsplot(object):
             y = [np.log10(lines['g1_sigIntr_NII6583']),np.log10(lines['g2_sigIntr_NII6583']),np.log10(lines['g3_sigIntr_NII6583']),
             ancels['logDispIntr_NII6583']]
 
-        print(ancels['logCentroid_NII6583'],ancels['logCentroid_NII6583'][binCode[1]])
-
         for i in range (0, len(modString)):
             
             # initialize figure
@@ -268,6 +266,7 @@ class ancelsplot(object):
             RMS_vshift  = 0.47
             theta = 165.16 #covariance angle (contours inclined)
             ellColor='darkseagreen'
+        
         rmsToFWHM = 2.*np.sqrt(2.*np.log(2))
         ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=rmsToFWHM*RMS_vshift, height=rmsToFWHM*RMS_sigmav, angle=theta,
             label=cfg_par['ancillary']['theoreticalCCA']+' beam')     
@@ -318,10 +317,15 @@ class ancelsplot(object):
         return 0     
 
     def inCCARegionTable(self,cfg_par):
+        
+        f = fits.open(cfg_par['general']['dataCubeName'])
+        dd = f[0].header
+        f.close()
 
         hdul = fits.open(cfg_par['general']['outTableName'])
 
         anc = hdul['ancels'+cfg_par['gFit']['modName']].data
+        bins = hdul['BININFO']['modName'].data
 
         x=anc['logCentroid_'+cfg_par['ancillary']['coldGas']['Name']]
         y=anc['logDispIntr_'+cfg_par['ancillary']['coldGas']['Name']]
@@ -357,15 +361,41 @@ class ancelsplot(object):
         rad_cc = (xct**2/(ellWidth/2.)**2) + (yct**2/(ellHeight/2.)**2)
 
         CCAvec = np.empty(len(anc['BIN_ID']))
+        
+        CCAMap = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
 
         for i in range(0,len(rad_cc)):
+            
+            match_bin = np.where(bins['BIN_ID']==lines['BIN_ID'][i])[0]
 
-            if rad_cc[i] <= 1.:
-                # point in ellipse
-                CCAvec[i] = 1 
-            else:
-                # point not in ellipse
-                CCAvec[i] = 0 
+            for index in match_bin:
+
+                thresHold = residuals['SN_NII6583'][index]
+                sigmaThresh = linesG1['g1_SigIntr_NII6583'][index]
+
+                if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
+                
+
+                    if rad_cc[i] <= 1.:
+                        # point in ellipse
+                        CCAvec[i] = 1 
+                    else:
+                        # point not in ellipse
+                        CCAvec[i] = 0 
+
+                    CCAMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = CCAvec[i]
+
+
+        del momHead['CRDER3']
+
+
+        momHead['WCSAXES'] = 2
+        momHead['SPECSYS'] = 'topocent'
+        momHead['BUNIT'] = 'Jy'
+
+        fits.writeto(momModDir+'ccaMap-'+lineName+'.fits',CCAMap,momHead,overwrite=True)
+        mPl.momAncPlot(cfg_par, momModDir+'ccaMap-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'ancillary')
+
 
 
         t=Table(anc)
