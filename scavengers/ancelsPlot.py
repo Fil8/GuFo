@@ -391,20 +391,29 @@ class ancelsplot(object):
 
                     CCAMap[int(bins['PixY'][index]),int(bins['PixX'][index])] = CCAvec[i]
 
-        if 'CRDER3' in momHead:
-            del momHead['CRDER3']
+
+
+        if 'CUNIT3' in momHead:
+            del momHead['CUNIT3']
         if 'CTYPE3' in momHead:
             del momHead['CTYPE3']
-        if 'CRVAL3' in momHead:
+        if 'CDELT3' in momHead:
+            del momHead['CDELT3']
+        if 'CRVAL3' in momHead:  
             del momHead['CRVAL3']
         if 'CRPIX3' in momHead:
-            del momHead['CRPIX3']
-            
-        momHead['WCSAXES'] = 2
-        momHead['SPECSYS'] = 'topocent'
-        momHead['BUNIT'] = 'Jy'
+            del momHead['CRPIX3'] 
+        if 'NAXIS3' in momHead:
+            del momHead['NAXIS3']
+        if 'CRDER3' in momHead:
+            del momHead['CRDER3']
 
-        fits.writeto(cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'.fits',CCAMap,momHead,overwrite=True)
+        Head = momHead.copy()
+        Head['WCSAXES'] = 2
+        Head['SPECSYS'] = 'topocent'
+        Head['BUNIT'] = 'Jy'
+
+        fits.writeto(cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'.fits',CCAMap,Head,overwrite=True)
         mPl.momAncPlot(cfg_par, cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'.fits',
             cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],'ancillary')
 
