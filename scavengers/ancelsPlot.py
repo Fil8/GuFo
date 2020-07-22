@@ -398,8 +398,8 @@ class ancelsplot(object):
         momHead['SPECSYS'] = 'topocent'
         momHead['BUNIT'] = 'Jy'
 
-        fits.writeto(momModDir+'ccaMap-'+lineName+'.fits',CCAMap,momHead,overwrite=True)
-        mPl.momAncPlot(cfg_par, momModDir+'ccaMap-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'ancillary')
+        fits.writeto(cfg_par['general']['momModDir']+'ccaMap-'+lineName+'.fits',CCAMap,momHead,overwrite=True)
+        mPl.momAncPlot(cfg_par, cfg_par['general']['momModDir']+'ccaMap-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'ancillary')
 
 
 
