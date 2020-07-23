@@ -624,7 +624,7 @@ class cubeplay:
         outCube = str.split((inCube),'.')[0]
         outCube=outCube+'-reg.fits'
 
-
+        print('culo')
         mGetHdr(tCube,'template.hrd')
         mProjectCube(inCube,outCube,'template.hrd')
 
