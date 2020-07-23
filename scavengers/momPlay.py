@@ -476,11 +476,12 @@ class momplay:
         #         res0G3 = np.zeros([resHead['NAXIS3'],resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
 
         for i in range(0,len(lines['BIN_ID'])):
-
+            print(i)
             match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
             if cfg_par['residuals']['BFcube'] == True:
-                if residuals['bestFit'][i]== 0.:
+                
+                if residuals['bestFit'][i] == 0.:
                     modName = 'g1'
                 elif residuals['bestFit'][i] == 1.:
                     modName = 'g2'
