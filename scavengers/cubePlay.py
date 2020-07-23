@@ -207,7 +207,7 @@ class cubeplay:
         return
 
 
-    def makeBFLineCube(self,cfg_par):
+    # def makeBFLineCube(self,cfg_par):
 
         
 
