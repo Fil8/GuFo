@@ -480,9 +480,9 @@ class momplay:
             match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
             if cfg_par['residuals']['BFcube'] == True:
-                if int(residuals['bestFit'][i]) == 0:
+                if residuals['bestFit'][i]== 0.:
                     modName = 'g1'
-                elif int(residuals['bestFit'][i]) == 1:
+                elif residuals['bestFit'][i] == 1.:
                     modName = 'g2'
             else:
                 modName = cfg_par['gFit']['modName']
