@@ -618,18 +618,16 @@ class cubeplay:
 
         return
 
-    def regridCube(self,cfg_par,tCube,inCube):
+    def regridCube(self,cfg_par,header,inCube):
 
         
         outCube = str.split((inCube),'.')[0]
         outCube=outCube+'-reg.fits'
-        
-        mImgtbl(tCube,'tableMontage.tbl')
-        mMakeHdr('tableMontage.tbl','template.hdr')
+ 
         
         #print('culo')
         #mGetHdr(tCube,'template.hrd')
-        mProjectCube(inCube,outCube,'template.hrd')
+        mProjectCube(inCube,outCube,header)
 
         return 0
 
