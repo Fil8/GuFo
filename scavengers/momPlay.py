@@ -450,7 +450,7 @@ class momplay:
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
-
+        print(residuals['bestFit'])
         hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
 
@@ -486,6 +486,7 @@ class momplay:
                     modName = 'g2'
             else:
                 modName = cfg_par['gFit']['modName']
+            
             print(modName)
             result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(lines['BIN_ID'][i])+'_'+modName+'.sav')
 
