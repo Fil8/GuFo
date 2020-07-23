@@ -478,7 +478,6 @@ class momplay:
         #         res0G3 = np.zeros([resHead['NAXIS3'],resHead['NAXIS2'],resHead['NAXIS1']])*np.nan
 
         for i in range(0,len(lines['BIN_ID'])):
-            print(i)
             match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
             if cfg_par['residuals']['BFcube'] == True:
@@ -490,7 +489,6 @@ class momplay:
             else:
                 modName = cfg_par['gFit']['modName']
             
-            print(modName)
             result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(lines['BIN_ID'][i])+'_'+modName+'.sav')
 
             for index in match_bin:
