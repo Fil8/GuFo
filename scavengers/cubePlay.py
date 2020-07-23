@@ -618,42 +618,19 @@ class cubeplay:
 
         return
 
-    def regridPix(self,cfg_par):
+    def regridCube(self,cfg_par,tCube,inCube):
 
-        inName = str.split(cfg_par['general']['runNameDir']+cfg_par['cubePlay']['inCube'],'.fits')
-        outName=inName[0]+'_reg.fits'
-        cube = fits.open(cfg_par['general']['runNameDir']+cfg_par['cubePlay']['inCube'])[0]
-
-        regHeader = cube.header.copy()
-
-        fovX = -cube.data.shape[2]*cube.header['CDELT1']*u.deg
-        fovY = cube.data.shape[1]*cube.header['CDELT2']*u.deg
-
-        x=cfg_par['cubePlay']['Gx']*u.arcsec
-        xDeg = x.to(u.deg).value
-        print(fovX.value/xDeg)
-        y=cfg_par['cubePlay']['Gy']*u.arcsec
-        yDeg = y.to(u.deg).value
-
-        naxis1 = int(fovX.value/xDeg)
-        naxis2 = int(fovY.value/yDeg)
-        crPix1 = int(cube.header['CRPIX1']*naxis1/float(cube.data.shape[2]))
-        crPix2 = int(cube.header['CRPIX2']*naxis2/float(cube.data.shape[1]))
-
-        regHeader['CDELT1']= -x.to(u.deg).value
-        regHeader['CDELT2'] = y.to(u.deg).value
-        regHeader['CRPIX1']= crPix1
-        regHeader['CRPIX2'] = crPix2
-        regHeader['NAXIS1'] = naxis1
-        regHeader['NAXIS2'] = naxis2
+        pathCubes=cfg_par['cubePlay']['mosaic']['inDirectory']
+        workDir = os.path.normpath(os.path.join(pathCubes, os.pardir))
+        
+        outCube = str.split((inCube),'.')[0]
+        outCube=outCube+'-reg.fits'
 
 
-        #print(x,y,pa)
+        mGetHdr(tCube,'template.hrd')
+        mProjectCube(inCube,outCube,'template.hrd')
 
-        #print(centreCoords.ra.deg,centreCoords.dec.deg)
-        regridCube, footprint = rp(cube, regHeader)
-        fits.writeto(outName, regridCube, regHeader, overwrite=True)
-        sys.exit(0)
+        return 0
 
     def rebinCube(self,templateFile,inputFile):
 

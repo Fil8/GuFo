@@ -222,6 +222,11 @@ def main (argv):
         default = False,
         help= 'rebin input cube according to template cube')
 
+    add('-rgC', '--regCube',
+        action = 'store_true',
+        default = False,
+        help= 'regrid cube according to template cube')
+
     add('-rgM', '--regMom',
         action = 'store_true',
         default = False,
@@ -430,6 +435,15 @@ def main (argv):
         timeMom = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))
 
+    if gPar.cfg_par['residuals'].get('BFcube',False) == True:
+        time_start_load = time.time()
+        print('\n\t +---------+\t\t    BF cube\t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        mom.resCube(gPar.cfg_par)
+        timeMom = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))   
+
+
     if args.momPlot or gPar.cfg_par['moments'].get('plot',False) == True:
         
         print('\n\t +---------+\t\t   moments Plot\t\t+---------+')
@@ -491,6 +505,14 @@ def main (argv):
         timeMS = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMS))    
 
+    if args.regCube: 
+        time_start_load = time.time()
+        print('\n\t +---------+\t\t  regrid MoM\t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        mom.regridCube(args.cubeTemp,args.cubeIn)
+        timeMS = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMS))   
+
 
     if args.regMom or gPar.cfg_par['moments']['regrid'].get('enable',False) == True: 
         time_start_load = time.time()
@@ -533,13 +555,7 @@ def main (argv):
         print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
 
         #ap.centroid(gPar.cfg_par)
-    if gPar.cfg_par['residuals'].get('BFcube',False) == True:
-        time_start_load = time.time()
-        print('\n\t +---------+\t\t    BF cube\t\t +---------+')
-        gPar = gufo.gufo(args.cfgFile)
-        mom.resCube(gPar.cfg_par)
-        timeMom = (time.time()- time_start_load)/60.
-        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))        
+     
 
 
     if gPar.cfg_par['ancillary']['coldGas'].get('enable',False) == True:
