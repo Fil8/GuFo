@@ -102,8 +102,13 @@ class cubeplay:
 
         cubeletsDir = cfg_par['general']['cubeletsDir']
         cubeDir = cfg_par['general']['cubeDir']
-        modName = cfg_par['gFit']['modName']
+        if cfg_par['residuals']['BFcube'] == True:
+            modName='BF'
+        else:
+            modName = cfg_par['gFit']['modName']
         momDir = cfg_par['general']['momDir']
+
+
 
         if cfg_par['cubePlay']['cubelets']['cube'] == 'vorLine': 
             f = fits.open(cfg_par['general']['dataCubeName'])
@@ -209,7 +214,7 @@ class cubeplay:
 
     # def makeBFLineCube(self,cfg_par):
 
-        
+
 
     def circPoint(self,alpha,beta,m,q,pa,ww,keyAlpha):
         a = -2.*alpha
