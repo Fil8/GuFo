@@ -483,9 +483,9 @@ class momplay:
 
             if cfg_par['residuals']['BFcube'] == True:
                 
-                if bF == 0:
+                if bF[i] == 0:
                     modName = 'g1'
-                elif bF == 1:
+                elif bF[i] == 1:
                     modName = 'g2'
             else:
                 modName = cfg_par['gFit']['modName']
