@@ -487,7 +487,7 @@ class momplay:
             else:
                 modName = cfg_par['gFit']['modName']
             print(modName)
-            result = load_modelresult(workDir+'models/'+modName+'/'+str(lines['BIN_ID'][i])+'_'+modName+'.sav')
+            result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(lines['BIN_ID'][i])+'_'+modName+'.sav')
 
             for index in match_bin:
                 yy = dd[idxMin:idxMax,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
