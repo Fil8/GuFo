@@ -623,9 +623,12 @@ class cubeplay:
         
         outCube = str.split((inCube),'.')[0]
         outCube=outCube+'-reg.fits'
-
-        print('culo')
-        mGetHdr(tCube,'template.hrd')
+        
+        mImgtbl(tCube,'tableMontage.tbl')
+        mMakeHdr('tableMontage.tbl','template.hdr')
+        
+        #print('culo')
+        #mGetHdr(tCube,'template.hrd')
         mProjectCube(inCube,outCube,'template.hrd')
 
         return 0
