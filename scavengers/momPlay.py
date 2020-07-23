@@ -449,6 +449,7 @@ class momplay:
         
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
+        residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
 
         hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
@@ -478,7 +479,15 @@ class momplay:
 
             match_bin = np.where(tabGen['BIN_ID']==lines['BIN_ID'][i])[0]
 
-            result = load_modelresult(cfg_par[key]['modNameDir']+str(lines['BIN_ID'][i])+'_'+cfg_par['gFit']['modName']+'.sav')
+            if cfg_par['residuals']['BFcube'] == True:
+                if residuals['bestFit'][i] == 0:
+                    modName = 'g1'
+                elif residuals['bestFit'][i] == 1:
+                    modName = 'g2'
+            else:
+                modName = cfg_par['gFit']['modName']
+            print(modName)
+            result = load_modelresult(workdir+'models/'+modName+'/'+str(lines['BIN_ID'][i])+'_'+modName+'.sav')
 
             for index in match_bin:
                 yy = dd[idxMin:idxMax,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
@@ -489,6 +498,8 @@ class momplay:
 
         resHead['SPECSYS'] = 'topocent'
         resHead['BUNIT'] = 'Flux'
+        if cfg_par['residuals']['BFcube'] == True:
+            modName = 'BF'
         fits.writeto(cubeDir+'resCube_'+modName+'.fits',resG1,resHead,overwrite=True)
         fits.writeto(cubeDir+'fitCube_'+modName+'.fits',fitCube,resHead,overwrite=True)
 

@@ -207,6 +207,10 @@ class cubeplay:
         return
 
 
+    def makeBFLineCube(self,cfg_par):
+
+        
+
     def circPoint(self,alpha,beta,m,q,pa,ww,keyAlpha):
         a = -2.*alpha
         b = -2.*beta 
