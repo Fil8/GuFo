@@ -533,7 +533,7 @@ def main (argv):
         print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
 
         #ap.centroid(gPar.cfg_par)
-    if gPar.cfg_par['residuals']['BFcube'].get('enable',False) == True:
+    if gPar.cfg_par['residuals'].get('BFcube',False) == True:
         time_start_load = time.time()
         print('\n\t +---------+\t\t    BF cube\t\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
