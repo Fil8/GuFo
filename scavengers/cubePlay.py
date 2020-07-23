@@ -620,8 +620,6 @@ class cubeplay:
 
     def regridCube(self,cfg_par,tCube,inCube):
 
-        pathCubes=cfg_par['cubePlay']['mosaic']['inDirectory']
-        workDir = os.path.normpath(os.path.join(pathCubes, os.pardir))
         
         outCube = str.split((inCube),'.')[0]
         outCube=outCube+'-reg.fits'
