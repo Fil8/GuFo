@@ -132,7 +132,7 @@ class cubeplay:
             lineName = lineNameStr+str(int(lineInfo['Wave'][0]))
 
         lineNameStr=lineNameStr+str(int(lineInfo['Wave'][0]))
-        
+        print(lineNameStr)
         modName='BF'
         f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
         dd = f[0].data
@@ -178,7 +178,7 @@ class cubeplay:
                     modName = 'g2'
             
 
-                result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(lines['BIN_ID'][i])+'_'+modName+'.sav')
+                result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
                 comps = result.eval_components()                
                 
             
