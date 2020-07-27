@@ -196,13 +196,13 @@ class cubeplay:
                         pass
 
 
-            waveAng=np.exp(wave)
+        waveAng=np.exp(wave)
 
-            header = self.makeHeader(cfg_par,lineInfo['Wave'][0],hh,waveAng)
-                
-            outCubelet = cubeletsDir+str(lineNameStr)+'_BF.fits'        
+        header = self.makeHeader(cfg_par,lineInfo['Wave'][0],hh,waveAng)
+            
+        outCubelet = cubeletsDir+str(lineNameStr)+'_BF.fits'        
 
-            fits.writeto(outCubelet,np.flip(fitCube,axis=0),header,overwrite=True)
+        fits.writeto(outCubelet,np.flip(fitCube,axis=0),header,overwrite=True)
 
         return
 
