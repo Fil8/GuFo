@@ -189,7 +189,7 @@ class cubeplay:
 
             result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
             comps = result.eval_components()                
-            
+            print(comps)
         
             for index in match_bin:
                 print(np.sum(np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])),int(tabGen['PixY'][index]),int(tabGen['PixX'][index]))
