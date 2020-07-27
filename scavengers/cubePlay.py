@@ -166,7 +166,7 @@ class cubeplay:
         print(vel)
         print(waveAng)        
         dd=dd[idxMin:idxMax,:,:]
-        
+        sys.exit(0)    
         fitCube = np.empty([dd.shape[0],dd.shape[1],dd.shape[2]])
 
 
