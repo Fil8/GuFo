@@ -200,8 +200,7 @@ class cubeplay:
                         fit = comps['g1ln'+str(4)+'_']
                     elif modName =='g2':
                         fit = comps['g1ln'+str(4)+'_']+comps['g2ln'+str(4)+'_']
-                    print(fit[idxMin:idxMax])
-                    fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin:idxMax]
+                    fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
 
 
                 else:
