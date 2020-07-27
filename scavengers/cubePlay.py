@@ -224,7 +224,7 @@ class cubeplay:
 
                         vecCount = np.sum(fitMask-mdSpec)
                         print(vecCount,lenghtLine)
-                        if vecCount>lenthLine/2.:
+                        if vecCount>lenghtLine/2.:
                             rotArr[i]=1.
                         else:
                             rotArr[i]=0.
