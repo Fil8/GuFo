@@ -132,7 +132,7 @@ class cubeplay:
             lineName = lineNameStr+str(int(lineInfo['Wave'][0]))
 
         lineNameStr=lineNameStr+str(int(lineInfo['Wave'][0]))
-        print(lineNameStr)
+
         modName='BF'
         f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
         dd = f[0].data
@@ -168,17 +168,12 @@ class cubeplay:
 
         wave=wave[idxMin1:idxMax1]
         
-        print(len(wave))
         
         waveAng=np.exp(wave)
         
-        print(lineInfo['Wave'][0])
         vel=cvP.lambdaVRad(waveAng,lineInfo['Wave'][0])+float(cfg_par['general']['velsys'])
         
-        print(vel-float(cfg_par['general']['velsys']))
-        print(waveAng)        
         dd=dd[idxMin1:idxMax1,:,:]
-        sys.exit(0)    
         fitCube = np.empty([dd.shape[0],dd.shape[1],dd.shape[2]])
 
 
@@ -202,9 +197,9 @@ class cubeplay:
                 if np.sum(np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
         
                     if modName=='g1':
-                        fit = comps['g1ln'+str(5)+'_']
+                        fit = comps['g1ln'+str(4)+'_']
                     elif modName =='g2':
-                        fit = comps['g1ln'+str(5)+'_']+comps['g2ln'+str(5)+'_']
+                        fit = comps['g1ln'+str(4)+'_']+comps['g2ln'+str(4)+'_']
                     print(fit[idxMin:idxMax])
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin:idxMax]
 
