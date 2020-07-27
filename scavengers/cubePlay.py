@@ -214,7 +214,7 @@ class cubeplay:
                         centroid = ancels['centroid_'+lineName][i]
                         width = ancels['w80_'+lineName][i]
                         velMin = centroid-width/2.
-                        velMax = centrodi+width/2.
+                        velMax = centroid+width/2.
                         indexVelMin = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
                         indexVelMax = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0]) 
                         
