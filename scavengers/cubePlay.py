@@ -108,6 +108,7 @@ class cubeplay:
         if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
             modelCube = fits.open(cfg_par['bestFitSel']['BFcube']['modelCube'])
             mdC = modelCube[0].data
+            rotMoM = np.empty([mdC.shape[1],mdC.shape[2]])
 
 
         hdul = fits.open(cfg_par['general']['outTableName'])
@@ -223,11 +224,13 @@ class cubeplay:
                         lenghtLine = indexVelMax-indexVelMin
 
                         vecCount = np.sum(fitMask-mdSpec)
-                        print(vecCount,lenghtLine)
+                        #print(vecCount,lenghtLine)
                         if vecCount>lenghtLine/2.:
                             rotArr[i]=1.
+                            rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=1.
                         else:
                             rotArr[i]=0.
+                            rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
 
 
                 else:
@@ -243,6 +246,25 @@ class cubeplay:
         fits.writeto(outCubelet,np.flip(fitCube,axis=0),header,overwrite=True)
 
         if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+            outMomRot =  momDir+str(lineNameStr)+'_RotMom.fits'        
+
+            if 'CUNIT3' in header:
+                del header['CUNIT3']
+            if 'CTYPE3' in header:
+                del header['CTYPE3']
+            if 'CDELT3' in header:
+                del header['CDELT3']
+            if 'CRVAL3' in header:  
+                del header['CRVAL3']
+            if 'CRPIX3' in header:
+                del header['CRPIX3'] 
+            if 'NAXIS3' in header:
+                del header['NAXIS3']            
+            header['WCSAXES'] = 2
+            header['SPECSYS'] = 'topocent'
+            header['BUNIT'] = 'km/s'
+            fits.writeto(outMomRot,rotMoM,header,overwrite=True)
+
             t=Table(ancels)
 
             if 'RotMod' not in ancels.dtype.names: 
@@ -256,7 +278,7 @@ class cubeplay:
             except KeyError as e:
                 tt=fits.BinTableHDU.from_columns(t.as_array(),name='AncelsBF')   
                 hdul.append(tt)    
-        
+
         hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
             
 
