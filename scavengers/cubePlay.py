@@ -154,12 +154,11 @@ class cubeplay:
         wave=wave[idxMin:idxMax]
         dd=dd[idxMin:idxMax,:,:]
 
-        print(wave)
         velRangeMin = cvP.vRadLambda(-cfg_par['bestFitSel']['BFcube']['velRange'][0],
             lineInfo['Wave'][0] )-lineInfo['Wave'][0] 
         velRangeMax= cvP.vRadLambda(cfg_par['bestFitSel']['BFcube']['velRange'][1],
             lineInfo['Wave'][0] )-lineInfo['Wave'][0] 
-            
+                    
         waveMin =  np.log(lineInfo['Wave'][0] - velRangeMin)
         waveMax =  np.log(lineInfo['Wave'][0] + velRangeMax)
         
@@ -168,11 +167,14 @@ class cubeplay:
         idxMax1 = int(np.where(abs(wave-waveMax)==abs(wave-waveMax).min())[0] )
 
         wave=wave[idxMin1:idxMax1]
-        print(wave)
+        
+        print(len(wave))
+        
         waveAng=np.exp(wave)
         
         print(lineInfo['Wave'][0])
         vel=cvP.lambdaVRad(waveAng,lineInfo['Wave'][0])+float(cfg_par['general']['velsys'])
+        
         print(vel)
         print(waveAng)        
         dd=dd[idxMin1:idxMax1,:,:]
