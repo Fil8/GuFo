@@ -189,17 +189,15 @@ class cubeplay:
 
             result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
             comps = result.eval_components()                
-            print(comps)
         
             for index in match_bin:
-                print(np.sum(np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])),int(tabGen['PixY'][index]),int(tabGen['PixX'][index]))
-                print(np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]))
                 if np.sum(np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
         
                     if modName=='g1':
                         fit = comps['g1ln'+str(4)+'_']
                     elif modName =='g2':
                         fit = comps['g1ln'+str(4)+'_']+comps['g2ln'+str(4)+'_']
+                    print(fit[idxMin1:idxMax1])
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
 
 
