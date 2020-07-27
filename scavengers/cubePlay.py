@@ -108,7 +108,7 @@ class cubeplay:
         if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
             modelCube = fits.open(cfg_par['bestFitSel']['BFcube']['modelCube'])
             mdC = modelCube[0].data
-            rotMoM = np.empty([mdC.shape[1],mdC.shape[2]])
+            rotMoM = np.zeros([mdC.shape[1],mdC.shape[2]])*np.nan
 
 
         hdul = fits.open(cfg_par['general']['outTableName'])
@@ -214,8 +214,8 @@ class cubeplay:
 
                         centroid = ancels['centroid_'+lineName][i]
                         width = ancels['w80_'+lineName][i]
-                        velMin = centroid-width/2.
-                        velMax = centroid+width/2.
+                        velMin = centroid-(width/2.)
+                        velMax = centroid+(width/2.)
                         indexVelMin = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
                         indexVelMax = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0]) 
                         
@@ -223,9 +223,11 @@ class cubeplay:
                         fitMask[indexVelMin:indexVelMax] = 1.
                         lenghtLine = indexVelMax-indexVelMin
 
-                        vecCount = np.sum(fitMask-mdSpec)
+                        vecCount = np.where(fitMask==1.& mdSpec==1.)
                         #print(vecCount,lenghtLine)
-                        if vecCount>lenghtLine/2.:
+                        vecSum = np.sum(vecCount)
+
+                        if vecSum>lenghtLine/2.:
                             rotArr[i]=1.
                             rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=1.
                         else:
@@ -262,7 +264,8 @@ class cubeplay:
                 del header['NAXIS3']            
             header['WCSAXES'] = 2
             header['SPECSYS'] = 'topocent'
-            header['BUNIT'] = 'km/s'
+            header['BUNIT'] = 'Jy/beam'
+
             fits.writeto(outMomRot,rotMoM,header,overwrite=True)
 
             t=Table(ancels)
