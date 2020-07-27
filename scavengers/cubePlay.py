@@ -103,6 +103,7 @@ class cubeplay:
 
         cubeletsDir = cfg_par['general']['cubeletsDir']
         cubeDir = cfg_par['general']['cubeDir']
+        momDir = cfg_par['general']['momDir']
 
 
         hdul = fits.open(cfg_par['general']['outTableName'])
