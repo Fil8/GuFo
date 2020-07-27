@@ -158,7 +158,6 @@ class cubeplay:
 
         idxMin = int(np.where(abs(wave-waveMin)==abs(wave-waveMin).min())[0]) 
         idxMax = int(np.where(abs(wave-waveMax)==abs(wave-waveMax).min())[0] )
-        print(idxMax,idxMin)
 
         wave=wave[idxMin:idxMax]
         
@@ -168,32 +167,32 @@ class cubeplay:
 
 
         for i in range(0,len(ancels['BIN_ID'])):
+            
             match_bin = np.where(tabGen['BIN_ID']==ancels['BIN_ID'][i])[0]
-
-            if cfg_par['bestFitSel']['BFcube']['enable'] == True:
                 
-                if bF[i] == 0:
-                    modName = 'g1'
-                elif bF[i] == 1:
-                    modName = 'g2'
-            
+            if bF[i] == 0:
+                modName = 'g1'
+            elif bF[i] == 1:
+                modName = 'g2'
+        
 
-                result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
-                comps = result.eval_components()                
-                
+            result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
+            comps = result.eval_components()                
             
-                for index in match_bin:
-                    if np.sum(np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
-            
-                        if modName=='g1':
-                            fit = comps['g1ln'+str(5)+'_']
-                        elif modName =='g2':
-                            fit = comps['g1ln'+str(5)+'_']+comps['g2ln'+str(5)+'_']
-                        fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin:idxMax]
+        
+            for index in match_bin:
+                print(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])
+                if np.sum(np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
+        
+                    if modName=='g1':
+                        fit = comps['g1ln'+str(5)+'_']
+                    elif modName =='g2':
+                        fit = comps['g1ln'+str(5)+'_']+comps['g2ln'+str(5)+'_']
+                    fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin:idxMax]
 
 
-                    else:
-                        pass
+                else:
+                    pass
 
 
         waveAng=np.exp(wave)
