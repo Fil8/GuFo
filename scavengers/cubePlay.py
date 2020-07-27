@@ -98,6 +98,112 @@ class cubeplay:
         return
 
 
+
+    def makeBFLineCube(self,cfg_par):
+
+        cubeletsDir = cfg_par['general']['cubeletsDir']
+        cubeDir = cfg_par['general']['cubeDir']
+
+
+        hdul = fits.open(cfg_par['general']['outTableName'])
+        tabGen = hdul['BININFO'].data
+
+        residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
+        ancels = hdul['Ancels_'+cfg_par['gFit']['modName']].data
+
+        bF = np.array(residuals['bestFit'],dtype=int)
+
+        wave,xAxis,yAxis,pxSize,noiseBin, vorBinInfo,dataSpec = tP.openVorLineOutput(cfg_par,cfg_par['general']['outVorLineTableName'],
+            cfg_par['general']['outVorSpectra'])
+
+        lineInfo = tP.openLineList(cfg_par)
+        index = np.where(lineInfo['BFCUbe'] == 0)
+        fltr =  np.array(index)[0]
+        lineInfo.remove_rows(list(fltr))
+
+        lineNameStr = str(lineInfo['Name'][0])
+
+        if '[' in lineNameStr:
+            lineName = lineNameStr.replace("[", "")
+            lineName = lineName.replace("]", "")
+            lineName = lineName+str(int(lineInfo['Wave'][0]))
+        else:
+            lineName = lineNameStr+str(int(lineInfo['Wave'][0]))
+
+        lineNameStr=lineNameStr+str(int(lineInfo['Wave'][0]))
+        
+        modName='BF'
+        f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
+        dd = f[0].data
+        hh = f[0].header
+        mom = fits.open(momDir+'g1/mom0_tot-'+lineName+'.fits')
+        mm=mom[0].data
+        indexFltr = np.broadcast_to(np.isnan(mm), dd.shape)
+        dd[indexFltr] = np.nan
+        #lambdaMin = np.log(cfg_par['gFit']['lambdaMin'])
+        #lambdaMax = np.log(cfg_par['gFit']['lambdaMax'])
+        #idxMin = int(np.where(abs(wave-lambdaMin)==abs(wave-lambdaMin).min())[0]) 
+        #idxMax = int(np.where(abs(wave-lambdaMax)==abs(wave-lambdaMax).min())[0])
+
+
+        velRangeMin = cvP.vRadLambda(-cfg_par['bestFitSel']['BFcube']['velRange'][0],
+            lineInfo['Wave'][0] )-lineInfo['Wave'][0] 
+        velRangeMax= cvP.vRadLambda(cfg_par['bestFitSel']['BFcube']['velRange'][1],
+            lineInfo['Wave'][0] )-lineInfo['Wave'][0] 
+            
+        waveMin =  np.log(lineInfo['Wave'][0] - velRangeMin)
+        waveMax =  np.log(lineInfo['Wave'][0] + velRangeMax)
+        
+
+        idxMin = int(np.where(abs(wave-waveMin)==abs(wave-waveMin).min())[0]) 
+        idxMax = int(np.where(abs(wave-waveMax)==abs(wave-waveMax).min())[0] )
+
+
+        wave=wave[idxMin:idxMax]
+        
+        dd=dd[idxMin:idxMax,:,:]
+        
+        fitCube = np.empty([dd.shape[0],dd.shape[1],dd.shape[2]])
+
+
+       for i in range(0,len(lines['BIN_ID'])):
+            match_bin = np.where(tabGen['BIN_ID']==ancels['BIN_ID'][i])[0]
+
+            if cfg_par['bestFitSel']['BFcube']['enable'] == True:
+                
+                if bF[i] == 0:
+                    modName = 'g1'
+                elif bF[i] == 1:
+                    modName = 'g2'
+            if np.sum(np.isnan(dd[,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
+            
+                result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(lines['BIN_ID'][i])+'_'+modName+'.sav')
+                comps = result.eval_components()
+            
+                for index in match_bin:
+                
+                    if modName=='g1':
+                        fit = comps['g1ln'+str(7)+'_']
+                    elif modName =='g2':
+                        fit = comps['g1ln'+str(7)+'_']+comps['g2ln'+str(7)+'_']
+
+                fitCube[idxMin:idxMax,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit
+
+
+            else:
+                pass
+
+
+            waveAng=np.exp(wave)
+
+            header = self.makeHeader(cfg_par,lineInfo['Wave'][0],hh,waveAng)
+                
+            outCubelet = cubeletsDir+str(lineNameStr)+'_BF.fits'        
+
+            fits.writeto(outCubelet,np.flip(fitCube,axis=0),header,overwrite=True)
+
+        return
+
     def makeLineCubes(self,cfg_par):
 
         cubeletsDir = cfg_par['general']['cubeletsDir']
@@ -107,7 +213,6 @@ class cubeplay:
         else:
             modName = cfg_par['gFit']['modName']
         momDir = cfg_par['general']['momDir']
-
 
 
         if cfg_par['cubePlay']['cubelets']['cube'] == 'vorLine': 

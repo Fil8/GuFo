@@ -442,7 +442,14 @@ def main (argv):
         mom.resCube(gPar.cfg_par)
         timeMom = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))   
-
+    
+    if gPar.cfg_par['bestFitSel']['BFcube'].get('enable',False) == True:
+        time_start_load = time.time()
+        print('\n\t +---------+\t\t    BF cube\t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        cP.makeBFLineCube(gPar.cfg_par)
+        timeMom = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))   
 
     if args.momPlot or gPar.cfg_par['moments'].get('plot',False) == True:
         
