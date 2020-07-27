@@ -137,7 +137,7 @@ class cubeplay:
         f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
         dd = f[0].data
         hh = f[0].header
-        mom = fits.open(momDir+'g1/mom0_tot-'+lineName+'.fits')
+        mom = fits.open(momDir+'g2/mom0_tot-'+lineName+'.fits')
         mm=mom[0].data
         indexFltr = np.broadcast_to(np.isnan(mm), dd.shape)
         dd[indexFltr] = np.nan
