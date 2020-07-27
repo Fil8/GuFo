@@ -60,12 +60,12 @@ class cubeplay:
             del header['CRDER3']
 
         header['CRPIX3'] = len(vel)
-        header['CRVAL3'] = vel[0]*1e3
-        header['CDELT3'] = -cdelt3*1e3
+        header['CRVAL3'] = vel[0]
+        header['CDELT3'] = -cdelt3
         header['CTYPE3'] = "VRAD"
         header['SPECSYS'] = "barycent"
         header['CELLSCAL'] = 'constant'
-        header['CUNIT3'] = 'km/s'
+        header['CUNIT3'] = 'm/s'
         header['BUNIT'] = 'Jy/beam'
         return header
 
@@ -190,7 +190,7 @@ class cubeplay:
                         fit = comps['g1ln'+str(5)+'_']
                     elif modName =='g2':
                         fit = comps['g1ln'+str(5)+'_']+comps['g2ln'+str(5)+'_']
-                    print(fit)
+                    print(fit[idxMin:idxMax])
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin:idxMax]
 
 
