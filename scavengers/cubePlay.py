@@ -191,8 +191,8 @@ class cubeplay:
                             fit = comps['g1ln'+str(5)+'_']+comps['g2ln'+str(5)+'_']
 
                         print(len(fit))
-                        print(fitCube.shape
-                        fitCube[idxMin:idxMax,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin:idxMax]
+                        print(fitCube.shape)
+                        fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin:idxMax]
 
 
                     else:
