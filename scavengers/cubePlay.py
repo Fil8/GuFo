@@ -105,12 +105,17 @@ class cubeplay:
         cubeDir = cfg_par['general']['cubeDir']
         momDir = cfg_par['general']['momDir']
 
+        if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+            modelCube = fits.open(cfg_par['bestFitSel']['BFcube']['modelCube'])
+            mdC = modelCube[0].data
+
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         tabGen = hdul['BININFO'].data
 
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
         ancels = hdul['Ancels'+cfg_par['gFit']['modName']].data
+        rotArr = np.empty(len(ancels['BIN_ID']))
 
         bF = np.array(residuals['bestFit'],dtype=int)
 
@@ -186,13 +191,14 @@ class cubeplay:
             elif bF[i] == 1:
                 modName = 'g2'
         
-
-            result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
-            comps = result.eval_components()                
         
             for index in match_bin:
-                if np.sum(np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
-        
+                
+                if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
+
+                    result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
+                    comps = result.eval_components()          
+                    
                     if modName=='g1':
                         fit = comps['g1ln'+str(4)+'_']
                     elif modName =='g2':
@@ -200,9 +206,32 @@ class cubeplay:
 
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
 
+                    if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+                        mdSpec = mdC[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                        
+                        mdSpec[mdSpec!=0]=1.
+
+                        centroid = ancels['centroid'+lineName][i]
+                        width = ancels['w80'+lineName][i]
+                        velMin = centroid-width/2.
+                        velMax = centrodi+width/2.
+                        indexVelMin = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
+                        indexVelMax = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0]) 
+                        
+                        fitMask = np.zeros(len(fit[idxMin1:idxMax1]))
+                        fitMask[indexVelMin:indexVelMax] = 1.
+                        lenghtLine = indexVelMax-indexVelMin
+
+                        vecCount = np.sum(fitMask-mdSpec)
+                        print(vecCount,lenghtLine)
+                        if vecCount>lenthLine/2.:
+                            rotArr[i]=1.
+                        else:
+                            rotArr[i]=0.
+
 
                 else:
-                    pass
+                    fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
 
 
         waveAng=np.exp(wave)
@@ -212,6 +241,24 @@ class cubeplay:
         outCubelet = cubeletsDir+str(lineNameStr)+'_BF.fits'        
 
         fits.writeto(outCubelet,np.flip(fitCube,axis=0),header,overwrite=True)
+
+        if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+            t=Table(ancels)
+
+            if 'RotMod' not in ancels.dtype.names: 
+                t.add_column(Column(rotArr,name='RotMod'))
+            else:
+                t.replace_column('RotMod',Column(rotArr,name='RotMod'))        
+
+            try:
+                tt = Table(hdul['AncelsBF'].data)
+                hdul['AncelsBF'] = fits.BinTableHDU(t.as_array(),name='AncelsBF')
+            except KeyError as e:
+                tt=fits.BinTableHDU.from_columns(t.as_array(),name='AncelsBF')   
+                hdul.append(tt)    
+        
+        hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
+            
 
         return
 
