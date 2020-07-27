@@ -158,7 +158,7 @@ class cubeplay:
 
         idxMin = int(np.where(abs(wave-waveMin)==abs(wave-waveMin).min())[0]) 
         idxMax = int(np.where(abs(wave-waveMax)==abs(wave-waveMax).min())[0] )
-
+        print(idxMax,idxMin)
 
         wave=wave[idxMin:idxMax]
         
@@ -191,7 +191,7 @@ class cubeplay:
                             fit = comps['g1ln'+str(5)+'_']+comps['g2ln'+str(5)+'_']
 
                         print(len(fit))
-                        print(fit)
+                        print(fitCube.shape
                         fitCube[idxMin:idxMax,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin:idxMax]
 
 
