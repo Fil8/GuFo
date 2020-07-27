@@ -160,7 +160,8 @@ class cubeplay:
         idxMax = int(np.where(abs(wave-waveMax)==abs(wave-waveMax).min())[0] )
 
         wave=wave[idxMin:idxMax]
-        
+        waveAng=np.exp(wave)
+        print(waveAng)        
         dd=dd[idxMin:idxMax,:,:]
         
         fitCube = np.empty([dd.shape[0],dd.shape[1],dd.shape[2]])
