@@ -167,7 +167,7 @@ class cubeplay:
         fitCube = np.empty([dd.shape[0],dd.shape[1],dd.shape[2]])
 
 
-        for i in range(0,len(lines['BIN_ID'])):
+        for i in range(0,len(ancels['BIN_ID'])):
             match_bin = np.where(tabGen['BIN_ID']==ancels['BIN_ID'][i])[0]
 
             if cfg_par['bestFitSel']['BFcube']['enable'] == True:
