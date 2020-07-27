@@ -182,6 +182,7 @@ class cubeplay:
         
             for index in match_bin:
                 print(np.sum(np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])),int(tabGen['PixY'][index]),int(tabGen['PixX'][index]))
+                print(np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]))
                 if np.sum(np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
         
                     if modName=='g1':
