@@ -185,15 +185,15 @@ class cubeplay:
                     if np.sum(np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
             
                         if modName=='g1':
-                        fit = comps['g1ln'+str(7)+'_']
-                    elif modName =='g2':
-                        fit = comps['g1ln'+str(7)+'_']+comps['g2ln'+str(7)+'_']
+                            fit = comps['g1ln'+str(7)+'_']
+                        elif modName =='g2':
+                            fit = comps['g1ln'+str(7)+'_']+comps['g2ln'+str(7)+'_']
 
-                fitCube[idxMin:idxMax,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit
+                        fitCube[idxMin:idxMax,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit
 
 
-            else:
-                pass
+                    else:
+                        pass
 
 
             waveAng=np.exp(wave)
