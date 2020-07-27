@@ -109,7 +109,7 @@ class cubeplay:
         tabGen = hdul['BININFO'].data
 
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
-        ancels = hdul['Ancels_'+cfg_par['gFit']['modName']].data
+        ancels = hdul['Ancels'+cfg_par['gFit']['modName']].data
 
         bF = np.array(residuals['bestFit'],dtype=int)
 
