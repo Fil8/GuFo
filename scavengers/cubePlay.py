@@ -224,8 +224,8 @@ class cubeplay:
                         lenghtLine = indexVelMax-indexVelMin
 
                         vecCount = np.where((fitMask==1.)& (mdSpec==1.))
-                        print(vecCount,lenghtLine)
                         vecSum = np.sum(vecCount)
+                        print(vecCount,vecSum,lenghtLine)
 
                         if vecSum>lenghtLine/2.:
                             rotArr[i]=1.
