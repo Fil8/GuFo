@@ -237,7 +237,7 @@ class cubeplay:
 
                         vecCount = np.where((fitMask==1.)& (mdSpec==1.))[0]
                         vecSum = np.sum(fitMask[vecCount])
-                        print(vecSum,lenghtLine)
+                        #print(vecSum,lenghtLine)
 
                         if vecSum>(lenghtLine/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']):
                             rotArr[i]=1.
