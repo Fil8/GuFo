@@ -231,13 +231,13 @@ class cubeplay:
                         #fitMask[indexVelMin:indexVelMax] = 1.
                         
                         fitMask[idxLeft:idxRight] = 1.
-                        lenghtLine = idxRight-idxLeft
+                        lenghtLine = np.sum(fitMask)
                         
                         fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMask
 
                         vecCount = np.where((fitMask==1.)& (mdSpec==1.))[0]
                         vecSum = np.sum(fitMask[vecCount])
-                        #print(vecCount,vecSum,lenghtLine)
+                        print(vecSum,lenghtLine)
 
                         if vecSum>(lenghtLine/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']):
                             rotArr[i]=1.
@@ -259,11 +259,11 @@ class cubeplay:
         
         outCubelet = cubeletsDir+str(lineNameStr)+'_BF.fits'            
         outCubeletMask = cubeletsDir+str(lineNameStr)+'_BFMask.fits'        
-        outCubeletMaskfl = cubeletsDir+str(lineNameStr)+'_BFMaskFL.fits'        
+        #outCubeletMaskfl = cubeletsDir+str(lineNameStr)+'_BFMaskFL.fits'        
 
         fits.writeto(outCubelet,np.flip(fitCube,axis=0),header,overwrite=True)
         fits.writeto(outCubeletMask,np.flip(fitCubeMask,axis=0),header,overwrite=True)
-        fits.writeto(outCubeletMaskfl,fitCubeMask,header,overwrite=True)
+        #fits.writeto(outCubeletMaskfl,fitCubeMask,header,overwrite=True)
 
         if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
             outMomRot =  momDir+str(lineNameStr)+'_RotMom.fits'        
