@@ -217,11 +217,11 @@ class cubeplay:
                         #width = ancels['w80_'+lineName][i]
                         fitSmall = fit[idxMin1:idxMax1]
                         idxPeak = np.nanargmax(fitSmall)
-                        print(idxPeak)
+                        #print(idxPeak)
                         idxLeft = int(np.where(abs(fitSmall[:idxPeak]-10.)==abs(fitSmall[:idxPeak]-10.).min())[0]) 
                         idxRight = int(np.where(abs(fitSmall[idxPeak:]-10.)==abs(fitSmall[idxPeak:]-10.).min())[0]) +idxPeak
 
-                        print(idxLeft,idxRight)
+                        #print(idxLeft,idxRight)
                         #velMin = centroid-(width/2.)
                         #velMax = centroid+(width/2.)
                         #indexVelMin = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
