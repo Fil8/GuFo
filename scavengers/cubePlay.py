@@ -221,7 +221,7 @@ class cubeplay:
                         idxLeft = int(np.where(abs(fit[:idxPeak]-1.)==abs(fit[:idxPeak]-1.).min())[0]) 
                         idxRight = int(np.where(abs(fit[idxPeak:]-1.)==abs(fit[idxPeak:]-1.).min())[0]) 
 
-
+                        print(idxLeft,idxRight)
                         #velMin = centroid-(width/2.)
                         #velMax = centroid+(width/2.)
                         #indexVelMin = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
@@ -262,7 +262,7 @@ class cubeplay:
         outCubeletMaskfl = cubeletsDir+str(lineNameStr)+'_BFMaskFL.fits'        
 
         fits.writeto(outCubelet,np.flip(fitCube,axis=0),header,overwrite=True)
-        fits.writeto(outCubeletMask,np.flip(fitCubeMask),header,overwrite=True)
+        fits.writeto(outCubeletMask,np.flip(fitCubeMask,axis=0),header,overwrite=True)
         fits.writeto(outCubeletMaskfl,fitCubeMask,header,overwrite=True)
 
         if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
