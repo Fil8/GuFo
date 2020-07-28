@@ -181,7 +181,7 @@ class cubeplay:
         
         dd=dd[idxMin1:idxMax1,:,:]
         fitCube = np.empty([dd.shape[0],dd.shape[1],dd.shape[2]])
-        fitCubeMask = np.empty([dd.shape[0],dd.shape[1],dd.shape[2]])
+        fitCubeMask = np.zeros([dd.shape[0],dd.shape[1],dd.shape[2]])
 
 
         for i in range(0,len(ancels['BIN_ID'])):
@@ -213,15 +213,24 @@ class cubeplay:
                         
                         mdSpec[mdSpec!=0]=1.
 
-                        centroid = ancels['centroid_'+lineName][i]
-                        width = ancels['w80_'+lineName][i]
-                        velMin = centroid-(width/2.)
-                        velMax = centroid+(width/2.)
-                        indexVelMin = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
-                        indexVelMax = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0]) 
+                        #centroid = ancels['centroid_'+lineName][i]
+                        #width = ancels['w80_'+lineName][i]
+                        peak = np.max(fit)
+                        idxPeak = np.argmax(fit)
+
+                        idxLeft = int(np.where(abs(fit[:idxPeak]-1.)==abs(fit[:idxPeak]-1.).min())[0]) 
+                        idxMax = int(np.where(abs(fit[:idxPeak]-1.)==abs(fit[:idxPeak]-1.).min())[0]) 
+
+
+                        #velMin = centroid-(width/2.)
+                        #velMax = centroid+(width/2.)
+                        #indexVelMin = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
+                        #indexVelMax = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0]) 
                         
                         fitMask = np.zeros(len(fit[idxMin1:idxMax1]))
-                        fitMask[indexVelMin:indexVelMax] = 1.
+                        #fitMask[indexVelMin:indexVelMax] = 1.
+                        
+                        fitMask[idxLeft:idxMax] = 1.
                         lenghtLine = indexVelMax-indexVelMin
                         
                         fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMask
