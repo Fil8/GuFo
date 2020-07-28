@@ -223,8 +223,8 @@ class cubeplay:
                         fitMask[indexVelMin:indexVelMax] = 1.
                         lenghtLine = indexVelMax-indexVelMin
 
-                        vecCount = np.where(fitMask==1.& mdSpec==1.)
-                        #print(vecCount,lenghtLine)
+                        vecCount = np.where((fitMask==1.)& (mdSpec==1.))
+                        print(vecCount,lenghtLine)
                         vecSum = np.sum(vecCount)
 
                         if vecSum>lenghtLine/2.:
