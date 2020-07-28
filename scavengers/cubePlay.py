@@ -216,7 +216,7 @@ class cubeplay:
                         #centroid = ancels['centroid_'+lineName][i]
                         #width = ancels['w80_'+lineName][i]
                         peak = np.max(fit)
-                        idxPeak = np.argmax(fit)
+                        idxPeak = np.nanargmax(fit)
 
                         idxLeft = int(np.where(abs(fit[idxMin1:idxPeak]-10.)==abs(fit[idxMin1:idxPeak]-10.).min())[0]) 
                         idxRight = int(np.where(abs(fit[idxPeak:idxMax1]-10.)==abs(fit[idxPeak:idxMax1]-10.).min())[0])+idxPeak 
