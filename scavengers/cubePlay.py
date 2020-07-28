@@ -200,10 +200,10 @@ class cubeplay:
                     result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
                     comps = result.eval_components()          
                     
-                    if modName=='g1':
-                        fit = comps['g1ln'+str(4)+'_']
-                    elif modName =='g2':
-                        fit = comps['g1ln'+str(4)+'_']+comps['g2ln'+str(4)+'_']
+                    #if modName=='g1':
+                    fit = comps['g1ln'+str(4)+'_']
+                    #elif modName =='g2':
+                    #fit = comps['g1ln'+str(4)+'_']+comps['g2ln'+str(4)+'_']
 
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
 
