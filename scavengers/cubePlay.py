@@ -228,15 +228,17 @@ class cubeplay:
                         #indexVelMax = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0]) 
                         
                         fitMask = np.zeros(len(fit[idxMin1:idxMax1]))
+                        fitMaskIntercect = np.zeros(len(fit[idxMin1:idxMax1]))
                         #fitMask[indexVelMin:indexVelMax] = 1.
                         
                         fitMask[idxLeft:idxRight] = 1.
-                        lenghtLine = np.sum(fitMask)
+                        lenghtLine = np.count_nonzero(fitMask == 1)
                         
                         fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMask
 
                         vecCount = np.where((fitMask==1.)& (mdSpec==1.))[0]
-                        vecSum = np.sum(fitMask[vecCount])
+                        fitMaskIntercect[vecCount]
+                        vecSum = np.count_nonzero(fitMaskIntercect == 1)
                         #print(vecSum,lenghtLine)
 
                         if vecSum>(lenghtLine/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']):
