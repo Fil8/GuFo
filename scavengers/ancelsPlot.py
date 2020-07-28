@@ -184,8 +184,19 @@ class ancelsplot(object):
 
             #print((idxAGN),(idxKew),(idxKauf),(idxBad))
 
-            ax1.scatter(x[i], y[i], c='blue', marker='.', s=20, linewidths=None,edgecolors=None, 
-                label=cfg_par['ancillary']['CCALabel'][i],alpha=0.1)
+            #print((idxAGN),(idxKew),(idxKauf),(idxBad))
+            if cfg_par['ancillary']['plotRotation'] == True:
+                indexRot = np.where(ancels['RotMod']==1.)[0]
+                indexElse = np.where(ancels['RotMod']==0.)[0]
+
+                ax1.scatter(x[indexRot], y[indexRot], c='blue', marker='.', s=20, linewidths=None,edgecolors='red', 
+                    label=cfg_par['ancillary']['coldGas']['CCALabel']+'in rotation')
+
+                ax1.scatter(x[indexElse], y[indexElse], c='blue', marker='.', s=20, linewidths=None,edgecolors='red', 
+                    label=cfg_par['ancillary']['coldGas']['CCALabel'])
+            else:    
+                ax1.scatter(x, y, c='red', marker='.', s=20, linewidths=None,edgecolors='red', 
+                label=cfg_par['ancillary']['coldGas']['CCALabel'])
 
             #idxAGN = np.where(colorSca==1)
             #ax1.scatter(x[i][idxAGN], y[i][idxAGN], c='black', marker='.', s=20, linewidths=None,edgecolors=None,alpha=0.1)
@@ -291,8 +302,17 @@ class ancelsplot(object):
         ax1.add_artist(ellSigma1)
         
         #print((idxAGN),(idxKew),(idxKauf),(idxBad))
+        if cfg_par['ancillary']['plotRotation'] == True:
+            indexRot = np.where(ancels['RotMod']==1.)[0]
+            indexElse = np.where(ancels['RotMod']==0.)[0]
 
-        ax1.scatter(x, y, c='red', marker='.', s=20, linewidths=None,edgecolors='red', 
+            ax1.scatter(x[indexRot], y[indexRot], c='blue', marker='.', s=20, linewidths=None,edgecolors='red', 
+                label=cfg_par['ancillary']['coldGas']['CCALabel']+'in rotation')
+
+            ax1.scatter(x[indexElse], y[indexElse], c='blue', marker='.', s=20, linewidths=None,edgecolors='red', 
+                label=cfg_par['ancillary']['coldGas']['CCALabel'])
+        else:    
+            ax1.scatter(x, y, c='red', marker='.', s=20, linewidths=None,edgecolors='red', 
             label=cfg_par['ancillary']['coldGas']['CCALabel'])
 
         # Set axis limits

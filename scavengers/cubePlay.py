@@ -60,8 +60,8 @@ class cubeplay:
             del header['CRDER3']
 
         header['CRPIX3'] = len(vel)
-        header['CRVAL3'] = vel[0]
-        header['CDELT3'] = -cdelt3
+        header['CRVAL3'] = vel[0]*1e3
+        header['CDELT3'] = -cdelt3*1e3
         header['CTYPE3'] = "VRAD"
         header['SPECSYS'] = "barycent"
         header['CELLSCAL'] = 'constant'
