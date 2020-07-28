@@ -181,6 +181,7 @@ class cubeplay:
         
         dd=dd[idxMin1:idxMax1,:,:]
         fitCube = np.empty([dd.shape[0],dd.shape[1],dd.shape[2]])
+        fitCubeMask = np.empty([dd.shape[0],dd.shape[1],dd.shape[2]])
 
 
         for i in range(0,len(ancels['BIN_ID'])):
@@ -230,22 +231,28 @@ class cubeplay:
                         if vecSum>(lenghtLine/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']):
                             rotArr[i]=1.
                             rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=1.
+                            fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = 1
+
                         else:
                             rotArr[i]=0.
                             rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
+                            fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = 0
 
 
                 else:
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                    fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
 
 
         waveAng=np.exp(wave)
 
         header = self.makeHeader(cfg_par,lineInfo['Wave'][0],hh,waveAng)
-            
-        outCubelet = cubeletsDir+str(lineNameStr)+'_BF.fits'        
+        
+        outCubelet = cubeletsDir+str(lineNameStr)+'_BF.fits'            
+        outCubeletMask = cubeletsDir+str(lineNameStr)+'_BFMask.fits'        
 
         fits.writeto(outCubelet,np.flip(fitCube,axis=0),header,overwrite=True)
+        fits.writeto(outCubeletMask,np.flip(fitCubeMask,axis=0),header,overwrite=True)
 
         if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
             outMomRot =  momDir+str(lineNameStr)+'_RotMom.fits'        
