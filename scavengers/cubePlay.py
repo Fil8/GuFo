@@ -174,7 +174,7 @@ class cubeplay:
 
         wave=wave[idxMin1:idxMax1]
         
-        
+        print(idxMax1-idxMin1)
         waveAng=np.exp(wave)
         
         vel=cvP.lambdaVRad(waveAng,lineInfo['Wave'][0])+float(cfg_par['general']['velsys'])
