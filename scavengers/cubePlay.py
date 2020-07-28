@@ -219,7 +219,7 @@ class cubeplay:
                         idxPeak = np.argmax(fit)
 
                         idxLeft = int(np.where(abs(fit[:idxPeak]-1.)==abs(fit[:idxPeak]-1.).min())[0]) 
-                        idxMax = int(np.where(abs(fit[:idxPeak]-1.)==abs(fit[:idxPeak]-1.).min())[0]) 
+                        idxRight = int(np.where(abs(fit[idxPeak:]-1.)==abs(fit[idxPeak:]-1.).min())[0]) 
 
 
                         #velMin = centroid-(width/2.)
@@ -230,8 +230,8 @@ class cubeplay:
                         fitMask = np.zeros(len(fit[idxMin1:idxMax1]))
                         #fitMask[indexVelMin:indexVelMax] = 1.
                         
-                        fitMask[idxLeft:idxMax] = 1.
-                        lenghtLine = indexVelMax-indexVelMin
+                        fitMask[idxLeft:idxRight] = 1.
+                        lenghtLine = idxRight-idxLeft
                         
                         fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMask
 
@@ -259,9 +259,11 @@ class cubeplay:
         
         outCubelet = cubeletsDir+str(lineNameStr)+'_BF.fits'            
         outCubeletMask = cubeletsDir+str(lineNameStr)+'_BFMask.fits'        
+        outCubeletMaskfl = cubeletsDir+str(lineNameStr)+'_BFMaskFL.fits'        
 
         fits.writeto(outCubelet,np.flip(fitCube,axis=0),header,overwrite=True)
-        fits.writeto(outCubeletMask,fitCubeMask,header,overwrite=True)
+        fits.writeto(outCubeletMask,np.flip(fitCubeMask),header,overwrite=True)
+        fits.writeto(outCubeletMaskfl,fitCubeMask,header,overwrite=True)
 
         if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
             outMomRot =  momDir+str(lineNameStr)+'_RotMom.fits'        
