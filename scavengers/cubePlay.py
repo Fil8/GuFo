@@ -218,8 +218,8 @@ class cubeplay:
                         peak = np.max(fit)
                         idxPeak = np.argmax(fit)
 
-                        idxLeft = int(np.where(abs(fit[idxMin1:idxPeak]-1.)==abs(fit[idxMin1:idxPeak]-1.).min())[0]) 
-                        idxRight = int(np.where(abs(fit[idxPeak:idxMax1]-1.)==abs(fit[idxPeak:idxMax1]-1.).min())[0])+idxPeak 
+                        idxLeft = int(np.where(abs(fit[idxMin1:idxPeak]-10.)==abs(fit[idxMin1:idxPeak]-10.).min())[0]) 
+                        idxRight = int(np.where(abs(fit[idxPeak:idxMax1]-10.)==abs(fit[idxPeak:idxMax1]-10.).min())[0])+idxPeak 
 
                         print(idxLeft,idxRight)
                         #velMin = centroid-(width/2.)
