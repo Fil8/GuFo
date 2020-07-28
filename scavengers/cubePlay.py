@@ -252,7 +252,7 @@ class cubeplay:
         outCubeletMask = cubeletsDir+str(lineNameStr)+'_BFMask.fits'        
 
         fits.writeto(outCubelet,np.flip(fitCube,axis=0),header,overwrite=True)
-        fits.writeto(outCubeletMask,np.flip(fitCubeMask,axis=0),header,overwrite=True)
+        fits.writeto(outCubeletMask,fitCubeMask,header,overwrite=True)
 
         if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
             outMomRot =  momDir+str(lineNameStr)+'_RotMom.fits'        
