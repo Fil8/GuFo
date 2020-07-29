@@ -256,7 +256,7 @@ class cubeplay:
                         lenghtLine = np.count_nonzero(fitMask == 1.)
                         
                         fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMask
-                        print(fitMask,mdSpec)
+                        #print(fitMask,mdSpec)
                         vecCount = np.where((fitMask==1.)& (mdSpec==1.))[0]
                         fitMaskIntercect[vecCount] = 1.
                         vecSum = np.count_nonzero(fitMaskIntercect == 1.)
