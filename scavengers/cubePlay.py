@@ -158,7 +158,7 @@ class cubeplay:
 
         print(lineNamesStrAll,lineNameStr)
         index =  np.where(lineNamesStrAll == lineNameStr)[0]
-
+        print(index[0])
         modName='BF'
         f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
         dd = f[0].data
