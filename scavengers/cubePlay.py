@@ -199,6 +199,8 @@ class cubeplay:
         dd=dd[idxMin1:idxMax1,:,:]
         fitCube = np.empty([dd.shape[0],dd.shape[1],dd.shape[2]])
         fitCubeMask = np.zeros([dd.shape[0],dd.shape[1],dd.shape[2]])
+        fitCubeMD = np.zeros([dd.shape[0],dd.shape[1],dd.shape[2]])
+
         fitCubeMaskInter = np.zeros([dd.shape[0],dd.shape[1],dd.shape[2]])
         vecSumMap = np.zeros([dd.shape[1],dd.shape[2]])*np.nan
         lenghtLineMap = np.zeros([dd.shape[1],dd.shape[2]])*np.nan
@@ -231,7 +233,7 @@ class cubeplay:
                         mdSpec = mdC[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
                         
                         mdSpec[mdSpec!=0]=1.
-                        mdSpec=np.flip(mdSpec)
+                        fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = mdSpec
                         #centroid = ancels['centroid_'+lineName][i]
                         #width = ancels['w80_'+lineName][i]
                         fitSmall = fit[idxMin1:idxMax1]
@@ -277,6 +279,7 @@ class cubeplay:
                 else:
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                     fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                    fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
 
                     fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                     vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
@@ -289,10 +292,12 @@ class cubeplay:
         outCubelet = cubeletsDir+str(lineNameStr)+'_BF.fits'            
         outCubeletMask = cubeletsDir+str(lineNameStr)+'_BFMask.fits'        
         outCubeletMaskfl = cubeletsDir+str(lineNameStr)+'_BFMaskInter.fits'        
+        outCubeletMaskMD = cubeletsDir+str(lineNameStr)+'_BFMD.fits'        
 
         fits.writeto(outCubelet,np.flip(fitCube,axis=0),header,overwrite=True)
         fits.writeto(outCubeletMask,np.flip(fitCubeMask,axis=0),header,overwrite=True)
         fits.writeto(outCubeletMaskfl,np.flip(fitCubeMaskInter,axis=0),header,overwrite=True)
+        fits.writeto(outCubeletMaskMD,np.flip(fitCubeMD,axis=0),header,overwrite=True)
 
         if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
 
