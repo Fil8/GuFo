@@ -258,7 +258,7 @@ class cubeplay:
                         
                         fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMask
                         #print(fitMask,mdSpec)
-                        vecCount = np.logical_and(np.where(fitMask==1.),np.where((mdSpec==1.)))[0]
+                        vecCount = np.logical_and(np.where(fitMask==1.),np.where((mdSpec==1.)))
                         print(vecCount)
                         fitMaskIntercect[vecCount] = 1.
                         
