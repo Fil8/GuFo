@@ -191,8 +191,9 @@ class ancelsplot(object):
 
             #print((idxAGN),(idxKew),(idxKauf),(idxBad))
             if cfg_par['ancillary']['plotRotation'] == True:
-                indexRot = np.where(ancels['RotMod']==1.)[0]
-                indexElse = np.where(ancels['RotMod']==0.)[0]
+                indexRot = np.where(ancels['RotMod']==1.)
+                print(indexRot)
+                indexElse = np.where(ancels['RotMod']==0.)
 
                 ax1.scatter(x[indexRot], y[indexRot], c='blue', marker='.', s=20, linewidths=None,edgecolors='red', 
                     label=cfg_par['ancillary']['coldGas']['CCALabel']+'in rotation')
