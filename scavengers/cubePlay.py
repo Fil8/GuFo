@@ -242,6 +242,10 @@ class cubeplay:
                         vecSum = np.count_nonzero(fitMaskIntercect == 1.)
                         #print(vecSum,lenghtLine)
                         fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMaskIntercect
+                        
+                        vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = vecSum
+                        
+                        lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lenghtLine/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']
 
                         if vecSum>(lenghtLine/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']):
                             rotArr[i]=1.
@@ -257,6 +261,8 @@ class cubeplay:
                     fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
 
                     fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                    vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                    lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
 
         waveAng=np.exp(wave)
 
@@ -271,7 +277,11 @@ class cubeplay:
         fits.writeto(outCubeletMaskfl,np.flip(fitCubeMaskInter,axis=0),header,overwrite=True)
 
         if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+
             outMomRot =  momDir+str(lineNameStr)+'_RotMom.fits'        
+            outMomSum =  momDir+str(lineNameStr)+'_SumInter.fits'        
+            outMomLength =  momDir+str(lineNameStr)+'_LengthLine.fits'        
+            outMomDiff =  momDir+str(lineNameStr)+'_diffInter.fits'        
 
             if 'CUNIT3' in header:
                 del header['CUNIT3']
@@ -290,6 +300,9 @@ class cubeplay:
             header['BUNIT'] = 'Jy/beam'
 
             fits.writeto(outMomRot,rotMoM,header,overwrite=True)
+            fits.writeto(outMomSum,vecSumMap,header,overwrite=True)
+            fits.writeto(outMomLength,lenghtLineMap,header,overwrite=True)
+            fits.writeto(outMomDiff,vecSumMap-lenghtLineMap,header,overwrite=True)
 
             t=Table(ancels)
 
