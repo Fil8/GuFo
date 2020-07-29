@@ -233,6 +233,7 @@ class cubeplay:
                         mdSpec = mdC[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
                         
                         mdSpec[mdSpec!=0]=1.
+                        mdSpec = np.flipud(mdSpec)
                         fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = mdSpec
                         #centroid = ancels['centroid_'+lineName][i]
                         #width = ancels['w80_'+lineName][i]
@@ -257,10 +258,10 @@ class cubeplay:
                         
                         fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMask
                         #print(fitMask,mdSpec)
-                        vecCount = np.where((fitMask==1.)& (mdSpec==1.))[0]
+                        vecCount = np.logical_and(np.where(fitMask==1.),np.where((mdSpec==1.)))
                         fitMaskIntercect[vecCount] = 1.
                         vecSum = np.count_nonzero(fitMaskIntercect == 1.)
-                        #print(vecSum,lenghtLine)
+                        print(vecSum,lenghtLine)
                         fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMaskIntercect
                         
                         vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = vecSum
