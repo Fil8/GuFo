@@ -125,6 +125,7 @@ class cubeplay:
             cfg_par['general']['outVorSpectra'])
 
         lineInfo = tP.openLineList(cfg_par)
+        lineInfoAll = lineInfo.copy()
         index = np.where(lineInfo['BFCUbe'] == 0)
         fltr =  np.array(index)[0]
         lineInfo.remove_rows(list(fltr))
@@ -138,7 +139,25 @@ class cubeplay:
         else:
             lineName = lineNameStr+str(int(lineInfo['Wave'][0]))
 
-        lineNameStr=lineNameStr+str(int(lineInfo['Wave'][0]))
+        lineNameStr=np.array([lineNameStr+str(int(lineInfo['Wave'][0]))],dtype='a16')
+        
+        lineNamesStrAll = np.empty(len(lineInfoAll),dtype='a16')
+        for ii in range(0,len(lineInfoAll['ID'])):
+        #for ii in range(0,1):
+
+            lineNameStrAll = str(lineInfoAll['Name'][ii])
+
+            if '[' in lineNameStrAll:
+                lineNameAll = lineNameStrAll.replace("[", "")
+                lineNameAll = lineNameAll.replace("]", "")
+                lineNameAll= lineNameAll+str(int(lineInfoAll['Wave'][ii]))
+            else:
+                lineNameAll = lineNameStrAll+str(int(lineInfoAll['Wave'][ii]))
+
+            lineNamesStrAll[ii] = str(lineNameStrAll+str(int(lineInfoAll['Wave'][ii])))
+
+        print(lineNamesStrAll,lineNameStr)
+        index =  np.where(lineNamesStrAll == lineNameStr)[0]
 
         modName='BF'
         f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
@@ -171,7 +190,7 @@ class cubeplay:
         
 
         idxMin1 = int(np.where(abs(wave-waveMin)==abs(wave-waveMin).min())[0]) 
-        idxMax1 = int(np.where(abs(wave-waveMax)==abs(wave-waveMax).min())[0] )
+        idxMax1 = int(np.where(abs(wave-waveMax)==abs(wave-waveMax).min())[0])
 
         wave=wave[idxMin1:idxMax1]
         
@@ -205,9 +224,9 @@ class cubeplay:
                     comps = result.eval_components()          
                     
                     if modName=='g1':
-                        fit = comps['g1ln'+str(4)+'_']
+                        fit = comps['g1ln'+str(index[0])+'_']
                     elif modName =='g2':
-                        fit = comps['g1ln'+str(4)+'_']+comps['g2ln'+str(4)+'_']
+                        fit = comps['g1ln'+str(index[0])+'_']+comps['g2ln'+str(index[0])+'_']
 
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
 
@@ -215,7 +234,7 @@ class cubeplay:
                         mdSpec = mdC[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
                         
                         mdSpec[mdSpec!=0]=1.
-
+                        mdSpec=np.flip(mdSpec)
                         #centroid = ancels['centroid_'+lineName][i]
                         #width = ancels['w80_'+lineName][i]
                         fitSmall = fit[idxMin1:idxMax1]
