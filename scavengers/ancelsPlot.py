@@ -70,6 +70,9 @@ class ancelsplot(object):
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         ancels = hdul['Ancels'+cfg_par['gFit']['modName']].data
+
+        if cfg_par['gFit']['modName'] == 'BF':
+                cfg_par['gFit']['modName'] = 'g2'
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
         
@@ -78,6 +81,8 @@ class ancelsplot(object):
         SNSort = SN[BinID]
 
         g1Sort = lines['g1_sigIntr_NII6583'][BinID]
+
+
 
         if cfg_par['gFit']['modName'] == 'g1':
             modString = ['G1']
@@ -104,7 +109,7 @@ class ancelsplot(object):
         
             y = [np.log10(lines['g1_sigIntr_NII6583']),np.log10(lines['g2_sigIntr_NII6583']),np.log10(lines['g3_sigIntr_NII6583']),
             ancels['logDispIntr_NII6583']]
-
+        cfg_par['gFit']['modName'] = 'BF'
         for i in range (0, len(modString)):
             
             # initialize figure
@@ -355,8 +360,10 @@ class ancelsplot(object):
         if not cfg_par['ancillary']['coldGas']['enable']== True:
             
             linesG1 = hdul['LineRes_G1'].data
+            if cfg_par['gFit']['modName'] == 'BF':
+                cfg_par['gFit']['modName'] = 'g2'
             residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
-
+            cfg_par['gFit']['modName'] = 'BF'
             x=anc['logCentroid_'+cfg_par['ancillary']['coldGas']['Name']]
             y=anc['logDispIntr_'+cfg_par['ancillary']['coldGas']['Name']]
         else:
