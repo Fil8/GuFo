@@ -111,6 +111,7 @@ class cubeplay:
             rotMoM = np.zeros([mdC.shape[1],mdC.shape[2]])*np.nan
 
 
+
         hdul = fits.open(cfg_par['general']['outTableName'])
         tabGen = hdul['BININFO'].data
 
@@ -183,7 +184,8 @@ class cubeplay:
         fitCube = np.empty([dd.shape[0],dd.shape[1],dd.shape[2]])
         fitCubeMask = np.zeros([dd.shape[0],dd.shape[1],dd.shape[2]])
         fitCubeMaskInter = np.zeros([dd.shape[0],dd.shape[1],dd.shape[2]])
-
+        vecSumMap = np.zeros([dd.shape[1],dd.shape[2]])*np.nan
+        lenghtLineMap = np.zeros([dd.shape[1],dd.shape[2]])*np.nan
 
         for i in range(0,len(ancels['BIN_ID'])):
             
