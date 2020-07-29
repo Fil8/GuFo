@@ -138,6 +138,8 @@ class cubeplay:
             lineName = lineName+str(int(lineInfo['Wave'][0]))
         else:
             lineName = lineNameStr+str(int(lineInfo['Wave'][0]))
+        
+        lineNameName = lineNameStr+str(int(lineInfo['Wave'][0]))
 
         lineNameStr=np.array([lineNameStr+str(int(lineInfo['Wave'][0]))],dtype='a16')
         
@@ -290,10 +292,10 @@ class cubeplay:
 
         header = self.makeHeader(cfg_par,lineInfo['Wave'][0],hh,waveAng)
         
-        outCubelet = cubeletsDir+str(lineNameStr)+'_BF.fits'            
-        outCubeletMask = cubeletsDir+str(lineNameStr)+'_BFMask.fits'        
-        outCubeletMaskfl = cubeletsDir+str(lineNameStr)+'_BFMaskInter.fits'        
-        outCubeletMaskMD = cubeletsDir+str(lineNameStr)+'_BFMD.fits'        
+        outCubelet = cubeletsDir+str(lineNameName)+'_BF.fits'            
+        outCubeletMask = cubeletsDir+str(lineNameName)+'_BFMask.fits'        
+        outCubeletMaskfl = cubeletsDir+str(lineNameName)+'_BFMaskInter.fits'        
+        outCubeletMaskMD = cubeletsDir+str(lineNameName)+'_BFMD.fits'        
 
         fits.writeto(outCubelet,np.flip(fitCube,axis=0),header,overwrite=True)
         fits.writeto(outCubeletMask,np.flip(fitCubeMask,axis=0),header,overwrite=True)
@@ -302,10 +304,10 @@ class cubeplay:
 
         if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
 
-            outMomRot =  momDir+str(lineNameStr)+'_RotMom.fits'        
-            outMomSum =  momDir+str(lineNameStr)+'_SumInter.fits'        
-            outMomLength =  momDir+str(lineNameStr)+'_LengthLine.fits'        
-            outMomDiff =  momDir+str(lineNameStr)+'_diffInter.fits'        
+            outMomRot =  momDir+str(lineNameName)+'_RotMom.fits'        
+            outMomSum =  momDir+str(lineNameName)+'_SumInter.fits'        
+            outMomLength =  momDir+str(lineNameName)+'_LengthLine.fits'        
+            outMomDiff =  momDir+str(lineNameName)+'_diffInter.fits'        
 
             if 'CUNIT3' in header:
                 del header['CUNIT3']
