@@ -157,9 +157,15 @@ class MOMplot(object):
   contourColors='black',nameFigLabel=None,overlayContours=False,
   contName=None,contLevels=None,contColors=None):
 
-    CustomCmap = ListedColormap(['blue','darkseagreen'])
-    
-    cBarTickLabels= ['CCA','NII6583']
+
+    if cfg_par['ancillary']['plotRotation'] == True:
+      CustomCmap = ListedColormap(['blue','darkseagreen'])
+      cBarTickLabels= ['CCA','NII6583']
+
+    else:
+      CustomCmap = ListedColormap(['blue','darkseagreen','crimson'])
+      cBarTickLabels= ['NII6583','CCA','Rotation']
+
 
     hduIm = fits.open(imageName)[0]
     wcsIm = WCS(hduIm.header)
@@ -302,7 +308,7 @@ class MOMplot(object):
 
     img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5)
 
-    colorTickLabels = np.linspace(vRange[0],vRange[1],9.)    
+    colorTickLabels = np.linspace(vRange[0],vRange[1],9)    
 
     ax1.coords[1].set_axislabel(r'Dec (J2000)')
     ax1.coords[0].set_axislabel(r'RA (J2000)')
@@ -411,7 +417,7 @@ class MOMplot(object):
 
     img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5)
 
-    colorTickLabels = np.linspace(vRange[0],vRange[1],9.)    
+    colorTickLabels = np.linspace(vRange[0],vRange[1],9)    
 
     ax1.coords[1].set_axislabel(r'Dec (J2000)')
     ax1.coords[0].set_axislabel(r'RA (J2000)')

@@ -557,7 +557,7 @@ def main (argv):
         print('\n\t         +++\t\t plotting maps\t +++')
         aPl.inCCARegionTable(gPar.cfg_par)
         aPl.sigmaCentroid(gPar.cfg_par)
-        mom.makeSigmaCentroidMaps(gPar.cfg_par)
+        #mom.makeSigmaCentroidMaps(gPar.cfg_par)
         timeAnc = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
 

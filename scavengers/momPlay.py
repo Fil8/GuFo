@@ -172,6 +172,9 @@ class momplay:
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['Ancels'+cfg_par['gFit']['modName']].data
+        if cfg_par['gFit']['modName'] == 'BF':
+            cfg_par['gFit']['modName'] = 'g2'
+
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
         #esiduals = hdul['Residuals_G1'].data
         

@@ -70,7 +70,7 @@ class ancelsplot(object):
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         ancels = hdul['Ancels'+cfg_par['gFit']['modName']].data
-
+        print(ancels.dtype.names)
         if cfg_par['gFit']['modName'] == 'BF':
                 cfg_par['gFit']['modName'] = 'g2'
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
@@ -100,6 +100,7 @@ class ancelsplot(object):
             y = [np.log10(lines['g1_sigIntr_NII6583'][binCode[0]]),np.log10(lines['g2_sigIntr_NII6583'][binCode[0]]),
             ancels['logDispIntr_NII6583'][binCode[1]]]
             colorSca=ancels['CCAIN'][binCode[1]]
+            rotSca = ancels['RotMod'][binCode[1]]
         elif cfg_par['gFit']['modName'] == 'g3':
             modString = ['G1','G2','G3','ToT']
             x = [np.log10(lines['g1_Centre_NII6583']),np.log10(lines['g2_Centre_NII6583']),np.log10(lines['g3_Centre_NII6583']),
@@ -109,6 +110,7 @@ class ancelsplot(object):
         
             y = [np.log10(lines['g1_sigIntr_NII6583']),np.log10(lines['g2_sigIntr_NII6583']),np.log10(lines['g3_sigIntr_NII6583']),
             ancels['logDispIntr_NII6583']]
+        
         cfg_par['gFit']['modName'] = 'BF'
         for i in range (0, len(modString)):
             
@@ -191,17 +193,17 @@ class ancelsplot(object):
 
             #print((idxAGN),(idxKew),(idxKauf),(idxBad))
             if cfg_par['ancillary']['plotRotation'] == True:
-                indexRot = np.where(ancels['RotMod']==1.)
-                print(indexRot)
-                indexElse = np.where(ancels['RotMod']==0.)
-
-                ax1.scatter(x[indexRot], y[indexRot], c='blue', marker='.', s=20, linewidths=None,edgecolors='red', 
-                    label=cfg_par['ancillary']['coldGas']['CCALabel']+'in rotation')
-
-                ax1.scatter(x[indexElse], y[indexElse], c='blue', marker='.', s=20, linewidths=None,edgecolors='red', 
+                indexRot = rotSca==1.
+                indexElse = rotSca==0.
+                #print(indexRot)
+                ax1.scatter(x[i][indexElse], y[i][indexElse], facecolors='red', marker='.', s=20, linewidths=None,edgecolors='red', alpha=0.5,
                     label=cfg_par['ancillary']['coldGas']['CCALabel'])
+                ax1.scatter(x[i][indexRot], y[i][indexRot], facecolors=None, marker='.', s=20, linewidths=None,edgecolors='blue', alpha=0.5,
+                    label=cfg_par['ancillary']['coldGas']['CCALabel']+' in rotation')
+
+                #
             else:    
-                ax1.scatter(x, y, c='red', marker='.', s=20, linewidths=None,edgecolors='red', 
+                ax1.scatter(x[i], y[i], c='red', marker='.', s=20, linewidths=None,edgecolors='red', 
                 label=cfg_par['ancillary']['coldGas']['CCALabel'])
 
             #idxAGN = np.where(colorSca==1)
@@ -338,8 +340,8 @@ class ancelsplot(object):
         print(outPlot)
         plt.savefig(outPlot,format=cfg_par['lineRatios']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
                 # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
-        plt.show()
-        plt.close()
+        #plt.show()
+        #plt.close()
                
         return 0     
 
@@ -367,6 +369,7 @@ class ancelsplot(object):
             cfg_par['gFit']['modName'] = 'BF'
             x=anc['logCentroid_'+cfg_par['ancillary']['coldGas']['Name']]
             y=anc['logDispIntr_'+cfg_par['ancillary']['coldGas']['Name']]
+            
         else:
             x=anc['logCentroid_'+cfg_par['ancillary']['coldGas']['Name']]
             y=anc['logSigma_'+cfg_par['ancillary']['coldGas']['Name']]
@@ -404,6 +407,14 @@ class ancelsplot(object):
         CCAvec = np.empty(len(anc['BIN_ID']))*np.nan
         
         CCAMap = np.zeros([momHead['NAXIS2'],momHead['NAXIS1']])*np.nan
+        
+        if cfg_par['ancillary']['plotRotation'] == True:
+            if cfg_par['ancillary']['plotRotation'] == True:
+
+                rotModCol=anc['RotMod']
+
+            RotMap = np.zeros([momHead['NAXIS2'],momHead['NAXIS1']])*np.nan
+            RotMapCCA = np.zeros([momHead['NAXIS2'],momHead['NAXIS1']])*np.nan
 
         for i in range(0,len(rad_cc)):
             
@@ -427,7 +438,7 @@ class ancelsplot(object):
                             CCAvec[i] = 0 
 
                     CCAMap[int(bins['PixY'][index]),int(bins['PixX'][index])] = CCAvec[i]
-
+                    RotMap[int(bins['PixY'][index]),int(bins['PixX'][index])] = rotModCol[index]
                 else:
 
                     if not np.isnan(x[i]) and not np.isnan(y[i]):
@@ -440,6 +451,7 @@ class ancelsplot(object):
                             CCAvec[i] = 0 
 
                     CCAMap[int(bins['PixY'][index]),int(bins['PixX'][index])] = CCAvec[i]
+                    RotMap[int(bins['PixY'][index]),int(bins['PixX'][index])] = rotModCol[index]
 
 
         if 'CUNIT3' in momHead:
@@ -463,8 +475,19 @@ class ancelsplot(object):
         Head['BUNIT'] = 'Jy'
 
         fits.writeto(cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'.fits',CCAMap,Head,overwrite=True)
+        if cfg_par['ancillary']['plotRotation'] == True:
+            fits.writeto(cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'rot.fits',RotMap,Head,overwrite=True)
+            fits.writeto(cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'rotCCA.fits',RotMapCCA,Head,overwrite=True)
+
         mPl.momAncPlot(cfg_par, cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'.fits',
             cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],'ancillary')
+
+        mPl.momAncPlot(cfg_par, cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'rot.fits',
+            cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],'ancillary')
+
+        mPl.momAncPlot(cfg_par, cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'rotCCA.fits',
+            cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],'ancillary')
+
 
         t=Table(anc)
  
