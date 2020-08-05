@@ -1,6 +1,6 @@
 ## GaNGiaLF
 
-Gas N-Gaussians Line fitter  for radioastronomy data analysis
+Gas N-Gaussians Line Fitter is a framework of tools for the analysis of spectral observations in the radio and optical wavelengths
 
 ### Installation
 

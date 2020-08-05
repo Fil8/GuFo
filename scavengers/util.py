@@ -3,22 +3,6 @@ import yaml
 
 from tqdm import tqdm
 
-# ==============================================================================
-#                          P R E T T Y   O U T P U T
-# ==============================================================================
-""" A collection of functions to generate the pretty output in stdout. """
-"""
-COPYRIGHT
-    This class is deliberately taken from the GIST pipeline: 
-    A multi-purpose tool for the analysis and visualisation of (integral-field) spectroscopic data
-    (abittner.gitlab.io/thegistpipeline/index.html)
-    (ui.adsabs.harvard.edu/abs/2019A%26A...628A.117B/abstract)
-PURPOSE: 
-    This file contains a collection of functions necessary to Voronoi-bin the data. 
-    The Voronoi-binning makes use of the algorithm from Cappellari & Copin 2003
-    (ui.adsabs.harvard.edu/?#abs/2003MNRAS.342..345C). 
-"""
-
 
 def loadCfg(file=None):
     #self.rootdir = os.getcwd()+'/'
@@ -141,6 +125,24 @@ def set_dirs(cfg_par):
     cfg_par['general']['modNameDir'] = modNameDir
 
     return cfg_par
+
+
+
+# ==============================================================================
+#                          P R E T T Y   O U T P U T
+# ==============================================================================
+""" A collection of functions to generate the pretty output in stdout. """
+"""
+COPYRIGHT
+    This class is deliberately taken from the GIST pipeline: 
+    A multi-purpose tool for the analysis and visualisation of (integral-field) spectroscopic data
+    (abittner.gitlab.io/thegistpipeline/index.html)
+    (ui.adsabs.harvard.edu/abs/2019A%26A...628A.117B/abstract)
+PURPOSE: 
+    This file contains a collection of functions necessary to Voronoi-bin the data. 
+    The Voronoi-binning makes use of the algorithm from Cappellari & Copin 2003
+    (ui.adsabs.harvard.edu/?#abs/2003MNRAS.342..345C). 
+"""
 
 
 def printProgress(iteration, total, prefix = '', suffix = '', decimals = 2, barLength = 80, color = 'g'):
