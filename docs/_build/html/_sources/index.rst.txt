@@ -10,6 +10,9 @@ Welcome to GaNGiaLF's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   getting_started.rst
+
+.. image:: _static/logoGaNGiaLF.jpg
 
 
 Indices and tables

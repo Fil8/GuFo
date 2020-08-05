@@ -27,7 +27,6 @@ cvP = cvPlay.convert()
 
 def workerAncels(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,tabGen,residuals,rank,nprocs):
 
- 
     counter = 0
     ubins = np.unique(lines['BIN_ID'])
 
