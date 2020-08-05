@@ -59,7 +59,7 @@ class MOMplot(object):
         'ytick.minor.size'    : 3,
         'ytick.minor.width'   : 1, 
         'text.usetex'         : True,
-        'text.latex.unicode'  : True
+        #'text.latex.unicode'  : True
          }
       
       return params
@@ -148,10 +148,116 @@ class MOMplot(object):
         ax1.contour(array.data,levels=contLevels[i], colors=contColors[i])
       
 
-    outFig = cfg_par['general']['momDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
+    outFig = cfg_par['general']['plotMomModDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
             #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
+    return 0
 
+  def momAncPlot(self,cfg_par,imageName,lineName,lineNameStr,lineThresh,
+  contourColors='black',nameFigLabel=None,overlayContours=False,
+  contName=None,contLevels=None,contColors=None):
+
+
+    if cfg_par['ancillary']['plotRotation'] == True:
+      CustomCmap = ListedColormap(['blue','darkseagreen'])
+      cBarTickLabels= ['CCA','NII6583']
+
+    else:
+      CustomCmap = ListedColormap(['blue','darkseagreen','crimson'])
+      cBarTickLabels= ['NII6583','CCA','Rotation']
+
+
+    hduIm = fits.open(imageName)[0]
+    wcsIm = WCS(hduIm.header)
+
+    #sn = resTable['SN_OIII5006']
+    #idx  = np.where(sn<=lineThresh)
+
+    #hduIm.data[idx] = np.nan 
+
+    #sigmaThresh = sigmaTable['g1_SigIntr_OIII5006']
+    #idx  = np.where(sigmaThresh>=cfg_par['moments']['sigmaThresh'])
+
+    #hduIm.data[idx] = np.nan 
+    
+    objCoordsRA = cfg_par['moments']['centreRA']
+    objCoordsDec = cfg_par['moments']['centreDec']
+    
+    centre = SkyCoord(ra=objCoordsRA*u.degree, dec=objCoordsDec*u.degree, frame='fk5')
+    size = u.Quantity((cfg_par['moments']['sizePlots'],cfg_par['moments']['sizePlots']), u.arcmin)
+  
+    params = self.loadRcParams()
+    plt.rcParams.update(params)
+
+    hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsIm)
+    
+    #idxLin = np.where(hduImCut==2.)
+    #idxSey = np.where(hduImCut==1.)
+    #idxKew = np.where(hduImCut==0.)
+    #idxBad = np.where(hduImCut==-1.)        
+    
+    fig = plt.figure()
+    
+    ax1 = plt.subplot(projection=wcsIm)    
+
+    divider = make_axes_locatable(ax1)
+    #cax = divider.append_axes("right", size='2%', pad=0.1)
+    
+    #if vRange == None:
+    #  vRange=np.array([1,2])
+    #  vRange[0] = lineThresh
+    #  vRange[1] = np.nanmax(hduImCut.data)
+
+    img = ax1.imshow(hduImCut.data, cmap=CustomCmap)
+
+    #cBarTicks = [-1,0,1,2]
+
+    ax1.coords[1].set_axislabel(r'Dec (J2000)')
+    ax1.coords[0].set_axislabel(r'RA (J2000)')
+    
+    #cax.coords[0].grid(False)
+    #cax.coords[1].grid(False)
+    #cax.tick_params(direction='in')
+    #cax.coords[0].tick_params(top=False, bottom=False,
+    #              labeltop=False, labelbottom=False)
+    #cax.coords[1].set_ticklabel_position('r')
+    #cax.coords[1].tick_params(top=False, bottom=False,
+    #               labeltop=False, labelbottom=False)
+    #cax.coords[1].set_axislabel('$\eta$-parameter')
+    #cax.coords[1].set_axislabel_position('r')
+    #cbar = plt.colorbar(img, cax=cax,ticks =cBarTicks,
+    #               orientation='vertical', format='%d')   
+    
+    ax1.set_autoscale_on(False)    
+    #SaveOutput
+    outBPT = os.path.basename(imageName)
+    outBPT= str.split(outBPT, '.fits')[0]  
+    modName = cfg_par['gFit']['modName'] 
+
+    if nameFigLabel==None:
+        nameFigLabel='' 
+    
+    #if overlayContours:
+    #    imLevels =[-0.5,0.5]
+        #contLevels = np.linspace(lineThresh*1.2,np.nanmax(hduImCut.data)*0.95,step)
+    #    ax1.contour(hduImCut.data,levels=imLevels, colors=contourColors)
+    #    nameFigLabel = nameFigLabel+'_cs'
+    if contName:
+      if nameFigLabel=='':
+        nameFigLabel='over_'
+      for i in range(0,len(contName)):
+
+        hduCont = fits.open(contName[i])[0]
+        wcsCont = WCS(hduCont.header)
+        hduContCut = Cutout2D(hduCont.data, centre, size, wcs=wcsCont)    
+        array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
+                                            hduImCut.wcs, shape_out=hduImCut.shape)
+
+        ax1.contour(array.data,levels=contLevels[i], colors=contColors[0])
+
+    outFig = cfg_par['general']['plotMomModDir']+outBPT+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
+    fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
+            #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
     return 0
 
   def mom1Plot(self,cfg_par,imageName,lineName,lineThresh,lineNameStr,keyword,
@@ -202,7 +308,7 @@ class MOMplot(object):
 
     img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5)
 
-    colorTickLabels = np.linspace(vRange[0],vRange[1],9.)    
+    colorTickLabels = np.linspace(vRange[0],vRange[1],9)    
 
     ax1.coords[1].set_axislabel(r'Dec (J2000)')
     ax1.coords[0].set_axislabel(r'RA (J2000)')
@@ -259,9 +365,11 @@ class MOMplot(object):
         if contValues[i]==1:
             ax1.clabel(cs, inline=1, fontsize=14)
 
-    outFig = cfg_par['general']['momDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
+    outFig = cfg_par['general']['plotMomModDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
             #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
+
+
     return 0
 
   def mom2Plot(self,cfg_par,imageName,lineName,lineThresh,lineNameStr,keyword,
@@ -309,7 +417,7 @@ class MOMplot(object):
 
     img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5)
 
-    colorTickLabels = np.linspace(vRange[0],vRange[1],9.)    
+    colorTickLabels = np.linspace(vRange[0],vRange[1],9)    
 
     ax1.coords[1].set_axislabel(r'Dec (J2000)')
     ax1.coords[0].set_axislabel(r'RA (J2000)')
@@ -366,9 +474,11 @@ class MOMplot(object):
         if contValues[i]==1:
             ax1.clabel(cs, inline=1, fontsize=14)
 
-    outFig = cfg_par['general']['momDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
+    outFig = cfg_par['general']['plotMomModDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
             #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
+
+
     return 0
 
 
@@ -504,6 +614,8 @@ class MOMplot(object):
     outFig = cfg_par['general']['momDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
             #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
+
+
 
     return 0
 

@@ -52,30 +52,55 @@ class vorplay(object):
         #spec  = np.reshape(dd,[s[0],s[1]*s[2]])
         
         #estimate the noise around the Hbeta line
-        velRangeInf = cvP.vRadLambda(10000,
-                lineInfo['Wave'][0])-lineInfo['Wave'][0] 
-        velRangeSup = cvP.vRadLambda(3000,
-                lineInfo['Wave'][0])-lineInfo['Wave'][0] 
+        # velRangeInf = cvP.vRadLambda(10000,
+        #         lineInfo['Wave'][0])-lineInfo['Wave'][0] 
+        # velRangeSup = cvP.vRadLambda(3000,
+        #         lineInfo['Wave'][0])-lineInfo['Wave'][0] 
         
-        waveLeftSup = np.log(lineInfo['Wave'][0]-velRangeSup)
+        # waveLeftSup = np.log(lineInfo['Wave'][0]-velRangeSup)
+        # #print(waveLeftSup, lineInfo['Wave'][0], velRangeSup)
+        # idxWaveLeftSup = int(np.where(abs(wave-waveLeftSup)==abs(wave-waveLeftSup).min())[0])
+
+        # waveLeftInf = np.log(lineInfo['Wave'][0]-velRangeInf)
+        # idxWaveLeftInf = int(np.where(abs(wave-waveLeftInf)==abs(wave-waveLeftInf).min())[0])
+
+        # waveRightSup = np.log(lineInfo['Wave'][0]+velRangeInf)
+        # idxWaveRightSup = int(np.where(abs(wave-waveRightSup)==abs(wave-waveRightSup).min())[0])
+
+        # waveRightInf = np.log(lineInfo['Wave'][0]+velRangeSup)
+        # idxWaveRightInf = int(np.where(abs(wave-waveRightInf)==abs(wave-waveRightInf).min())[0])
+
+        # #find peak of HbetaLine
+        # waveAmpIn1Min = np.log(lineInfo['Wave'][0]-lineInfo['cenRangeAng'][0])
+        # indexMin = int(np.where(abs(wave-waveAmpIn1Min)==abs(wave-waveAmpIn1Min).min())[0]) 
+
+        # waveAmpIn1Max = np.log(lineInfo['Wave'][0]+lineInfo['cenRangeAng'][0])
+        # indexMax = int(np.where(abs(wave-waveAmpIn1Max)==abs(wave-waveAmpIn1Max).min())[0])
+
+        velRangeInf = cvP.vRadLambda(10000,
+                lineInfo['Wave'][2])-lineInfo['Wave'][2] 
+        velRangeSup = cvP.vRadLambda(3000,
+                lineInfo['Wave'][2])-lineInfo['Wave'][2] 
+        
+        waveLeftSup = np.log(lineInfo['Wave'][2]-velRangeSup)
         #print(waveLeftSup, lineInfo['Wave'][0], velRangeSup)
         idxWaveLeftSup = int(np.where(abs(wave-waveLeftSup)==abs(wave-waveLeftSup).min())[0])
 
-        waveLeftInf = np.log(lineInfo['Wave'][0]-velRangeInf)
+        waveLeftInf = np.log(lineInfo['Wave'][2]-velRangeInf)
         idxWaveLeftInf = int(np.where(abs(wave-waveLeftInf)==abs(wave-waveLeftInf).min())[0])
 
-        waveRightSup = np.log(lineInfo['Wave'][0]+velRangeInf)
+        waveRightSup = np.log(lineInfo['Wave'][2]+velRangeInf)
         idxWaveRightSup = int(np.where(abs(wave-waveRightSup)==abs(wave-waveRightSup).min())[0])
 
-        waveRightInf = np.log(lineInfo['Wave'][0]+velRangeSup)
+        waveRightInf = np.log(lineInfo['Wave'][2]+velRangeSup)
         idxWaveRightInf = int(np.where(abs(wave-waveRightInf)==abs(wave-waveRightInf).min())[0])
 
         #find peak of HbetaLine
-        waveAmpIn1Min = np.log(lineInfo['Wave'][0]-lineInfo['cenRangeAng'][0])
+        waveAmpIn1Min = np.log(lineInfo['Wave'][2]-lineInfo['cenRangeAng'][2])
         indexMin = int(np.where(abs(wave-waveAmpIn1Min)==abs(wave-waveAmpIn1Min).min())[0]) 
 
-        waveAmpIn1Max = np.log(lineInfo['Wave'][0]+lineInfo['cenRangeAng'][0])
-        indexMax = int(np.where(abs(wave-waveAmpIn1Max)==abs(wave-waveAmpIn1Max).min())[0])
+        waveAmpIn1Max = np.log(lineInfo['Wave'][2]+lineInfo['cenRangeAng'][2])
+        indexMax = int(np.where(abs(wave-waveAmpIn1Max)==abs(wave-waveAmpIn1Max).min())[0])        
         
         peak = np.empty([dd.shape[1],dd.shape[2]])
         stdLeft = np.empty([dd.shape[1],dd.shape[2]])
@@ -101,6 +126,7 @@ class vorplay(object):
                     stdLeft[j,i] = np.nanstd(dd[idxWaveLeftInf:idxWaveLeftSup,j,i])
                     stdRight[j,i] =np.nanstd(dd[idxWaveRightInf:idxWaveRightSup,j,i])
                     noise[j,i] = np.divide(np.nansum([stdLeft[j,i], stdRight[j,i]]),2.)       
+                    noise[j,i] = stdRight[j,i]
                     noise[j,i] = np.multiply(noise[j,i],np.sqrt(indexMax-indexMin))
         
         snr = np.divide(peak,noise)

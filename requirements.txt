@@ -10,3 +10,5 @@ vorbin
 ppxf==6.7.15
 tqdm
 reproject
+pandas
+MontagePy

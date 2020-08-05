@@ -65,6 +65,16 @@ class gufo(object):
             os.mkdir(cubeDir)
         self.cfg_par['general']['cubeDir'] = cubeDir
  
+        cubeletsDir = self.cfg_par['general']['cubeDir']+'cubelets/'
+        if not os.path.exists(cubeletsDir):
+            os.mkdir(cubeletsDir)
+        self.cfg_par['general']['cubeletsDir'] = cubeletsDir
+
+        pvDir = self.cfg_par['general']['cubeletsDir']+'pv/'
+        if not os.path.exists(pvDir):
+            os.mkdir(pvDir )
+        self.cfg_par['general']['pvDir'] = pvDir
+
         tableDir = self.cfg_par['general']['runNameDir']+'tables/'
         if not os.path.exists(tableDir):
             os.mkdir(tableDir)
@@ -111,6 +121,12 @@ class gufo(object):
            self.cfg_par['general']['dataCubeName'] =  self.cfg_par['general']['outVorLines'] 
         if not self.cfg_par['general'].get('noiseCubeName',None):
            self.cfg_par['general']['noiseCubeName'] =  self.cfg_par['general']['outVorNoise'] 
+        if self.cfg_par['gFit']['method'] == 'pixel':
+            self.cfg_par['general']['dataCubeName'] = cubeDir+self.cfg_par['general']['outCube']
+            self.cfg_par['general']['outPixSpectra'] = self.cfg_par['general']['tableDir']+'GuFo_LinePixSpectra.fits'
+            self.cfg_par['general']['outVorSpectra'] = self.cfg_par['general']['outPixSpectra']
+            self.cfg_par['general']['outVorLineTableName'] =self.cfg_par['general']['outVorTableName']
+            self.cfg_par['general']['outVorLines'] = self.cfg_par['general']['outLines']
 
         outTableName = self.cfg_par['general']['runNameDir']+'gPlayOut.fits'
 
@@ -132,10 +148,20 @@ class gufo(object):
             os.mkdir(momModDir)
         self.cfg_par['general']['momModDir'] = momModDir
 
-        bptDir =self.cfg_par['general']['runNameDir']+'bpt/'+self.cfg_par['gFit']['modName']+'/'
+        plotMomModDir =self.cfg_par['general']['momModDir']+'plots/'
+        if not os.path.exists(plotMomModDir):
+            os.mkdir(plotMomModDir)
+        self.cfg_par['general']['plotMomModDir'] = plotMomModDir
+
+        bptDir =self.cfg_par['general']['runNameDir']+'bpt/'
         if not os.path.exists(bptDir):
             os.mkdir(bptDir)
         self.cfg_par['general']['bptDir'] = bptDir
+
+        bptModDir =self.cfg_par['general']['runNameDir']+'bpt/'+self.cfg_par['gFit']['modName']+'/'
+        if not os.path.exists(bptModDir):
+            os.mkdir(bptModDir)
+        self.cfg_par['general']['bptDir'] = bptModDir
 
         modNameDir = self.cfg_par['general']['runNameDir']+'models/'
         if not os.path.exists(modNameDir):
@@ -151,6 +177,11 @@ class gufo(object):
         if not os.path.exists(resModDir):
             os.mkdir(resModDir)
         self.cfg_par['general']['resModDir'] = resModDir
+
+        noiseDir =self.cfg_par['general']['runNameDir']+'residuals/noise/'
+        if not os.path.exists(noiseDir):
+            os.mkdir(noiseDir)
+        self.cfg_par['general']['noiseDir'] = noiseDir
 
         return
 

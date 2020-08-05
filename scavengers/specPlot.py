@@ -60,7 +60,7 @@ class specplot(object):
           'ytick.minor.size'    : 3,
           'ytick.minor.width'   : 1, 
           'text.usetex'         : True,
-          'text.latex.unicode'  : True
+          #'text.latex.unicode'  : True
            }
         
         return params
@@ -88,7 +88,7 @@ class specplot(object):
           'ytick.minor.size'    : 2,
           'ytick.minor.width'   : 0.75, 
           'text.usetex'         : True,
-          'text.latex.unicode'  : True,
+          #'text.latex.unicode'  : True,
           'legend.fontsize'     : 10
            }
         
@@ -332,6 +332,7 @@ class specplot(object):
                 lineInfoName =lineInfo['Name'][i]
 
             ax.step(x_data_plot, y_data_plot, where='mid', color='black', linestyle='-')
+            
             ax.plot(x_data_plot, y_BFit_plot, 'r-', label=lineInfoName+str(int(lineInfo['Wave'][i])))
             #ax2.fill_between(0, y_BFit_plot, y_sigma_plot,
             #                 facecolor='grey', alpha=0.5,step='mid')
@@ -339,19 +340,53 @@ class specplot(object):
 
             #ax1.fill_between(vel, yBFit-dely, yBFit+dely, color="#ABABAB",
             #        label='3-$\sigma$ uncertainty band')
-            if cfg_par['gFit']['modName'] !='g1':
-                comps = result.eval_components()
-                for ii in range(0,len(lineInfo['ID'])):
+            comps = result.eval_components()
 
-                    ax.plot(x_data_plot, comps['g1ln'+str(ii)+'_'][idxMin:idxMax], 'g--')
-                
-                    if cfg_par['gFit']['modName'] =='g2':
-                        ax.plot(x_data_plot, comps['g2ln'+str(ii)+'_'][idxMin:idxMax], 'm--')    
-                
-                    elif cfg_par['gFit']['modName'] !='g2':
-                        ax.plot(x_data_plot, comps['g2ln'+str(ii)+'_'][idxMin:idxMax], 'm--')    
-                        ax.plot(x_data_plot, comps['g3ln'+str(ii)+'_'][idxMin:idxMax], 'c--')    
+            if cfg_par['gFit']['modName'] =='g1':
 
+                ax.plot(x_data_plot, comps['g1ln'+str(i)+'_'][idxMin:idxMax], 'g--')
+            
+            elif cfg_par['gFit']['modName'] !='g1':
+                # for ii in range(0,len(lineInfo['ID'])):
+                    # 
+                
+                if cfg_par['gFit']['modName'] =='g2':
+#                        print(result.params['g1ln'+str(ii)+'_height'].value,result.params['g2ln'+str(ii)+'_height'].value)  
+
+                    if result.params['g2ln'+str(i)+'_sigma'].value >= result.params['g1ln'+str(i)+'_sigma'].value :
+                        ax.plot(x_data_plot, comps['g1ln'+str(i)+'_'][idxMin:idxMax], 'g--')
+                        ax.plot(x_data_plot, comps['g2ln'+str(i)+'_'][idxMin:idxMax], 'm--') 
+                    else:
+                        ax.plot(x_data_plot, comps['g1ln'+str(i)+'_'][idxMin:idxMax], 'm--')
+                        ax.plot(x_data_plot, comps['g2ln'+str(i)+'_'][idxMin:idxMax], 'g--')    
+                
+                elif cfg_par['gFit']['modName'] =='g3':
+
+                    maxSigma = np.nanmax([result.params['g1ln'+str(ii)+'_sigma'].value,result.params['g2ln'+str(ii)+'_sigma'].value,result.params['g3ln'+str(ii)+'_sigma'].value])
+                    if ((maxSigma == result.params['g3ln'+str(ii)+'_sigma'].value) and (result.params['g2ln'+str(ii)+'_sigma'].value >= result.params['g1ln'+str(ii)+'_sigma'].value)):
+                        ax.plot(x_data_plot, comps['g1ln'+str(ii)+'_'][idxMin:idxMax], 'g--')
+                        ax.plot(x_data_plot, comps['g2ln'+str(ii)+'_'][idxMin:idxMax], 'm--')    
+                        ax.plot(x_data_plot, comps['g3ln'+str(ii)+'_'][idxMin:idxMax], 'c--')
+                    elif ((maxSigma == result.params['g3ln'+str(ii)+'_sigma'].value) and (result.params['g2ln'+str(ii)+'_sigma'].value < result.params['g1ln'+str(ii)+'_sigma'].value)):    
+                        ax.plot(x_data_plot, comps['g1ln'+str(ii)+'_'][idxMin:idxMax], 'm--')
+                        ax.plot(x_data_plot, comps['g2ln'+str(ii)+'_'][idxMin:idxMax], 'g--')    
+                        ax.plot(x_data_plot, comps['g3ln'+str(ii)+'_'][idxMin:idxMax], 'c--')
+                    elif ((maxSigma == result.params['g2ln'+str(ii)+'_sigma'].value) and (result.params['g3ln'+str(ii)+'_sigma'].value >= result.params['g1ln'+str(ii)+'_sigma'].value)):
+                        ax.plot(x_data_plot, comps['g1ln'+str(ii)+'_'][idxMin:idxMax], 'g--')
+                        ax.plot(x_data_plot, comps['g2ln'+str(ii)+'_'][idxMin:idxMax], 'c--')    
+                        ax.plot(x_data_plot, comps['g3ln'+str(ii)+'_'][idxMin:idxMax], 'm--')
+                    elif ((maxSigma == result.params['g2ln'+str(ii)+'_sigma'].value) and (result.params['g3ln'+str(ii)+'_sigma'].value < result.params['g1ln'+str(ii)+'_sigma'].value)):
+                        ax.plot(x_data_plot, comps['g1ln'+str(ii)+'_'][idxMin:idxMax], 'm--')
+                        ax.plot(x_data_plot, comps['g2ln'+str(ii)+'_'][idxMin:idxMax], 'c--')    
+                        ax.plot(x_data_plot, comps['g3ln'+str(ii)+'_'][idxMin:idxMax], 'g--')                            
+                    elif ((maxSigma == result.params['g1ln'+str(ii)+'_sigma'].value) and (result.params['g3ln'+str(ii)+'_sigma'].value >= result.params['g2ln'+str(ii)+'_sigma'].value)):
+                        ax.plot(x_data_plot, comps['g1ln'+str(ii)+'_'][idxMin:idxMax], 'c--')
+                        ax.plot(x_data_plot, comps['g2ln'+str(ii)+'_'][idxMin:idxMax], 'g--')    
+                        ax.plot(x_data_plot, comps['g3ln'+str(ii)+'_'][idxMin:idxMax], 'm--')           
+                    elif ((maxSigma == result.params['g1ln'+str(ii)+'_sigma'].value) and (result.params['g3ln'+str(ii)+'_sigma'].value < result.params['g2ln'+str(ii)+'_sigma'].value)):
+                        ax.plot(x_data_plot, comps['g1ln'+str(ii)+'_'][idxMin:idxMax], 'c--')
+                        ax.plot(x_data_plot, comps['g2ln'+str(ii)+'_'][idxMin:idxMax], 'm--')    
+                        ax.plot(x_data_plot, comps['g3ln'+str(ii)+'_'][idxMin:idxMax], 'g--') 
 
             ax.axvline(color='k', linestyle=':', zorder=0)                           
             legend = ax.legend(loc='best',handlelength=0.0, handletextpad=0.0,frameon=False)
