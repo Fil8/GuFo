@@ -142,14 +142,14 @@ class ancelsplot(object):
             ax1.tick_params(axis='both', which='major', pad=5)
             ax1.tick_params(axis='both', which='minor', pad=2)
 
-            if cfg_par['ancillary']['theoreticalCCA'] == 'Ensemble':
+            if cfg_par['kinematicalAnalysis']['ancillaryInfo']['theoreticalCCA'] == 'Ensemble':
                 Mean_sigmav = 2.13 
                 RMS_sigmav  = 0.13 
                 Mean_vshift = 1.59 
                 RMS_vshift  = 0.37
                 theta = -179.88 #covariance angle (contours inclined)
                 ellColor='purple'
-            if cfg_par['ancillary']['theoreticalCCA'] == 'Pencil':
+            if cfg_par['kinematicalAnalysis']['ancillaryInfo']['theoreticalCCA'] == 'Pencil':
                 Mean_sigmav = 1.65 
                 RMS_sigmav  = 0.41
                 Mean_vshift = 2.0
@@ -163,11 +163,9 @@ class ancelsplot(object):
             x[i][idx] = np.nan
             y[i][idx] = np.nan
 
-
-
             rmsToFWHM = 2.*np.sqrt(2.*np.log(2))
             ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=rmsToFWHM*RMS_vshift, height=rmsToFWHM*RMS_sigmav, angle=theta,
-                label=cfg_par['ancillary']['theoreticalCCA']+' beam')     
+                label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['theoreticalCCA']+' beam')     
             ellSigma1.set_clip_box(ax1.bbox)
             ellSigma1.set_alpha(0.4)
             ellSigma1.set_facecolor(ellColor)
@@ -187,24 +185,22 @@ class ancelsplot(object):
             ellSigma1.set_facecolor(ellColor)
             ax1.add_artist(ellSigma1)
             
-
-
             #print((idxAGN),(idxKew),(idxKauf),(idxBad))
 
             #print((idxAGN),(idxKew),(idxKauf),(idxBad))
-            if cfg_par['ancillary']['plotRotation'] == True:
+            if cfg_par['kinematicalAnalysis']['ancillaryInfo']['plotRotation'] == True:
                 indexRot = rotSca==1.
                 indexElse = rotSca==0.
                 #print(indexRot)
                 ax1.scatter(x[i][indexElse], y[i][indexElse], facecolors='red', marker='.', s=20, linewidths=None,edgecolors='red', alpha=0.5,
-                    label=cfg_par['ancillary']['coldGas']['CCALabel'])
+                    label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCALabel'])
                 ax1.scatter(x[i][indexRot], y[i][indexRot], facecolors=None, marker='.', s=20, linewidths=None,edgecolors='blue', alpha=0.5,
-                    label=cfg_par['ancillary']['coldGas']['CCALabel']+' in rotation')
+                    label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCALabel']+' in rotation')
 
                 #
             else:    
                 ax1.scatter(x[i], y[i], c='red', marker='.', s=20, linewidths=None,edgecolors='red', 
-                label=cfg_par['ancillary']['coldGas']['CCALabel'])
+                label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCALabel'])
 
             #idxAGN = np.where(colorSca==1)
             #ax1.scatter(x[i][idxAGN], y[i][idxAGN], c='black', marker='.', s=20, linewidths=None,edgecolors=None,alpha=0.1)
@@ -241,8 +237,8 @@ class ancelsplot(object):
         hdul = fits.open(cfg_par['general']['outTableName'])
         ancels = hdul['AncelsG1'].data
 
-        x = ancels['logCentroid_'+cfg_par['ancillary']['coldGas']['Name']]
-        y = ancels['logSigma_'+cfg_par['ancillary']['coldGas']['Name']]
+        x = ancels['logCentroid_'+cfg_par['otherGasKinAnalysis']['Name']]
+        y = ancels['logSigma_'+cfg_par['otherGasKinAnalysis']['Name']]
 
         print(x,y)
         # initialize figure
@@ -272,14 +268,14 @@ class ancelsplot(object):
         ax1.tick_params(axis='both', which='major', pad=5)
         ax1.tick_params(axis='both', which='minor', pad=2)
 
-        if cfg_par['ancillary']['theoreticalCCA'] == 'Ensemble':
+        if cfg_par['otherGasKinAnalysis']['ancillaryInfo']['theoreticalCCA'] == 'Ensemble':
             Mean_sigmav = 2.13 
             RMS_sigmav  = 0.13 
             Mean_vshift = 1.59 
             RMS_vshift  = 0.37
             theta = -179.88 #covariance angle (contours inclined)
             ellColor='purple'
-        if cfg_par['ancillary']['theoreticalCCA'] == 'Pencil':
+        if cfg_par['otherGasKinAnalysis']['ancillaryInfo']['theoreticalCCA'] == 'Pencil':
             Mean_sigmav = 1.65 
             RMS_sigmav  = 0.41
             Mean_vshift = 2.0
@@ -289,7 +285,7 @@ class ancelsplot(object):
         
         rmsToFWHM = 2.*np.sqrt(2.*np.log(2))
         ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=rmsToFWHM*RMS_vshift, height=rmsToFWHM*RMS_sigmav, angle=theta,
-            label=cfg_par['ancillary']['theoreticalCCA']+' beam')     
+            label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['theoreticalCCA']+' beam')     
         ellSigma1.set_clip_box(ax1.bbox)
         ellSigma1.set_alpha(0.4)
         ellSigma1.set_facecolor(ellColor)
@@ -315,13 +311,13 @@ class ancelsplot(object):
             indexElse = np.where(ancels['RotMod']==0.)[0]
 
             ax1.scatter(x[indexRot], y[indexRot], c='blue', marker='.', s=20, linewidths=None,edgecolors='red', 
-                label=cfg_par['ancillary']['coldGas']['CCALabel']+'in rotation')
+                label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCALabel']+'in rotation')
 
             ax1.scatter(x[indexElse], y[indexElse], c='blue', marker='.', s=20, linewidths=None,edgecolors='red', 
-                label=cfg_par['ancillary']['coldGas']['CCALabel'])
+                label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCALabel'])
         else:    
             ax1.scatter(x, y, c='red', marker='.', s=20, linewidths=None,edgecolors='red', 
-            label=cfg_par['ancillary']['coldGas']['CCALabel'])
+            label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCALabel'])
 
         # Set axis limits
         ax1.set_xlim(xMin, xMax)
@@ -336,7 +332,7 @@ class ancelsplot(object):
         if not os.path.exists(outPlotDir):
             os.mkdir(outPlotDir)
 
-        outPlot = outPlotDir+'sigmaCentroid-g1-'+cfg_par['ancillary']['coldGas']['Name']+'.png'
+        outPlot = outPlotDir+'sigmaCentroid-g1-'+cfg_par['otherGasKinAnalysis']['Name']+'.png'
         print(outPlot)
         plt.savefig(outPlot,format=cfg_par['lineRatios']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
                 # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
@@ -360,28 +356,28 @@ class ancelsplot(object):
         anc = hdul['ancels'+cfg_par['gFit']['modName']].data
         bins = hdul['BININFO'].data
         
-        if not cfg_par['ancillary']['coldGas']['enable']== True:
+        if not cfg_par['otherGasKinAnalysis']['enable']== True:
             
             linesG1 = hdul['LineRes_G1'].data
             if cfg_par['gFit']['modName'] == 'BF':
                 cfg_par['gFit']['modName'] = 'g2'
             residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
             cfg_par['gFit']['modName'] = 'BF'
-            x=anc['logCentroid_'+cfg_par['ancillary']['coldGas']['Name']]
-            y=anc['logDispIntr_'+cfg_par['ancillary']['coldGas']['Name']]
+            x=anc['logCentroid_'+cfg_par['kinematicalAnalysis']['Name']]
+            y=anc['logDispIntr_'+cfg_par['kinematicalAnalysis']['Name']]
             
         else:
-            x=anc['logCentroid_'+cfg_par['ancillary']['coldGas']['Name']]
-            y=anc['logSigma_'+cfg_par['ancillary']['coldGas']['Name']]
+            x=anc['logCentroid_'+cfg_par['otherGasKinAnalysis']['coldGas']['Name']]
+            y=anc['logSigma_'+cfg_par['otherGasKinAnalysis']['coldGas']['Name']]
 
-        if cfg_par['ancillary']['theoreticalCCA'] == 'Ensemble':
+        if cfg_par['kinematicalAnalysis']['ancillaryInfo']['theoreticalCCA'] == 'Ensemble':
             Mean_sigmav = 2.13 
             RMS_sigmav  = 0.13 
             Mean_vshift = 1.59 
             RMS_vshift  = 0.37
             theta = -179.88 #covariance angle (contours inclined)
             ellColor='purple'
-        if cfg_par['ancillary']['theoreticalCCA'] == 'Pencil':
+        if cfg_par['kinematicalAnalysis']['ancillaryInfo']['theoreticalCCA'] == 'Pencil':
             Mean_sigmav = 1.65 
             RMS_sigmav  = 0.41
             Mean_vshift = 2.0
@@ -392,7 +388,6 @@ class ancelsplot(object):
         rmsToFWHM = 2.*np.sqrt(2.*np.log(2))
         ellWidth = rmsToFWHM*RMS_vshift
         ellHeight = rmsToFWHM*RMS_sigmav
-
         cos_angle = np.cos(np.radians(180.-theta))
         sin_angle = np.sin(np.radians(180.-theta))
 
@@ -405,13 +400,10 @@ class ancelsplot(object):
         rad_cc = (xct**2/(ellWidth/2.)**2) + (yct**2/(ellHeight/2.)**2)
 
         CCAvec = np.empty(len(anc['BIN_ID']))*np.nan
-        
         CCAMap = np.zeros([momHead['NAXIS2'],momHead['NAXIS1']])*np.nan
         
-        if cfg_par['ancillary']['plotRotation'] == True:
-            if cfg_par['ancillary']['plotRotation'] == True:
-
-                rotModCol=anc['RotMod']
+        if cfg_par['kinematicalAnalysis']['ancillaryInfo']['plotRotation'] == True or cfg_par['otherGasKinAnalysis']['ancillaryInfo']['plotRotation']:
+            rotModCol=anc['RotMod']
 
             RotMap = np.zeros([momHead['NAXIS2'],momHead['NAXIS1']])*np.nan
             RotMapCCA = np.zeros([momHead['NAXIS2'],momHead['NAXIS1']])*np.nan
@@ -422,7 +414,7 @@ class ancelsplot(object):
 
             for index in match_bin:
 
-                if not cfg_par['ancillary']['coldGas']['enable']== True:
+                if not cfg_par['otherGasKinAnalysis']['enable']== True:
 
                     thresHold = residuals['SN_NII6583'][index]
                     sigmaThresh = linesG1['g1_SigIntr_NII6583'][index]
@@ -430,9 +422,9 @@ class ancelsplot(object):
                     #if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
                     if thresHold >= lineThresh:
                     
-                        if rad_cc[i] <= 1.:
+                        if rad_cc[i] <= cfg_par['kinematicalAnalysis']['ancillaryInfo']['sigmaInCCA']:
                             # point in ellipse
-                            CCAvec[i] = 1 
+                            CCAvec[i] = rad_cc
                         else:
                             # point not in ellipse
                             CCAvec[i] = 0 
@@ -442,9 +434,9 @@ class ancelsplot(object):
                 else:
 
                     if not np.isnan(x[i]) and not np.isnan(y[i]):
-                        if rad_cc[i] <= 1.:
+                        if rad_cc[i] <= cfg_par['otherGasKinAnalysis']['ancillaryInfo']['sigmaInCCA']:
                             # point in ellipse
-                            CCAvec[i] = 1 
+                            CCAvec[i] = rad_cc 
                     
                         else:
                             # point not in ellipse
@@ -474,19 +466,25 @@ class ancelsplot(object):
         Head['SPECSYS'] = 'topocent'
         Head['BUNIT'] = 'Jy'
 
-        fits.writeto(cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'.fits',CCAMap,Head,overwrite=True)
+        if not cfg_par['otherGasKinAnalysis']['enable']== True:
+            nameGas =  cfg_par['kinematicalAnalysis']['Name']
+        else:
+            nameGas =  cfg_par['otherGasKinAnalysis']['Name']            
+
+
+        fits.writeto(cfg_par['general']['momModDir']+'ccaMap-'+nameGas+'.fits',CCAMap,Head,overwrite=True)
         if cfg_par['ancillary']['plotRotation'] == True:
-            fits.writeto(cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'rot.fits',RotMap,Head,overwrite=True)
-            fits.writeto(cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'rotCCA.fits',RotMapCCA,Head,overwrite=True)
+            fits.writeto(cfg_par['general']['momModDir']+'ccaMap-'+nameGas+'rot.fits',RotMap,Head,overwrite=True)
+            fits.writeto(cfg_par['general']['momModDir']+'ccaMap-'+nameGas+'rotCCA.fits',RotMapCCA,Head,overwrite=True)
 
-        mPl.momAncPlot(cfg_par, cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'.fits',
-            cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],'ancillary')
+        mPl.momAncPlot(cfg_par, cfg_par['general']['momModDir']+'ccaMap-'+nameGas+'.fits',
+            nameGas,nameGas,nameGas,'ancillary')
 
-        mPl.momAncPlot(cfg_par, cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'rot.fits',
-            cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],'ancillary')
+        mPl.momAncPlot(cfg_par, cfg_par['general']['momModDir']+'ccaMap-'+nameGas+'rot.fits',
+            nameGas,nameGas,nameGas,'ancillary')
 
-        mPl.momAncPlot(cfg_par, cfg_par['general']['momModDir']+'ccaMap-'+cfg_par['ancillary']['coldGas']['Name']+'rotCCA.fits',
-            cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],cfg_par['ancillary']['coldGas']['Name'],'ancillary')
+        mPl.momAncPlot(cfg_par, cfg_par['general']['momModDir']+'ccaMap-'+nameGas+'rotCCA.fits',
+            nameGas,nameGas,nameGas,'ancillary')
 
 
         t=Table(anc)

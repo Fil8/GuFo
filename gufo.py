@@ -128,7 +128,7 @@ class gufo(object):
             self.cfg_par['general']['outVorLineTableName'] =self.cfg_par['general']['outVorTableName']
             self.cfg_par['general']['outVorLines'] = self.cfg_par['general']['outLines']
 
-        outTableName = self.cfg_par['general']['runNameDir']+'gPlayOut.fits'
+        outTableName = self.cfg_par['general']['runNameDir']+self.cfg_par['general']['outTable']
 
         self.cfg_par['general']['outTableName'] = outTableName
 
