@@ -1,0 +1,316 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>List of tools &mdash; GaNGiaLF 1.0.0. documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Stellar Subtraction using ppxf" href="../joints/StellarSubtraction.html" />
+    <link rel="prev" title="Introduction" href="Introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> GaNGiaLF
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">List of tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../joints/StellarSubtraction.html">Stellar Subtraction using ppxf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../joints/VoronoiBinning.html">Voronoi binning of datacubes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../joints/GaussianFit.html">Gaussian Multi Line Fitter</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">GaNGiaLF</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>List of tools</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/pipes/GuFo.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="list-of-tools">
+<h1>List of tools<a class="headerlink" href="#list-of-tools" title="Permalink to this headline">¶</a></h1>
+<hr class="docutils" />
+<p>This is the list of all routines available within the GaNGiaLF framework. Each routine is activated by with the keyword <code class="docutils literal notranslate"><span class="pre">enable:</span> <span class="pre">True</span></code> in the configuration file, or directly from the command line (type ‘gufo -h’ for further information on this).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>scavengers
+|    
+└─── Generate default configuration file ()
+|    
+|  
+└─── Stellar subtraction (`starSub`)
+|    |    rfi_base_000m.fits
+|    |    rfi_base_XXXm.fits
+|    |    ... for each time chunk of width XXX  
+|    |        % of RFI or flags par baseline and frequency channel    
+│
+└─── Voronoi Binning (`vorBin`)
+|
+|
+|
+└─── Multi-Gaussian Fitter (`gPlayMp`)
+|    |    msname_root_rfi_full.fits
+|    |    ... table with % of rfi flagged and noise per channel for all, short, long baselines 
+|    |
+|    |    msname_root_rfi_full_spwbin.fits
+|    |    ... table with % of rfi flagged and noise per channel for all, short, long baselines 
+|    |        binned over channels of width given by the spwbin parameter    
+|    |
+|    └───time_chunks
+|        |    msname_root_rfi_XXXm.fits
+|        |    ... for each time chunk of width XXX  
+|        |        table with % of rfi flagged and noise per channel for all, short, long baselines 
+|        |
+|        |    msname_root_rfi_XXXm_spwbin.fits
+|        |    ... for each time chunk of width XXX  
+|        |        table with % of rfi flagged and noise for all, short, long baselines
+|        |        binned over channels of width given by the spwbin parameter
+|        |
+|        |    msname_root_flags_XXXm.fits
+|        |    ... for each time chunk of width XXX  
+|        |        table with % of flags and consequent noise per channel for all, short, long baselines 
+|        |
+|        |    msname_root_rfi_XXXm_spwbin.fits
+|        |    ... for each time chunk of width XXX  
+|        |        table with % of flags and consequent noise for all, short, long baselines
+|        |        binned over channels of width given by the spwbin parameter
+|
+└─── Plot multi-gaussian results (`gPlot`)
+     │    rfi_base_full.png
+     |    ... % of rfi par baseline and channel full observation
+     |
+     |    noise_full_sl_rfi.png
+     │    ... expected noise par channel for all,short,long baselines because of RFI clipped
+     |
+     |    noise_factor_full_sl_rfi.png
+     │    ... factor of noise increase over over channel for all,short,long baselines
+     |
+     │    flags_base_full.png
+     |    ... % of flags par baseline and channel
+     |
+     |    noise_full_sl_flags.png
+     │    ... expected noise par channel for all,short,long baselines because of flags
+     |
+     |    noise_factor_full_sl_flags.png
+     │    ... factor of noise increase over over channel for all,short,long baselines because of flags
+     │    
+     └─── altaz
+     |    │    AltAz_rfiXXXX-XXXXMHz.png
+     |    │    ... Altitude vs. Azimuth plot with colorcoded the % of RFI flagged per time chunk 
+     |    |        1 image for each spectral window of width spwbin in which the observation has been divided 
+     |    |      
+     |    │    AltAz_flagsXXXX-XXXXMHz.png
+     |    │    ... Altitude vs. Azimuth plot with colorcoded the % of flags identified in each time chunk 
+     |    |        1 image for each spectral window of width spwbin in which the observation has been divided
+     |    
+     └─── movies
+     |    |
+     |    | 
+     |    
+     └─── time_chunks
+          |
+          └─── 1D
+          |    |    flags_XXXm_sl_rfi.png
+          |    |    ... % of rfi par channel for all,short,long baselines because of RFI clipped
+          |    |        for each time chunk of width 0XX minutes.                
+          |    |   
+          |    |    noise_XXXm_sl_rfi.png
+          |    |    ... expected noise par channel for all,short,long baselines because of RFI clipped
+          |    |
+          |    |    noise_factor_XXXm_sl_rfi.png
+          |    |    ... factor of noise increase over over channel for all,short,long baselines
+          |    |
+          |    |    flags_XXXm_sl_flags.png
+          |    |    ... % of rfi par channel for all,short,long baselines because of flags
+          |    |        for each time chunk of width 0XX minutes.                
+          |    |   
+          |    |    noise_XXXm_sl_flags.png
+          |    |    ... expected noise par channel for all,short,long baselines because of flags
+          |    |
+          |    |    noise_factor_XXXm_sl_flags.png
+          |    |    ... factor of noise increase over over channel for all,short,long baselines because of flags
+          |    |
+          └─── 2D
+               |    rfi_base_XXXm.png
+               |    ... % of rfi par baseline and channel
+               |        for each time chunk of width 0XX minutes.
+               |
+               |    flags_base_XXXm.png
+               |    ... % of flags par baseline and channel
+               |        for each time chunk of width 0XX minutes.
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../joints/StellarSubtraction.html" class="btn btn-neutral float-right" title="Stellar Subtraction using ppxf" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="Introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Fil8
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

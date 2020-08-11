@@ -214,7 +214,7 @@ class cubeplay:
             if bF[i] == 0:
                 modName = 'g1'
             elif bF[i] == 1:
-                modName = 'g2'
+                modName = 'g2' #we consider only the first component as rotation
         
         
             for index in match_bin:
@@ -269,8 +269,8 @@ class cubeplay:
                         vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = vecSum
                         
                         lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lenghtLine/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']
-
-                        if vecSum>(lenghtLine/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']):
+                        lengthLineSpec= np.count_nonzero(mdSpec == 1.)
+                        if vecSum>(lengthLineSpec/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']):
                             rotArr[i]=1.
                             rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=1.
 
@@ -343,6 +343,226 @@ class cubeplay:
             except KeyError as e:
                 tt=fits.BinTableHDU.from_columns(t.as_array(),name='AncelsBF')   
                 hdul.append(tt)    
+
+        hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
+            
+
+        return
+
+    def selectRotation(self,cfg_par):
+
+        cubeletsDir = cfg_par['general']['cubeletsDir']
+        momDir = cfg_par['general']['momDir']
+
+
+        hdul = fits.open(cfg_par['general']['outTableName'])
+        tabGen = hdul['BININFO'].data
+        ancels = hdul['Ancels'+cfg_par['gFit']['modName']].data
+
+        modelCube = fits.open(cfg_par['otherGasKinAnalysis']['rotID']['modelCube'])
+        mdC = modelCube[0].data
+        #indexFltrMod = mdC ==0.0
+        mdC[mdC!=0] = 1.
+        mdC[mdC==0] = np.nan        
+
+        maskCube = fits.open(cfg_par['otherGasKinAnalysis']['rotID']['gasMask'])
+        maskD = np.array(maskCube[0].data,dtype=float)
+       
+
+        maskD[maskD!=0] = 1.
+        maskD[maskD==0] = np.nan        
+
+        rotMoM = np.zeros([mdC.shape[1],mdC.shape[2]])*np.nan
+
+        rotArr = np.empty(len(ancels['BIN_ID']))*np.nan
+
+        f = fits.open(cfg_par['otherGasKinAnalysis']['rotID']['gasCube'])
+        dd = f[0].data
+        header = f[0].header
+        mom = fits.open(cfg_par['otherGasKinAnalysis']['rotID']['gasMoment'])
+        mm=mom[0].data
+        indexFltr = np.broadcast_to(mm==0.0, dd.shape)
+        dd[indexFltr] = np.nan
+
+        lineNameName = cfg_par['otherGasKinAnalysis']['Name']
+
+
+        vel = ((np.linspace(1, dd.shape[0], dd.shape[0]) - header['CRPIX3']) 
+            * header['CDELT3'] + header['CRVAL3'])/1e3
+        velMin = cfg_par['otherGasKinAnalysis']['rotID']['velRange'][1]+float(cfg_par['general']['velsys'])
+        velMax = cfg_par['otherGasKinAnalysis']['rotID']['velRange'][0]+float(cfg_par['general']['velsys'])
+        idxMin1 = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
+        idxMax1 = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0])        
+
+        dd=dd[idxMin1:idxMax1,:,:]
+        mdC=mdC[idxMin1:idxMax1,:,:]
+        maskD=maskD[idxMin1:idxMax1,:,:]
+
+
+        fitCube = np.empty([dd.shape[0],dd.shape[1],dd.shape[2]])
+        fitCubeMask = np.zeros([dd.shape[0],dd.shape[1],dd.shape[2]])
+        fitCubeMD = np.zeros([dd.shape[0],dd.shape[1],dd.shape[2]])
+
+        fitCubeMaskInter = np.zeros([dd.shape[0],dd.shape[1],dd.shape[2]])
+        vecSumMap = np.zeros([dd.shape[1],dd.shape[2]])*np.nan
+        lenghtLineMap = np.zeros([dd.shape[1],dd.shape[2]])*np.nan
+
+
+        for i in range(0,len(ancels['BIN_ID'])):
+            
+            match_bin = np.where(tabGen['BIN_ID']==ancels['BIN_ID'][i])[0]
+                
+            for index in match_bin:
+                
+                if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0 and ancels['sigma_'+lineNameName][i] !=np.nan: 
+
+                    fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                    fit = dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                    
+
+                    mdSpec = mdC[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                    
+                    #indexMod = np.logical_and(mdSpec!=0,mdSpec!=np.nan)
+
+                    #mdSpec[indexMod ]=1.
+#                    mdSpec = np.flipud(mdSpec)
+ 
+                    fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = mdSpec
+                    #centroid = ancels['centroid_'+lineName][i]
+                    #width = ancels['w80_'+lineName][i]
+                    fitSmall = fit[:]
+                    specMask = maskD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                    velMinPeak = -100.+float(cfg_par['general']['velsys'])
+                    velMaxPeak = +100.+float(cfg_par['general']['velsys'])
+                    idxMinPeak = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
+                    idxMaxPeak = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0])    
+                    idxPeak = np.nanargmax(fitSmall[idxMinPeak:idxMaxPeak])
+                    idxPeak1 = np.nanargmax(fitSmall)
+
+                    #print(fitSmall[idxPeak],fitSmall[idxPeak1])
+  
+
+                    peakValue = fitSmall[idxPeak]
+                    noiseValue= 3.*float(cfg_par['otherGasKinAnalysis']['rotID']['noiseValue'])
+                   
+                    idxMask = np.logical_or(specMask==0.,specMask==np.nan)
+                    idxMaskTrue = specMask==1.
+                    #print(np.sum(idxMask))
+                    fitSmall[idxMask] = np.nan
+
+                    #idxLeft = int(np.where(abs(fitSmall[:idxPeak]-noiseValue)==abs(fitSmall[:idxPeak]-noiseValue).min())[0]) 
+                    #idxRight = int(np.where(abs(fitSmall[idxPeak:]-noiseValue)==abs(fitSmall[idxPeak:]-noiseValue).min())[0]) +idxPeak
+
+                    #print(idxLeft,idxRight)
+                    #velMin = centroid-(width/2.)
+                    #velMax = centroid+(width/2.)
+                    #indexVelMin = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
+                    #indexVelMax = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0]) 
+                    
+                    #fitMask = np.zeros(len(fit[:]))
+                    #fitMask[idxMaskTrue] = 1.
+                    fitMaskIntercect = np.zeros(len(fit[:]))
+                    #fitMask[indexVelMin:indexVelMax] = 1.
+                    
+                    #fitMask[idxLeft:idxRight] = 1.
+                    
+                    vecMask = np.logical_and(fitSmall > noiseValue, specMask==1.)
+                    
+                    fitMaskOne = np.zeros(len(fit[:]))
+                    fitMaskOne[vecMask]=1.
+
+                    lenghtLine = np.nansum(fitMaskOne == 1.)
+                    
+                    #fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMask
+                    fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMaskOne
+                    #print(fitMask,mdSpec)
+                    #vecCount = np.where((fitMask==1.)& (mdSpec!=0.0))
+                    vecCount = np.where((fitMaskOne==1.)& (mdSpec==1.))
+                    
+                    fitMaskIntercect[vecCount] = 1.
+                    
+                    vecSum = np.count_nonzero(fitMaskIntercect == 1.)
+                    #print(vecSum,lenghtLine,lenghtLine/100.*cfg_par['otherGasKinAnalysis']['rotID']['rotationPercent'])
+                    fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMaskIntercect
+                    
+                    vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = vecSum
+                    
+                    lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lenghtLine/100.*cfg_par['otherGasKinAnalysis']['rotID']['rotationPercent']
+                    #lengthLineSpec= np.count_nonzero(mdSpec == 1.)
+
+                    if vecSum>(lenghtLine/100.*cfg_par['otherGasKinAnalysis']['rotID']['rotationPercent']):
+                        rotArr[i]=1.
+                        rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=1.
+
+                    else:
+                        rotArr[i]=0.
+                        rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
+
+
+                else:
+                    fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                    fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                    fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+
+                    fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                    vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                    lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+
+        #waveAng=np.exp(wave)
+
+        #header = self.makeHeader(cfg_par,lineInfo['Wave'][0],hh,waveAng)
+        
+        header['CRVAL3'] = (float(cfg_par['otherGasKinAnalysis']['rotID']['velRange'][0])+float(cfg_par['general']['velsys']))*1e3
+
+        outCubelet = cubeletsDir+str(lineNameName)+'_BF.fits'            
+        outCubeletMask = cubeletsDir+str(lineNameName)+'_BFMask.fits'        
+        outCubeletMaskfl = cubeletsDir+str(lineNameName)+'_BFMaskInter.fits'        
+        outCubeletMaskMD = cubeletsDir+str(lineNameName)+'_BFMD.fits'        
+
+        fits.writeto(outCubelet,fitCube,header,overwrite=True)
+        fits.writeto(outCubeletMask,fitCubeMask,header,overwrite=True)
+        fits.writeto(outCubeletMaskfl,fitCubeMaskInter,header,overwrite=True)
+        fits.writeto(outCubeletMaskMD,fitCubeMD,header,overwrite=True)
+
+        outMomRot =  momDir+str(lineNameName)+'_RotMom.fits'        
+        outMomSum =  momDir+str(lineNameName)+'_SumInter.fits'        
+        outMomLength =  momDir+str(lineNameName)+'_LengthLine.fits'        
+        outMomDiff =  momDir+str(lineNameName)+'_diffInter.fits'        
+        print(outMomRot)
+        if 'CUNIT3' in header:
+            del header['CUNIT3']
+        if 'CTYPE3' in header:
+            del header['CTYPE3']
+        if 'CDELT3' in header:
+            del header['CDELT3']
+        if 'CRVAL3' in header:  
+            del header['CRVAL3']
+        if 'CRPIX3' in header:
+            del header['CRPIX3'] 
+        if 'NAXIS3' in header:
+            del header['NAXIS3']            
+        header['WCSAXES'] = 2
+        header['SPECSYS'] = 'topocent'
+        header['BUNIT'] = 'Jy/beam'
+
+        fits.writeto(outMomRot,rotMoM,header,overwrite=True)
+        fits.writeto(outMomSum,vecSumMap,header,overwrite=True)
+        fits.writeto(outMomLength,lenghtLineMap,header,overwrite=True)
+        fits.writeto(outMomDiff,vecSumMap-lenghtLineMap,header,overwrite=True)
+
+        t=Table(ancels)
+
+        if 'RotMod' not in ancels.dtype.names: 
+            t.add_column(Column(rotArr,name='RotMod'))
+        else:
+            t.replace_column('RotMod',Column(rotArr,name='RotMod'))        
+
+        try:
+            tt = Table(hdul['Ancels'+cfg_par['gFit']['modName']].data)
+            hdul['AncelsBF'] = fits.BinTableHDU(t.as_array(),name='AncelsBF')
+        except KeyError as e:
+            tt=fits.BinTableHDU.from_columns(t.as_array(),name='AncelsBF')   
+            hdul.append(tt)    
 
         hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
             

@@ -340,11 +340,11 @@ def main (argv):
  
     # Make Pixel Table for Multi-gaussian fit on pixels
     # ++++++++++++++++++++++++++++++++++++++++++++++
-    if gPar.cfg_par['gFit']['method'] == 'pixel':
+    if gPar.cfg_par['gFit']['method'] == 'pixel' and gPar.cfg_par['gFit'].get('enable',False) == True:
         time_start_load = time.time()        
         print ('\n\t************* --- GuFo : gPlay --- **************\n')
         gPar = gufo.gufo(args.cfgFile)
-        tp.makePixelTable(gPar.cfg_par)
+        tP.makePixelTable(gPar.cfg_par)
         #gp.gFit(gPar.cfg_par)
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
@@ -545,7 +545,7 @@ def main (argv):
         time_start_load = time.time()
         print('\n\t +---------+\t\t  mosaic Cubes\t\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
-        cP.mosaicCubes(gPar.cfg_par)
+        mosaicCubes.mosaicCubes(gPar.cfg_par)
         timePV = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timePV))
 
@@ -553,15 +553,25 @@ def main (argv):
     # ++++++++++++++++++++++++++        
     if args.kinAnal or gPar.cfg_par['kinematicalAnalysis'].get('enable',False) == True:
         time_start_load = time.time()
-        print ('\n\t +---------+\t\t kinematical Analysis\t\t +---------+')
+        print ('\n\t +---------+\t      kinematical Analysis\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        print('\n\t         +++\t          CCA & Rotation\t +++')
+        aPl.inCCARegionTable(gPar.cfg_par)
+        aPl.sigmaCentroid(gPar.cfg_par)
+        timeAnc = (time.time()- time_start_load)/60.
+        print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
+
+    # Sigma and Centroid Maps
+    # ++++++++++++++++++++++++++        
+    if args.kinAnal or gPar.cfg_par['kinematicalAnalysis']['sigmaCentroid'] == True:
+        time_start_load = time.time()
+        print ('\n\t +---------+\t      kinematical Analysis\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
         print('\n\t         +++\t\tsigma & centroid\t +++')
         if gPar.cfg_par['kinematicalAnalysis']['compute']==True:
             ancels.main(gPar.cfg_par)
-        print('\n\t         +++\t\t plotting maps\t +++')
-        aPl.inCCARegionTable(gPar.cfg_par)
-        aPl.sigmaCentroid(gPar.cfg_par)
-        #mom.makeSigmaCentroidMaps(gPar.cfg_par)
+        print('\n\t         +++\t\t plotting maps\t\t +++')
+        mom.makeSigmaCentroidMaps(gPar.cfg_par)
         timeAnc = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
 
@@ -570,6 +580,9 @@ def main (argv):
     if gPar.cfg_par['otherGasKinAnalysis'].get('enable',False) == True:
         time_start_load = time.time()
         print ('\n\t +---------+\t\t gas Kinematics \t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        if gPar.cfg_par['otherGasKinAnalysis']['rotID'].get('enable',False) == True:
+            cP.selectRotation(gPar.cfg_par)
         aPl.inCCARegionTable(gPar.cfg_par)
         aPl.sigmaCentroidColdGas(gPar.cfg_par)
         timeAnc = (time.time()- time_start_load)/60.
@@ -623,9 +636,6 @@ def main (argv):
         print('\n\t      ************ --- GuFo : cDistBPT --- ************\n')
         bpt.bptCDist(gPar.cfg_par)
         print('\n\t      ************ --- GuFo : DONE --- ************\n')
-
-
-
 
     # Modify output table
     # +++++++++++++++++++

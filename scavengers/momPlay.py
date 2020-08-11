@@ -24,6 +24,7 @@ mPl = momPlot.MOMplot()
 
 class momplay:
     '''Modules to create moment maps, residual maps, line ratios maps
+    
     - makeMoments
         load line list, datacube and create loop for moments module
     - makeSigmaCentroidMap
@@ -172,6 +173,7 @@ class momplay:
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['Ancels'+cfg_par['gFit']['modName']].data
+        
         if cfg_par['gFit']['modName'] == 'BF':
             cfg_par['gFit']['modName'] = 'g2'
 
@@ -198,7 +200,7 @@ class momplay:
                 thresHold = residuals['SN_NII6583'][index]
                 sigmaThresh = linesG1['g1_SigIntr_NII6583'][index]
 
-                if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
+                if thresHold >= lineThresh:
 
 #                if thresHold >= lineThresh :
                     
@@ -214,24 +216,24 @@ class momplay:
 
         fits.writeto(momModDir+'momSigma-'+lineName+'.fits',momSigma,momSigmaHead,overwrite=True)
 
-        mPl.mom2Plot(cfg_par, momModDir+'momSigma-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'ancillary')
+        mPl.mom2Plot(cfg_par, momModDir+'momSigma-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis')
 
         fits.writeto(momModDir+'momDisp-'+lineName+'.fits',momDisp,momSigmaHead,overwrite=True)
-        mPl.mom2Plot(cfg_par, momModDir+'momDisp-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'ancillary')
+        mPl.mom2Plot(cfg_par, momModDir+'momDisp-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis')
 
         momCentroidHead['WCSAXES'] = 2
         momCentroidHead['SPECSYS'] = 'topocent'
         momCentroidHead['BUNIT'] = 'km/s'
         
         fits.writeto(momModDir+'momCentroid-'+lineName+'.fits',momCentroid,momCentroidHead,overwrite=True)
-        mPl.mom1Plot(cfg_par, momModDir+'momCentroid-'+lineName+'.fits',lineName,lineThresh,
-            lineNameStr,'ancillary',vRange=[-cenRange,cenRange],modName=cfg_par['gFit']['modName'])
+        mPl.mom1Plot(cfg_par, momModDir+'momCentroid-'+lineName+'.fits',lineName,0.,
+            lineNameStr,'kinematicalAnalysis',vRange=[-cenRange,cenRange],modName=cfg_par['gFit']['modName'])
 
         momW80Head['WCSAXES'] = 2
         momW80Head['SPECSYS'] = 'topocent'
         momW80Head['BUNIT'] = 'km/s'
         fits.writeto(momModDir+'momW80-'+lineName+'.fits',momW80,momW80Head,overwrite=True)
-        mPl.mom2Plot(cfg_par, momModDir+'momW80-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'ancillary')
+        mPl.mom2Plot(cfg_par, momModDir+'momW80-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis')
 
         return
 
