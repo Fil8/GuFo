@@ -288,7 +288,6 @@ class cubeplay:
                 
             elif bF[i] == 1:
                 modName = 'g2' #we consider only the first component as rotation
-
             #print('culo')
             #print(rotArr[i],print(ancels['BIN_ID'][i]))
                 for index in match_bin:
@@ -302,7 +301,6 @@ class cubeplay:
                         fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                         fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                         fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
-
                         fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                         vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                         lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
@@ -311,7 +309,6 @@ class cubeplay:
 
 
                 if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
-
 
                     rotArr[i]=0.
                     rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
@@ -374,7 +371,9 @@ class cubeplay:
 
             if 'RotMod' not in ancels.dtype.names: 
                 t.add_column(Column(rotArr,name='RotMod'))
+                print('cazzo')
             else:
+                print('culo')
                 t.replace_column('RotMod',Column(rotArr,name='RotMod'))        
 
             try:
