@@ -211,29 +211,33 @@ class cubeplay:
                 
             if bF[i] == 0:
                 modName = 'g1'
+                fit = comps['g1ln'+str(indexLine[0])+'_']
             elif bF[i] == 1:
                 modName = 'g2' #we consider only the first component as rotation
-        
+                fit = comps['g1ln'+str(indexLine[0])+'_']+comps['g2ln'+str(indexLine[0])+'_']
+                #fit = comps['g1ln'+str(indexLine[0])+'_']
+                rotArr[i]=0.
+                rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
+                #print('culo')
+                #print(rotArr[i],print(ancels['BIN_ID'][i]))
+                for index in match_bin:
+                    if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
+                        fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
+
+                #sys.exit(0)
+                continue        
         
             for index in match_bin:
-                print('figa')
+                #print('figa')
                 if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
 
                     result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
                     comps = result.eval_components()          
                     
-                    if modName=='g1':
-                        fit = comps['g1ln'+str(indexLine[0])+'_']
-                    elif modName =='g2':
-                        fit = comps['g1ln'+str(indexLine[0])+'_']+comps['g2ln'+str(indexLine[0])+'_']
-                        #fit = comps['g1ln'+str(indexLine[0])+'_']
-                        rotArr[i]=0.
-                        rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
-                        print('culo')
-                        print(rotArr[i],print(ancels['BIN_ID'][i]))
-                        #sys.exit(0)
-                        continue
-                    print('cazzo')
+                    #if modName=='g1':
+                    #elif modName =='g2':
+
+                    #print('cazzo')
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
 
                     if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
