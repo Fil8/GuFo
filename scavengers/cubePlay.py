@@ -289,6 +289,8 @@ class cubeplay:
                 
             elif bF[i] == 1:
                 modName = 'g2' #we consider only the first component as rotation
+                print(bF[i],residuals['bestFit'][i],cfg_par['general']['outTableName'])
+                sys.exit(0)        
             #print('culo')
             #print(rotArr[i],print(ancels['BIN_ID'][i]))
                 for index in match_bin:
