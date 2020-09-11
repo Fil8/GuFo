@@ -111,6 +111,7 @@ class cubeplay:
 
 
         hdul = fits.open(cfg_par['general']['outTableName'])
+        print(cfg_par['general']['outTableName'])
         tabGen = hdul['BININFO'].data
 
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
@@ -211,9 +212,9 @@ class cubeplay:
                 
             if bF[i] == 0:
                 modName = 'g1'
-
-
-                #sys.exit(0)        
+                if int(ancels['BIN_ID'][i]) == 35699:
+                    print(bF[i],residuals['bestFit'][i],cfg_par['general']['outTableName'])
+                    sys.exit(0)        
         
                 for index in match_bin:
                     #print('figa')
