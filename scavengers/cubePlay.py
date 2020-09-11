@@ -226,7 +226,10 @@ class cubeplay:
                         fit = comps['g1ln'+str(indexLine[0])+'_']
                     elif modName =='g2':
                         #fit = comps['g1ln'+str(indexLine[0])+'_']+comps['g2ln'+str(indexLine[0])+'_']
-                        fit = comps['g1ln'+str(indexLine[0])+'_']
+                        #fit = comps['g1ln'+str(indexLine[0])+'_']
+                        rotArr[i]=0.
+                        rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
+                        continue
 
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
 
@@ -269,6 +272,7 @@ class cubeplay:
                         
                         lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lenghtLine/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']
                         lengthLineSpec= np.count_nonzero(mdSpec == 1.)
+                        
                         if vecSum>(lengthLineSpec/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']):
                             rotArr[i]=1.
                             rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=1.
