@@ -274,35 +274,59 @@ class cubeplay:
                             else:
                                 rotArr[i]=0.
                                 rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
-                elif bF[i] == 1:
-                    modName = 'g2' #we consider only the first component as rotation
+                    else:
+                        fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
 
-                #print('culo')
-                #print(rotArr[i],print(ancels['BIN_ID'][i]))
-                    for index in match_bin:
-                        if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
-                            result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
-                            comps = result.eval_components()
-                            fit = comps['g1ln'+str(indexLine[0])+'_']+comps['g2ln'+str(indexLine[0])+'_']
-                    #fit = comps['g1ln'+str(indexLine[0])+'_'] 
-                            fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]           
+                        fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        rotArr[i]=np.nan
+                        rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
 
-                    if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+                
+            elif bF[i] == 1:
+                modName = 'g2' #we consider only the first component as rotation
+
+            #print('culo')
+            #print(rotArr[i],print(ancels['BIN_ID'][i]))
+                for index in match_bin:
+                    if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
+                        result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
+                        comps = result.eval_components()
+                        fit = comps['g1ln'+str(indexLine[0])+'_']+comps['g2ln'+str(indexLine[0])+'_']
+                #fit = comps['g1ln'+str(indexLine[0])+'_'] 
+                        fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]           
+                    else:
+                        fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+
+                        fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        rotArr[i]=np.nan
+                        rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
 
 
-                        rotArr[i]=0.
-                        rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
- 
-                else:
-                    fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
-                    fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
-                    fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
 
-                    fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
-                    vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
-                    lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
-                    rotArr[i]=np.nan
-                    rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
+
+                    rotArr[i]=0.
+                    rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
+
+
+            else:
+                fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+
+                fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                rotArr[i]=np.nan
+                rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
 
         waveAng=np.exp(wave)
 
