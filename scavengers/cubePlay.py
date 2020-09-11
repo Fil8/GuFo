@@ -97,8 +97,6 @@ class cubeplay:
 
         return
 
-
-
     def makeBFLineCube(self,cfg_par):
 
         cubeletsDir = cfg_par['general']['cubeletsDir']
@@ -227,7 +225,8 @@ class cubeplay:
                     if modName=='g1':
                         fit = comps['g1ln'+str(indexLine[0])+'_']
                     elif modName =='g2':
-                        fit = comps['g1ln'+str(indexLine[0])+'_']+comps['g2ln'+str(indexLine[0])+'_']
+                        #fit = comps['g1ln'+str(indexLine[0])+'_']+comps['g2ln'+str(indexLine[0])+'_']
+                        fit = comps['g1ln'+str(indexLine[0])+'_']
 
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
 
@@ -443,7 +442,7 @@ class cubeplay:
   
 
                     peakValue = fitSmall[idxPeak]
-                    noiseValue= 3.*float(cfg_par['otherGasKinAnalysis']['rotID']['noiseValue'])
+                    noiseValue= cfg_par['otherGasKinAnalysis']['rotID']['sigmaNoise']*float(cfg_par['otherGasKinAnalysis']['rotID']['noiseValue'])
                    
                     idxMask = np.logical_or(specMask==0.,specMask==np.nan)
                     idxMaskTrue = specMask==1.

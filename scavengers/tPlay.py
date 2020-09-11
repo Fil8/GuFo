@@ -1,4 +1,3 @@
-#!/usr/bin/env python3.6
 import os, sys, math
 import yaml
 
@@ -23,6 +22,10 @@ cvP = cvPlay.convert()
 
 
 class tplay(object):
+
+    def __init__(self):
+
+        self.C = 2.99792458e8
 
     def openLineList(self,cfg_par):
         
@@ -709,14 +712,14 @@ class tplay(object):
         tabGen = hdul[1].data
     
 
-        namBins = tuple(['BIN_ID', 'PixX', 'PixY'])
+        namBins = tuple(['BIN_ID', 'PixX', 'PixY','r'])
         namLines = tuple(['BIN_ID','g1_Amp_'+lineName])
         namAncels = tuple(['BIN_ID','sigma_'+lineName, 
             'logSigma_'+lineName, 'w80_'+lineName,'logW80_'+lineName, 'centroid_'+lineName,'logCentroid_'+lineName])
         
 
         bArr = np.zeros([len(tabGen)], dtype={'names':namBins,
-                          'formats':( 'i4', 'i4', 'i4')})
+                          'formats':( 'i4', 'i4', 'i4', 'f8')})
         lArr = np.zeros([len(tabGen)], dtype={'names':namLines,
                           'formats':( 'i4', 'f8')})
         anArr = np.zeros([len(tabGen)], dtype={'names':namAncels,
@@ -724,6 +727,7 @@ class tplay(object):
 
         mom0File = fits.open(cfg_par['moments']['makeTable']['mom0'])
         mom0  = mom0File[0].data
+
         
         mom1File = fits.open(cfg_par['moments']['makeTable']['mom1'])
         mom1  = mom1File[0].data
@@ -731,13 +735,32 @@ class tplay(object):
         mom2File = fits.open(cfg_par['moments']['makeTable']['mom2'])
         mom2  = mom2File[0].data
 
+        if cfg_par['moments']['makeTable']['unitMoms'] == 'm/s':
+            mom1 = np.divide(mom1,1e3)
+            mom1 -= float(cfg_par['general']['velsys'])
+            mom2 = np.divide(mom2,1e3)
+        if cfg_par['moments']['makeTable']['unitMoms'] == 'Hz':
+            deltaV=-self.C/cfg_par['moments']['makeTable']['restFreq']*cfg_par['moments']['makeTable']['deltaFreq']
+            convFac = deltaV/cfg_par['moments']['makeTable']['deltaFreq']
+            mom1-=float(cfg_par['moments']['makeTable']['restFreq'])
+            mom1 = np.multiply(mom1,convFac)
+            mom1 /= 1e3
+            mom1 -=float(cfg_par['general']['velsys'])
+            mom2 = np.multiply(mom2,-convFac)
+            mom2 /= 1e3
+            #rint(deltaV,convFac)
+            #sys.exit(0)
         print(cfg_par['moments']['makeTable']['mom0'])
         
+        pixCenX = cfg_par['starSub']['pixX']
+        pixCenY = cfg_par['starSub']['pixY']
+
         for i in range(0,mom0.shape[1]):
             for j in range(0,mom0.shape[0]):
 
                 indexBin = np.where(np.logical_and(tabGen['PixX']==i,tabGen['PixY']==j))[0]
                 
+                r = np.sqrt(np.power(float(i)-pixCenX,2)+np.power(float(j)-pixCenY,2))*(cfg_par['moments']['makeTable']['pixSize'])*cfg_par['moments']['makeTable']['pcConv']/1e3
 
                 if not indexBin is None:
 
@@ -747,6 +770,7 @@ class tplay(object):
 
                     bArr['PixX'][indexBin] = i
                     bArr['PixY'][indexBin] = j
+                    bArr['r'][indexBin] = r
 
                     lArr['g1_Amp_'+lineName][indexBin]= mom0[j,i]
 
@@ -760,8 +784,8 @@ class tplay(object):
                     anArr['logSigma_'+lineName][indexBin]= np.log10(mom2[j,i])
                 
                     fwhm=mom2[j,i]*2.*np.sqrt(2.*np.log(2))
-                    anArr['w80_'+lineName][indexBin] = fwhm*0.919
-                    anArr['logW80_'+lineName][indexBin] = np.log10(fwhm*0.919)
+                    anArr['w80_'+lineName][indexBin] = fwhm/0.919
+                    anArr['logW80_'+lineName][indexBin] = np.log10(fwhm/0.919)
 
         hdr = fits.Header()
         hdr['COMMENT'] = "Here are the outputs of gPlay"
