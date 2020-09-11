@@ -216,7 +216,7 @@ class cubeplay:
         
         
             for index in match_bin:
-                
+                print('figa')
                 if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
 
                     result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
@@ -231,9 +231,9 @@ class cubeplay:
                         rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
                         print('culo')
                         print(rotArr[i],print(ancels['BIN_ID'][i]))
-                        sys.exit(0)
-                        break
-
+                        #sys.exit(0)
+                        continue
+                    print('cazzo')
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
 
                     if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
