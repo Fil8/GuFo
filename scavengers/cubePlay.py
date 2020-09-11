@@ -211,87 +211,88 @@ class cubeplay:
                 
             if bF[i] == 0:
                 modName = 'g1'
-            elif bF[i] == 1:
-                modName = 'g2' #we consider only the first component as rotation
 
-                rotArr[i]=0.
-                rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
- 
-      
-                #print('culo')
-                #print(rotArr[i],print(ancels['BIN_ID'][i]))
+
+                #sys.exit(0)        
+        
                 for index in match_bin:
+                    #print('figa')
                     if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
+           
                         result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
-                        comps = result.eval_components()
-                        fit = comps['g1ln'+str(indexLine[0])+'_']+comps['g2ln'+str(indexLine[0])+'_']
-                #fit = comps['g1ln'+str(indexLine[0])+'_'] 
+                        comps = result.eval_components()                    
+                        #if modName=='g1':
+                        #elif modName =='g2':
+                        fit = comps['g1ln'+str(indexLine[0])+'_']
+                        #print('cazzo')
                         fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
 
-                #sys.exit(0)
-                continue        
-        
-            for index in match_bin:
-                #print('figa')
-                if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
-       
-                    result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
-                    comps = result.eval_components()                    
-                    #if modName=='g1':
-                    #elif modName =='g2':
-                    fit = comps['g1ln'+str(indexLine[0])+'_']
-                    #print('cazzo')
-                    fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
+                        if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+                            mdSpec = mdC[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                            
+                            mdSpec[mdSpec!=0]=1.
+                            mdSpec = np.flipud(mdSpec)
+                            fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = mdSpec
+                            #centroid = ancels['centroid_'+lineName][i]
+                            #width = ancels['w80_'+lineName][i]
+                            fitSmall = fit[idxMin1:idxMax1]
+                            idxPeak = np.nanargmax(fitSmall)
+                            #print(idxPeak)
+                            idxLeft = int(np.where(abs(fitSmall[:idxPeak]-10.)==abs(fitSmall[:idxPeak]-10.).min())[0]) 
+                            idxRight = int(np.where(abs(fitSmall[idxPeak:]-10.)==abs(fitSmall[idxPeak:]-10.).min())[0]) +idxPeak
+
+                            #print(idxLeft,idxRight)
+                            #velMin = centroid-(width/2.)
+                            #velMax = centroid+(width/2.)
+                            #indexVelMin = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
+                            #indexVelMax = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0]) 
+                            
+                            fitMask = np.zeros(len(fit[idxMin1:idxMax1]))
+                            fitMaskIntercect = np.zeros(len(fit[idxMin1:idxMax1]))
+                            #fitMask[indexVelMin:indexVelMax] = 1.
+                            
+                            fitMask[idxLeft:idxRight] = 1.
+                            lenghtLine = np.count_nonzero(fitMask == 1.)
+                            
+                            fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMask
+                            #print(fitMask,mdSpec)
+                            vecCount = np.where((fitMask==1.)& (mdSpec==1.))
+                            fitMaskIntercect[vecCount] = 1.
+                            
+                            vecSum = np.count_nonzero(fitMaskIntercect == 1.)
+                            fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMaskIntercect
+                            
+                            vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = vecSum
+                            
+                            lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lenghtLine/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']
+                            lengthLineSpec= np.count_nonzero(mdSpec == 1.)
+                            
+                            if vecSum>(lengthLineSpec/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']):
+                                rotArr[i]=1.
+                                rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=1.
+
+                            else:
+                                rotArr[i]=0.
+                                rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
+                elif bF[i] == 1:
+                    modName = 'g2' #we consider only the first component as rotation
+
+                #print('culo')
+                #print(rotArr[i],print(ancels['BIN_ID'][i]))
+                    for index in match_bin:
+                        if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
+                            result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
+                            comps = result.eval_components()
+                            fit = comps['g1ln'+str(indexLine[0])+'_']+comps['g2ln'+str(indexLine[0])+'_']
+                    #fit = comps['g1ln'+str(indexLine[0])+'_'] 
+                            fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]           
 
                     if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
-                        mdSpec = mdC[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
-                        
-                        mdSpec[mdSpec!=0]=1.
-                        mdSpec = np.flipud(mdSpec)
-                        fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = mdSpec
-                        #centroid = ancels['centroid_'+lineName][i]
-                        #width = ancels['w80_'+lineName][i]
-                        fitSmall = fit[idxMin1:idxMax1]
-                        idxPeak = np.nanargmax(fitSmall)
-                        #print(idxPeak)
-                        idxLeft = int(np.where(abs(fitSmall[:idxPeak]-10.)==abs(fitSmall[:idxPeak]-10.).min())[0]) 
-                        idxRight = int(np.where(abs(fitSmall[idxPeak:]-10.)==abs(fitSmall[idxPeak:]-10.).min())[0]) +idxPeak
-
-                        #print(idxLeft,idxRight)
-                        #velMin = centroid-(width/2.)
-                        #velMax = centroid+(width/2.)
-                        #indexVelMin = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
-                        #indexVelMax = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0]) 
-                        
-                        fitMask = np.zeros(len(fit[idxMin1:idxMax1]))
-                        fitMaskIntercect = np.zeros(len(fit[idxMin1:idxMax1]))
-                        #fitMask[indexVelMin:indexVelMax] = 1.
-                        
-                        fitMask[idxLeft:idxRight] = 1.
-                        lenghtLine = np.count_nonzero(fitMask == 1.)
-                        
-                        fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMask
-                        #print(fitMask,mdSpec)
-                        vecCount = np.where((fitMask==1.)& (mdSpec==1.))
-                        fitMaskIntercect[vecCount] = 1.
-                        
-                        vecSum = np.count_nonzero(fitMaskIntercect == 1.)
-                        fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMaskIntercect
-                        
-                        vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = vecSum
-                        
-                        lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lenghtLine/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']
-                        lengthLineSpec= np.count_nonzero(mdSpec == 1.)
-                        
-                        if vecSum>(lengthLineSpec/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']):
-                            rotArr[i]=1.
-                            rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=1.
-
-                        else:
-                            rotArr[i]=0.
-                            rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
 
 
+                        rotArr[i]=0.
+                        rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
+ 
                 else:
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                     fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
