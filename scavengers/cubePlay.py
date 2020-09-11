@@ -239,7 +239,7 @@ class cubeplay:
                     comps = result.eval_components()                    
                     #if modName=='g1':
                     #elif modName =='g2':
-
+                    fit = comps['g1ln'+str(indexLine[0])+'_']
                     #print('cazzo')
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
 
