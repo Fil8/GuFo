@@ -230,6 +230,7 @@ class cubeplay:
                         rotArr[i]=0.
                         rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
                         print('culo')
+                        print(rotArr[i],print(ancels['BIN_ID'][i]))
                         sys.exit(0)
                         break
 
