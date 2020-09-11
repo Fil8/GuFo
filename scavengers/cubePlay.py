@@ -229,6 +229,8 @@ class cubeplay:
                         #fit = comps['g1ln'+str(indexLine[0])+'_']
                         rotArr[i]=0.
                         rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
+                        print('culo')
+                        sys.exit(0)
                         break
 
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
@@ -290,6 +292,8 @@ class cubeplay:
                     fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                     vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                     lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                    rotArr[i]=np.nan
+                    rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
 
         waveAng=np.exp(wave)
 
