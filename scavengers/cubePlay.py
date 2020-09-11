@@ -211,7 +211,6 @@ class cubeplay:
                 
             if bF[i] == 0:
                 modName = 'g1'
-                fit = comps['g1ln'+str(indexLine[0])+'_']
             elif bF[i] == 1:
                 modName = 'g2' #we consider only the first component as rotation
 
