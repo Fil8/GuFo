@@ -225,11 +225,11 @@ class cubeplay:
                     if modName=='g1':
                         fit = comps['g1ln'+str(indexLine[0])+'_']
                     elif modName =='g2':
-                        #fit = comps['g1ln'+str(indexLine[0])+'_']+comps['g2ln'+str(indexLine[0])+'_']
+                        fit = comps['g1ln'+str(indexLine[0])+'_']+comps['g2ln'+str(indexLine[0])+'_']
                         #fit = comps['g1ln'+str(indexLine[0])+'_']
                         rotArr[i]=0.
                         rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
-                        continue
+                        break
 
                     fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
 
