@@ -210,8 +210,8 @@ class cubeplay:
             
             match_bin = np.where(tabGen['BIN_ID']==ancels['BIN_ID'][i])[0]
             binID = ancels['BIN_ID'][i]
-
-            if bF[binID] == 0:
+            indexBinIDres = np.where(residuals['BIN_ID']==binID)[0]
+            if bF[indexBinIDres] == 0:
                 modName = 'g1'
    
         
@@ -286,7 +286,7 @@ class cubeplay:
                         rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
 
                 
-            elif bF[binID] == 1:
+            elif bF[indexBinIDres] == 1:
                 modName = 'g2' #we consider only the first component as rotation
                 #print(bF[i],residuals['BIN_ID'][i],residuals['bestFit'][i])
                 #sys.exit(0)        
