@@ -209,8 +209,9 @@ class cubeplay:
         for i in range(0,len(ancels['BIN_ID'])):
             
             match_bin = np.where(tabGen['BIN_ID']==residuals['BIN_ID'][i])[0]
-                
-            if bF[i] == 0:
+            binID = ancels['BIN_ID'][i]
+
+            if bF[binID] == 0:
                 modName = 'g1'
    
         
@@ -218,7 +219,7 @@ class cubeplay:
                     #print('figa')
                     if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
            
-                        result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(int(residuals['BIN_ID'][i]))+'_'+modName+'.sav')
+                        result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(int(binID))+'_'+modName+'.sav')
                         comps = result.eval_components()                    
                         #if modName=='g1':
                         #elif modName =='g2':
@@ -293,7 +294,7 @@ class cubeplay:
             #print(rotArr[i],print(ancels['BIN_ID'][i]))
                 for index in match_bin:
                     if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
-                        result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(int(residuals['BIN_ID'][i]))+'_'+modName+'.sav')
+                        result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(int(binID))+'_'+modName+'.sav')
                         comps = result.eval_components()
                         fit = comps['g1ln'+str(indexLine[0])+'_']+comps['g2ln'+str(indexLine[0])+'_']
                 #fit = comps['g1ln'+str(indexLine[0])+'_'] 
