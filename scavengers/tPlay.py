@@ -252,7 +252,7 @@ class tplay(object):
     def makePixelTable(self,cfg_par):
 
         tab = fits.open(cfg_par['general']['outVorTableName'])
-        
+        print(cfg_par['general']['outVorTableName'])
         headTab = tab[0].header
         dataTab = tab[0].data  
 

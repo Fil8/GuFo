@@ -100,7 +100,7 @@ class MOMplot(object):
 
     img = ax1.imshow(hduImCut.data, cmap=cfg_par['moments']['colorMap'][0],vmin=vRange[0],vmax=vRange[1])
 
-    colorTickLabels = np.linspace(vRange[0],vRange[1],9.)    
+    colorTickLabels = np.linspace(vRange[0],vRange[1],9)    
 
     ax1.coords[1].set_axislabel(r'Dec (J2000)')
     ax1.coords[0].set_axislabel(r'RA (J2000)')
@@ -435,7 +435,7 @@ class MOMplot(object):
       mom1BarLabel = r+str(cfg_par[keyword]['cBarLabel'][1])
       cMap = cfg_par[keyword]['colorMap'][1]
 
-    img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5)
+    img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5,interpolation='nearest')
 
     colorTickLabels = np.linspace(vRange[0],vRange[1],9)    
 
