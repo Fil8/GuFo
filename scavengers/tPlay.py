@@ -253,8 +253,9 @@ class tplay(object):
 
         tab = fits.open(cfg_par['general']['outVorTableName'])
         print(cfg_par['general']['outVorTableName'])
-        headTab = tab[0].header
-        dataTab = tab[0].data  
+        headTab = tab[1].header
+        dataTab = tab[1].data  
+        print(tab.info)
         print(dataTab.dtype.names)
         NSPAX = np.zeros(0,len(dataTab['NSPAX']))+1.
         BIN_ID = dataTab['ID'].copy()
