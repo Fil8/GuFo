@@ -255,7 +255,7 @@ class tplay(object):
         print(cfg_par['general']['outVorTableName'])
         headTab = tab[0].header
         dataTab = tab[0].data  
-
+        print(dataTab.dtype.names)
         NSPAX = np.zeros(0,len(dataTab['NSPAX']))+1.
         BIN_ID = dataTab['ID'].copy()
 

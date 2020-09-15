@@ -392,7 +392,7 @@ class MOMplot(object):
   def mom1Plot(self,cfg_par,imageName,lineName,lineThresh,lineNameStr,keyword,
     vRange=None,modName='g1',contourColors='black',nameFigLabel=None,overlayContours=False,
     contName=None,contLevels=None,contValues=None,contColors=None):
-
+    print('culo')
     objCoordsRA = cfg_par['moments']['centreRA']
     objCoordsDec = cfg_par['moments']['centreDec']
     
@@ -476,6 +476,7 @@ class MOMplot(object):
         #contLevels = np.linspace(lineThresh*1.2,np.nanmax(hduImCut.data)*0.95,step)
         cs = ax1.contour(hduImCut.data,levels=imLevels, colors=contourColors)
         nameFigLabel = nameFigLabel+'_cs'
+        print(contValues)
         if contValues[0]==1:
             ax1.clabel(cs, inline=1, fontsize=14)
 
