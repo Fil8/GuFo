@@ -257,7 +257,7 @@ class tplay(object):
         dataTab = tab[1].data  
         print(tab.info)
         print(dataTab.dtype.names)
-        NSPAX = np.zeros(0,len(float(dataTab['NSPAX'])))+1.
+        NSPAX = np.zeros(0,np.shape(dataTab['NSPAX'][0]))+1.
         BIN_ID = dataTab['ID'].copy()
 
         nam = tuple (['ID', 'BIN_ID', 'X', 'Y', 'PixX', 'PixY', 'NSPAX'])
