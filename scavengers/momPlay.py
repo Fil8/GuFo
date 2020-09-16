@@ -457,9 +457,10 @@ class momplay:
         
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
-        #residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
-
-        bF = np.array(residuals['bestFit'],dtype=int)
+        
+        if cfg_par['residuals']['BFcube'] == True:
+            residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
+            bF = np.array(residuals['bestFit'],dtype=int)
 
         hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
