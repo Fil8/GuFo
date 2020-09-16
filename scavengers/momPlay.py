@@ -8,10 +8,12 @@ from lmfit.models import GaussianModel
 from lmfit.model import save_modelresult
 from lmfit.model import load_modelresult
 
-from reproject import reproject_exact
+from reproject import reproject_exact, reproject_interp
 
 from astropy.io import ascii, fits
 from astropy.table import Table, Column
+from astropy.wcs import WCS
+
 import numpy as np
 #import numpy.ma as ma
 
@@ -179,7 +181,8 @@ class momplay:
 
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
         #esiduals = hdul['Residuals_G1'].data
-        
+        cfg_par['gFit']['modName'] == 'BF'
+
         linesG1 = hdul['LineRes_G1'].data
 
         #hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
@@ -216,10 +219,10 @@ class momplay:
 
         fits.writeto(momModDir+'momSigma-'+lineName+'.fits',momSigma,momSigmaHead,overwrite=True)
 
-        mPl.mom2Plot(cfg_par, momModDir+'momSigma-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis')
+        mPl.mom2Plot(cfg_par, momModDir+'momSigma-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis',vRangeMax=cfg_par['moments']['sigmaThresh'])
 
         fits.writeto(momModDir+'momDisp-'+lineName+'.fits',momDisp,momSigmaHead,overwrite=True)
-        mPl.mom2Plot(cfg_par, momModDir+'momDisp-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis')
+        mPl.mom2Plot(cfg_par, momModDir+'momDisp-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis',vRangeMax=cfg_par['moments']['sigmaThresh'])
 
         momCentroidHead['WCSAXES'] = 2
         momCentroidHead['SPECSYS'] = 'topocent'
@@ -233,7 +236,7 @@ class momplay:
         momW80Head['SPECSYS'] = 'topocent'
         momW80Head['BUNIT'] = 'km/s'
         fits.writeto(momModDir+'momW80-'+lineName+'.fits',momW80,momW80Head,overwrite=True)
-        mPl.mom2Plot(cfg_par, momModDir+'momW80-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis')
+        mPl.mom2Plot(cfg_par, momModDir+'momW80-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis',vRangeMax=cfg_par['moments']['sigmaThresh'])
 
         return
 
@@ -454,7 +457,7 @@ class momplay:
         
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
-        residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
+        #residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
 
         bF = np.array(residuals['bestFit'],dtype=int)
 
@@ -561,7 +564,7 @@ class momplay:
         hdul = fits.open(cfg_par['general']['outTableName'])
         binInfo = hdul['BININFO'].data
 
-        res = hdul['residuals_'+modName].data
+        #res = hdul['residuals_'+modName].data
 
         for ii in range(0,len(lineInfo['ID'])):
             
@@ -1247,6 +1250,60 @@ class momplay:
         #    print i,'\t',slave.header[i]
         
         newslave, footprint = reproject_exact(slave, bheader)
+        fits.writeto(outName, newslave, bheader, overwrite=True)
+
+        return outName
+
+    def regridFromPxSize(self,basename,pxSize):
+        pxString=str(np.round(pxSize,1))
+        pxString=pxString.replace('.','-')
+        pxSize/=3600.
+
+        outName = basename.split('.fits')[0]
+        outName = outName+'_'+pxString+'.fits'
+        print(outName)
+        slave = fits.open(basename)
+        d=slave[0].data
+        index=np.isnan(d)
+        d[index]=0.0
+        fits.writeto(outName,d,slave[0].header,overwrite=True)
+        
+        slave = fits.open(outName)
+        sheader = slave[0].header
+        if 'WCSAXES' in sheader:
+            sheader['WCSAXES'] = 2
+        sheader['NAXIS'] = 2
+
+        bheader=sheader.copy()
+
+        w = WCS(bheader)
+        raC,decC= w.wcs_pix2world(0.0,0.0, 1)
+        bheader['NAXIS2'] = int(bheader['NAXIS2']*(bheader['CDELT2']/pxSize))
+        bheader['NAXIS1'] = int(bheader['NAXIS1']*(-bheader['CDELT1']/pxSize))
+
+        bheader['CDELT1'] = -pxSize
+        bheader['CDELT2'] = pxSize
+
+        bheader['CRVAL1'] = float(raC)
+        bheader['CRVAL2'] = float(decC)
+        bheader['CRPIX1'] = 0.0
+        bheader['CRPIX2'] = 0.0
+        print(pxSize,raC,decC,bheader['NAXIS1'],bheader['NAXIS2'])
+        # if 'FREQ' in slave.header:
+        #     bheader['FREQ'] = sheader['FREQ']
+        # elif 'CRVAL3' in sheader:
+        #     bheader['FREQ'] = sheader['CRVAL3']
+
+        #print basename
+        #for i in base.header.keys():
+        #    print i,'\t',base.header[i]
+        #print slavename
+        #for i in slave.header.keys():
+        #    print i,'\t',slave.header[i]
+
+        newslave, footprint = reproject_exact(slave, bheader)
+        index = np.where(newslave<=0.5)
+        newslave[index]=np.nan
         fits.writeto(outName, newslave, bheader, overwrite=True)
 
         return outName

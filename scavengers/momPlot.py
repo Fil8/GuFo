@@ -20,6 +20,8 @@ from matplotlib.colors import LogNorm
 from matplotlib.colors import SymLogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import ListedColormap
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
 import matplotlib.cm as cm
 
 from astropy import units as u
@@ -43,6 +45,7 @@ class MOMplot(object):
       params = {'figure.figsize'      : '10,10',
         'figure.autolayout' : True,
         'font.family'         :'serif',
+        'pdf.fonttype'        : 3,
         'font.serif'          :'times',
         'font.style'          : 'normal',
         'font.weight'         : 'book',
@@ -62,6 +65,7 @@ class MOMplot(object):
         'ytick.minor.size'    : 3,
         'ytick.minor.width'   : 1, 
         'text.usetex'         : True,
+        'text.latex.preamble' : r'\usepackage{amsmath}'
         #'text.latex.unicode'  : True
          }
       
@@ -391,8 +395,7 @@ class MOMplot(object):
 
   def mom1Plot(self,cfg_par,imageName,lineName,lineThresh,lineNameStr,keyword,
     vRange=None,modName='g1',contourColors='black',nameFigLabel=None,overlayContours=False,
-    contName=None,contLevels=None,contValues=None,contColors=None):
-    print('culo')
+    contName=None,imLevels=None,contValues=None,contColors=None,interpolation=None):
     objCoordsRA = cfg_par['moments']['centreRA']
     objCoordsDec = cfg_par['moments']['centreDec']
     
@@ -429,13 +432,13 @@ class MOMplot(object):
       vRange[1] = np.nanmax(hduImCut.data)
 
     if len(cfg_par[keyword]['cBarLabel'])>1:
-      mom1BarLabel=r'velocity [km s$^{-1}$]'
+      mom1BarLabel=r'[km s$^{-1}$]'
       cMap = 'jet'
     else:
       mom1BarLabel = r+str(cfg_par[keyword]['cBarLabel'][1])
       cMap = cfg_par[keyword]['colorMap'][1]
 
-    img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5,interpolation='nearest')
+    img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5,interpolation=interpolation)
 
     colorTickLabels = np.linspace(vRange[0],vRange[1],9)    
 
@@ -459,7 +462,7 @@ class MOMplot(object):
     elif lineNameStr=='Ha6562':
       lineNameStr=r'H$_\alpha$6562'
 
-    ax1.set_title(lineNameStr)
+    #ax1.set_title(lineNameStr)
 
     ax1.set_autoscale_on(False)    
     #SaveOutput
@@ -476,7 +479,6 @@ class MOMplot(object):
         #contLevels = np.linspace(lineThresh*1.2,np.nanmax(hduImCut.data)*0.95,step)
         cs = ax1.contour(hduImCut.data,levels=imLevels, colors=contourColors)
         nameFigLabel = nameFigLabel+'_cs'
-        print(contValues)
         if contValues[0]==1:
             ax1.clabel(cs, inline=1, fontsize=14)
 
@@ -491,7 +493,8 @@ class MOMplot(object):
         array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
                                             hduImCut.wcs, shape_out=hduImCut.shape)
 
-        cs = ax1.contour(array.data,levels=contLevels[i], colors=contColors[i])
+        cs = ax1.contour(array.data,levels=contValues[i], colors=contColors[i])
+
         if contValues[i]==1:
             ax1.clabel(cs, inline=1, fontsize=14)
 
@@ -502,9 +505,9 @@ class MOMplot(object):
 
     return 0
 
-  def mom2Plot(self,cfg_par,imageName,lineName,lineThresh,lineNameStr,keyword,
+  def mom2Plot(self,cfg_par,imageName,lineName,lineThresh,lineNameStr,keyword,vRangeMax,
     modName='g1',contourColors='black',nameFigLabel=None,overlayContours=False,
-    contName=None,contLevels=None,contValues=None,contColors=None):
+    contName=None,contValues=None,contColors=None,interpolation=None):
 
     objCoordsRA = cfg_par['moments']['centreRA']
     objCoordsDec = cfg_par['moments']['centreDec']
@@ -539,14 +542,15 @@ class MOMplot(object):
     vRange[1] = np.nanmax(hduImCut.data)
 
     if len(cfg_par[keyword]['cBarLabel'])>1:
-      mom1BarLabel=r' [km s$^{-1}$]'
+      mom1BarLabel=r'[km s$^{-1}$]'
       cMap = 'jet'
     else:
       mom1BarLabel = r+str(cfg_par[keyword]['cBarLabel'][2])
       cMap = cfg_par[keyword]['colorMap'][2]
 
 #    img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5)
-    img = ax1.imshow(hduImCut.data, cmap=cMap)
+    img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=0.0,vmax=vRangeMax,
+        interpolation=interpolation)
 
     colorTickLabels = np.linspace(vRange[0],vRange[1],9)    
 
@@ -570,15 +574,13 @@ class MOMplot(object):
     elif lineNameStr=='Ha6562':
       lineNameStr=r'H$_\alpha$6562'
 
-    ax1.set_title(lineNameStr)
+    #ax1.set_title(lineNameStr)
 
     ax1.set_autoscale_on(False)    
     #SaveOutput
     outMom = os.path.basename(imageName)
     outMom= str.split(outMom, '.fits')[0]  
     modName = cfg_par['gFit']['modName'] 
-
-
 
     if nameFigLabel==None:
         nameFigLabel='' 
@@ -601,17 +603,310 @@ class MOMplot(object):
         array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
                                             hduImCut.wcs, shape_out=hduImCut.shape)
 
-        cs = ax1.contour(array.data,levels=contLevels[i], colors=contColors[i])
+        cs = ax1.contour(array.data,levels=contValues[i], colors=contColors[i])
         if contValues[i]==1:
             ax1.clabel(cs, inline=1, fontsize=14)
 
     outFig = cfg_par['general']['plotMomModDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
-    fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=300)#,
+    fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=300,transparent=False)#,
             #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
 
-
+    plt.close()
     return 0
 
+
+  def mom12Triplet(self,cfg_par,im1,im2,im3,lineName,lineThresh,lineNameStr,
+    vRange=None,modName='g1',contourColors='black',nameFigLabel=None,overlayContours=False,
+    contName=None,imLevels=None,contValues=None,contColors=None,interpolation=None,title=False,kind=None):
+
+
+    objCoordsRA = cfg_par['moments']['centreRA']
+    objCoordsDec = cfg_par['moments']['centreDec']
+    
+    centre = SkyCoord(ra=objCoordsRA*u.degree, dec=objCoordsDec*u.degree, frame='fk5')
+    size = u.Quantity((cfg_par['moments']['sizePlots'],cfg_par['moments']['sizePlots']), u.arcmin)
+  
+    params = self.loadRcParams()
+    plt.rcParams.update(params)
+
+    #mom0Map = fits.open(cfg_par['general']['momModDir']+'mom0_'+modName+'-'+lineName+'.fits')
+    #hBetaData = mom0Map[0].data
+
+    hduIm1 = fits.open(im1)[0]
+    wcsIm1 = WCS(hduIm1.header)
+    hduImCut1 = Cutout2D(hduIm1.data, centre, size, wcs=wcsIm1)
+
+    hduIm2 = fits.open(im2)[0]
+    wcsIm2 = WCS(hduIm2.header)
+    hduImCut2 = Cutout2D(hduIm2.data, centre, size, wcs=wcsIm2)
+
+    hduIm3 = fits.open(im3)[0]
+    wcsIm3 = WCS(hduIm3.header)
+    hduImCut3 = Cutout2D(hduIm3.data, centre, size, wcs=wcsIm3)
+    #idx = np.where(np.isnan(hBetaData))
+    #hduIm.data[idx] = np.nan
+
+    fig = plt.figure(figsize =(12,10), constrained_layout=False)
+    
+    gs = plt.GridSpec(nrows=1, ncols=3,  figure=fig,wspace=0.0,hspace=0.0)
+
+    ax1 = fig.add_subplot(gs[0,0],projection=wcsIm1)
+    
+    #divider = make_axes_locatable(ax1)
+    #cax = divider.append_axes("right", size='2%', pad=0.1)
+    if vRange==None:
+        vRange=np.array([1,2])
+        vRange[0] = np.nanmin(hduImCut.data)
+        vRange[1] = np.nanmax(hduImCut.data)
+
+
+    cMap = 'jet'
+
+
+    c = SkyCoord('00:00:02.0','00:00:20.0',unit=(u.hourangle,u.deg))
+    ax1.coords[0].set_ticks(spacing=c.ra.degree*u.degree)
+    ax1.coords[1].set_ticks(spacing=c.dec.degree*u.degree)
+
+    ax1.coords[1].set_axislabel(r'Dec (J2000)')
+
+    ax1.coords[0].set_axislabel(r'RA (J2000)')
+
+#    img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5)
+    img = ax1.imshow(hduImCut1.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5,
+        interpolation=interpolation)
+
+    if kind == 'mom2' or kind == None:
+        colorTickLabels = np.arange(vRange[0],vRange[1]+100.,100.)    
+    elif kind == 'mom1':
+        colorTickLabels = np.linspace(vRange[0],vRange[1],5)  
+
+    
+    # cax.coords[0].grid(False)
+    # cax.coords[1].grid(False)
+    # cax.tick_params(direction='in')
+    # cax.coords[0].tick_params(top=False, bottom=False,
+    #                labeltop=False, labelbottom=False)
+    # cax.coords[1].set_ticklabel_position('r')
+
+    # cax.coords[1].set_axislabel(mom1BarLabel)
+    # cax.coords[1].set_axislabel_position('r')
+    # cbar = plt.colorbar(img, cax=cax,ticks =colorTickLabels,
+    #                 orientation='vertical', format='%d')   
+    
+    if lineNameStr=='Hb4861':
+      lineNameStr=r'H$_\beta$4861'
+    elif lineNameStr=='Ha6562':
+      lineNameStr=r'H$_\alpha$6562'
+
+    if title==True:
+        ax1.set_title('g1')
+
+    ax1.set_autoscale_on(False)    
+    #SaveOutput
+
+    modName = cfg_par['gFit']['modName'] 
+
+    if nameFigLabel==None:
+        nameFigLabel='' 
+    if overlayContours:
+        imLevels =lineThresh*1.2*(np.arange(1,10,2))
+        #contLevels = np.linspace(lineThresh*1.2,np.nanmax(hduImCut.data)*0.95,step)
+        cs = ax1.contour(hduImCut.data,levels=imLevels, colors=contourColors)
+        nameFigLabel = nameFigLabel+'_cs'
+        if contValues[0]==1:
+            ax1.clabel(cs, inline=1, fontsize=14)
+
+    if contName:
+      if nameFigLabel=='':
+        nameFigLabel='over_'
+      for i in range(0,len(contName)):
+
+        hduCont = fits.open(contName[i])[0]
+        wcsCont = WCS(hduCont.header)
+        hduContCut = Cutout2D(hduCont.data, centre, size, wcs=wcsCont)    
+        array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
+                                            hduImCut1.wcs, shape_out=hduImCut1.shape)
+
+        cs = ax1.contour(array.data,levels=contValues[i], colors=contColors[i])
+        if contValues[i]==1:
+            ax1.clabel(cs, inline=1, fontsize=14)
+
+    ax2 = fig.add_subplot(gs[0,1],projection=wcsIm2)
+    
+    #divider = make_axes_locatable(ax1)
+    #cax = divider.append_axes("right", size='2%', pad=0.1)
+
+
+    cMap = 'jet'
+
+#    img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5)
+    img = ax2.imshow(hduImCut2.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5,
+        interpolation=interpolation)
+
+
+    ax2.coords[0].set_ticks(spacing=c.ra.degree*u.degree)
+    ax2.coords[1].set_ticks(spacing=c.dec.degree*u.degree)
+    ax2.coords[1].set_axislabel(r'Dec (J2000)')
+    ax2.coords[1].set_ticklabel_visible(False)
+    ax2.coords[0].set_axislabel(r'RA (J2000)')
+    
+    # cax.coords[0].grid(False)
+    # cax.coords[1].grid(False)
+    # cax.tick_params(direction='in')
+    # cax.coords[0].tick_params(top=False, bottom=False,
+    #                labeltop=False, labelbottom=False)
+    # cax.coords[1].set_ticklabel_position('r')
+
+    # cax.coords[1].set_axislabel(mom1BarLabel)
+    # cax.coords[1].set_axislabel_position('r')
+    # cbar = plt.colorbar(img, cax=cax,ticks =colorTickLabels,
+    #                 orientation='vertical', format='%d')   
+    
+    if lineNameStr=='Hb4861':
+      lineNameStr=r'H$_\beta$4861'
+    elif lineNameStr=='Ha6562':
+      lineNameStr=r'H$_\alpha$6562'
+
+
+    if title==True:
+        ax2.set_title('g2')
+
+    ax2.set_autoscale_on(False)    
+    #SaveOutput
+ 
+    modName = cfg_par['gFit']['modName'] 
+
+    if nameFigLabel==None:
+        nameFigLabel='' 
+    if overlayContours:
+        imLevels =lineThresh*1.2*(np.arange(1,10,2))
+        #contLevels = np.linspace(lineThresh*1.2,np.nanmax(hduImCut.data)*0.95,step)
+        cs = ax2.contour(hduImCut.data,levels=imLevels, colors=contourColors)
+        nameFigLabel = nameFigLabel+'_cs'
+        if contValues[0]==1:
+            ax2.clabel(cs, inline=1, fontsize=14)
+
+    if contName:
+      if nameFigLabel=='':
+        nameFigLabel='over_'
+      for i in range(0,len(contName)):
+
+        hduCont = fits.open(contName[i])[0]
+        wcsCont = WCS(hduCont.header)
+        hduContCut = Cutout2D(hduCont.data, centre, size, wcs=wcsCont)    
+        array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
+                                            hduImCut2.wcs, shape_out=hduImCut2.shape)
+
+        cs = ax2.contour(array.data,levels=contValues[i], colors=contColors[i])
+        if contValues[i]==1:
+            ax2.clabel(cs, inline=1, fontsize=14)
+
+    ax3 = fig.add_subplot(gs[0,2],projection=wcsIm3)
+    
+    #divider = make_axes_locatable(ax3)
+    #cax = divider.append_axes("right", size='2%', pad=0.1)
+  
+    if kind=='mom2':
+        mom1BarLabel=r'$\sigma_{\rm los}$ [km s$^{-1}$]'
+        momName='mom2'
+
+    elif kind=='mom1':
+        mom1BarLabel=r'$v_{\rm los}-v_{\rm sys}$ [km s$^{-1}$]'
+        momName='mom1'
+    else:
+        mom1BarLabel=r'[km s$^{-1}$]'
+        momName='mom'
+
+    cMap = 'jet'
+
+#    img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5)
+    img = ax3.imshow(hduImCut3.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5,
+        interpolation=interpolation)
+
+    ax3.coords[0].set_ticks(spacing=c.ra.degree*u.degree)
+    ax3.coords[1].set_ticks(spacing=c.dec.degree*u.degree)
+    ax3.coords[1].set_axislabel(r'Dec (J2000)')
+    ax3.coords[1].set_ticklabel_visible(False)
+    ax3.coords[0].set_axislabel(r'RA (J2000)')
+
+
+    axins = inset_axes(ax3,
+                   width="5%",  # width = 5% of parent_bbox width
+                   height="100%",  # height : 50%
+                   loc='lower left',
+                   bbox_to_anchor=(1.05, 0., 1, 1),
+                   bbox_transform=ax3.transAxes,
+                   borderpad=0,
+                   )
+
+    #cax.coords[0].grid(False)
+    #cax.coords[1].grid(False)
+    #cax.tick_params(direction='in')
+    #cax.coords[0].tick_params(top=False, bottom=False,
+    #               labeltop=False, labelbottom=False)
+    #cax.coords[1].set_ticklabel_position('r')
+
+    #cax.coords[1].set_axislabel(mom1BarLabel)
+    #cax.coords[1].set_axislabel_position('r')
+    cbar = fig.colorbar(img, cax=axins,ticks =colorTickLabels,
+                  orientation='vertical', format='%d')   
+    cbar.set_label(mom1BarLabel, rotation=-90, va="bottom")
+    if lineNameStr=='Hb4861':
+      lineNameStr=r'H$_\beta$4861'
+    elif lineNameStr=='Ha6562':
+      lineNameStr=r'H$_\alpha$6562'
+
+    if title==True:
+        ax3.set_title('total')
+
+    ax3.set_autoscale_on(False)    
+
+
+    #outMom= str.split(outMom, '.fits')[0]+  
+    modName = cfg_par['gFit']['modName'] 
+
+    if nameFigLabel==None:
+        nameFigLabel='' 
+    if overlayContours:
+        imLevels =lineThresh*1.2*(np.arange(1,10,2))
+        #contLevels = np.linspace(lineThresh*1.2,np.nanmax(hduImCut.data)*0.95,step)
+        cs = ax3.contour(hduImCut.data,levels=imLevels, colors=contourColors)
+        nameFigLabel = nameFigLabel+'_cs'
+        if contValues[0]==1:
+            ax3.clabel(cs, inline=1, fontsize=14)
+
+    if contName:
+      if nameFigLabel=='':
+        nameFigLabel='over_'
+      for i in range(0,len(contName)):
+
+        hduCont = fits.open(contName[i])[0]
+        wcsCont = WCS(hduCont.header)
+        hduContCut = Cutout2D(hduCont.data, centre, size, wcs=wcsCont)    
+        array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
+                                            hduImCut3.wcs, shape_out=hduImCut3.shape)
+
+        cs = ax3.contour(array.data,levels=contValues[i], colors=contColors[i])
+        if contValues[i]==1:
+            ax3.clabel(cs, inline=1, fontsize=14)
+
+
+    #SaveOutput
+    if title==True:
+        outMom = momName+'g1g2TotTitle'
+    else:
+        outMom = momName+'g1g2Tot'
+
+
+    fig.subplots_adjust(hspace=0.,wspace=0.)
+
+
+    outFig = cfg_par['general']['plotMomModDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
+    fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], dpi=300,bbox_inches = "tight",overwrite=True)#,
+            #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
+
+    plt.close()
+    return 0
 
       # params = self.loadRcParams()
       # plt.rcParams.update(params)

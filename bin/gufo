@@ -551,7 +551,7 @@ def main (argv):
 
     # Analysis of the kinematics
     # ++++++++++++++++++++++++++        
-    if args.kinAnal or gPar.cfg_par['kinematicalAnalysis'].get('enable',False) == True:
+    if args.kinAnal or gPar.cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCAanalysis'] == True:
         time_start_load = time.time()
         print ('\n\t +---------+\t      kinematical Analysis\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
