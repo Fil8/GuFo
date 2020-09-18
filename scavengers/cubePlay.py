@@ -614,10 +614,9 @@ class cubeplay:
 
         cubeletsDir = cfg_par['general']['cubeletsDir']
         cubeDir = cfg_par['general']['cubeDir']
-        if cfg_par['residuals']['BFcube'] == True:
-            modName='BF'
-        else:
-            modName = cfg_par['gFit']['modName']
+        
+
+        modName = cfg_par['gFit']['modName']
         momDir = cfg_par['general']['momDir']
 
 
@@ -1007,7 +1006,10 @@ class cubeplay:
         hdulist[0].header["CDELT2"] = hdulist[0].header["CDELT3"]
         hdulist[0].header["CRVAL2"] = hdulist[0].header["CRVAL3"]
         hdulist[0].header["CRPIX2"] = hdulist[0].header["CRPIX3"]
-        hdulist[0].header["CUNIT2"] = hdulist[0].header["CUNIT3"]
+        if "CUNIT3" in hdulist[0].header:
+            hdulist[0].header["CUNIT2"] = hdulist[0].header["CUNIT3"]
+        else:
+            hdulist[0].header["CUNIT2"] = 'm/s'
         hdulist[0].header["ORIGIN"] = 'GaNGiaLF'
 
         self.delete_3rd_axis(hdulist[0].header)

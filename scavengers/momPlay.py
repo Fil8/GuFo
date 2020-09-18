@@ -401,7 +401,7 @@ class momplay:
             mPl.mom1Plot(cfg_par, momModDir+'mom1_g2-'+lineName+'.fits',lineName,
                 lineNameStr,lineThresh,'moments',vRange=[-cenRange,cenRange],
                 modName='g2')
-            mPl.mom2Plot(cfg_par, momModDir+'mom2_g2-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'moments')
+            mPl.mom2Plot(cfg_par, momModDir+'mom2_g2-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'moments',vRangeMax=cfg_par['moments']['sigmaThresh'])
 
             if modName == 'g2':
                 fits.writeto(momModDir+'mom0_tot-'+lineName+'.fits', mom0G1+mom0G2,mom0Head,overwrite=True)
@@ -457,7 +457,7 @@ class momplay:
         
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
-        
+
         if cfg_par['residuals']['BFcube'] == True:
             residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
             bF = np.array(residuals['bestFit'],dtype=int)

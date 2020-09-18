@@ -117,6 +117,7 @@ class ancelsplot(object):
             ancels['logDispIntr_NII6583'][binCode[1]]]
             CCASca=ancels['CCAIN'][binCode[1]]
             rotSca = ancels['RotMod'][binCode[1]]
+        
         elif cfg_par['gFit']['modName'] == 'g3':
             modString = ['G1','G2','G3','ToT']
             x = [np.log10(lines['g1_Centre_NII6583']),np.log10(lines['g2_Centre_NII6583']),np.log10(lines['g3_Centre_NII6583']),
@@ -141,7 +142,7 @@ class ancelsplot(object):
         
             #ax.set_xticks([])
             
-            ax1.set_xlabel(r'log($|\overline{v}_{\rm los}|$)\,\, [km s$^{-1}$]')
+            ax1.set_xlabel(r'log($v_{\rm los}$)\,\, [km s$^{-1}$]')
             ax1.set_ylabel(r'log($\sigma_{\rm los}$)\,\, [km s$^{-1}$]')
         
             # Calculate axis limits and aspect ratio
@@ -222,7 +223,7 @@ class ancelsplot(object):
     
                 ax1.scatter(x[i][indexCCA], y[i][indexCCA], c='seagreen', marker='.', s=20, linewidths=None, alpha=0.5,facecolors='seagreen',edgecolors=None,
                     label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCALabel'][i]+' CCA within '+
-                    str(int(cfg_par['kinematicalAnalysis']['ancillaryInfo']['sigmaInCCA']))+r'$\sigma$')
+                    str(round(cfg_par['kinematicalAnalysis']['ancillaryInfo']['sigmaInCCA'],1))+r'$\sigma$')
                 
                 if cfg_par['kinematicalAnalysis']['ancillaryInfo']['plotElse'] ==True:
                     ax1.scatter(x[i][indexElse], y[i][indexElse], c='darkgray', marker='.', s=20, linewidths=None, alpha=0.2,facecolors='darkgray',edgecolors=None,
@@ -281,7 +282,7 @@ class ancelsplot(object):
 
         #ax.set_xticks([])
         
-        ax1.set_xlabel(r'log($|\overline{v}_{\rm los}|$)\,\, [km s$^{-1}$]')
+        ax1.set_xlabel(r'log($v_{\rm los$)\,\, [km s$^{-1}$]')
         ax1.set_ylabel(r'log($\sigma_{\rm los}$)\,\, [km s$^{-1}$]')
     
         # Calculate axis limits and aspect ratio
@@ -622,6 +623,8 @@ class ancelsplot(object):
             CustomCmapThree = ListedColormap('blue')           
 
             mPl.momAncPlotOver(cfg_par, CCAundName, CCAOnlyName, RoTNameOnly, Labels,CustomCmapOne,CustomCmapThree,colorList)
+
+
         
 
 
