@@ -158,7 +158,7 @@ class cubeplay:
             lineNamesStrAll[ii] = str(lineNameStrAll+str(int(lineInfoAll['Wave'][ii])))
 
         indexLine =  np.where(lineNamesStrAll == lineNameStr)[0]
-        modName='BF'
+        #modName='BF'
         f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
         dd = f[0].data
         hh = f[0].header
