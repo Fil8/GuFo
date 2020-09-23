@@ -290,7 +290,9 @@ class cubeplay:
                         vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                         lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                         rotArr[i]=np.nan
-                        rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
+                        
+                        if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+                            rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
 
                 
             elif bF[indexBinIDres] == 1:
@@ -314,7 +316,9 @@ class cubeplay:
                         vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                         lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                         rotArr[i]=np.nan
-                        rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
+                        
+                        if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+                            rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
 
 
                 if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
@@ -332,7 +336,9 @@ class cubeplay:
                 vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                 lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
                 rotArr[i]=np.nan
-                rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
+                
+                if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+                    rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
 
         waveAng=np.exp(wave)
 
