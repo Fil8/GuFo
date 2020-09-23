@@ -158,10 +158,16 @@ class cubeplay:
             lineNamesStrAll[ii] = str(lineNameStrAll+str(int(lineInfoAll['Wave'][ii])))
 
         indexLine =  np.where(lineNamesStrAll == lineNameStr)[0]
-        #modName='BF'
-        f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
-        dd = f[0].data
-        hh = f[0].header
+        if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+            modName='BF'
+            f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
+            dd = f[0].data
+            hh = f[0].header
+        else:
+            modName='g2'
+            f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
+            dd = f[0].data
+            hh = f[0].header            
         mom = fits.open(momDir+'g2/mom0_tot-'+lineName+'.fits')
         mm=mom[0].data
         indexFltr = np.broadcast_to(np.isnan(mm), dd.shape)
@@ -177,6 +183,7 @@ class cubeplay:
         idxMax = int(np.where(abs(wave-lambdaMax)==abs(wave-lambdaMax).min())[0])
 
         wave=wave[idxMin:idxMax]
+
         dd=dd[idxMin:idxMax,:,:]
 
         velRangeMin = cvP.vRadLambda(-cfg_par['bestFitSel']['BFcube']['velRange'][0],
