@@ -15,6 +15,8 @@ from astropy.table import Table, Column
 from astropy.wcs import WCS
 
 import numpy as np
+import numpy.lib.recfunctions as rfn
+
 #import numpy.ma as ma
 
 import tPlay,cvPlay,bptPlot,momPlot
@@ -146,6 +148,61 @@ class momplay:
 
         return
 
+
+    def makeMultipleMaps(self,cfg_par):
+
+        tableNames = cfg_par['multipleRegions']['tableNames']
+        regionNames = cfg_par['multipleRegions']['regions']
+
+        momModDir = cfg_par['general']['momDir']+'multipleRegions'+'/'
+
+        if not os.path.exists(momModDir):
+            os.mkdir(momModDir)
+
+        inMom = cfg_par['multipleRegions']['inputMoment']
+        header = fits.open(inMom)[0].header
+
+        if 'CUNIT3' in header:
+            del header['CUNIT3']
+        if 'CTYPE3' in header:
+            del header['CTYPE3']
+        if 'CDELT3' in header:
+            del header['CDELT3']
+        if 'CRVAL3' in header:  
+            del header['CRVAL3']
+        if 'CRPIX3' in header:
+            del header['CRPIX3'] 
+        if 'NAXIS3' in header:
+            del header['NAXIS3']
+        if 'CRDER3' in header:
+            del header['CRDER3']
+
+
+
+        for j in range(0,len(tableNames)):
+            momHead = header.copy()
+            mom = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
+
+            hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[j])
+            tabGen = np.asarray(hdul[1].data)
+            print(tabGen.dtype.names)
+            if 'PixX_1' in tabGen.dtype.names:
+                tabGen = rfn.rename_fields(tabGen, {'PixX_1': 'PixX', 'PixY_1': 'PixY'})
+            print(tabGen['PixY'])
+            for i in range(0,len(tabGen['BIN_ID'])):
+                    
+                mom[int(tabGen['PixY'][i]),int(tabGen['PixX'][i])] = tabGen['CCAIN'][i]
+
+        
+            momHead['WCSAXES'] = 2
+            momHead['SPECSYS'] = 'topocent'
+            momHead['BUNIT'] = 'km/s'
+
+            fits.writeto(momModDir+'mom-'+regionNames[j]+'.fits',mom,momHead,overwrite=True)
+
+        return
+
+
     def momSigmaCentroid(self,cfg_par,lineName,lineNameStr,header,lineThresh,cenRange):
 
         modName = cfg_par['gFit']['modName']
@@ -219,10 +276,10 @@ class momplay:
 
         fits.writeto(momModDir+'momSigma-'+lineName+'.fits',momSigma,momSigmaHead,overwrite=True)
 
-        mPl.mom2Plot(cfg_par, momModDir+'momSigma-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis',vRangeMax=cfg_par['moments']['sigmaThresh'])
+        mPl.mom2Plot(cfg_par, momModDir+'momSigma-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis',vRange=[0,cfg_par['moments']['sigmaThresh']])
 
         fits.writeto(momModDir+'momDisp-'+lineName+'.fits',momDisp,momSigmaHead,overwrite=True)
-        mPl.mom2Plot(cfg_par, momModDir+'momDisp-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis',vRangeMax=cfg_par['moments']['sigmaThresh'])
+        mPl.mom2Plot(cfg_par, momModDir+'momDisp-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis',vRange=[0,cfg_par['moments']['sigmaThresh']])
 
         momCentroidHead['WCSAXES'] = 2
         momCentroidHead['SPECSYS'] = 'topocent'
@@ -236,7 +293,7 @@ class momplay:
         momW80Head['SPECSYS'] = 'topocent'
         momW80Head['BUNIT'] = 'km/s'
         fits.writeto(momModDir+'momW80-'+lineName+'.fits',momW80,momW80Head,overwrite=True)
-        mPl.mom2Plot(cfg_par, momModDir+'momW80-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis',vRangeMax=cfg_par['moments']['sigmaThresh'])
+        mPl.mom2Plot(cfg_par, momModDir+'momW80-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis',vRange=[0,cfg_par['moments']['sigmaThresh']])
 
         return
 

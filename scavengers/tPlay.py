@@ -709,9 +709,28 @@ class tplay(object):
         lineName = cfg_par['moments']['makeTable']['line']
 
 
-        hdul = fits.open(cfg_par['general']['outTableName'])
-        tabGen = hdul[1].data
-    
+        mom0File = fits.open(cfg_par['moments']['makeTable']['mom0'])
+        mom0  = mom0File[0].data
+
+        
+        mom1File = fits.open(cfg_par['moments']['makeTable']['mom1'])
+        mom1  = mom1File[0].data
+
+        mom2File = fits.open(cfg_par['moments']['makeTable']['mom2'])
+        mom2  = mom2File[0].data
+        mapW80=np.empty([mom2.shape[0],mom2.shape[1]])*np.nan
+
+        if cfg_par['moments']['makeTable']['fov'] == 'MUSE':
+            hdul = fits.open(cfg_par['general']['outTableName'])
+            tabGen = hdul[1].data
+        else:
+            xCol = np.zeros([mom0.shape[1]*mom0.shape[0]])
+            yCol = np.zeros([mom0.shape[1]*mom0.shape[0]])
+            BIN_ID =  np.zeros([mom0.shape[1]*mom0.shape[0]])
+            tabGen=np.column_stack([xCol,yCol,BIN_ID])
+            dt = np.dtype([('BIN_ID', np.int32), ('PixX', np.int32), ('PixY', np.int32)])
+            tabGen = np.array(list(map(tuple, tabGen)), dtype=dt)
+        
 
         namBins = tuple(['BIN_ID', 'PixX', 'PixY','r'])
         namLines = tuple(['BIN_ID','g1_Amp_'+lineName])
@@ -726,15 +745,11 @@ class tplay(object):
         anArr = np.zeros([len(tabGen)], dtype={'names':namAncels,
                           'formats':( 'i4', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')})  
 
-        mom0File = fits.open(cfg_par['moments']['makeTable']['mom0'])
-        mom0  = mom0File[0].data
 
-        
-        mom1File = fits.open(cfg_par['moments']['makeTable']['mom1'])
-        mom1  = mom1File[0].data
 
-        mom2File = fits.open(cfg_par['moments']['makeTable']['mom2'])
-        mom2  = mom2File[0].data
+
+        if cfg_par['moments']['makeTable']['unitMoms'] == 'km/s':
+            mom1 -= float(cfg_par['general']['velsys'])
 
         if cfg_par['moments']['makeTable']['unitMoms'] == 'm/s':
             mom1 = np.divide(mom1,1e3)
@@ -749,18 +764,22 @@ class tplay(object):
             mom1 -=float(cfg_par['general']['velsys'])
             mom2 = np.multiply(mom2,-convFac)
             mom2 /= 1e3
+            mom0 = np.multiply(mom0,-convFac)
+            mom0 /= 1e3
             #rint(deltaV,convFac)
             #sys.exit(0)
         print(cfg_par['moments']['makeTable']['mom0'])
         
         pixCenX = cfg_par['starSub']['pixX']
         pixCenY = cfg_par['starSub']['pixY']
-
+        indexBin=0
         for i in range(0,mom0.shape[1]):
             for j in range(0,mom0.shape[0]):
 
-                indexBin = np.where(np.logical_and(tabGen['PixX']==i,tabGen['PixY']==j))[0]
+                if cfg_par['moments']['makeTable']['fov'] == 'MUSE':
+                   indexBin = np.where(np.logical_and(tabGen['PixX']==i,tabGen['PixY']==j))[0]
                 
+
                 r = np.sqrt(np.power(float(i)-pixCenX,2)+np.power(float(j)-pixCenY,2))*(cfg_par['moments']['makeTable']['pixSize'])*cfg_par['moments']['makeTable']['pcConv']/1e3
 
                 if not indexBin is None:
@@ -786,7 +805,10 @@ class tplay(object):
                 
                     fwhm=mom2[j,i]*2.*np.sqrt(2.*np.log(2))
                     anArr['w80_'+lineName][indexBin] = fwhm/0.919
+                    mapW80[j,i]=fwhm/0.919
                     anArr['logW80_'+lineName][indexBin] = np.log10(fwhm/0.919)
+
+                indexBin +=1 
 
         hdr = fits.Header()
         hdr['COMMENT'] = "Here are the outputs of gPlay"
@@ -802,9 +824,14 @@ class tplay(object):
 
         t3 = fits.BinTableHDU.from_columns(anArr,name='ancelsg1')
         hdl.append(t3) 
-  
+        
         hdl.writeto(cfg_par['moments']['makeTable']['outTableName'],overwrite=True)
+        momModDir = cfg_par['general']['momDir']+lineName+'/'
+        if not os.path.exists(momModDir):
+            os.mkdir(momModDir)
 
+        outMapW80=momModDir+'momW80-'+lineName+'.fits'
+        fits.writeto(outMapW80,mapW80, mom2File[0].header,overwrite=True)
 
         return
 
@@ -1774,6 +1801,49 @@ class tplay(object):
 
         return
 
+    def rebinTable(self,inTable,colBin,binSize):
+
+        hdul = fits.open(inTable)
+        tt=Table(hdul[1].data)
+        
+        tt.sort(colBin)
+        toBin = tt[colBin]
+
+
+        templateBin = np.trunc(toBin / binSize)
+
+        tableGrouped=tt.group_by(templateBin)
+        tableBinned=tableGrouped.groups.aggregate(np.nanmean)
+        tableBinnedErr=tableGrouped.groups.aggregate(np.nanstd)
+        tableBinnedNgood=tableGrouped.groups.indices
+        #new_col = fits.ColDefs([fits.Column(name='NGOOD', format='D', array=tableBinnedNgood)])
+
+        try:
+            tt = Table(hdul['BinnedTable'+colBin+str(binSize)].data)
+            hdul['BinnedTable'+colBin+str(binSize)] = fits.BinTableHDU(tableBinned.as_array(),name='BinnedTable'+colBin+str(binSize))
+
+        except KeyError as e:
+            tt=fits.BinTableHDU.from_columns(tableBinned.as_array(),name='BinnedTable'+colBin+str(binSize))   
+            hdul.append(tt)   
+
+        #orig_cols = resTable.data.columns
+        tableBinnedErr.add_column(Column(np.ediff1d(tableBinnedNgood),name='NGOOD'))
+
+
+        try:
+            ttErr = Table(hdul['BinnedTableErr'+colBin+str(binSize)].data)
+            hdul['BinnedTableErr'+colBin+str(binSize)] = fits.BinTableHDU(tableBinnedErr.as_array(),name='BinnedTableErr'+colBin+str(binSize))
+
+        except KeyError as e:
+            ttErr=fits.BinTableHDU.from_columns(tableBinnedErr.as_array(),name='BinnedTableErr'+colBin+str(binSize))   
+            hdul.append(tt)
+        
+        #ttNGood=fits.BinTableHDU.from_columns(np.array(tableBinnedNgood),name='BinnedTableNGood'+colBin+str(binSize))
+        #hdul.append(ttNGood) 
+
+        hdul.writeto(inTable,overwrite=True) 
+        
+        return 0
 
 
     def saveAncelsTable(self,cfg_par, sigmaCenArr):

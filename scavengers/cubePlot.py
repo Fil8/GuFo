@@ -36,91 +36,141 @@ class cubeplot:
         make cubelets for each line marked in lineList.txt
     '''
 
-    def setup_axes(fig, header):
+    def setup_axes( header):
 
-            gh = pywcsgrid2.GridHelper(wcs=header)
-            gh.locator_params(nbins=3)
-
-            g = axes_grid.ImageGrid(fig, 111,
-                                    nrows_ncols=(5, 4),
-                                    ngrids=None,
-                                    direction='row',
-                                    axes_pad=0.02, add_all=True,
-                                    share_all=True, aspect=True,
-                                    label_mode='L', cbar_mode=None,
-                                    axes_class=(pywcsgrid2.Axes, dict(grid_helper=gh)))
-
-            # make colorbar
-            ax = g[-1]
-            cax = inset_axes(ax,
-                             width="8%", # width = 10% of parent_bbox width
-                             height="100%", # height : 50%
-                             loc=3,
-                             bbox_to_anchor=(1.01, 0, 1, 1),
-                             bbox_transform=ax.transAxes,
-                             borderpad=0.
-                             )
-
-            return g, cax
+        #gh = pywcsgrid2.GridHelper(wcs=header)
+        #gh.locator_params(nbins=3)
+        
+        wcsIm = WCS(header)        
+        wcs2Dim=wcsIm.slice(1,2)
+        fig = plt.figure(figsize=(10,10),constrained_layout=False)
+        fig.subplots_adjust(hspace=0.,wspace=0.)
+        gs = plt.GridSpec(nrows=5, ncols=4,  figure=fig, top=0.95)
+       
+        return fig,gs,wcs2Dim
 
 
     def chanMaps(self):
 
-        fits_cube = fits.open("ic443_co.ambient.fits")
-        header = fits_cube[0].header
-
-        vel = Velo(header)
-
-        fig = plt.figure(1, figsize=(9, 12), dpi=70)
-        g, cax = self.setup_axes(fig, header)
+        fig,gs, wcsIm = setup_axes(header)
 
         # draw images
 
         i = 0
-        dxy = 3
-        nxy = 5 * 4
-        cmap = plt.cm.gray_r
+        chanStop=20
+        ext_xmin=190
+        ext_xmax=1160
+        ext_ymin=245
+        ext_ymax=1120
+
+        c = SkyCoord('00:00:08.0','00:00:10.0',unit=(u.hourangle,u.deg))
+
+        cmap = plt.cm.Blues
+        import matplotlib.colors as mcolors
         norm = mcolors.Normalize()
         images = []
-        start_channel = i*nxy+dxy
-        for i, ax in enumerate(g):
-            channel_number = start_channel + i
-            channel = fits_cube[0].data[channel_number]
-            im = ax.imshow(channel, origin="lower", norm=norm, cmap=cmap)
-            images.append(im)
+        start_channel = 2
+                #for plot_count in range(n_plots):
+        k=0
+        for i in range(0,chanStop):
 
+            if i == 0:
+                j = 0
+            elif i % 4 == 0:
+                j +=1 
+                k =0
+            
+            
+            channel_number = chanStop-i
+            v0=header['CRVAL3']/1e3-((header['CRPIX3']-chanStop-1)*header['CDELT3'])/1e3
+            v = int(v0-((header['CDELT3']*i)/1e3))
+
+            channel = fits_cube[0].data[channel_number,:,:]
+            ax = fig.add_subplot(gs[j,k],projection=wcsIm)
+
+
+
+            ax.tick_params(axis='both', 
+                                     which='major', direction='in')
+
+        #     if k!=0:
+        #         ax.coords[1].set_ticklabel_visible(False)
+        #     else:
+        #         ax.coords[1].set_ticklabel_visible(True)
+
+        #     if j==4:       
+        #         ax.coords[0].set_ticklabel_visible(True)        
+            
+            im = ax.imshow(channel[ext_ymin:ext_ymax,ext_xmin:ext_xmax], origin="lower", 
+                           norm=norm, cmap=cmap,aspect='auto',
+                           extent=[ext_xmin,ext_xmax,ext_ymin,ext_ymax],
+                              vmin=-30.,vmax=55.)
+
+            patches = [ mpatches.Patch(edgecolor=None, facecolor=None, linewidth=0, linestyle=None,
+                                       color='black',  label=str(v)+r' km s$^{-1}$' )]
+            # put those patched as legend-handles into the legend
+            legend = ax.legend(handles=patches, loc=3, borderaxespad=0.,frameon=False,
+                               handlelength=0,handletextpad=0)
+
+            ax.coords[0].set_ticks(spacing=c.ra.degree*u.degree)
+            #ax.coords[1].set_ticks(spacing=c.ra.degree*u.degree)
+
+            ax.coords[0].set_axislabel(r'RA (J2000)') 
+            ax.coords[1].set_axislabel(r'Dec (J2000)') 
+            
+            ax.coords[1].set_major_formatter('dd:mm')
+            ax.coords[0].set_major_formatter('hh:mm:ss')
+
+            ax.coords[1].set_ticklabel_visible(False)   
+            if j==4:    
+                ax.coords[0].set_ticklabel_visible(True)  
+            else:
+                ax.coords[0].set_ticklabel_visible(False)  
+            if k==0:    
+                ax.coords[1].set_ticklabel_visible(True)  
+            else:
+                ax.coords[1].set_ticklabel_visible(False)          
+
+            k+=1
+
+
+        #     hduContCut = Cutout2D(hduCont.data, centre, size, wcs=wcsCont)    
+        #     array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
+        #                                         hduImCut3.wcs, shape_out=hduImCut3.shape)
+
+        #     cs = ax3.contour(array.data,levels=contValues[i], colors=contColors[i])    
 
         # label with velocities
-        use_path_effect = True
-        try:
-            from matplotlib.patheffects import withStroke
-        except ImportError:
-            use_path_effect = False
+        # use_path_effect = True
+        # try:
+        #     from matplotlib.patheffects import withStroke
+        # except ImportError:
+        #     use_path_effect = False
 
-        for i, ax in enumerate(g):
-            channel_number = start_channel + i
-            v = vel.to_vel(channel_number) / 1.e3
-            t = ax.add_inner_title(r"$v=%4.1f$ km s$^{-1}$" % (v), loc=2, frameon=False)
-            if use_path_effect:
-                t.txt._text.set_path_effects([withStroke(foreground="w",
-                                                         linewidth=3)])
+        # for i, ax in enumerate(g):
+        #     channel_number = start_channel + i
+        #     v = vel.to_vel(channel_number) / 1.e3
+        #     t = ax.add_inner_title(r"$v=%4.1f$ km s$^{-1}$" % (v), loc=2, frameon=False)
+        #     if use_path_effect:
+        #         t.txt._text.set_path_effects([withStroke(foreground="w",
+        #                                                  linewidth=3)])
 
 
         # make colorbar
-        cb = plt.colorbar(im, cax=cax)
-        cb.set_label("T [K]")
-        cb.set_ticks([0, 1, 2, 3])
+        # cb = plt.colorbar(im, cax=cax)
+        # cb.set_label("T [K]")
+        # cb.set_ticks([0, 1, 2, 3])
 
-        # adjust norm
-        norm.vmin = -0.1
-        norm.vmax = 3.5
-        for im in images:
-            im.changed()
+        # # adjust norm
+        # norm.vmin = -0.1
+        # norm.vmax = 3.5
+        # for im in images:
+        #     im.changed()
 
-        plt.show()
-
-        if 0:
-            plt.savefig("co_channel_maps.png", dpi=70, bbox_inches="tight")
+        # if 0:
+        #     plt.savefig("co_channel_maps.eps", dpi=70, bbox_inches="tight")
+        plt.savefig(outFigName,bbox_inches='tight',dpi=300,format='png') 
+        plt.close()# if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
 
 
 

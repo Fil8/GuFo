@@ -6,7 +6,7 @@ import logging
 import time
 
 import gufo
-from scavengers import gPlay, starSub, momPlay, tPlay, cubePlay
+from scavengers import gPlay, starSub, momPlay, tPlay, cubePlay, momPlot
 from scavengers import gPlayMp, bptPlot, vorPlay, ancels, ancelsPlot
 from scavengers import util as pretty
 
@@ -25,6 +25,8 @@ except pkg_resources.DistributionNotFound:
 gp = gPlay.gplay()
 ss = starSub.starsub()
 mom = momPlay.momplay()
+mPl = momPlot.MOMplot()
+
 tP = tPlay.tplay()
 cP = cubePlay.cubeplay()
 bpt = bptPlot.BPTplot()
@@ -215,6 +217,25 @@ def main (argv):
         action = 'store_true',
         default = False,
         help= 'make table from moment maps')
+
+    add('-rbT', '--rebinTable',
+        action='store_true',
+        help= 'rebin table')
+
+    add('-rbIt', '--rebinInputTable',
+        type= str,
+        default= False,
+        help = 'input table for rebinning')  
+
+    add('-rbCt', '--columnForRebin',
+        type= str,
+        default= False,
+        help = 'columnName for rebinning')
+
+    add('-rbSt', '--binSize',
+        type= float,
+        default= False,
+        help = 'size of binning table')
 
     add('-rC', '--rebCube',
         action = 'store_true',
@@ -556,10 +577,33 @@ def main (argv):
         print ('\n\t +---------+\t      kinematical Analysis\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
         print('\n\t         +++\t          CCA & Rotation\t +++')
-        aPl.inCCARegionTable(gPar.cfg_par)
+        #aPl.inCCARegionTable(gPar.cfg_par)
         aPl.sigmaCentroid(gPar.cfg_par)
         timeAnc = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
+
+
+    if gPar.cfg_par['multipleRegions']['enable'] == True:
+        time_start_load = time.time()
+        print ('\n\t +---------+\t      kinematical Analysis\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        print('\n\t         +++\t          K-Plot Multiple\t +++')
+        #aPl.inCCARegionTable(gPar.cfg_par)
+        aPl.sigmaCentroidMultiple(gPar.cfg_par)
+        timeAnc = (time.time()- time_start_load)/60.
+        print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
+
+    if gPar.cfg_par['multipleRegions']['enable'] == True:
+        time_start_load = time.time()
+        print ('\n\t +---------+\t      kinematical Analysis\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        print('\n\t         +++\t          K-Plot Multiple\t +++')
+        #aPl.inCCARegionTable(gPar.cfg_par)
+        #mom.makeMultipleMaps(gPar.cfg_par)
+        #mPl.momAncPlotMultiple(gPar.cfg_par)
+        timeAnc = (time.time()- time_start_load)/60.
+        print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
+
 
     # Sigma and Centroid Maps
     # ++++++++++++++++++++++++++        
@@ -583,6 +627,7 @@ def main (argv):
         gPar = gufo.gufo(args.cfgFile)
         if gPar.cfg_par['otherGasKinAnalysis']['rotID'].get('enable',False) == True:
             cP.selectRotation(gPar.cfg_par)
+        #sys.exit(0)
         aPl.inCCARegionTable(gPar.cfg_par)
         aPl.sigmaCentroidColdGas(gPar.cfg_par)
         timeAnc = (time.time()- time_start_load)/60.
@@ -649,6 +694,14 @@ def main (argv):
         print ('\n\t************ --- GuFo : reorder Table --- ************\n')
         gPar = gufo.gufo(args.cfgFile)
         tP.reordTable(gPar.cfg_par)
+        print('\n\t************ --- GuFo : DONE --- ************\n') 
+
+    if args.rebinTable :
+        print ('\n\t************ --- GuFo : rebin Table --- ************\n')
+        inTable=args.rebinInputTable
+        columnBin=args.columnForRebin
+        binSize=args.binSize
+        tP.rebinTable(inTable,columnBin,binSize)
         print('\n\t************ --- GuFo : DONE --- ************\n') 
 
     if args.makeTable or gPar.cfg_par['moments']['makeTable'].get('enable',False) == True:

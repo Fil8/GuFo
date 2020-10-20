@@ -475,7 +475,12 @@ class cubeplay:
                     
 
                     mdSpec = mdC[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
-                    
+                    if cfg_par['otherGasKinAnalysis']['rotID']['enable']==True:
+                        idxModFalse = mdSpec<float(cfg_par['otherGasKinAnalysis']['rotID']['maskValue'])
+                        
+                        idxMod = mdSpec>=float(cfg_par['otherGasKinAnalysis']['rotID']['maskValue'])
+                        mdSpec[idxMod] =1.
+                        mdSpec[idxMod] =0.
                     #indexMod = np.logical_and(mdSpec!=0,mdSpec!=np.nan)
 
                     #mdSpec[indexMod ]=1.
@@ -501,6 +506,7 @@ class cubeplay:
                    
                     idxMask = np.logical_or(specMask==0.,specMask==np.nan)
                     idxMaskTrue = specMask==1.
+    
                     #print(np.sum(idxMask))
                     fitSmall[idxMask] = np.nan
 

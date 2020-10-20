@@ -156,7 +156,7 @@ class MOMplot(object):
       
 
     outFig = cfg_par['general']['plotMomModDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
-    fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
+    fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=300)#,
             #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
     return 0
 
@@ -393,6 +393,146 @@ class MOMplot(object):
     return 0
 
 
+  def momAncPlotMultiple(self,cfg_par):
+
+    tableNames = cfg_par['multipleRegions']['tableNames']
+    regionNames = cfg_par['multipleRegions']['regions']
+
+    colorNames = cfg_par['multipleRegions']['colors']
+    
+    momModDir = cfg_par['general']['momDir']+'multipleRegions'+'/'
+
+    colorMaps = ListedColormap(colorNames[0])
+    print(colorMaps)
+
+    imageName=[]
+    for i in range(0,len(tableNames)):
+
+        imageName.append(momModDir+'mom-'+regionNames[i]+'.fits')
+    
+
+    # hduImTwoCut = Cutout2D(hduImTwo.data, centre, size, wcs=wcsIm)
+    # hduImThreeCut = Cutout2D(hduImThree.data, centre, size, wcs=wcsIm)
+
+    hduIm = fits.open(imageName[0])[0]
+    wcsIm = WCS(hduIm.header)
+
+    #sn = resTable['SN_OIII5006']
+    #idx  = np.where(sn<=lineThresh)
+
+    #hduIm.data[idx] = np.nan 
+
+    #sigmaThresh = sigmaTable['g1_SigIntr_OIII5006']
+    #idx  = np.where(sigmaThresh>=cfg_par['moments']['sigmaThresh'])
+
+    #hduIm.data[idx] = np.nan 
+    
+    objCoordsRA = cfg_par['moments']['centreRA']
+    objCoordsDec = cfg_par['moments']['centreDec']
+    
+    centre = SkyCoord(ra=objCoordsRA*u.degree, dec=objCoordsDec*u.degree, frame='fk5')
+    size = u.Quantity((cfg_par['moments']['sizePlots'],cfg_par['moments']['sizePlots']), u.arcmin)
+    #hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsIm)
+  
+    params = self.loadRcParams()
+    plt.rcParams.update(params)
+
+
+    #idxLin = np.where(hduImCut==2.)
+    #idxSey = np.where(hduImCut==1.)
+    #idxKew = np.where(hduImCut==0.)
+    #idxBad = np.where(hduImCut==-1.)        
+    
+    fig = plt.figure()
+    
+    ax1 = plt.subplot(projection=wcsIm)    
+
+    divider = make_axes_locatable(ax1)
+
+
+    #cax = divider.append_axes("right", size='2%', pad=0.1)
+    
+    #if vRange == None:
+    #  vRange=np.array([1,2])
+    #  vRange[0] = lineThresh
+    #  vRange[1] = np.nanmax(hduImCut.data)
+
+    #CustomCmapOne.set_under(color='white')
+    #ccaMap = cm.Greens_r
+    #ccaMap.set_over(color='white')
+    #CustomCmapThree.set_under(color='white'
+
+    
+    for i in range(0,len(imageName)):
+        colorMaps = ListedColormap(colorNames[i])
+
+        hduIm = fits.open(imageName[i])[0]
+
+        hduImData= np.array(hduIm.data,dtype='float64')
+    
+        hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsIm)
+
+        img = ax1.imshow(hduImCut.data, cmap=colorMaps,alpha=1,interpolation='nearest',vmin=-1e-1,vmax=1.1)
+    
+    # get the colors of the values, according to the 
+    # colormap used by imshow
+
+    #colors = [img.cmap(img(value)) for value in values]
+    #print(colors)
+    # create a patch (proxy artist) for every color 
+    patches = [ mpatches.Patch(color=colorNames[i],  label=regionNames[i] ) for i in range(len(regionNames)) ]
+    # put those patched as legend-handles into the legend
+    ax1.legend(handles=patches, loc=3, borderaxespad=0.,prop={'size': 18})
+
+    #cBarTicks = [-1,0,1,2]
+
+    ax1.coords[1].set_axislabel(r'Dec (J2000)')
+    ax1.coords[0].set_axislabel(r'RA (J2000)')
+    
+    #cax.coords[0].grid(False)
+    #cax.coords[1].grid(False)
+    #cax.tick_params(direction='in')
+    #cax.coords[0].tick_params(top=False, bottom=False,
+    #              labeltop=False, labelbottom=False)
+    #cax.coords[1].set_ticklabel_position('r')
+    #cax.coords[1].tick_params(top=False, bottom=False,
+    #               labeltop=False, labelbottom=False)
+    #cax.coords[1].set_axislabel('$\eta$-parameter')
+    #cax.coords[1].set_axislabel_position('r')
+    #cbar = plt.colorbar(img, cax=cax,ticks =cBarTicks,
+    #               orientation='vertical', format='%d')   
+    
+    ax1.set_autoscale_on(False)    
+    #SaveOutput
+
+    
+    #if overlayContours:
+    #    imLevels =[-0.5,0.5]
+        #contLevels = np.linspace(lineThresh*1.2,np.nanmax(hduImCut.data)*0.95,step)
+    #    ax1.contour(hduImCut.data,levels=imLevels, colors=contourColors)
+    #    nameFigLabel = nameFigLabel+'_cs'
+    if cfg_par['multipleRegions']['contOver'] == True:
+        contName=cfg_par['multipleRegions']['contName']
+        contLevels=cfg_par['multipleRegions']['contLevels']
+        hduCont = fits.open(contName)[0]
+        wcsCont = WCS(hduCont.header)
+        hduContCut = Cutout2D(hduCont.data, centre, size, wcs=wcsCont)    
+        array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
+                                            hduImCut.wcs, shape_out=hduImCut.shape)
+
+        ax1.contour(array.data,levels=contLevels, colors='black')
+
+    outFigDir = momModDir+'plots/'
+    if not os.path.exists(outFigDir):
+            os.mkdir(outFigDir)
+    outFig = outFigDir +'KMultipleMom'+cfg_par['multipleRegions']['Name']+'.'+cfg_par['moments']['plotFormat']
+    fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], #bbox_inches = "tight",overwrite=True,dpi=100)#,
+            dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
+    return 0
+
+
+
+
   def mom1Plot(self,cfg_par,imageName,lineName,lineThresh,lineNameStr,keyword,
     vRange=None,modName='g1',contourColors='black',nameFigLabel=None,overlayContours=False,
     contName=None,imLevels=None,contValues=None,contColors=None,interpolation=None):
@@ -505,7 +645,7 @@ class MOMplot(object):
 
     return 0
 
-  def mom2Plot(self,cfg_par,imageName,lineName,lineThresh,lineNameStr,keyword,vRangeMax,
+  def mom2Plot(self,cfg_par,imageName,lineName,lineThresh,lineNameStr,keyword,vRange=None,
     modName='g1',contourColors='black',nameFigLabel=None,overlayContours=False,
     contName=None,contValues=None,contColors=None,interpolation=None):
 
@@ -537,25 +677,34 @@ class MOMplot(object):
     divider = make_axes_locatable(ax1)
     cax = divider.append_axes("right", size='2%', pad=0.1)
   
-    vRange=np.array([1,2])
-    vRange[0] = np.nanmin(hduImCut.data)
-    vRange[1] = np.nanmax(hduImCut.data)
+    #vRange=np.array([1,2])
+    #vRange[0] = np.nanmin(hduImCut.data)
+    #vRange[1] = np.nanmax(hduImCut.data)
 
     if len(cfg_par[keyword]['cBarLabel'])>1:
       mom1BarLabel=r'[km s$^{-1}$]'
-      cMap = 'jet'
+      cMap = plt.cm.jet
     else:
       mom1BarLabel = r+str(cfg_par[keyword]['cBarLabel'][2])
-      cMap = cfg_par[keyword]['colorMap'][2]
+      cMap = plt.cm.cfg_par[keyword]['colorMap'][2]
+
+    if cfg_par[keyword]['cBarLabel'][0].split(' ',maxsplit=2)[0]=='w80':
+        mom1BarLabel=r'$w80$ [km s$^{-1}$]'
+        cMap = plt.cm.Reds
+        cMap.set_under(color='grey')
 
 #    img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5)
-    img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=0.0,vmax=vRangeMax,
+    img = ax1.imshow(hduImCut.data, cmap=cMap,vmin=vRange[0],vmax=vRange[1],
         interpolation=interpolation)
 
-    colorTickLabels = np.linspace(vRange[0],vRange[1],9)    
+    colorTickLabels = np.arange(vRange[0],vRange[1]+100,100)    
+    print(colorTickLabels)
 
     ax1.coords[1].set_axislabel(r'Dec (J2000)')
     ax1.coords[0].set_axislabel(r'RA (J2000)')
+    ax1.coords[1].set_major_formatter('dd:mm:ss')
+    ax1.coords[0].set_major_formatter('hh:mm:ss')
+
     
     cax.coords[0].grid(False)
     cax.coords[1].grid(False)
@@ -566,6 +715,8 @@ class MOMplot(object):
 
     cax.coords[1].set_axislabel(mom1BarLabel)
     cax.coords[1].set_axislabel_position('r')
+    cax.coords[1].set_ticklabel_visible(True)     
+
     cbar = plt.colorbar(img, cax=cax,ticks =colorTickLabels,
                     orientation='vertical', format='%d')   
     

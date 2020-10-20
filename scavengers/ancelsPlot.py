@@ -49,33 +49,37 @@ class ancelsplot(object):
     # +++++++++++++++++++
     def loadRcParams(self):
     
-        params = {'figure.figsize'      : '10,10',
-          'font.family'         :' serif',
-          'font.serif'          :'times',
-          'font.style'          : 'normal',
-          'font.weight'         : 'book',
-          'font.size'           : 24,
-          'axes.linewidth'      : 2.2,
-          'lines.linewidth'     : 2,
-          'xtick.labelsize'     : 22,
-          'ytick.labelsize'     : 22, 
-          'xtick.direction'     :'in',
-          'ytick.direction'     :'in',
-          'xtick.major.size'    : 6,
-          'xtick.major.width'   : 2,
-          'xtick.minor.size'    : 3,
-          'xtick.minor.width'   : 1,
-          'ytick.major.size'    : 6,
-          'ytick.major.width'   : 2,
-          'ytick.minor.size'    : 3,
-          'ytick.minor.width'   : 1, 
-          'text.usetex'         : True,
-          'legend.handletextpad': 0.1,
-          'legend.markerscale': 4
+      params = {'figure.figsize'      : '10,10',
+        'figure.autolayout' : True,
+        'font.family'         :'serif',
+        'pdf.fonttype'        : 3,
+        'font.serif'          :'times',
+        'font.style'          : 'normal',
+        'font.weight'         : 'book',
+        'font.size'           : 24,
+        'axes.linewidth'      : 2.2,
+        'lines.linewidth'     : 2,
+        'xtick.labelsize'     : 22,
+        'ytick.labelsize'     : 22, 
+        'xtick.direction'     :'in',
+        'ytick.direction'     :'in',
+        'xtick.major.size'    : 6,
+        'xtick.major.width'   : 2,
+        'xtick.minor.size'    : 3,
+        'xtick.minor.width'   : 1,
+        'ytick.major.size'    : 6,
+        'ytick.major.width'   : 2,
+        'ytick.minor.size'    : 3,
+        'ytick.minor.width'   : 1, 
+        'legend.fontsize'     : 12,
+        'legend.handletextpad': 0.1,
+        'legend.markerscale': 2,
+        'text.usetex'         : True,
+        'text.latex.preamble' : r'\usepackage{amsmath}'
           #'text.latex.unicode'  : True
-           }
+        }
         
-        return params
+      return params
 
     def sigmaCentroid(self,cfg_par,xyRange=None,outPlotDir=None):
 
@@ -142,7 +146,7 @@ class ancelsplot(object):
         
             #ax.set_xticks([])
             
-            ax1.set_xlabel(r'log($v_{\rm los}$)\,\, [km s$^{-1}$]')
+            ax1.set_xlabel(r'log($|v_{\rm los}-v_{\rm sys}|$)\,\, [km s$^{-1}$]')
             ax1.set_ylabel(r'log($\sigma_{\rm los}$)\,\, [km s$^{-1}$]')
         
             # Calculate axis limits and aspect ratio
@@ -172,58 +176,69 @@ class ancelsplot(object):
                 Mean_vshift = 2.0
                 RMS_vshift  = 0.47
                 theta = 165.16 #covariance angle (contours inclined)
-                ellColor='darkseagreen'
+                ellColor='purple'
 
             idx = SNSort>=lineThresh
 
             #x[i][idx] = np.nan
             #y[i][idx] = np.nan
+            if cfg_par['kinematicalAnalysis']['ancillaryInfo']['plotTheoreticalCCA'] == True:
+                rmsToFWHM = 2.*np.sqrt(2.*np.log(2))
+                ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=rmsToFWHM*RMS_vshift, height=rmsToFWHM*RMS_sigmav, angle=theta,
+                    label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['theoreticalCCA']+' beam')     
+                ellSigma1.set_clip_box(ax1.bbox)
+                ellSigma1.set_alpha(0.2)
+                ellSigma1.set_facecolor(ellColor)
+                ax1.add_artist(ellSigma1)
 
-            rmsToFWHM = 2.*np.sqrt(2.*np.log(2))
-            ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=rmsToFWHM*RMS_vshift, height=rmsToFWHM*RMS_sigmav, angle=theta,
-                label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['theoreticalCCA']+' beam')     
-            ellSigma1.set_clip_box(ax1.bbox)
-            ellSigma1.set_alpha(0.4)
-            ellSigma1.set_facecolor(ellColor)
-            ax1.add_artist(ellSigma1)
+                ellip, ellip_lbl = ax1.get_legend_handles_labels()
 
-            ellip, ellip_lbl = ax1.get_legend_handles_labels()
-
-            ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=2*rmsToFWHM*RMS_vshift, height=2*rmsToFWHM*RMS_sigmav, angle=theta)     
-            ellSigma1.set_clip_box(ax1.bbox)
-            ellSigma1.set_alpha(0.3)
-            ellSigma1.set_facecolor(ellColor)
-            ax1.add_artist(ellSigma1)
-            
-            ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=3*rmsToFWHM*RMS_vshift, height=3*rmsToFWHM*RMS_sigmav, angle=theta)     
-            ellSigma1.set_clip_box(ax1.bbox)
-            ellSigma1.set_alpha(0.2)
-            ellSigma1.set_facecolor(ellColor)
-            ax1.add_artist(ellSigma1)
+                #ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=2*rmsToFWHM*RMS_vshift, height=2*rmsToFWHM*RMS_sigmav, angle=theta)     
+                #ellSigma1.set_clip_box(ax1.bbox)
+                #ellSigma1.set_alpha(0.3)
+                #ellSigma1.set_facecolor(ellColor)
+                #ax1.add_artist(ellSigma1)
+                
+                #ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=3*rmsToFWHM*RMS_vshift, height=3*rmsToFWHM*RMS_sigmav, angle=theta)     
+                #ellSigma1.set_clip_box(ax1.bbox)
+                #ellSigma1.set_alpha(0.2)
+                #ellSigma1.set_facecolor(ellColor)
+                #ax1.add_artist(ellSigma1)
             
             #ax1.scatter(x[i][idx], y[i][idx], c='red', marker='.', s=20, linewidths=None,edgecolors='red',
             #   label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCALabel'][i])
 
             if cfg_par['kinematicalAnalysis']['ancillaryInfo']['plotRotation'] == True:
+
+                indexNoRot = np.logical_and(rotSca ==0.,SNSort>=lineThresh)
+                #print(indexRot)
+                ax1.scatter(x[i][indexNoRot], y[i][indexNoRot], c='seagreen', marker='.', s=20, linewidths=None, alpha=0.3,facecolors='seagreen',edgecolors='green',
+                    label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCALabel'][i])
+
                 indexRot = np.logical_and(rotSca == 1.,SNSort>=lineThresh)
                 #print(indexRot)
-                ax1.scatter(x[i][indexRot], y[i][indexRot], c='blue', marker='.', s=20, linewidths=None, alpha=0.7,facecolors='blue',edgecolors='blue',
+                ax1.scatter(x[i][indexRot], y[i][indexRot], c='blue', marker='.', s=20, linewidths=None, alpha=0.3,facecolors='blue',edgecolors='blue',
                     label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCALabel'][i]+' in rotation')
 
-            if cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCAanalysis'] == True:
+
+
+            if cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCAanalysis'] == True and (cfg_par['kinematicalAnalysis']['ancillaryInfo']['rotOutCCA'] ==True or cfg_par['kinematicalAnalysis']['ancillaryInfo']['plotElse'] ==True):
                 
                 if cfg_par['kinematicalAnalysis']['ancillaryInfo']['rotOutCCA'] ==True:
                     indexCCA = np.logical_and(np.logical_and(np.logical_and(rotSca!=1.,np.logical_and(CCASca!=np.nan,SNSort>=lineThresh)),
                         CCASca!=-1.),CCASca <= 1.)
                     indexElse = np.logical_and(np.logical_and(rotSca!=1.,np.logical_and(CCASca!=np.nan,SNSort>=lineThresh)),CCASca == -1.)
-                
+
+                    ax1.scatter(x[i][indexCCA], y[i][indexCCA], c='seagreen', marker='.', s=20, linewidths=None, alpha=0.5,facecolors='seagreen',edgecolors=None,
+                        label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCALabel'][i]+' CCA within '+
+                        str(round(cfg_par['kinematicalAnalysis']['ancillaryInfo']['sigmaInCCA'],1))+r'$\sigma$')                
                 else:   
                     indexCCA = np.logical_and(CCASca <= 1.,np.logical_and(np.logical_and(CCASca!=np.nan,SNSort>=lineThresh),CCASca!=-1.))
                     indexElse = np.logical_and(CCASca == -1.,np.logical_and(CCASca!=np.nan,SNSort>=lineThresh))
-    
-                ax1.scatter(x[i][indexCCA], y[i][indexCCA], c='seagreen', marker='.', s=20, linewidths=None, alpha=0.5,facecolors='seagreen',edgecolors=None,
-                    label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCALabel'][i]+' CCA within '+
-                    str(round(cfg_par['kinematicalAnalysis']['ancillaryInfo']['sigmaInCCA'],1))+r'$\sigma$')
+
+                    ax1.scatter(x[i][indexCCA], y[i][indexCCA], c='seagreen', marker='.', s=20, linewidths=None, alpha=0.5,facecolors='seagreen',edgecolors=None,
+                        label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCALabel'][i]+' CCA within '+
+                        str(round(cfg_par['kinematicalAnalysis']['ancillaryInfo']['sigmaInCCA'],1))+r'$\sigma$')     
                 
                 if cfg_par['kinematicalAnalysis']['ancillaryInfo']['plotElse'] ==True:
                     ax1.scatter(x[i][indexElse], y[i][indexElse], c='darkgray', marker='.', s=20, linewidths=None, alpha=0.2,facecolors='darkgray',edgecolors=None,
@@ -234,7 +249,7 @@ class ancelsplot(object):
             # Set axis limits
             ax1.set_xlim(xMin, xMax)
             ax1.set_ylim(yMin, yMax)
-            ax1.legend = plt.legend(loc=3, prop={'size': 12})
+            ax1.legend = plt.legend(loc=3,prop={'size':18})
             ax1.legend.get_frame().set_edgecolor('black')
             ax1.legend.get_frame().set_facecolor('white')
             #change the marker size manually for both lines
@@ -265,7 +280,7 @@ class ancelsplot(object):
 
         hdul = fits.open(cfg_par['general']['outTableName'])
 
-        ancels = hdul['AncelsG1'].data
+        ancels = hdul['Ancels'+cfg_par['gFit']['modName']].data
 
         x = ancels['logCentroid_'+cfg_par['otherGasKinAnalysis']['Name']]
         y = ancels['logSigma_'+cfg_par['otherGasKinAnalysis']['Name']]
@@ -273,17 +288,18 @@ class ancelsplot(object):
         CCASca=ancels['CCAIN']
         rotSca = ancels['RotMod']
         # initialize figure
+        
         params = self.loadRcParams()
         plt.rcParams.update(params)
-        fig = plt.figure(figsize =(10,8))
+        fig = plt.figure(constrained_layout=False)
         fig.subplots_adjust(hspace=0.0)
         gs = gridspec.GridSpec(1, 1)
         ax1 = fig.add_subplot(gs[0])
 
         #ax.set_xticks([])
         
-        ax1.set_xlabel(r'log($v_{\rm los$)\,\, [km s$^{-1}$]')
-        ax1.set_ylabel(r'log($\sigma_{\rm los}$)\,\, [km s$^{-1}$]')
+        ax1.set_xlabel(r'$\log(|v_{\rm los}-v_{\rm sys}|)$\,\, [km s$^{-1}$]')
+        ax1.set_ylabel(r'$\log(\sigma_{\rm los}$)\,\, [km s$^{-1}$]')
     
         # Calculate axis limits and aspect ratio
         xMin = 0.
@@ -298,6 +314,7 @@ class ancelsplot(object):
         ax1.yaxis.set_minor_locator(MultipleLocator(0.1))
         ax1.tick_params(axis='both', which='major', pad=5)
         ax1.tick_params(axis='both', which='minor', pad=2)
+
 
         if cfg_par['otherGasKinAnalysis']['ancillaryInfo']['theoreticalCCA'] == 'Ensemble':
             Mean_sigmav = 2.13 
@@ -314,34 +331,43 @@ class ancelsplot(object):
             theta = 165.16 #covariance angle (contours inclined)
             ellColor='darkseagreen'
         
-        rmsToFWHM = 2.*np.sqrt(2.*np.log(2))
-        ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=rmsToFWHM*RMS_vshift, height=rmsToFWHM*RMS_sigmav, angle=theta,
-            label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['theoreticalCCA']+' beam')     
-        ellSigma1.set_clip_box(ax1.bbox)
-        ellSigma1.set_alpha(0.4)
-        ellSigma1.set_facecolor(ellColor)
-        ax1.add_artist(ellSigma1)
+        if cfg_par['otherGasKinAnalysis']['ancillaryInfo']['plotTheoreticalCCA'] == True:
+            rmsToFWHM = 2.*np.sqrt(2.*np.log(2))
+            ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=rmsToFWHM*RMS_vshift, height=rmsToFWHM*RMS_sigmav, angle=theta,
+                label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['theoreticalCCA']+' beam')     
+            ellSigma1.set_clip_box(ax1.bbox)
+            ellSigma1.set_alpha(0.4)
+            ellSigma1.set_facecolor(ellColor)
+            ax1.add_artist(ellSigma1)
 
-        ellip, ellip_lbl = ax1.get_legend_handles_labels()
+            ellip, ellip_lbl = ax1.get_legend_handles_labels()
 
-        ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=2*rmsToFWHM*RMS_vshift, height=2*rmsToFWHM*RMS_sigmav, angle=theta)     
-        ellSigma1.set_clip_box(ax1.bbox)
-        ellSigma1.set_alpha(0.3)
-        ellSigma1.set_facecolor(ellColor)
-        ax1.add_artist(ellSigma1)
-        
-        ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=3*rmsToFWHM*RMS_vshift, height=3*rmsToFWHM*RMS_sigmav, angle=theta)     
-        ellSigma1.set_clip_box(ax1.bbox)
-        ellSigma1.set_alpha(0.2)
-        ellSigma1.set_facecolor(ellColor)
-        ax1.add_artist(ellSigma1)
+            ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=2*rmsToFWHM*RMS_vshift, height=2*rmsToFWHM*RMS_sigmav, angle=theta)     
+            ellSigma1.set_clip_box(ax1.bbox)
+            ellSigma1.set_alpha(0.3)
+            ellSigma1.set_facecolor(ellColor)
+            ax1.add_artist(ellSigma1)
+            
+            ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=3*rmsToFWHM*RMS_vshift, height=3*rmsToFWHM*RMS_sigmav, angle=theta)     
+            ellSigma1.set_clip_box(ax1.bbox)
+            ellSigma1.set_alpha(0.2)
+            ellSigma1.set_facecolor(ellColor)
+            ax1.add_artist(ellSigma1)
         
         #print((idxAGN),(idxKew),(idxKauf),(idxBad))
         if cfg_par['otherGasKinAnalysis']['ancillaryInfo']['plotRotation'] == True:
+
+            indexRot = rotSca ==0.
+            #print(indexRot)
+            ax1.scatter(x[indexNoRot], y[indexNoRot], c='green', marker='.', s=20, linewidths=None, alpha=0.7,facecolors='green',edgecolors='green',
+                label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCALabel']+' in rotation')
+
             indexRot = rotSca == 1.
             #print(indexRot)
-            ax1.scatter(x[indexRot], y[indexRot], c='blue', marker='.', s=20, linewidths=None, alpha=0.7,facecolors='blue',edgecolors='blue',
+            ax1.scatter(x[indexRot], y[indexRot], c='blue', marker='.', s=20, linewidths=None, alpha=0.5,facecolors='blue',edgecolors='blue',
                 label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCALabel']+' in rotation')
+
+
 
         if cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCAanalysis'] == True:
             
@@ -365,7 +391,7 @@ class ancelsplot(object):
         # Set axis limits
         ax1.set_xlim(xMin, xMax)
         ax1.set_ylim(yMin, yMax)
-        ax1.legend = plt.legend(loc=1, prop={'size': 12})
+        ax1.legend = plt.legend(loc=1)
         ax1.legend.get_frame().set_edgecolor('black')
         ax1.legend.get_frame().set_facecolor('white')
 
@@ -381,7 +407,120 @@ class ancelsplot(object):
         #plt.show()
         #plt.close()
                
-        return 0     
+        return 0   
+
+    def sigmaCentroidMultiple(self,cfg_par):
+        
+        tableNames = cfg_par['multipleRegions']['tableNames']
+        colorNames = cfg_par['multipleRegions']['colors']
+        regionNames = cfg_par['multipleRegions']['regions']
+
+
+        params = self.loadRcParams()
+        plt.rcParams.update(params)
+        fig = plt.figure(figsize =(10,8),constrained_layout=False)
+        fig.subplots_adjust(hspace=0.0)
+        gs = gridspec.GridSpec(1, 1)
+        ax1 = fig.add_subplot(gs[0])
+
+        #ax.set_xticks([])
+        
+        ax1.set_xlabel(r'$\log(|v_{\rm los}-v_{\rm sys}|)$\,\, [km s$^{-1}$]')
+        ax1.set_ylabel(r'$\log(\sigma_{\rm los}$)\,\, [km s$^{-1}$]')
+    
+        # Calculate axis limits and aspect ratio
+        xMin = 0.
+        xMax = 2.9
+        yMin = 0.2
+        yMax = 3.2
+        
+        ax1.minorticks_on()
+        ax1.xaxis.set_major_locator(MultipleLocator(0.5))
+        ax1.xaxis.set_minor_locator(MultipleLocator(0.1))
+        ax1.yaxis.set_major_locator(MultipleLocator(0.5))
+        ax1.yaxis.set_minor_locator(MultipleLocator(0.1))
+        ax1.tick_params(axis='both', which='major', pad=5)
+        ax1.tick_params(axis='both', which='minor', pad=2)
+
+
+        if cfg_par['kinematicalAnalysis']['ancillaryInfo']['theoreticalCCA'] == 'Ensemble':
+            Mean_sigmav = 2.13 
+            RMS_sigmav  = 0.13 
+            Mean_vshift = 1.59 
+            RMS_vshift  = 0.37
+            theta = -179.88 #covariance angle (contours inclined)
+            ellColor='purple'
+        if cfg_par['kinematicalAnalysis']['ancillaryInfo']['theoreticalCCA'] == 'Pencil':
+            Mean_sigmav = 1.65 
+            RMS_sigmav  = 0.41
+            Mean_vshift = 2.0
+            RMS_vshift  = 0.47
+            theta = 165.16 #covariance angle (contours inclined)
+            ellColor='purple'
+        
+        if cfg_par['kinematicalAnalysis']['ancillaryInfo']['plotTheoreticalCCA'] == True:
+            rmsToFWHM = 2.*np.sqrt(2.*np.log(2))
+            ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=rmsToFWHM*RMS_vshift, height=rmsToFWHM*RMS_sigmav, angle=theta,
+                label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['theoreticalCCA']+' beam')     
+            ellSigma1.set_clip_box(ax1.bbox)
+            ellSigma1.set_alpha(0.2)
+            ellSigma1.set_facecolor(ellColor)
+            ax1.add_artist(ellSigma1)
+
+            ellip, ellip_lbl = ax1.get_legend_handles_labels()
+
+            ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=2*rmsToFWHM*RMS_vshift, height=2*rmsToFWHM*RMS_sigmav, angle=theta)     
+            ellSigma1.set_clip_box(ax1.bbox)
+            ellSigma1.set_alpha(0.3)
+            ellSigma1.set_facecolor(ellColor)
+            ax1.add_artist(ellSigma1)
+            
+            ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=3*rmsToFWHM*RMS_vshift, height=3*rmsToFWHM*RMS_sigmav, angle=theta)     
+            ellSigma1.set_clip_box(ax1.bbox)
+            ellSigma1.set_alpha(0.2)
+            ellSigma1.set_facecolor(ellColor)
+            ax1.add_artist(ellSigma1)
+
+
+        for i in range(0,len(tableNames)):
+            
+            hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[i])
+
+            ancels = hdul[1].data
+
+            x = ancels['logCentroid_'+cfg_par['multipleRegions']['Name']]
+            y = ancels['logDispIntr_'+cfg_par['multipleRegions']['Name']]
+                
+            # initialize figure
+            #print((idxAGN),(idxKew),(idxKauf),(idxBad))
+            
+            ax1.scatter(x, y, c=colorNames[i],facecolors=colorNames[i],edgecolors=colorNames[i],
+                marker='.', s=20, linewidths=None, alpha=0.2,label=regionNames[i])
+            hdul.close()
+
+        # Set axis limits
+        ax1.set_xlim(xMin, xMax)
+        ax1.set_ylim(yMin, yMax)
+        ax1.legend = plt.legend(loc=3,prop={'size': 18})
+         
+        for lh in ax1.legend.legendHandles: 
+            lh.set_alpha(1)        
+        ax1.legend.get_frame().set_edgecolor('black')
+        ax1.legend.get_frame().set_facecolor('white')
+
+
+        outPlotDir = cfg_par['general']['plotMomModDir']
+
+        if not os.path.exists(outPlotDir):
+            os.mkdir(outPlotDir)
+
+        outPlot = outPlotDir+'K-multiple'+cfg_par['multipleRegions']['Name']+'.png'
+        plt.savefig(outPlot,format=cfg_par['lineRatios']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=300)#,
+                # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
+        #plt.show()
+        #plt.close()
+               
+        return 0  
 
     def inCCARegionTable(self,cfg_par):
  
@@ -395,12 +534,12 @@ class ancelsplot(object):
         print(cfg_par['general']['outTableName'])
 
         hdul = fits.open(cfg_par['general']['outTableName'])
-
-        if cfg_par['gFit']['modName'] == 'BF':
+ 
+        if cfg_par['gFit']['modName'] == 'BF' and cfg_par['otherGasKinAnalysis']['enable'] == False:
             modName = 'g2'
             residuals = hdul['Residuals_'+modName].data
             anc = hdul['ancels'+cfg_par['gFit']['modName']].data
-        elif cfg_par['gFit']['modName'] == 'g1' and cfg_par['otherGasKinAnalysis']['enable'] == True:
+        elif cfg_par['gFit']['modName'] == 'BF' and cfg_par['otherGasKinAnalysis']['enable'] == True:
             anc = hdul['ancelsBF'].data
 
         bins = hdul['BININFO'].data
@@ -599,14 +738,14 @@ class ancelsplot(object):
             RoTName= cfg_par['general']['momModDir']+'ccaMapRot-'+str(sigmaCCA)+'-'+nameGas+'.fits'
 
             fits.writeto(RoTName,RotMap,Head,overwrite=True)
-            Labels= [nameGas+' unidentified',
+            Labels= [nameGas,
             nameGas+' in rotation']
-            colorList = ['gray','blue']
+            colorList = ['seagreen','blue']
             CustomCmap = ListedColormap(colorList)
 
             mPl.momAncPlot(cfg_par, RoTName,Labels,CustomCmap,colorList)
 
-        if cfg_par['kinematicalAnalysis']['ancillaryInfo']['rotOutCCA'] == True:
+        if cfg_par['kinematicalAnalysis']['ancillaryInfo']['rotOutCCA'] == True or cfg_par['otherGasKinAnalysis']['ancillaryInfo']['rotOutCCA'] == True:
             CCARotName = cfg_par['general']['momModDir']+'ccaMap-'+nameGas+'ccaMapCCARot-'+str(sigmaCCA)+'-'+nameGas+'.fits'
             fits.writeto(CCARotName,RotMapCCA,Head,overwrite=True)
             Labels= [nameGas+' unidentified',
