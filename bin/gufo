@@ -577,7 +577,7 @@ def main (argv):
         print ('\n\t +---------+\t      kinematical Analysis\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
         print('\n\t         +++\t          CCA & Rotation\t +++')
-        #aPl.inCCARegionTable(gPar.cfg_par)
+        aPl.inCCARegionTable(gPar.cfg_par)
         aPl.sigmaCentroid(gPar.cfg_par)
         timeAnc = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))

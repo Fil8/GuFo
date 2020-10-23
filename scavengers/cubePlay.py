@@ -410,13 +410,17 @@ class cubeplay:
 
 
         hdul = fits.open(cfg_par['general']['outTableName'])
+        print(cfg_par['general']['outTableName'])
         tabGen = hdul['BININFO'].data
         ancels = hdul['Ancels'+cfg_par['gFit']['modName']].data
 
         modelCube = fits.open(cfg_par['otherGasKinAnalysis']['rotID']['modelCube'])
         mdC = modelCube[0].data
         #indexFltrMod = mdC ==0.0
-        mdC[mdC!=0] = 1.
+        #print(mdC[65,64,43])
+        mdC[mdC>=float(cfg_par['otherGasKinAnalysis']['rotID']['maskValue'])] = 1.
+        #print(mdC[65,64,43])
+
         mdC[mdC==0] = np.nan        
 
         maskCube = fits.open(cfg_par['otherGasKinAnalysis']['rotID']['gasMask'])
@@ -475,12 +479,12 @@ class cubeplay:
                     
 
                     mdSpec = mdC[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
-                    if cfg_par['otherGasKinAnalysis']['rotID']['enable']==True:
-                        idxModFalse = mdSpec<float(cfg_par['otherGasKinAnalysis']['rotID']['maskValue'])
+                    #if cfg_par['otherGasKinAnalysis']['rotID']['enable']==True:
+                        #idxModFalse = mdSpec<float(cfg_par['otherGasKinAnalysis']['rotID']['maskValue'])
                         
-                        idxMod = mdSpec>=float(cfg_par['otherGasKinAnalysis']['rotID']['maskValue'])
-                        mdSpec[idxMod] =1.
-                        mdSpec[idxMod] =0.
+                        #idxMod = mdSpec>=float(cfg_par['otherGasKinAnalysis']['rotID']['maskValue'])
+                        #mdSpec[idxMod] =1.
+                        #mdSpec[idxMod] =0.
                     #indexMod = np.logical_and(mdSpec!=0,mdSpec!=np.nan)
 
                     #mdSpec[indexMod ]=1.

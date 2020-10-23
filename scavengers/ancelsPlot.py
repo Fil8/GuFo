@@ -357,36 +357,44 @@ class ancelsplot(object):
         #print((idxAGN),(idxKew),(idxKauf),(idxBad))
         if cfg_par['otherGasKinAnalysis']['ancillaryInfo']['plotRotation'] == True:
 
-            indexRot = rotSca ==0.
+            indexNoRot = rotSca ==0.
             #print(indexRot)
-            ax1.scatter(x[indexNoRot], y[indexNoRot], c='green', marker='.', s=20, linewidths=None, alpha=0.7,facecolors='green',edgecolors='green',
-                label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCALabel']+' in rotation')
+            ax1.scatter(x[indexNoRot], y[indexNoRot], c='seagreen', marker='.', s=50, linewidths=None, alpha=0.3,facecolors='seagreen',edgecolors='green',
+                label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCALabel'])
 
             indexRot = rotSca == 1.
             #print(indexRot)
-            ax1.scatter(x[indexRot], y[indexRot], c='blue', marker='.', s=20, linewidths=None, alpha=0.5,facecolors='blue',edgecolors='blue',
+            ax1.scatter(x[indexRot], y[indexRot], c='blue', marker='.', s=50, linewidths=None, alpha=0.3,facecolors='blue',edgecolors='blue',
                 label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCALabel']+' in rotation')
 
 
 
-        if cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCAanalysis'] == True:
+        if cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCAanalysis'] == True and (cfg_par['otherGasKinAnalysis']['ancillaryInfo']['rotOutCCA'] ==True or cfg_par['otherGasKinAnalysis']['ancillaryInfo']['plotElse'] ==True):
+                
             
             if cfg_par['otherGasKinAnalysis']['ancillaryInfo']['rotOutCCA'] ==True:
+                
                 indexCCA = np.logical_and(np.logical_and(np.logical_and(rotSca!=1.,CCASca!=np.nan),
                     CCASca!=-1.),CCASca <= 1.)
                 indexElse = np.logical_and(np.logical_and(rotSca!=1.,CCASca!=np.nan),CCASca == -1.)
+
+                ax1.scatter(x[indexCCA], y[indexCCA], c='seagreen', marker='.', s=50, linewidths=None, alpha=0.5,facecolors='seagreen',edgecolors=None,
+                    label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCALabel']+' CCA within '+
+                    str(int(cfg_par['otherGasKinAnalysis']['ancillaryInfo']['sigmaInCCA']))+r'$\sigma$')
             
             else:   
                 indexCCA = np.logical_and(CCASca <= 1.,np.logical_and(CCASca!=np.nan,CCASca!=-1.))
                 indexElse = np.logical_and(CCASca == -1.,CCASca!=np.nan)
-
-            ax1.scatter(x[indexCCA], y[indexCCA], c='seagreen', marker='.', s=20, linewidths=None, alpha=0.5,facecolors='seagreen',edgecolors=None,
-                label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCALabel']+' CCA within '+
-                str(int(cfg_par['otherGasKinAnalysis']['ancillaryInfo']['sigmaInCCA']))+r'$\sigma$')
-            
+                
+                ax1.scatter(x[indexCCA], y[indexCCA], c='seagreen', marker='.', s=50, linewidths=None, alpha=0.5,facecolors='seagreen',edgecolors=None,
+                    label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCALabel']+' CCA within '+
+                    str(int(cfg_par['otherGasKinAnalysis']['ancillaryInfo']['sigmaInCCA']))+r'$\sigma$')
+                
             if cfg_par['otherGasKinAnalysis']['ancillaryInfo']['plotElse'] ==True:
                 ax1.scatter(x[indexElse], y[indexElse], c='darkgray', marker='.', s=20, linewidths=None, alpha=0.2,facecolors='darkgray',edgecolors=None,
                     label=cfg_par['otherGasKinAnalysis']['ancillaryInfo']['CCALabel']+' unidentified')
+
+
 
         # Set axis limits
         ax1.set_xlim(xMin, xMax)

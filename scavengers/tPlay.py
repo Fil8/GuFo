@@ -726,8 +726,8 @@ class tplay(object):
         else:
             xCol = np.zeros([mom0.shape[1]*mom0.shape[0]])
             yCol = np.zeros([mom0.shape[1]*mom0.shape[0]])
-            BIN_ID =  np.zeros([mom0.shape[1]*mom0.shape[0]])
-            tabGen=np.column_stack([xCol,yCol,BIN_ID])
+            BIN_ID =  np.arange(0,mom0.shape[1]*mom0.shape[0],1)
+            tabGen=np.column_stack([BIN_ID,xCol,yCol])
             dt = np.dtype([('BIN_ID', np.int32), ('PixX', np.int32), ('PixY', np.int32)])
             tabGen = np.array(list(map(tuple, tabGen)), dtype=dt)
         
@@ -756,7 +756,7 @@ class tplay(object):
             mom1 -= float(cfg_par['general']['velsys'])
             mom2 = np.divide(mom2,1e3)
         if cfg_par['moments']['makeTable']['unitMoms'] == 'Hz':
-            deltaV=-self.C/cfg_par['moments']['makeTable']['restFreq']*cfg_par['moments']['makeTable']['deltaFreq']
+            deltaV=-self.C/float(cfg_par['moments']['makeTable']['restFreq'])*float(cfg_par['moments']['makeTable']['deltaFreq'])
             convFac = deltaV/cfg_par['moments']['makeTable']['deltaFreq']
             mom1-=float(cfg_par['moments']['makeTable']['restFreq'])
             mom1 = np.multiply(mom1,convFac)
@@ -773,6 +773,7 @@ class tplay(object):
         pixCenX = cfg_par['starSub']['pixX']
         pixCenY = cfg_par['starSub']['pixY']
         indexBin=0
+        
         for i in range(0,mom0.shape[1]):
             for j in range(0,mom0.shape[0]):
 
@@ -819,10 +820,10 @@ class tplay(object):
         t1 = fits.BinTableHDU.from_columns(bArr,name='BinInfo')  
         hdl = fits.HDUList([empty_primary,t1])        
 
-        t2 = fits.BinTableHDU.from_columns(lArr,name='FitRes_g1')
+        t2 = fits.BinTableHDU.from_columns(lArr,name='FitRes_BF')
         hdl.append(t2)  
 
-        t3 = fits.BinTableHDU.from_columns(anArr,name='ancelsg1')
+        t3 = fits.BinTableHDU.from_columns(anArr,name='ancelsBF')
         hdl.append(t3) 
         
         hdl.writeto(cfg_par['moments']['makeTable']['outTableName'],overwrite=True)
