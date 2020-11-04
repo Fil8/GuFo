@@ -11,7 +11,7 @@ GaNGiaLF -- Gas N-Gaussians Line Fitter
    :caption: Getting Started
 
    pipes/Introduction
-   pipes/Install
+   pipes/Installation
    pipes/GuFo
 
    :caption: Manual:

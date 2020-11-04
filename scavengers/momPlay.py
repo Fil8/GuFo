@@ -176,7 +176,8 @@ class momplay:
             del header['NAXIS3']
         if 'CRDER3' in header:
             del header['CRDER3']
-
+        if 'SPECSYS3' in header:
+            del header['SPECSYS3']
 
 
         for j in range(0,len(tableNames)):
@@ -185,17 +186,17 @@ class momplay:
 
             hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[j])
             tabGen = np.asarray(hdul[1].data)
-            print(tabGen.dtype.names)
             if 'PixX_1' in tabGen.dtype.names:
                 tabGen = rfn.rename_fields(tabGen, {'PixX_1': 'PixX', 'PixY_1': 'PixY'})
-            print(tabGen['PixY'])
+            if 'BIN_ID_1' in tabGen.dtype.names:
+                tabGen = rfn.rename_fields(tabGen, {'BIN_ID_1': 'BIN_ID'})
             for i in range(0,len(tabGen['BIN_ID'])):
                     
                 mom[int(tabGen['PixY'][i]),int(tabGen['PixX'][i])] = tabGen['CCAIN'][i]
 
         
             momHead['WCSAXES'] = 2
-            momHead['SPECSYS'] = 'topocent'
+            momHead['SPECSYS'] = 'LSRK'
             momHead['BUNIT'] = 'km/s'
 
             fits.writeto(momModDir+'mom-'+regionNames[j]+'.fits',mom,momHead,overwrite=True)

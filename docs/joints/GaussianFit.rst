@@ -13,6 +13,10 @@ Gaussian Multi Line Fitter
    :maxdepth: 1
  
 
-Gaussian Line Fitter
+Line Fitter
+---------------------
+
+
+Line Analysis
 ---------------------
 

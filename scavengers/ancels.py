@@ -1,5 +1,14 @@
 #!/usr/bin/env python3.6
+'''
 
+This modules computes the linewidth and lineshift for each fitted line of sight.
+The module works with multiprocessing
+
+Requirements
+------------
+Class gPlay.py or gPlayMp.py must be run before to generate the fit solutions.
+
+'''
 import os, sys
 import yaml
 
@@ -26,7 +35,44 @@ tP = tPlay.tplay()
 cvP = cvPlay.convert()
 
 def workerAncels(cfg_par,lines,wave,lineInfo,dLambda,sigmaCen,tabGen,residuals,rank,nprocs):
+'''
+Worker that divides the computation over the given CPUs
 
+Parameters
+----------
+cfg_par: OrderedDictionary
+    Dictionary with alla parameters or gufo. 
+    Parameters are given from terminal, or in a `.yml' file.
+lines: np.array()
+    table with the line parameters from the fit run
+wave: np.array()
+    array of wavelengths of spectra loaded from PPFX output table `cfg_par['general']['outVorSpectra']` or `cfg_par['general']['outVorSpectra']`.
+    Typically parsed by `tplay.openTablesPPXF()` or `tplay.openPPFXforSubtraction()
+lineInfo: np.array()
+    contains the parameters of each line set in `cfg_par['general']['runDir']/LineList.txt` 
+    Typically parsed by tplay.openLineList()  
+dLambda: np.array()
+    instrumental spectral resolution at the waveleght of the fitted lines
+    Typically loaded by cvPlay.specRes()
+sigmaCen: np.array()
+    empty table where to store the results of the Ancels run
+tabGen: np.array()
+    input table, given by the variable cfg_par['general']['outVorLineTableName']
+residuals: np.array()
+    table with the residuals from the fit run
+rank: int
+    iterator of the number of processes
+nprocs: int
+    number of available CPU cores 
+    Stored in `cfg_par['general']['ncores']
+
+Returns
+-------
+{
+    'sigmaCen': np.array()
+    filled table with the dispersion, intrinsic dispersion, w80 centroid and logarithmic values
+}
+'''
     counter = 0
     ubins = np.unique(lines['BIN_ID'])
 

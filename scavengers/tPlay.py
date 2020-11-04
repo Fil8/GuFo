@@ -778,11 +778,11 @@ class tplay(object):
             for j in range(0,mom0.shape[0]):
 
                 if cfg_par['moments']['makeTable']['fov'] == 'MUSE':
-                   indexBin = np.where(np.logical_and(tabGen['PixX']==i,tabGen['PixY']==j))[0]
+                    indexBin = np.where(np.logical_and(tabGen['PixX']==i,tabGen['PixY']==j))[0]
+                    r = np.sqrt(np.power(float(i)-pixCenX,2)+np.power(float(j)-pixCenY,2))*(cfg_par['moments']['makeTable']['pixSize'])*cfg_par['moments']['makeTable']['pcConv']/1e3
+                else:
+                    r = np.sqrt(np.power(float(i)-pixCenX,2)+np.power(float(j)-pixCenY,2))*(cfg_par['moments']['makeTable']['pixSize'])*cfg_par['moments']['makeTable']['pcConv']/1e3
                 
-
-                r = np.sqrt(np.power(float(i)-pixCenX,2)+np.power(float(j)-pixCenY,2))*(cfg_par['moments']['makeTable']['pixSize'])*cfg_par['moments']['makeTable']['pcConv']/1e3
-
                 if not indexBin is None:
 
                     bArr['BIN_ID'][indexBin] = tabGen['BIN_ID'][indexBin]

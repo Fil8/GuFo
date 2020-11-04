@@ -416,6 +416,7 @@ class MOMplot(object):
 
     hduIm = fits.open(imageName[0])[0]
     wcsIm = WCS(hduIm.header)
+    
 
     #sn = resTable['SN_OIII5006']
     #idx  = np.where(sn<=lineThresh)
@@ -432,8 +433,8 @@ class MOMplot(object):
     
     centre = SkyCoord(ra=objCoordsRA*u.degree, dec=objCoordsDec*u.degree, frame='fk5')
     size = u.Quantity((cfg_par['moments']['sizePlots'],cfg_par['moments']['sizePlots']), u.arcmin)
-    #hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsIm)
-  
+    hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsIm)
+
     params = self.loadRcParams()
     plt.rcParams.update(params)
 
@@ -445,7 +446,7 @@ class MOMplot(object):
     
     fig = plt.figure()
     
-    ax1 = plt.subplot(projection=wcsIm)    
+    ax1 = plt.subplot(projection=hduImCut.wcs)    
 
     divider = make_axes_locatable(ax1)
 
@@ -467,8 +468,6 @@ class MOMplot(object):
         colorMaps = ListedColormap(colorNames[i])
 
         hduIm = fits.open(imageName[i])[0]
-
-        hduImData= np.array(hduIm.data,dtype='float64')
     
         hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsIm)
 

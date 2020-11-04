@@ -599,8 +599,8 @@ def main (argv):
         gPar = gufo.gufo(args.cfgFile)
         print('\n\t         +++\t          K-Plot Multiple\t +++')
         #aPl.inCCARegionTable(gPar.cfg_par)
-        #mom.makeMultipleMaps(gPar.cfg_par)
-        #mPl.momAncPlotMultiple(gPar.cfg_par)
+        mom.makeMultipleMaps(gPar.cfg_par)
+        mPl.momAncPlotMultiple(gPar.cfg_par)
         timeAnc = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
 
