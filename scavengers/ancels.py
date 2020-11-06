@@ -68,10 +68,10 @@ nprocs: int
 
 Returns
 -------
-{
-    'sigmaCen': np.array()
-    filled table with the dispersion, intrinsic dispersion, w80 centroid and logarithmic values
-}
+    {
+      'sigmaCen': np.array()
+      filled table with the dispersion, intrinsic dispersion, w80 centroid and logarithmic values
+    }
 '''
     counter = 0
     ubins = np.unique(lines['BIN_ID'])
