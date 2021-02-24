@@ -6,8 +6,8 @@ import logging
 import time
 
 import gufo
-from scavengers import gPlay, starSub, momPlay, tPlay, cubePlay, momPlot
-from scavengers import gPlayMp, bptPlot, vorPlay, ancels, ancelsPlot
+from scavengers import gPlay, starSub, momPlay, tPlay, cubePlay, momPlot, specPlay
+from scavengers import gPlayMp, bptPlot, vorPlay, ancels, ancelsPlot,linePlay
 from scavengers import util as pretty
 
 import argparse
@@ -26,7 +26,7 @@ gp = gPlay.gplay()
 ss = starSub.starsub()
 mom = momPlay.momplay()
 mPl = momPlot.MOMplot()
-
+lP=linePlay.lineplay()
 tP = tPlay.tplay()
 cP = cubePlay.cubeplay()
 bpt = bptPlot.BPTplot()
@@ -162,6 +162,11 @@ def main (argv):
     add('-bptMp', '--bptMaps',
         action='store_true',
         help= 'tool to draw BPT maps')
+
+    add('-nE', '--electronDensity',
+        action='store_true',
+        help= 'tool to compute electron density maps from [SII] doublet')
+
  
     add('-cBl', '--cubelets',
         action='store_true',
@@ -645,6 +650,20 @@ def main (argv):
         tP.binLineRatio(gPar.cfg_par,lineInfo)
         mom.makeLineRatioMaps(gPar.cfg_par)
         print('\n\t  ************ --- GuFo : DONE --- ************\n')    
+
+    # Electron Density
+    # ++++++++++++++++
+    if args.electronDensity or gPar.cfg_par['lineRatios'].get('electronDensity',False) == True:        
+        print('\n\t************ --- GuFo : electron Density --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        #gPar.cfg_par['general']['cleanTable'] = True
+        #tP.cleanTable(gPar.cfg_par)   
+        #gPar.cfg_par['general']['cleanTable'] = False
+        tP.electronDensityTable(gPar.cfg_par)
+        lP.electronDensityMap(gPar.cfg_par)
+        print('\n\t  ************ --- GuFo : DONE --- ************\n')    
+
+
 
     # BPT plots
     # +++++++++  

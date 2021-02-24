@@ -3,20 +3,22 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
  
-.. _GaussianFit:
+.. _Datacubes:
 
 ==========================
-Gaussian Multi Line Fitter
+Data cubes
 ==========================
  
 .. toctree::
    :maxdepth: 1
  
 
-Line Fitter
----------------------
+Line cubelets
+-------------
+
+Position-velocity diagrams
+--------------------------
 
 
-Line Analysis
----------------------
-
+Mosaics
+-------

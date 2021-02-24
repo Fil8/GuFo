@@ -3,20 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
  
-.. _GaussianFit:
+.. _LineRatios:
 
-==========================
-Gaussian Multi Line Fitter
-==========================
+===========
+Line ratios
+===========
  
 .. toctree::
    :maxdepth: 1
  
-
-Line Fitter
+BPTs
 ---------------------
 
 
-Line Analysis
+Eta-parameter
 ---------------------
-

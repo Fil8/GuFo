@@ -3,20 +3,28 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
  
-.. _GaussianFit:
+.. _dataCubeOps:
 
-==========================
-Gaussian Multi Line Fitter
-==========================
- 
+
+***********************
+Datacube analysis tools
+***********************
+
 .. toctree::
    :maxdepth: 1
  
 
-Line Fitter
----------------------
+
+pv-Diagrams
+###########
 
 
-Line Analysis
----------------------
+Regrid
+######
 
+
+Rebin
+#####
+
+Header manipulation
+###################

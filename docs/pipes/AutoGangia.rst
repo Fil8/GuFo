@@ -3,20 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
  
-.. _GaussianFit:
+.. _AutomatedGaNGiaLF:
 
-==========================
-Gaussian Multi Line Fitter
-==========================
+******************
+Automated GaNGiaLF
+******************
  
 .. toctree::
    :maxdepth: 1
- 
-
-Line Fitter
----------------------
-
-
-Line Analysis
----------------------
 

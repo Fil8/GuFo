@@ -188,6 +188,8 @@ class momplay:
             tabGen = np.asarray(hdul[1].data)
             if 'PixX_1' in tabGen.dtype.names:
                 tabGen = rfn.rename_fields(tabGen, {'PixX_1': 'PixX', 'PixY_1': 'PixY'})
+            # if 'BIN_ID_1' in tabGen.dtype.names:
+            #     tabGen = rfn.rename_fields(tabGen, {'BIN_ID_1': 'BIN_ID'})
             if 'BIN_ID_1' in tabGen.dtype.names:
                 tabGen = rfn.rename_fields(tabGen, {'BIN_ID_1': 'BIN_ID'})
             for i in range(0,len(tabGen['BIN_ID'])):
@@ -1273,6 +1275,45 @@ class momplay:
                 bpt.cDistIM(cfg_par,outBPTG3)
 
         return
+
+    def rebinPV(self,templateFile,inputFile):
+
+        tFile = fits.open(templateFile)
+        iFile = fits.open(inputFile)
+
+        tHead = tFile[0].header
+        tData = tFile[0].data
+        print(tData.shape)
+        tVel = ((np.linspace(1,tData.shape[0],tData.shape[0])-tHead['CRPIX2'])*tHead['CDELT2']+tHead['CRVAL2'])
+        tVel = tVel[::-1]
+        print(tVel)
+        iHead = iFile[0].header
+        iData = iFile[0].data
+
+        iVel = ((np.linspace(1,iData.shape[0],iData.shape[0])-iHead['CRPIX2'])*iHead['CDELT2']+iHead['CRVAL2'])
+        iVel = iVel[::-1]
+        print(iVel)
+        data = np.zeros([tData.shape[0],tData.shape[1]])
+
+        if iData.shape[0] != tData.shape[0]:
+            for i in range(0,tData.shape[0]-1):
+                index = (tVel[i] <= iVel) & (iVel < tVel[i+1])
+                print(index)
+                data[i,:] = np.nansum(iData[index,:])
+        else:
+            data = np.copy(iData)
+
+        iHead['CRVAL2'] = tHead['CRVAL2']
+        iHead['CDELT2'] = tHead['CDELT2']
+        iHead['CRPIX2'] = tHead['CRPIX2']
+        iHead['CTYPE2'] = 'km/s'
+
+
+        rebinFileName = str.split((inputFile),'.')[0]
+        rebinFileName=rebinFileName+'-rebin.fits'
+        fits.writeto(rebinFileName,data,iHead,overwrite=True)
+
+        return(rebinFileName)
 
     def regridMoms(self,basename,slavename):
         

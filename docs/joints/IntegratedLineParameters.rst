@@ -3,20 +3,19 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
  
-.. _GaussianFit:
+.. IntegratedLineParameters:
 
-==========================
-Gaussian Multi Line Fitter
-==========================
+===============================================
+Kinematics of total fitted lines
+===============================================
  
 .. toctree::
    :maxdepth: 1
  
-
-Line Fitter
+Linewidths
 ---------------------
 
 
-Line Analysis
+ 
+Centroid
 ---------------------
-

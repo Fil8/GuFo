@@ -4,8 +4,7 @@ import os, sys, shutil
 import yaml
 
 import matplotlib.pyplot as plt
-import pywcsgrid2
-import pywcs
+from astropy.wcs import WCS
 
 from astropy.io import fits
 
@@ -21,7 +20,7 @@ import numpy as np
 
 class Velo(object):
     def __init__(self, header):
-        wcs = pywcs.WCS(header)
+        wcs = WCS(header)
         self.wcs_vel = wcs.sub([3])
 
     def to_vel(self, p):

@@ -3,20 +3,20 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
  
-.. _GaussianFit:
+.. MomentMaps:
 
-==========================
-Gaussian Multi Line Fitter
-==========================
+====================================
+Moments maps
+====================================
  
 .. toctree::
    :maxdepth: 1
  
+Mom0
+----
 
-Line Fitter
----------------------
+Mom1
+----
 
-
-Line Analysis
----------------------
-
+Mom2
+----

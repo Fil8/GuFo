@@ -3,8 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+***************************************
 GaNGiaLF -- Gas N-Gaussians Line Fitter
-========================================
+***************************************
 
 .. toctree::
    :maxdepth: 2
@@ -12,13 +13,41 @@ GaNGiaLF -- Gas N-Gaussians Line Fitter
 
    pipes/Introduction
    pipes/Installation
-   pipes/GuFo
+   pipes/listOfTools
+   pipes/configFile
+   pipes/AutoGangia
 
-   :caption: Manual:
+.. toctree::
+   :maxdepth: 2
+   :caption: Joints:
 
    joints/StellarSubtraction
    joints/VoronoiBinning
    joints/GaussianFit
+   joints/Residuals
+   joints/BestFitSelection
+   joints/IntegratedLineParameters
+   joints/MomentMaps
+   joints/DataCubes
+   joints/LineRatios
+   joints/KinematicalAnalysis
+   joints/ColdGas
+   joints/dataCubeOps
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Tutorials:
+   
+   tutorials/TerminalTutorial
+   tutorials/JupyterTutorial
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Source:
+
+   source/gufo
+   source/scavengers
+   source/setup
 
 Indices and tables
 ==================

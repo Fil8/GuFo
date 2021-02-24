@@ -3,20 +3,14 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
  
-.. _GaussianFit:
+.. BestFitSelection:
 
-==========================
-Gaussian Multi Line Fitter
-==========================
+====================================
+Select best fit among different runs
+====================================
  
 .. toctree::
    :maxdepth: 1
  
-
-Line Fitter
+Best fit selection
 ---------------------
-
-
-Line Analysis
----------------------
-

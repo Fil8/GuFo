@@ -1,4 +1,15 @@
 #!/usr/bin/env python3.6
+'''
+
+Set of tools for generating different versions of the kinematical plot (sigma vs. centroid)
+and compare the values of sigma and centroid of each fitted line with the expectations of Cold Chaotic Accretion.
+
+Requirements
+------------
+Fit solutions must have been previously generated. Sigma and centroid of the integrated line must have been computed
+  - `gPlay.py` or `gPlayMp.py` : fit solutions
+  - `ancels.py`: measure sigma and centroid
+'''
 
 import os, sys
 from astropy.io import fits
@@ -13,7 +24,7 @@ from matplotlib.patches import Ellipse
 from matplotlib import pyplot as plt
 from matplotlib import rc
 from matplotlib import gridspec
-from matplotlib.ticker import AutoMinorLocator, MultipleLocator, LogLocator
+from matplotlib.ticker import AutoMinorLocator, MultipleLocator, LogLocator, FixedLocator
 from matplotlib import transforms as mtransforms
 from matplotlib.ticker import LogFormatter 
 from matplotlib.colors import LogNorm
@@ -22,66 +33,42 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import ListedColormap
 import matplotlib.axes as maxes
 
+import matplotlib.ticker as mticker
+
+
 import cvPlay, tPlay, momPlot
+from scavengers import util as ut
 
 cvP = cvPlay.convert()
 tP = tPlay.tplay()
 mPl = momPlot.MOMplot()
 
-class ancelsplot(object):
-    '''
-        Class to plots the results of the kinematical analsyis routine (class ancels.py)
-
-        - loadRcParams
-            load rc parameters for matplotlib (this must be moved in utils, since is used by all plotting modules)
-        - SigmaCentroid
-            plots the logaritmic plot of sigma and centroid from ancels+modName subtable of the output table
-        - SigmaCentroidColdGas
-            plots the logaritmic plot of sigma and centroid from ancels+modName subtable of a given input table (e.g. CO, HI, but not optical spectra)
-        - inCCARegionTable
-            determines the gas in agreement within Xsigma with CCA turbulence (where X is given by the user). Puts the results in ancels+modName table.
-            if plotRotation=True also maps considering gas in rotation are generated (rotMod column must exist in ancels+modName table)     
+class ancelsplot():
+    '''This class draws different versions of the kinematical plot (centroid vs sigma), 
+    for ionised gas (MUSE observations) and cold gas (interferometric observations)
 
     '''
 
-    
-    # Load rc parameters
-    # +++++++++++++++++++
-    def loadRcParams(self):
-    
-      params = {'figure.figsize'      : '10,10',
-        'figure.autolayout' : True,
-        'font.family'         :'serif',
-        'pdf.fonttype'        : 3,
-        'font.serif'          :'times',
-        'font.style'          : 'normal',
-        'font.weight'         : 'book',
-        'font.size'           : 24,
-        'axes.linewidth'      : 2.2,
-        'lines.linewidth'     : 2,
-        'xtick.labelsize'     : 22,
-        'ytick.labelsize'     : 22, 
-        'xtick.direction'     :'in',
-        'ytick.direction'     :'in',
-        'xtick.major.size'    : 6,
-        'xtick.major.width'   : 2,
-        'xtick.minor.size'    : 3,
-        'xtick.minor.width'   : 1,
-        'ytick.major.size'    : 6,
-        'ytick.major.width'   : 2,
-        'ytick.minor.size'    : 3,
-        'ytick.minor.width'   : 1, 
-        'legend.fontsize'     : 12,
-        'legend.handletextpad': 0.1,
-        'legend.markerscale': 2,
-        'text.usetex'         : True,
-        'text.latex.preamble' : r'\usepackage{amsmath}'
-          #'text.latex.unicode'  : True
-        }
+    def sigmaCentroid(self,cfg_par,outPlotDir=None):
+        '''Draws the k-plot from the log_dispIntrXX and log_centroidXX columns of the subtable ancels_YY of ionised gas lines.
+
+            - XX = cfg_par['kinematicalAnalysis']['Name'] : ionised gas emission line name
+            - YY = cfg_par['modName']['modName'] : fit ID (g1, g2 or BF)
         
-      return params
+        Other variables are set in section `kinematicalAnalysis` of the parameter file.
 
-    def sigmaCentroid(self,cfg_par,xyRange=None,outPlotDir=None):
+        Parameters
+        ----------
+
+        cfg_par: OrderedDictionary
+            Dictionary with alla parameters or gufo. 
+            Parameters are given from terminal, or in a `.yml' file.
+
+        outPlotDir: str, optional
+            output directory of plot
+
+        '''
+
 
         lineInfo = tP.openLineList(cfg_par)
 
@@ -90,7 +77,6 @@ class ancelsplot(object):
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         ancels = hdul['Ancels'+cfg_par['gFit']['modName']].data
-        print(ancels.dtype.names)
         if cfg_par['gFit']['modName'] == 'BF':
                 cfg_par['gFit']['modName'] = 'g2'
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
@@ -136,9 +122,10 @@ class ancelsplot(object):
         for i in range (0, len(modString)):
             
             # initialize figure
-            params = self.loadRcParams()
+            params = ut.loadRcParams()
             plt.rcParams.update(params)
-            fig = plt.figure(figsize =(10,8))
+            fig = plt.figure(figsize =(10,8),constrained_layout=False)
+            fig.set_tight_layout(False)
             fig.subplots_adjust(hspace=0.0)
             gs = gridspec.GridSpec(1, 1)
             ax1 = fig.add_subplot(gs[0])
@@ -151,9 +138,9 @@ class ancelsplot(object):
         
             # Calculate axis limits and aspect ratio
             xMin = 0.
-            xMax = 2.9
+            xMax = 2.81
             yMin = 0.2
-            yMax = 3.2
+            yMax = 3.12
             
             ax1.minorticks_on()
             ax1.xaxis.set_major_locator(MultipleLocator(0.5))
@@ -193,11 +180,11 @@ class ancelsplot(object):
 
                 ellip, ellip_lbl = ax1.get_legend_handles_labels()
 
-                #ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=2*rmsToFWHM*RMS_vshift, height=2*rmsToFWHM*RMS_sigmav, angle=theta)     
-                #ellSigma1.set_clip_box(ax1.bbox)
-                #ellSigma1.set_alpha(0.3)
-                #ellSigma1.set_facecolor(ellColor)
-                #ax1.add_artist(ellSigma1)
+                ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=2*rmsToFWHM*RMS_vshift, height=2*rmsToFWHM*RMS_sigmav, angle=theta)     
+                ellSigma1.set_clip_box(ax1.bbox)
+                ellSigma1.set_alpha(0.3)
+                ellSigma1.set_facecolor(ellColor)
+                ax1.add_artist(ellSigma1)
                 
                 #ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=3*rmsToFWHM*RMS_vshift, height=3*rmsToFWHM*RMS_sigmav, angle=theta)     
                 #ellSigma1.set_clip_box(ax1.bbox)
@@ -249,12 +236,12 @@ class ancelsplot(object):
             # Set axis limits
             ax1.set_xlim(xMin, xMax)
             ax1.set_ylim(yMin, yMax)
-            ax1.legend = plt.legend(loc=3,prop={'size':18})
+            ax1.legend = plt.legend(loc=3,prop={'size':18}, markersize=6,handletextpad=0.1)
             ax1.legend.get_frame().set_edgecolor('black')
             ax1.legend.get_frame().set_facecolor('white')
             #change the marker size manually for both lines
-            #ax1.legend.legendHandles[:]._legmarker.set_markersize(6)
-
+            # ax1.legend._legmarker.set_markersize(6)
+            # ax1.legend(handletextpad=0.1,markersize(6)
             if outPlotDir==None:
                 outPlotDir = cfg_par['general']['plotMomModDir']
 
@@ -276,7 +263,28 @@ class ancelsplot(object):
                
         return 0
 
-    def sigmaCentroidColdGas(self,cfg_par,xyRange=None):
+    def sigmaCentroidColdGas(self,cfg_par):
+        '''Draws the k-plot from the log_dispIntrXX and log_centroidXX columns of the subtable ancels_YY of cold gas lines
+        (interferometric observations)
+
+            - XX = cfg_par['otherGasKinAnalysis']['Name'] : cold gas emission line name
+            - YY = cfg_par['modName']['modName'] : fit ID (g1, g2 or BF)
+        
+        Other variables are set in section `otherGasKinAnalysis` of the parameter file.
+
+        Parameters
+        ----------
+
+        cfg_par: OrderedDictionary
+            Dictionary with alla parameters or gufo. 
+            Parameters are given from terminal, or in a `.yml' file.
+
+        outPlotDir: str, optional
+            output directory of plot
+
+        '''
+
+
 
         hdul = fits.open(cfg_par['general']['outTableName'])
 
@@ -289,9 +297,10 @@ class ancelsplot(object):
         rotSca = ancels['RotMod']
         # initialize figure
         
-        params = self.loadRcParams()
+        params = ut.loadRcParams()
         plt.rcParams.update(params)
         fig = plt.figure(figsize =(10,8),constrained_layout=False)
+        fig.set_tight_layout(False)
         fig.subplots_adjust(hspace=0.0)
         gs = gridspec.GridSpec(1, 1)
         ax1 = fig.add_subplot(gs[0])
@@ -314,7 +323,6 @@ class ancelsplot(object):
         ax1.yaxis.set_minor_locator(MultipleLocator(0.1))
         ax1.tick_params(axis='both', which='major', pad=5)
         ax1.tick_params(axis='both', which='minor', pad=2)
-
 
         if cfg_par['otherGasKinAnalysis']['ancillaryInfo']['theoreticalCCA'] == 'Ensemble':
             Mean_sigmav = 2.13 
@@ -418,15 +426,29 @@ class ancelsplot(object):
         return 0   
 
     def sigmaCentroidMultiple(self,cfg_par):
+        '''Draws the k-plot from the log_dispIntrXX and log_centroidXX columns from multiple tables given in cfg_par['multipleRegions']['tableNames']
+        of the parameter file.
         
+        Other variables are set in section `otherGasKinAnalysis` of the parameter file.
+
+        Parameters
+        ----------
+
+        cfg_par: OrderedDictionary
+            Dictionary with alla parameters or gufo. 
+            Parameters are given from terminal, or in a `.yml' file.
+
+        '''
+
         tableNames = cfg_par['multipleRegions']['tableNames']
         colorNames = cfg_par['multipleRegions']['colors']
         regionNames = cfg_par['multipleRegions']['regions']
 
 
-        params = self.loadRcParams()
+        params = ut.loadRcParams()
         plt.rcParams.update(params)
         fig = plt.figure(figsize =(10,8),constrained_layout=False)
+        fig.set_tight_layout(False)
         fig.subplots_adjust(hspace=0.0)
         gs = gridspec.GridSpec(1, 1)
         ax1 = fig.add_subplot(gs[0])
@@ -472,7 +494,6 @@ class ancelsplot(object):
         for i in range(0,len(tableNames)):
             
             hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[i])
-
             ancels = hdul[1].data
 
             x = ancels['logCentroid_'+cfg_par['multipleRegions']['Name']]
@@ -483,27 +504,34 @@ class ancelsplot(object):
                 y = ancels['logDispIntr_'+cfg_par['multipleRegions']['Name']]
             # initialize figure
             #print((idxAGN),(idxKew),(idxKauf),(idxBad))
-            
             ax1.scatter(x, y, c=colorNames[i],facecolors=colorNames[i],edgecolors=colorNames[i],
-                marker='.', s=50, linewidths=None, alpha=0.8,label=regionNames[i])
+                marker='.', s=20, linewidths=None, alpha=0.3,label=regionNames[i])
             hdul.close()
 
         if cfg_par['kinematicalAnalysis']['ancillaryInfo']['plotTheoreticalCCA'] == True or cfg_par['otherGasKinAnalysis']['ancillaryInfo']['plotTheoreticalCCA'] == True:
             rmsToFWHM = 2.*np.sqrt(2.*np.log(2))
             ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=rmsToFWHM*RMS_vshift, height=rmsToFWHM*RMS_sigmav, angle=theta,
-                label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['theoreticalCCA']+' beam')     
+                label=cfg_par['kinematicalAnalysis']['ancillaryInfo']['theoreticalCCA']+' beam',fill=False)     
             ellSigma1.set_clip_box(ax1.bbox)
-            ellSigma1.set_alpha(0.3)
-            ellSigma1.set_facecolor(ellColor)
+            ellSigma1.set_alpha(1)
+            # ellSigma1.set_facecolor('white')
+
+            ellSigma1.set_edgecolor(ellColor)            
+            ellSigma1.set_linewidth(2)            
+
             ax1.add_artist(ellSigma1)
 
             ellip, ellip_lbl = ax1.get_legend_handles_labels()
 
-            #ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=2*rmsToFWHM*RMS_vshift, height=2*rmsToFWHM*RMS_sigmav, angle=theta)     
-            #ellSigma1.set_clip_box(ax1.bbox)
-            #ellSigma1.set_alpha(0.3)
-            #ellSigma1.set_facecolor(ellColor)
-            #ax1.add_artist(ellSigma1)
+            ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=2*rmsToFWHM*RMS_vshift, height=2*rmsToFWHM*RMS_sigmav, 
+                angle=theta,fill=False)     
+            ellSigma1.set_clip_box(ax1.bbox)
+            ellSigma1.set_alpha(1)
+            # ellSigma1.set_facecolor('white')
+            ellSigma1.set_linewidth(2)            
+
+            ellSigma1.set_edgecolor(ellColor)
+            ax1.add_artist(ellSigma1)
             
             #ellSigma1 = Ellipse(xy=(Mean_vshift,Mean_sigmav), width=3*rmsToFWHM*RMS_vshift, height=3*rmsToFWHM*RMS_sigmav, angle=theta)     
             #ellSigma1.set_clip_box(ax1.bbox)
@@ -515,19 +543,23 @@ class ancelsplot(object):
         # Set axis limits
         ax1.set_xlim(xMin, xMax)
         ax1.set_ylim(yMin, yMax)
-        ax1.legend = plt.legend(loc=3,prop={'size': 18})
+        ax1.legend = plt.legend(frameon=True,handlelength=0, handletextpad=1,loc=3,borderaxespad=0.,markerscale=2,prop={'size': 18})
          
         for lh in ax1.legend.legendHandles: 
             lh.set_alpha(1)        
+            #lh.set_sizes([50.0])
+            #lh._legmarker.set_markersize(18)
         ax1.legend.get_frame().set_edgecolor('black')
         ax1.legend.get_frame().set_facecolor('white')
-
+        # for legend_handle in  ax1.legend.legendHandles:
+        #     legend_handle._legmarker.set_markersize(9)
 
         outPlotDir = cfg_par['general']['plotMomModDir']
 
         if not os.path.exists(outPlotDir):
             os.mkdir(outPlotDir)
 
+        ax1.set_autoscale_on(False)    
 
         outPlot = outPlotDir+'K-multiple'+cfg_par['multipleRegions']['Name']+'.png'
         if cfg_par['kinematicalAnalysis']['ancillaryInfo']['plotTheoreticalCCA'] == True or cfg_par['otherGasKinAnalysis']['ancillaryInfo']['plotTheoreticalCCA'] == True:        
@@ -540,8 +572,411 @@ class ancelsplot(object):
                
         return 0  
 
+    def taylorNumberRadius(self,cfg_par):
+        '''Draws the taylorNumber vs radius for multi-phase gas values of sigma_v and radius given in inTables.
+
+
+        Parameters
+        ----------
+
+        cfg_par['CCAanalysis']: OrderedDictionary
+            Dictionary with alla parameters or gufo. 
+            Parameters are given from terminal, or in a `.yml' file.
+            
+
+        inTables: list, str
+            List with tablenames, one for each phase of the gas.
+        
+        maxRadius: float
+            X-limit of plot in kpc
+
+        gasColors: list, str
+            List of colors for the different tables
+
+        vRot: np.array()
+            Rotational velocity for each phase of the gas. Radial dependency changes size of array.
+
+        
+        Requirements:
+        -------------
+
+        inTables must have been binned based on radius, binnedTableMean and binnedTableMeanErr extensions are considered
+        NGOOD column must exist in BinnedTableMeanErr extension.
+
+        Notes:
+        ------
+        Taylor Number: T_at=v_rot/sigma_v
+
+
+        '''
+
+        tableNames = cfg_par['CCAanalysis']['taylorNumber']['inTables']
+        colorNames = cfg_par['CCAanalysis']['taylorNumber']['gasColors']
+
+        params = ut.loadRcParams()
+        plt.rcParams.update(params)
+        fig = plt.figure(figsize =(10,8),constrained_layout=False)
+        fig.set_tight_layout(False)
+        fig.subplots_adjust(hspace=0.0)
+        gs = gridspec.GridSpec(1, 1)
+        ax1 = fig.add_subplot(gs[0])
+
+        ax1.set_xscale('symlog')
+        ax1.set_yscale('symlog')
+        
+        ax1.set_xlabel(r'$r$\,\, [kpc]')
+        ax1.set_ylabel(r'$\log({\rm T}_{{\rm a}_t}) \simeq \log(\frac{v_{\rm rot}}{\sigma_{\rm los}})$')
+    
+        # Calculate axis limits and aspect ratio
+        xMin = 0.
+        xMax = cfg_par['CCAanalysis']['taylorNumber']['maxRadius']+cfg_par['CCAanalysis']['taylorNumber']['maxRadius']/100.*2. 
+        yMin = -1.5
+
+        ax1.annotate(r'${\rm T}_{{\rm a}_t}>3$: rotation dominated',
+            xy=(0.05, np.log10(3.1)), xycoords='data')
+
+        ax1.annotate(r'$1<{\rm T}_{{\rm a}_t}<3$: turbulence $\&$ rotation',
+            xy=(0.05, np.log10(1.5)), xycoords='data')
+
+
+        ax1.annotate(r'${\rm T}_{{\rm a}_t}<1$: turbulence dominated',
+            xy=(0.05, np.log10(0.75)), xycoords='data')        
+
+        #ax1.ticklabel_format(axis='both', style='plain')
+        
+        ax1.minorticks_on()
+        #ax1.xaxis.set_major_locator(MultipleLocator(1))
+        #ax1.xaxis.set_minor_locator(MultipleLocator(0.5))
+        ax1.xaxis.set_major_formatter(mticker.ScalarFormatter())
+
+        ax1.tick_params(axis='both', which='major', pad=5)
+        ax1.tick_params(axis='both', which='minor', pad=2)      
+        #ax1.xaxis.set_minor_formatter(mticker.ScalarFormatter())
+        #ax1.yaxis.set_minor_formatter(mticker.ScalarFormatter())
+
+        majors = [np.log10(1e-1), np.log10(1), np.log10(3), np.log10(1e1)]
+        ax1.yaxis.set_major_locator(FixedLocator(majors))
+        majors = [1e-1, 1, 3, 1e1]
+        #minors = [7.5e-2, 0.25, 0.75]
+        #ax1.yaxis.set_minor_locator(FixedLocator(minors))
+        ax1.yaxis.set_ticklabels(["$%.2f$" % y for y in majors]) 
+
+        majors = [0, 1, 2, 3,4,5]
+        ax1.xaxis.set_major_locator(FixedLocator(majors))
+        #ax1.yaxis.set_minor_locator(ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())(base=10,numticks=5))
+        #ax1.yaxis.set_minor_locator(AutoMinorLocator())
+
+        ax1.tick_params(labelbottom=True, labeltop=False, labelleft=True, labelright=False,
+                     bottom=True, top=True, left=True, right=True)
+
+
+        yMax=[]
+        #yMin=[]
+        for i in range(0,len(tableNames)):
+            yColName = cfg_par['CCAanalysis']['taylorNumber']['yColumns'][i]
+            gasName = cfg_par['CCAanalysis']['taylorNumber']['gasNames'][i]
+            colorName = cfg_par['CCAanalysis']['taylorNumber']['gasColors'][i]
+
+            hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[i])
+            ancels=hdul['BinnedTableMean'].data
+            ancelsErr=hdul['BinnedTableMeanErr'].data
+
+            x = ancels['r']
+            Tat =np.divide(cfg_par['CCAanalysis']['taylorNumber']['vRot'],np.sqrt(3.)*ancels[yColName])
+            print(Tat)
+            y = np.log10(Tat)
+
+            yErr = np.divide(cfg_par['CCAanalysis']['taylorNumber']['vRot'],np.sqrt(3.)*ancelsErr[yColName])
+            yErrGood = ancelsErr['NGOOD']
+            yErr= np.divide(yErr,np.sqrt(yErrGood))
+            yErr = np.divide(yErr,Tat)
+
+            index = np.where(x<=cfg_par['CCAanalysis']['taylorNumber']['maxRadius'])
+
+            xPlot = x[index]
+            yPlot = y[index]
+            
+
+            yErrPlot = yErr[index]/2.
+            
+            xErrPlot=np.diff(xPlot)/2.
+            xErrPlot=np.append((xPlot[1]-xErrPlot[1]-xMin)/2.,xErrPlot)  
+            # initialize figure
+            #print((idxAGN),(idxKew),(idxKauf),(idxBad))
+            ax1.errorbar(xPlot, yPlot, yerr=yErrPlot, xerr=xErrPlot, c=colorName,
+                marker='o',markersize=8, alpha=0.8,label=gasName,ls='',capsize=3)
+            yMax.append(np.nanmax(yPlot+yErrPlot))
+            #yMin.append(np.nanmin(yPlot-yErrPlot))
+
+        yMax =np.nanmax(yMax)+ np.nanmax(yMax)/100.*2.
+        #if np.nanmin(yMin)<0:
+        #     yMin =np.nanmin(yMin)- np.nanmin(yMin)/100.*10.
+        # else:
+        #     yMin=0.
+
+        #ax1.fill_between([xMin,xMax],y1=np.log10(1),y2=np.log10(3),facecolor='purple', alpha=0.2)
+        ax1.axhline(y=np.log10(3),xmin=xMin,xmax=xMax,color='black', alpha=1,lw=2,ls=':')
+        ax1.axhline(y=np.log10(1),xmin=xMin,xmax=xMax,color='black', alpha=1,lw=2,ls=':')        
+        xhoriz = np.logspace(np.log10(1),np.log10(xMax+1),8,base=10.)
+        #xhoriz=np.log10(xhoriz)
+        yhoriz=np.zeros(8)+np.log10(1e-1)
+        
+        #upperlimits = np.array([1, 0]*5)
+        #lowerlimits = np.array([0, 1]*5)
+        ax1.errorbar(xhoriz, yhoriz,marker=r'$\downarrow$',markersize=30,color='red', lw=0,alpha=0.5,
+            label='[NII]6583, HI, CO out of disk')
+        
+        # Set axis limits
+        ax1.set_xlim(xMin, xMax)
+        ax1.set_ylim(yMin, yMax)
+
+        # get handles
+        handles, labels = ax1.get_legend_handles_labels()
+        # remove the errorbars
+        handles = [h[0] for h in handles]
+        # use them in the legend
+        ax1.legend=plt.legend(handles, labels, loc='lower left',numpoints=1,handlelength=0, handletextpad=1,borderaxespad=0,markerscale=1,prop={'size': 18})
+         
+        for lh in ax1.legend.legendHandles: 
+            lh.set_alpha(1)        
+            #lh.set_sizes([50.0])
+            #lh._legmarker.set_markersize(18)
+        
+        ax1.legend.get_frame().set_edgecolor('black')
+        ax1.legend.get_frame().set_facecolor('white')
+        # for legend_handle in  ax1.legend.legendHandles:
+        #     legend_handle._legmarker.set_markersize(9)
+
+
+
+        ccaDir =cfg_par['general']['runNameDir']+'CCA/'
+        if not os.path.exists(ccaDir):
+            os.mkdir(ccaDir)
+        outPlotDir =cfg_par['general']['runNameDir']+'CCA/plots/'
+
+        if not os.path.exists(outPlotDir):
+            os.mkdir(outPlotDir)
+
+        #ax1.set_autoscale_on(False)    
+
+        outPlot = outPlotDir+'T_at-multiple.png'
+
+        plt.savefig(outPlot,format=cfg_par['lineRatios']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=300)#
+
+    def cRatioPlot(self,cfg_par):
+        '''Plots the t_cool/t_eddy vs radius for different tables binned in radius.
+
+        Parameters
+        ----------
+
+        cfg_par['CCAanalysis']['cRatio']: OrderedDictionary
+            Dictionary with alla parameters or gufo. 
+            Parameters are given from terminal, or in a `.yml' file.
+        
+        Requirements:
+        -------------
+
+        tables must contain a column with velocity dispersion, one with radius and one with t_cool.
+        Columnnames are given in the parameter file
+
+        inTables must have been binned based on radius, binnedTableMean and binnedTableMeanErr extensions are considered
+        NGOOD column must exist in BinnedTableMeanErr extension.
+
+        Notes:
+        ------
+        t_eddy: t_eddy=2pi r/sigma_v(r)
+        t_cool: t_cool=3/2(ne+ni)kbT/(ne*ni*Lambda(T))
+
+        '''
+        
+        tableNames = cfg_par['CCAanalysis']['cRatio']['inTables']
+        colorNames = cfg_par['CCAanalysis']['cRatio']['gasColors']
+
+        params = ut.loadRcParams()
+        plt.rcParams.update(params)
+        fig = plt.figure(figsize =(10,8),constrained_layout=False)
+        fig.set_tight_layout(False)
+        fig.subplots_adjust(hspace=0.0)
+        gs = gridspec.GridSpec(1, 1)
+        ax1 = fig.add_subplot(gs[0])
+
+        ax1.set_xscale('symlog')
+        ax1.set_yscale('symlog')
+
+        ax1.set_xlabel(r'$r$\,\, [kpc]')
+        ax1.set_ylabel(r'$\log(C) \simeq \log(\frac{t_{\rm cool}}{t_{\rm eddy}})$')
+    
+        # Calculate axis limits and aspect ratio
+        xMin = 1
+        xMax = cfg_par['CCAanalysis']['cRatio']['maxRadius']+cfg_par['CCAanalysis']['cRatio']['maxRadius']/100.*2. 
+        yMin = -1.
+        
+        ax1.minorticks_on()
+        #ax1.ticklabel_format(axis='both', style='plain')
+
+        #ax1.xaxis.set_major_locator(MultipleLocator(1))
+        #ax1.xaxis.set_minor_locator(MultipleLocator(0.5))
+        #ax1.yaxis.set_major_locator(MultipleLocator(3))
+        #ax1.yaxis.set_minor_locator(MultipleLocator(1))
+
+        ax1.xaxis.set_major_formatter(mticker.ScalarFormatter())
+
+        ax1.tick_params(axis='both', which='major', pad=5)
+        ax1.tick_params(axis='both', which='minor', pad=2)
+
+        majors = [np.log(0.5),np.log10(1e-1), np.log10(1), np.log10(3), np.log10(1e1),np.log10(2e1)]
+        ax1.yaxis.set_major_locator(FixedLocator(majors))
+        majors = [0.5,1e-1, 1, 3, 1e1,2e1]
+        #minors = [7.5e-2, 0.25, 0.75]
+        #ax1.yaxis.set_minor_locator(FixedLocator(minors))
+        ax1.yaxis.set_ticklabels(["$%.2f$" % y for y in majors]) 
+        
+        #minors = [7.5e-2, 0.25, 0.75,1.5,]
+        
+        #ax1.yaxis.set_minor_locator(FixedLocator(minors))
+        
+        #ax1.yaxis.set_ticklabels(["$%.2f$" % y for y in majors]) 
+
+        majors = [1, 2, 3,4,5]
+        ax1.xaxis.set_major_locator(FixedLocator(majors))
+        #ax1.xaxis.set_major_formatter(mticker.ScalarFormatter())
+        #ax1.yaxis.set_minor_formatter(mticker.ScalarFormatter())
+        ax1.tick_params(labelbottom=True, labeltop=False, labelleft=True, labelright=False,
+                     bottom=True, top=True, left=True, right=True)
+
+        yMax=[]
+        #yMin=[]
+        #ax1.set_yscale('log',nonposy='clip')
+
+        for i in range(0,len(tableNames)):
+            tEddyColumns = cfg_par['CCAanalysis']['cRatio']['tEddy'][i]
+            tEddyErrColumnsUp = cfg_par['CCAanalysis']['cRatio']['tEddy'][i]+'Up'
+            tEddyErrColumnsDown = cfg_par['CCAanalysis']['cRatio']['tEddy'][i]+'Down'
+
+            rColumns = cfg_par['CCAanalysis']['cRatio']['rColumns'][i]
+            tCoolColumns = cfg_par['CCAanalysis']['cRatio']['tCool'][i]
+
+            hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[i])
+            ancels=hdul['BinnedTableMean'].data
+            ancelsErr=hdul['BinnedTableMeanErr'].data
+
+
+            Cratio=ancels[tCoolColumns]/ancels[tEddyColumns]
+            CratioUp = ancels[tCoolColumns]/ancelsErr[tEddyErrColumnsDown]
+            CratioDown = ancels[tCoolColumns]/ancelsErr[tEddyErrColumnsUp]
+            print(CratioUp,CratioDown)
+            CratioErr=((CratioUp-CratioDown))/2.
+
+            gasName = cfg_par['CCAanalysis']['cRatio']['gasNames'][i]
+            colorName = cfg_par['CCAanalysis']['cRatio']['gasColors'][i]
+
+            hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[i])
+            ancels=hdul['BinnedTableMean'].data
+            ancelsErr=hdul['BinnedTableMeanErr'].data
+
+            x = ancels['r']
+            y = Cratio
+            print(gasName)
+            print('Cratio= ',y)
+
+            #yErr = ancelsErr[tEddyColumns]
+
+            #yErr = CratioErr*yErr
+            yErr = CratioErr
+
+
+            index = np.where(x<=cfg_par['CCAanalysis']['cRatio']['maxRadius'])
+
+            xPlot = x[index]
+            yPlot = y[index]
+            yErrPlot = yErr[index]/2.
+            
+            xErrPlot=np.diff(xPlot)/2.
+            xErrPlot=np.append((xPlot[1]-xErrPlot[1]-xMin)/2.,xErrPlot)  
+            # initialize figure
+            #print((idxAGN),(idxKew),(idxKauf),(idxBad))
+            ax1.errorbar(xPlot, np.log10(yPlot), yerr=yErrPlot, xerr=xErrPlot, c=colorName,
+                marker='o',markersize=8, alpha=0.8,label=gasName,ls='',capsize=3)
+            yMax.append(np.nanmax(np.log10(yPlot)+yErrPlot))
+            #yMin.append(np.nanmin(yPlot-yErrPlot))
+
+        yMax =np.nanmax(yMax)+ np.nanmax(yMax)/100.*0.5
+        #yMax=np.log10(3e1)
+        #if np.nanmin(yMin)<0:
+            #yMin =np.nanmin(yMin)- np.nanmin(yMin)/100.*10.
+        #    yMin=-1.            
+        #else:
+        #yMin=yMin
+
+        ax1.fill_between([xMin,xMax],y1=np.log10(0.3),y2=np.log10(2.6),facecolor='purple', alpha=0.2)
+        #xhoriz = np.linspace(xMin-1,xMax+1,8)
+        #xhoriz=np.log10(xhoriz)
+        #yhoriz=np.zeros(8)+np.log10(3)
+        # Set axis limits
+        #ax1.errorbar(xhoriz, yhoriz,marker=r'$\downarrow$',markersize=30,color='purple', ls='--',alpha=0.5)
+
+
+        ax1.set_xlim(xMin, xMax)
+        ax1.set_ylim(yMin, yMax)
+
+        # get handles
+        handles, labels = ax1.get_legend_handles_labels()
+        # remove the errorbars
+        handles = [h[0] for h in handles]
+        # use them in the legend
+        ax1.legend=plt.legend(handles, labels, loc='lower left',numpoints=1,
+            handlelength=0, handletextpad=1,borderaxespad=0,markerscale=1,prop={'size': 18})
+         
+        for lh in ax1.legend.legendHandles: 
+            lh.set_alpha(1)        
+            #lh.set_sizes([50.0])
+            #lh._legmarker.set_markersize(18)
+        
+        ax1.legend.get_frame().set_edgecolor('black')
+        ax1.legend.get_frame().set_facecolor('white')
+
+        # for legend_handle in  ax1.legend.legendHandles:
+        #     legend_handle._legmarker.set_markersize(9)
+
+        ccaDir =cfg_par['general']['runNameDir']+'CCA/'
+        if not os.path.exists(ccaDir):
+            os.mkdir(ccaDir)
+        outPlotDir =cfg_par['general']['runNameDir']+'CCA/plots/'
+
+        if not os.path.exists(outPlotDir):
+            os.mkdir(outPlotDir)
+
+        ax1.set_autoscale_on(False)    
+
+
+        outPlot = outPlotDir+'Cratio-multiple.png'
+
+        plt.savefig(outPlot,format=cfg_par['lineRatios']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=300)#
+
+
+
+
     def inCCARegionTable(self,cfg_par):
- 
+        '''Computes for each fitted line the difference with the expected values of sigma and centroid predicted by
+        Cold Chaotic Accretion.
+
+        Saves in .fits files the following maps:
+            - rotating gas (if XXX has been previously run)
+            - gas within 3 sigma from CCA
+
+        Calls `momPlay()` to plot all maps. 
+
+        Variables are set in section `kinematicalAnalysis` (for the ionised gas) and in `otherGasKinAnalysis`
+        (for the cold gas)
+
+        Parameters
+        ----------
+
+        cfg_par: OrderedDictionary
+            Dictionary with alla parameters or gufo. 
+            Parameters are given from terminal, or in a `.yml' file.
+
+        ''' 
         lineInfo = tP.openLineList(cfg_par)
         lineThresh = float(lineInfo['SNThresh'][0])
 
@@ -796,4 +1231,4 @@ class ancelsplot(object):
 
         hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
 
-        return
+        return 0

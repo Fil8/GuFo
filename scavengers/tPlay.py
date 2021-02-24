@@ -15,14 +15,19 @@ import shutil
 
 
 import cvPlay
-import gufo as gf
+#$import gufo as gf
 
 #gf = gufo.gufo()
 cvP = cvPlay.convert()
 
 
 class tplay(object):
-
+    '''Modules to create and modify tables
+    - makeHeader
+        make header of line in vrad velocity frame 
+    - makeLineCube
+        make cubelets for each line marked in lineList.txt
+    '''
     def __init__(self):
 
         self.C = 2.99792458e8
@@ -703,6 +708,137 @@ class tplay(object):
 
         return
 
+    def electronDensityTable(self,cfg_par):
+
+        modName=cfg_par['gFit']['modName']
+        neDir =cfg_par['general']['bptDir']+'electronDensity/'
+
+        hdul = fits.open(cfg_par['general']['outTableName'])
+        tabGen = hdul['BININFO'].data
+        tabLine= hdul['LINERES_'+modName].data
+
+        tot=tabGen['BIN_ID']
+
+        if modName=='g1':   
+
+            nENames=[neDir+'nE_'+'g1'+'.fits']
+            g1Amp6716 = tabGen['g1_Height_SII6716']*np.sqrt(2.*np.pi)*tabLine['g1_sigmaInt_SII6716']          
+            g1Amp6730 = tabGen['g1_Height_SII6730']*np.sqrt(2.*np.pi)*tabLine['g1_sigmaInt_SII6716']          
+
+            RG1=np.divide(g1Amp6716,g1Amp6730)
+
+            nEG1=cvP.electronDensity(RG1)
+            tot = np.column_stack((tot,nEG1))
+        else:    
+                
+            g1Amp6716 = tabLine['g1_Height_SII6716']*np.sqrt(2.*np.pi)*tabLine['g1_sigmaInt_SII6716']        
+            g1Amp6730 = tabLine['g1_Height_SII6730']*np.sqrt(2.*np.pi)*tabLine['g1_sigmaInt_SII6716']  
+            
+            g2Amp6716 = tabLine['g2_Height_SII6716']*np.sqrt(2.*np.pi)*tabLine['g1_sigmaInt_SII6716']          
+            g2Amp6730 = tabLine['g2_Height_SII6730']*np.sqrt(2.*np.pi)*tabLine['g1_sigmaInt_SII6716']
+
+            totAmp6716 = g1Amp6716+g2Amp6716
+            
+            totAmp6730 = g1Amp6730+g2Amp6730
+
+            RG1=np.divide(g1Amp6716,g1Amp6730)
+            RG2=np.divide(g2Amp6716,g2Amp6730)
+            RToT=np.divide(totAmp6716,totAmp6730)
+
+            LognEG1 = cvP.electronDensity(RG1)
+            LognEG2 = cvP.electronDensity(RG2)
+            LognEToT = cvP.electronDensity(RToT)
+            
+            nEG1 = np.power(10,LognEG1)
+            nEG2 = np.power(10,LognEG2)
+            nEToT = np.power(10,LognEToT)
+            
+
+            tot = np.column_stack((tot,RG1,LognEG1,nEG1,RG2,nEG2,LognEG2,RToT,LognEToT,nEToT))
+            #tot = np.column_stack((tot,RG1,RG2,RToT))
+
+            nameNe= tuple(['BIN_ID','RSII-g1','LognE-g1','nE-g1','RSII-g2','LognE-g2','nE-g2','RSII-tot','LognE-tot','nE-tot'])
+
+        t = Table(tot, names=(nameNe))
+
+        try:
+            tb = Table(hdul['LineRatios_'+modName].data)
+            hdul['LineRatios_'+modName] = fits.BinTableHDU(t.as_array(),name='LineRatios_'+modName)
+        except KeyError as e:
+            tt=fits.BinTableHDU.from_columns(t.as_array(),name='LineRatios_'+modName)   
+            hdul.append(tt) 
+        hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
+
+        return 0
+
+    def dustExtinctionTable(self,cfg_par):
+
+        modName=cfg_par['gFit']['modName']
+        neDir =cfg_par['general']['bptDir']+'dustExtinction/'
+
+        hdul = fits.open(cfg_par['general']['outTableName'])
+        hdul2 = fits.open(cfg_par['general']['outTableName2'])
+
+        tabGen = hdul['BININFO'].data
+        tabLine= hdul['LINERES_'+modName].data
+        tabLine2= hdul2['LINERES_'+modName].data
+
+        tot=tabGen['BIN_ID']
+
+        if modName=='g1':   
+
+            nENames=[neDir+'aHalpha_'+'g1'+'.fits']
+            g1AmpHalpha = tabLine['g1_Height_Ha6562']*np.sqrt(2.*np.pi)*tabLine['g1_sigmaInt_Ha6562']          
+            g1AmpHbeta = tabLine2['g1_Height_Hb4861']*np.sqrt(2.*np.pi)*tabLine2['g1_sigmaInt_Hb4861']          
+
+            RG1=np.divide(g1Amp6716,g1Amp6730)
+
+            AHalpha_g1,Av_g1=cvP.dustExtinction(RG1)
+            tot = np.column_stack((tot,AHalpha_g1,Av_g1))
+        
+        else:    
+                
+            g1AmpHalpha = tabLine['g1_Height_Ha6562']*np.sqrt(2.*np.pi)*tabLine['g1_SigIntr_Ha6562']        
+            g1AmpHbeta = tabLine2['g1_Height_Hb4861']*np.sqrt(2.*np.pi)*tabLine2['g1_SigIntr_Hb4861']  
+            
+            g2AmpHalpha = tabLine['g2_Height_Ha6562']*np.sqrt(2.*np.pi)*tabLine['g1_SigIntr_Ha6562']          
+            g2AmpHbeta = tabLine2['g2_Height_Hb4861']*np.sqrt(2.*np.pi)*tabLine2['g1_SigIntr_Hb4861']
+
+            totAmpHalpha = g1AmpHalpha+g2AmpHalpha
+            
+            totAmpHbeta = g1AmpHbeta+g2AmpHbeta
+
+            RG1=np.divide(g1AmpHalpha,g1AmpHbeta)
+            RG2=np.divide(g2AmpHalpha,g2AmpHbeta)
+            RToT=np.divide(totAmpHalpha,totAmpHbeta)
+
+            AHalpha_g1,Av_g1 = cvP.dustExtinction(RG1)
+            AHalpha_g2,Av_g2 = cvP.dustExtinction(RG2)
+            AHalpha_tot,Av_tot = cvP.dustExtinction(RToT)
+            
+            cFg1 = np.power(10,0.4*AHalpha_g1)
+            cFg2 = np.power(10,0.4*AHalpha_g2)
+            cFToT = np.power(10,0.4*AHalpha_tot)
+            
+
+            tot = np.column_stack((tot,RG1,AHalpha_g1,Av_g1,cFg1,RG2,AHalpha_g2,Av_g2,cFg2,
+                RToT,AHalpha_tot,Av_tot,cFToT))
+            #tot = np.column_stack((tot,RG1,RG2,RToT))
+
+            nameNe= tuple(['BIN_ID','RSHaHb-g1','AHalpha-g1','Av-g1','cF-g1','RHaHb-g2','AHalpha-g2','Av-g2','cF-g2',
+                'RSHaHb-tot','AHalpha-tot','Av-tot','cF-tot'])
+
+        t = Table(tot, names=(nameNe))
+
+        try:
+            tb = Table(hdul['LineRatios_'+modName].data)
+            hdul['LineRatios_'+modName] = fits.BinTableHDU(t.as_array(),name='LineRatios_'+modName)
+        except KeyError as e:
+            tt=fits.BinTableHDU.from_columns(t.as_array(),name='LineRatios_'+modName)   
+            hdul.append(tt) 
+        hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
+
+        return 0
 
     def fromMomsToTable(self,cfg_par):
 
@@ -1815,29 +1951,39 @@ class tplay(object):
 
         tableGrouped=tt.group_by(templateBin)
         tableBinned=tableGrouped.groups.aggregate(np.nanmean)
+        tableBinnedMed=tableGrouped.groups.aggregate(np.nanmedian)
         tableBinnedErr=tableGrouped.groups.aggregate(np.nanstd)
         tableBinnedNgood=tableGrouped.groups.indices
         #new_col = fits.ColDefs([fits.Column(name='NGOOD', format='D', array=tableBinnedNgood)])
 
         try:
-            tt = Table(hdul['BinnedTable'+colBin+str(binSize)].data)
-            hdul['BinnedTable'+colBin+str(binSize)] = fits.BinTableHDU(tableBinned.as_array(),name='BinnedTable'+colBin+str(binSize))
+            tt = Table(hdul['BinnedTableMean'].data)
+            hdul['BinnedTableMean'] = fits.BinTableHDU(tableBinned.as_array(),name='BinnedTableMean')
 
         except KeyError as e:
-            tt=fits.BinTableHDU.from_columns(tableBinned.as_array(),name='BinnedTable'+colBin+str(binSize))   
+            tt=fits.BinTableHDU.from_columns(tableBinned.as_array(),name='BinnedTableMean')   
             hdul.append(tt)   
+
+
+        try:
+            ttMed = Table(hdul['BinnedTableMedian'].data)
+            hdul['BinnedTableMedian'] = fits.BinTableHDU(tableBinnedMed.as_array(),name='BinnedTableMedian')
+
+        except KeyError as e:
+            ttMed=fits.BinTableHDU.from_columns(tableBinnedMed.as_array(),name='BinnedTableMedian')   
+            hdul.append(ttMed)   
 
         #orig_cols = resTable.data.columns
         tableBinnedErr.add_column(Column(np.ediff1d(tableBinnedNgood),name='NGOOD'))
 
 
         try:
-            ttErr = Table(hdul['BinnedTableErr'+colBin+str(binSize)].data)
-            hdul['BinnedTableErr'+colBin+str(binSize)] = fits.BinTableHDU(tableBinnedErr.as_array(),name='BinnedTableErr'+colBin+str(binSize))
+            ttErr = Table(hdul['BinnedTableMeanErr'].data)
+            hdul['BinnedTableMeanErr'] = fits.BinTableHDU(tableBinnedErr.as_array(),name='BinnedTableMeanErr')
 
         except KeyError as e:
-            ttErr=fits.BinTableHDU.from_columns(tableBinnedErr.as_array(),name='BinnedTableErr'+colBin+str(binSize))   
-            hdul.append(tt)
+            ttErr=fits.BinTableHDU.from_columns(tableBinnedErr.as_array(),name='BinnedTableMeanErr')   
+            hdul.append(ttErr)
         
         #ttNGood=fits.BinTableHDU.from_columns(np.array(tableBinnedNgood),name='BinnedTableNGood'+colBin+str(binSize))
         #hdul.append(ttNGood) 
@@ -2073,6 +2219,156 @@ class tplay(object):
         
         hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
         return
+
+    def extractColumns(self,inTable,columnNames,outTable=None):
+        '''Extract columns from a fits. table
+
+        Parameters
+        ----------
+
+        inTable: str
+            full path to input table
+
+        columnNames: list
+            list of strings with names of columns to extract
+
+        outTable: str, optional
+            full path to output table
+
+        Returns
+        -------
+        outTable: str
+            full path to output table
+
+        '''
+        
+
+
+
+        tab = Table.read(inTable)
+ 
+        tab.keep_columns(columnNames)
+        
+        hdr = fits.Header()
+        hdr['COMMENT'] = "Here are the outputs of gPlay"
+        hdr['COMMENT'] = "Ext 1 = binInfo Ext 2 = fit result Ext 3 = line parameters"
+        
+        empty_primary = fits.PrimaryHDU(header=hdr)
+           
+        newTab = fits.BinTableHDU(tab.as_array(),name='ExtractedColumns')
+        hdl = fits.HDUList([empty_primary,newTab])        
+
+
+        hdl.writeto(outTable,overwrite=True)
+
+        return 0
+
+
+    def addColumn(self,inTable,inTableExtension,yarray,yarrayName,outTable=None):
+        '''Adds column to .fits table
+
+        Parameters
+        ----------
+
+        inTable: str
+            full path to input table
+        
+        inTableExtension: str
+            name of extension of table to be modified
+
+        yarray: np.array
+            (1,N)-dim array of values to add
+
+        yarrayName: str
+            name of column to add
+
+        outTable: str, optional
+            full path to output table
+
+        Returns
+        -------
+        outTable: str
+            full path to output table
+
+        Notes
+        -----
+            if yarray is longer than columns in table, then it is cut at the last line
+            if yarray is shorter than columns in table, then np.nan are added at the end
+
+        '''
+        
+
+
+ 
+        
+
+
+        hdul = fits.open(inTable)
+
+        tableExt = np.array(hdul[inTableExtension].data)
+
+        
+        if len(yarray)<tableExt.shape[0]:
+
+            yarrayTmp = (np.zeros([tableExt.shape[0]])+1)*np.nan
+            yarrayTmp[0:len(yarray)] = yarray
+            yarrayGood=np.copy(yarrayTmp)
+
+        elif len(yarray)>tableExt.shape[0]:
+            yarrayTmp = yarray[0:tableExt.shape[0]]
+
+            yarrayGood=np.copy(yarrayTmp)
+
+        else:
+            yarrayGood=np.copy(yarray)
+
+        new_col = fits.ColDefs([fits.Column(name=yarrayName, format='D', array=yarrayGood)])
+        orig_cols = hdul[inTableExtension].data.columns
+        
+        tt = fits.BinTableHDU.from_columns(orig_cols + new_col, name=inTableExtension)
+  
+
+        hdul[inTableExtension] = tt
+     
+
+        if outTable==None:
+            outTable=inTable
+        hdul.writeto(outTable,overwrite=True)
+
+        return 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

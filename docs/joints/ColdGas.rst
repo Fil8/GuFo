@@ -3,20 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
  
-.. _GaussianFit:
+.. _ColdGas:
 
-==========================
-Gaussian Multi Line Fitter
-==========================
+=============================
+Cold gas kinematical analysis
+=============================
  
 .. toctree::
    :maxdepth: 1
  
 
-Line Fitter
----------------------
+Moment maps
+-----------
 
-
-Line Analysis
----------------------
-
+Kinematical-plot
+----------------

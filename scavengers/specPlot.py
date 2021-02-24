@@ -45,7 +45,7 @@ class specplot(object):
           'font.style'          : 'normal',
           'font.weight'         : 'book',
           'font.size'           : 24,
-          'axes.linewidth'      : 2.2,
+          'axes.linewidth'      : 1.5,
           'lines.linewidth'     : 2,
           'xtick.labelsize'     : 22,
           'ytick.labelsize'     : 22, 
@@ -128,7 +128,7 @@ class specplot(object):
         #ax.set_xticks([])
 
         ax1.set_xlabel(r'Wavelength [$\AA$]')
-        ax1.set_ylabel(r'Flux [-]')
+        ax1.set_ylabel(r'Flux ['+cfg_par['general']['unitFlux']+']')
 
 
         # Calculate axis limits and aspect ratio
@@ -243,6 +243,7 @@ class specplot(object):
 
 
         fig = plt.figure(figsize=(8.25, 11.67), constrained_layout=False)
+        fig.set_tight_layout(False)
         fig.subplots_adjust(hspace=0.)
 
         gs_top = plt.GridSpec(nrows=n_rows+1, ncols=3,  figure=fig, top=0.95)
