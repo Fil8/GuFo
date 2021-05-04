@@ -17,7 +17,7 @@ from astropy.wcs import WCS
 from astropy.nddata import Cutout2D
 from reproject import reproject_interp, reproject_exact
 from astropy.io import fits
-
+from astropy.coordinates import Angle
 
 
 hP=headPlay.headplay()
@@ -114,4 +114,142 @@ class fitsplay():
         fits.writeto(output,dd[ymin:ymax,xmin:xmax],hh,overwrite=True)
 
         return output
+
+    def coordCutCube(self,filename,rap1,decp1,rap2,decp2):
+
+   
+        rap1 = cP.hms2deg(rap1)
+        rap2 = cP.hms2deg(rap2)
+        decp1 = cP.dms2deg(decp1)
+        decp2 = cP.dms2deg(decp2)
+        hh,dd = hP.cleanHead(filename,writeFile=False)
+
+        w = WCS(hh)    
+
+        xmin,ymin=w.wcs_world2pix(rap1,decp1,0)
+        xmin=int(np.round(xmin,0))
+        ymin=int(np.round(ymin,0))
+        
+        xmax,ymax=w.wcs_world2pix(rap2,decp2,0)
+        xmax=int(np.round(xmax,0))
+        ymax=int(np.round(ymax,0))
+        naxis1=xmax-xmin
+        naxis2=ymax-ymin
+        
+        raCtr,decCtr=w.wcs_pix2world(xmin+(xmax-xmin)/2,ymin+(ymax-ymin)/2,0)
+
+
+        hh['NAXIS1']=naxis1
+        hh['NAXIS2']=naxis2
+        hh['CRPIX1']=naxis1/2
+        hh['CRPIX2']=naxis2/2
+        hh['CRVAL1']=float(raCtr)
+        hh['CRVAL2']=float(decCtr)  
+             
+        aaa = str.split(filename, '.fits')
+
+        output=aaa[0]+'_coordCut.fits'
+        print(output)
+        fits.writeto(output,dd[ymin:ymax,xmin:xmax],hh,overwrite=True)
+
+        return output
+
+
+    def coordCentreCut(self,filename,centreCoords,size,ychans=None):
+
+   
+        raC = cP.hms2deg(centreCoords[0])
+        decC = cP.dms2deg(centreCoords[1])
+        hh,dd = hP.cleanHead(filename,writeFile=False)
+
+        w = WCS(hh)    
+
+        xC,yC=w.wcs_world2pix(raC,decC,0)
+        xC=int(np.round(xC,0))
+        yC=int(np.round(yC,0))
+        
+        pixSize = Angle(hh['CDELT2'],u.deg)
+        HalfSize = int(round(size/pixSize.arcminute)/2)
+        #HalfSize = int(round(size/pixSize.arcminute)/2)
+        
+        xmax = xC+HalfSize
+        xmin = xC-HalfSize
+        ymax = yC+HalfSize
+        ymin = yC-HalfSize
+        
+        naxis1=xmax-xmin
+        naxis2=ymax-ymin
+        
+        raCtr,decCtr=w.wcs_pix2world(xmin+(xmax-xmin)/2,ymin+(ymax-ymin)/2,0)
+
+        hh=fits.getheader(filename)
+        hh['NAXIS1']=naxis1
+        hh['NAXIS2']=naxis2
+        hh['CRPIX1']=naxis1/2
+        hh['CRPIX2']=naxis2/2
+        hh['CRVAL1']=float(raC)
+        hh['CRVAL2']=float(decC)  
+             
+        aaa = str.split(filename, '.fits')
+
+        output=aaa[0]+'_coordCut.fits'
+        print(output)
+        if fits.getdata(filename).shape !=2:
+            fits.writeto(output,fits.getdata(filename)[:,ymin:ymax,xmin:xmax],hh,overwrite=True)
+        if ychans is not None:
+            fits.writeto(output,fits.getdata(filename)[ychans[0]:ychans[1],ymin:ymax,xmin:xmax],hh,overwrite=True)
+        if fits.getdata(filename).shape ==2:
+            fits.writeto(output,fits.getdata(filename)[ymin:ymax,xmin:xmax],hh,overwrite=True)
+        return output
+
+
+    def coordCentreCutCube(self,filename,centreCoords,size,zchans=None):
+
+   
+        raC = cP.hms2deg(centreCoords[0])
+        decC = cP.dms2deg(centreCoords[1])
+        hh,dd = hP.cleanHead(filename,writeFile=False)
+
+        w = WCS(hh)    
+
+        xC,yC=w.wcs_world2pix(raC,decC,0)
+        xC=int(np.round(xC,0))
+        yC=int(np.round(yC,0))
+        
+        pixSize = Angle(hh['CDELT2'],u.deg)
+        HalfSize = int(round(size/pixSize.arcminute)/2)
+        #HalfSize = int(round(size/pixSize.arcminute)/2)
+        
+        xmax = xC+HalfSize
+        xmin = xC-HalfSize
+        ymax = yC+HalfSize
+        ymin = yC-HalfSize
+        
+        naxis1=xmax-xmin
+        naxis2=ymax-ymin
+        
+        raCtr,decCtr=w.wcs_pix2world(xmin+(xmax-xmin)/2,ymin+(ymax-ymin)/2,0)
+
+        hh=fits.getheader(filename)
+        hh['NAXIS1']=naxis1
+        hh['NAXIS2']=naxis2
+        hh['CRPIX1']=naxis1/2
+        hh['CRPIX2']=naxis2/2
+        hh['CRVAL1']=float(raC)
+        hh['CRVAL2']=float(decC)  
+             
+        aaa = str.split(filename, '.fits')
+
+        output=aaa[0]+'_coordCut.fits'
+        print(output)
+        if fits.getdata(filename).shape !=2:
+            fits.writeto(output,fits.getdata(filename)[:,ymin:ymax,xmin:xmax],hh,overwrite=True)
+        if ychans is not None:
+            fits.writeto(output,fits.getdata(filename)[zchans[0]:zchans[1],ymin:ymax,xmin:xmax],hh,overwrite=True)
+        if fits.getdata(filename).shape ==2:
+            fits.writeto(output,fits.getdata(filename)[ymin:ymax,xmin:xmax],hh,overwrite=True)
+        return output
+
+
+
 

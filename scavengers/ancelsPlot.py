@@ -625,7 +625,7 @@ class ancelsplot():
         ax1.set_yscale('symlog')
         
         ax1.set_xlabel(r'$r$\,\, [kpc]')
-        ax1.set_ylabel(r'$\log({\rm T}_{{\rm a}_t}) \simeq \log(\frac{v_{\rm rot}}{\sigma_{\rm los}})$')
+        ax1.set_ylabel(r'${\rm T}_{{\rm a}_t} \simeq \frac{v_{\rm rot}}{\sigma_{\rm los}}$')
     
         # Calculate axis limits and aspect ratio
         xMin = 0.
@@ -704,7 +704,7 @@ class ancelsplot():
             # initialize figure
             #print((idxAGN),(idxKew),(idxKauf),(idxBad))
             ax1.errorbar(xPlot, yPlot, yerr=yErrPlot, xerr=xErrPlot, c=colorName,
-                marker='o',markersize=8, alpha=0.8,label=gasName,ls='',capsize=3)
+                marker='o',markersize=8, alpha=0.8,label=gasName,ls='',capsize=3,lw=1.5)
             yMax.append(np.nanmax(yPlot+yErrPlot))
             #yMin.append(np.nanmin(yPlot-yErrPlot))
 
@@ -804,7 +804,7 @@ class ancelsplot():
         ax1.set_yscale('symlog')
 
         ax1.set_xlabel(r'$r$\,\, [kpc]')
-        ax1.set_ylabel(r'$\log(C) \simeq \log(\frac{t_{\rm cool}}{t_{\rm eddy}})$')
+        ax1.set_ylabel(r'$C \simeq \frac{t_{\rm cool}}{t_{\rm eddy}}$')
     
         # Calculate axis limits and aspect ratio
         xMin = 1
@@ -896,7 +896,7 @@ class ancelsplot():
             # initialize figure
             #print((idxAGN),(idxKew),(idxKauf),(idxBad))
             ax1.errorbar(xPlot, np.log10(yPlot), yerr=yErrPlot, xerr=xErrPlot, c=colorName,
-                marker='o',markersize=8, alpha=0.8,label=gasName,ls='',capsize=3)
+                marker='o',markersize=8, alpha=0.8,label=gasName,ls='',capsize=3,lw=1.5)
             yMax.append(np.nanmax(np.log10(yPlot)+yErrPlot))
             #yMin.append(np.nanmin(yPlot-yErrPlot))
 

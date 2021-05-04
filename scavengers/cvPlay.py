@@ -164,7 +164,20 @@ class convert(object):
         
         return decDeg
 
-
+    def deg2dms(dec_deg):
+        
+        negative = dec_deg < 0
+        dec_deg = abs(dec_deg)
+        minutes,seconds = divmod(dec_deg*3600,60)
+        degrees,minutes = divmod(minutes,60)
+        if negative:
+            if degrees > 0:
+                degrees = -degrees
+            elif minutes > 0:
+                minutes = -minutes
+            else:
+                seconds = -seconds
+        return (degrees,minutes,seconds)
 
 
     def electronDensity(self,R):
@@ -380,7 +393,7 @@ class convert(object):
             
         '''        
 
-        conversionFactor = 1.10e24*np.power((1+z),2)/(bMaj.arcsecond*bMin.arcsecond)
+        conversionFactor = 1.10e21*np.power((1+z),2)/(bMaj.arcsecond*bMin.arcsecond)
 
         nhi = np.multiply(value*dV,conversionFactor)
 
@@ -977,43 +990,6 @@ class convert(object):
         plt.clf()
 
 
-    def computeContours(self,inMap,noise,maximum=None,sigma=3,step=1):
 
-        '''
-        Compute contours of a map between 0 and its maximum according to : sigma x noise x 2^step
-
-        Parameters
-        ----------
-        
-        inMap: str
-            full path to input map. 
-
-        noise: float
-            noise of the input map.
-
-        sigma: int, optional
-            sigma level from where to start contours. Default is 3.
-
-        step: int, optional
-            step of contours
-
-        Returns
-        -------
-            
-            contours: list, float
-                list of contours
-        '''
-
-
-
-        c0=sigma*noise
-        if maximum==None:
-            maximum = np.nanmax(fits.getdata(inMap))
-        print(maximum)
-        n=np.log2(maximum/c0)
-        print(n)
-        contours=c0*np.power(2,np.arange(0,int(n)+step,step,dtype=float))
-
-        return contours
 
 

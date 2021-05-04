@@ -91,7 +91,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="joints/StellarSubtraction.html">Stellar Subtraction using ppxf</a></li>
 <li class="toctree-l1"><a class="reference internal" href="joints/VoronoiBinning.html">Voronoi binning of datacubes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="joints/GaussianFit.html">Gaussian Multi Line Fitter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/GaussianFit.html">Line Fitter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/GaussianFit.html#line-analysis">Line Analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="joints/Residuals.html">Measure residuals of fit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="joints/BestFitSelection.html">Select best fit among different runs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="joints/IntegratedLineParameters.html">Kinematics of total fitted lines</a></li>
@@ -251,11 +252,13 @@
 </li>
       <li><a href="source/scavengers.html#scavengers.cubePlay.cubeplay.circPoint">circPoint() (scavengers.cubePlay.cubeplay method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/scavengers.html#scavengers.tPlay.tplay.cleanTable">cleanTable() (scavengers.tPlay.tplay method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/scavengers.html#scavengers.cvPlay.convert.computeContours">computeContours() (scavengers.cvPlay.convert method)</a>
+</li>
+      <li><a href="source/scavengers.html#scavengers.cvPlay.convert.computeNoise">computeNoise() (scavengers.cvPlay.convert method)</a>
 </li>
       <li><a href="source/scavengers.html#scavengers.cvPlay.convert">convert (class in scavengers.cvPlay)</a>
 </li>
@@ -362,10 +365,12 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="source/scavengers.html#scavengers.cvPlay.convert.hiMass">hiMass() (scavengers.cvPlay.convert method)</a>
+      <li><a href="source/scavengers.html#scavengers.cvPlay.convert.hiMassFromMom0">hiMassFromMom0() (scavengers.cvPlay.convert method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="source/scavengers.html#scavengers.cvPlay.convert.hiMassFromTable">hiMassFromTable() (scavengers.cvPlay.convert method)</a>
+</li>
       <li><a href="source/scavengers.html#scavengers.cvPlay.convert.hms2deg">hms2deg() (scavengers.cvPlay.convert method)</a>
 </li>
   </ul></td>
@@ -535,6 +540,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/scavengers.html#scavengers.cvPlay.convert.nhi">nhi() (scavengers.cvPlay.convert method)</a>
 </li>
+      <li><a href="source/scavengers.html#scavengers.cvPlay.convert.nhiCube">nhiCube() (scavengers.cvPlay.convert method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/scavengers.html#scavengers.cvPlay.convert.nhiMap">nhiMap() (scavengers.cvPlay.convert method)</a>
@@ -556,6 +563,8 @@
       <li><a href="source/scavengers.html#scavengers.tPlay.tplay.openTablesPPXF">openTablesPPXF() (scavengers.tPlay.tplay method)</a>
 </li>
       <li><a href="source/scavengers.html#scavengers.tPlay.tplay.openVorLineOutput">openVorLineOutput() (scavengers.tPlay.tplay method)</a>
+</li>
+      <li><a href="source/scavengers.html#scavengers.momPlot.MOMplot.opticalOverlay">opticalOverlay() (scavengers.momPlot.MOMplot method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -590,8 +599,6 @@
       <li><a href="source/scavengers.html#scavengers.util.prettyOutput_WarningPrefix">prettyOutput_WarningPrefix() (in module scavengers.util)</a>
 </li>
       <li><a href="source/scavengers.html#scavengers.util.printProgress">printProgress() (in module scavengers.util)</a>
-</li>
-      <li><a href="source/scavengers.html#scavengers.cubePlay.cubeplay.pvDiagram">pvDiagram() (scavengers.cubePlay.cubeplay method)</a>
 </li>
       <li><a href="source/scavengers.html#scavengers.cubePlay.cubeplay.pvDiagramLines">pvDiagramLines() (scavengers.cubePlay.cubeplay method)</a>
 </li>

@@ -10,6 +10,7 @@ Single-column figures will be automatically halfed in size by latTeX, hence font
 '''
 
 import sys, os
+import numpy as np
 
 def loadRcParams(option):
     '''Loads the standard rc parameters for uniform plots.
@@ -27,13 +28,14 @@ def loadRcParams(option):
     dict()
 
     '''
-    if option='fw'
+    
+    if option=='fw':
         figSize= '7.24409,7.24409'
         font=16
-    elif option='sc'
+    elif option=='sc':
         figSize= '3.54331,3.54331'
         font=16
-    elif option='fwR'
+    elif option=='fwR':
         figSize= '7.24409,4.074800625'
         font=16
 
@@ -70,3 +72,43 @@ def loadRcParams(option):
          }
   
     return params
+
+
+def computeContours(noise,maximum=None,inMap=None,sigma=3,step=1):
+
+    '''
+    Compute contours of a map between 0 and its maximum according to : sigma x noise x 2^step
+
+    Parameters
+    ----------
+    
+    inMap: str
+        full path to input map. 
+
+    noise: float
+        noise of the input map.
+
+    sigma: int, optional
+        sigma level from where to start contours. Default is 3.
+
+    step: int, optional
+        step of contours
+
+    Returns
+    -------
+        
+        contours: list, float
+            list of contours
+    '''
+
+
+
+    c0=sigma*noise
+    if maximum==None:
+        maximum = np.nanmax(fits.getdata(inMap))
+
+    n=np.log2(maximum/c0)
+    print(n)
+    contours=c0*np.power(2,np.arange(0,int(n)+step,step,dtype=float))
+
+    return contours

@@ -6,8 +6,8 @@ import logging
 import time
 
 import gufo
-from scavengers import gPlay, starSub, momPlay, tPlay, cubePlay, momPlot, specPlay
-from scavengers import gPlayMp, bptPlot, vorPlay, ancels, ancelsPlot,linePlay
+from scavengers import gPlay, starSub, momPlay, tPlay, cubePlay, momPlot, specPlay, pvPlay
+from scavengers import gPlayMp, bptPlot, vorPlay, ancels, ancelsPlot,linePlay, absInt
 from scavengers import util as pretty
 
 import argparse
@@ -647,8 +647,8 @@ def main (argv):
         #tP.cleanTable(gPar.cfg_par)   
         #gPar.cfg_par['general']['cleanTable'] = False
         lineInfo = tP.openLineList(gPar.cfg_par)
-        tP.binLineRatio(gPar.cfg_par,lineInfo)
-        mom.makeLineRatioMaps(gPar.cfg_par)
+        #tP.binLineRatio(gPar.cfg_par,lineInfo)
+        #mom.makeLineRatioMaps(gPar.cfg_par)
         print('\n\t  ************ --- GuFo : DONE --- ************\n')    
 
     # Electron Density
@@ -672,7 +672,7 @@ def main (argv):
         gPar.cfg_par['lineRatios'].get('bptMap',False) == True
         #gPar.cfg_par['general']['cleanTable'] = True
         bpt.bptOIII(gPar.cfg_par)
-        #bpt.bptSII(gPar.cfg_par)
+        bpt.bptSII(gPar.cfg_par)
         #bpt.bptOI(gPar.cfg_par)
         #gPar.cfg_par['general']['cleanTable'] = False
         print('\n\t  ************ --- GuFo : DONE --- ************\n')
@@ -695,7 +695,7 @@ def main (argv):
     if args.cDist or gPar.cfg_par['lineRatios'].get('cDist',False) == True:    
         print ('\n\t************ --- GuFo : Carollo Distance --- ************\n')
         gPar = gufo.gufo(args.cfgFile)
-        tP.carolloDistOIII(gPar.cfg_par)
+        #tP.carolloDistOIII(gPar.cfg_par)
         mom.momCDist(gPar.cfg_par)
         print('\n\t      ************ --- GuFo : cDistBPT --- ************\n')
         bpt.bptCDist(gPar.cfg_par)

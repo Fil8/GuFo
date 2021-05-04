@@ -133,16 +133,16 @@ class BPTplot(object):
             ax1.scatter(x[idxKauf], y[idxKauf], c='blue', marker='+', s=80, linewidths=4, label ='SF-Kauffmann')
             ax1.scatter(x[idxBad], y[idxBad], c='grey', marker='+', s=80, linewidths=4)
 
-            kaX = np.log10(np.linspace(np.power(10,-1.),np.power(10,0.),1e4))
+            kaX = np.log10(np.linspace(np.power(10,-1.),np.power(10,0.),int(1e4)))
             kaY = 0.61 / (kaX - 0.05) + 1.3
             ax1.plot(kaX, kaY, ls='--',c='black', label='Kewley et al. 2001',lw=3)
 
-            keX = np.log10(np.linspace(np.power(10,-2.),np.power(10,0.5),1e4))
+            keX = np.log10(np.linspace(np.power(10,-2.),np.power(10,0.5),int(1e4)))
 
             keY= 0.61 / (keX - 0.47) + 1.19
             ax1.plot(keX, keY, ls=':',c='black', label='Kauffmann et al. 2003')
             
-            schaX = np.log10(np.linspace(0.6,np.power(10,1),1e4))
+            schaX = np.log10(np.linspace(0.6,np.power(10,1),int(1e4)))
             schaY =  1.05*schaX + 0.45
             ax1.plot(schaX, schaY, ls='-.',c='black', label='Schawinski et al. 2007')
 
@@ -238,11 +238,11 @@ class BPTplot(object):
             ax1.scatter(x[idxSey], y[idxSey], c='red', marker='+', s=80, linewidths=4, label='Seyfert')
             ax1.scatter(x[idxBad], y[idxBad], c='grey', marker='+', s=80, linewidths=4)
 
-            keX = np.log10(np.linspace(np.power(10,-2.),np.power(10,0.5),1e4))
+            keX = np.log10(np.linspace(np.power(10,-2.),np.power(10,0.5),int(1e4)))
             keY= 0.72 / (keX - 0.32) + 1.30
             ax1.plot(keX, keY, ls=':',c='black', label='Kauffmann et al. 2003')
             
-            seyX = np.log10(np.linspace(np.power(10,-0.4),np.power(10,0.5),1e4))
+            seyX = np.log10(np.linspace(np.power(10,-0.4),np.power(10,0.5),int(1e4)))
             seyLine = 1.89*seyX + 0.76
             ax1.plot(seyX, seyLine, ls=':',c='black', label='Seyfert-LINER')
         
@@ -342,11 +342,11 @@ class BPTplot(object):
             ax1.scatter(x[idxBad], y[idxBad], c='grey', marker='+', s=80, linewidths=4)
 
 
-            kaX = np.log10(np.linspace(np.power(10,-3.),np.power(10,-0.595),1e4))
+            kaX = np.log10(np.linspace(np.power(10,-3.),np.power(10,-0.595),int(1e4)))
             kaY = 0.73 / (kaX + 0.59) + 1.33
             ax1.plot(kaX, kaY, ls='--',c='black', label='Kewley et al. 2001')
 
-            seyX = np.log10(np.linspace(np.power(10,-1.),np.power(10,0.0),1e4))
+            seyX = np.log10(np.linspace(np.power(10,-1.),np.power(10,0.0),int(1e4)))
             seyLine = 1.18*seyX + 1.30
             ax1.plot(seyX, seyLine, ls=':',c='black', label='Seyfert-LINER')
      
@@ -565,12 +565,18 @@ class BPTplot(object):
         
         if vRange == None:
           vRange=np.array([1,2],dtype=float)
-          vRange[0] = -1.2
+          vRange[0] = 0.5
           vRange[1] = 1.2
 
-        img = ax1.imshow(hduImCut.data, cmap=cfg_par['lineRatios']['cDistColorMap'],vmin=vRange[0],vmax=vRange[1])
+        #masked_array = np.ma.array(hduImCut.data, mask=np.isnan(hduImCut.data))
+        #cmap = cfg_par['lineRatios']['cDistColorMap']
+        #cmap.set_bad('white',1.)
+        #img = ax1.imshow(masked_array, interpolation='nearest', cmap=cmap,)
+        arrayImg=np.array(hduImCut.data,dtype=float)
+        img = ax1.imshow(arrayImg, cmap=cfg_par['lineRatios']['cDistColorMap'],
+            vmin=vRange[0],vmax=vRange[1],interpolation='nearest')
 
-        colorTickLabels = np.linspace(vRange[0],vRange[1],9.)    
+        colorTickLabels = np.linspace(vRange[0],vRange[1],9)    
 
         ax1.coords[1].set_axislabel(r'Dec (J2000)')
         ax1.coords[0].set_axislabel(r'RA (J2000)')
@@ -616,8 +622,8 @@ class BPTplot(object):
             ax1.contour(array.data,levels=contLevels[i], colors=contColors[0])
 
         outFig = cfg_par['general']['bptDir']+outBPT+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
-        fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
-                #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
+        fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=300)#,
+               # dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
         return 0  
 
     def bptCDist(self,cfg_par,outPlotDir=None,vRange=None):
@@ -678,25 +684,27 @@ class BPTplot(object):
             #print((idxAGN),(idxKew),(idxKauf),(idxBad))
 
             if vRange==None:
-                vRangeMin=-1.2
+                vRangeMin=0.5
                 vRangeMax=1.2
             else:
                 vRangeMin=vRange[0]
                 vRangeMax=vRange[1]
 
-            ax1.scatter(x, y, c=k, cmap='nipy_spectral', marker='+', s=80, linewidths=4, 
-                label='Fornax A',vmin=vRangeMin,vmax=vRangeMax)
+            vRangeMin = 0.5
+            vRangeMax = 1.2
+            ax1.scatter(x, y, c=k, cmap='nipy_spectral', marker='+', s=20, linewidths=4, 
+                label='Fornax A',vmin=0.5,vmax=1.2)
 
-            kaX = np.log10(np.linspace(np.power(10,-1.),np.power(10,0.),1e4))
+            kaX = np.log10(np.linspace(np.power(10,-1.),np.power(10,0.),int(1e4)))
             kaY = 0.61 / (kaX - 0.05) + 1.3
             ax1.plot(kaX, kaY, ls='--',c='black', label='Kewley et al. 2001')
 
-            keX = np.log10(np.linspace(np.power(10,-2.),np.power(10,0.5),1e4))
+            keX = np.log10(np.linspace(np.power(10,-2.),np.power(10,0.5),int(1e4)))
 
             keY= 0.61 / (keX - 0.47) + 1.19
             ax1.plot(keX, keY, ls=':',c='black', label='Kauffmann et al. 2003')
 
-            schaX = np.log10(np.linspace(0.6,np.power(10,1),1e4))
+            schaX = np.log10(np.linspace(0.6,np.power(10,1),int(1e4)))
             schaY =  1.05*schaX + 0.45
             ax1.plot(schaX, schaY, ls='-.',c='black', label='Schawinski et al. 2007')
             
@@ -709,8 +717,8 @@ class BPTplot(object):
             if not os.path.exists(outPlotDir):
                 os.mkdir(outPlotDir)
 
-            outPlot = outPlotDir+'BPT-'+modString[i]+'etadist.png'
+            outPlot = outPlotDir+'BPT-'+modString[i]+'etadist.pdf'
             plt.savefig(outPlot,
-                        format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100) # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
+                        format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=300) # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
                
         return 0      

@@ -413,7 +413,7 @@ class MOMplot(object):
     
     centre = SkyCoord(ra=objCoordsRA*u.degree, dec=objCoordsDec*u.degree, frame='fk5')
     size = u.Quantity((cfg_par['moments']['sizePlots'],cfg_par['moments']['sizePlots']), u.arcmin)
-    hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsIm)
+    hduImCut1 = Cutout2D(hduIm.data, centre, size, wcs=wcsIm,mode='partial')
 
     params = ut.loadRcParams()
     plt.rcParams.update(params)
@@ -428,7 +428,7 @@ class MOMplot(object):
     fig.set_tight_layout(False)
     
     gs = plt.GridSpec(nrows=1, ncols=1,  figure=fig,wspace=0.0,hspace=0.0)
-    ax1 = fig.add_subplot(gs[0,0],projection=wcsIm)
+    ax1 = fig.add_subplot(gs[0,0],projection=hduImCut1.wcs)
 
     divider = make_axes_locatable(ax1)
 
@@ -450,8 +450,8 @@ class MOMplot(object):
         colorMaps = ListedColormap(colorNames[i])
 
         hduIm = fits.open(imageName[i])[0]
-    
-        hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsIm)
+        wcsImm = WCS(hduIm.header)
+        hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsImm,mode='partial')
 
         img = ax1.imshow(hduImCut.data, cmap=colorMaps,alpha=1,interpolation='nearest',vmin=-1e-1,vmax=1.1)
     
@@ -464,13 +464,13 @@ class MOMplot(object):
     patches = [ mpatches.Patch(color=colorNames[i],  label=regionNames[i] ) for i in range(len(regionNames)) ]
     # put those patched as legend-handles into the legend
  
-    ax1.legend = plt.legend(handles=patches, loc=3, borderaxespad=0.,prop={'size': 18})
-    for lh in ax1.legend.legendHandles: 
-        lh.set_alpha(1)        
-        #lh.set_sizes([50.0])
-        #lh._legmarker.set_markersize(18)
-    ax1.legend.get_frame().set_edgecolor('black')
-    ax1.legend.get_frame().set_facecolor('white')
+    # ax1.legend = plt.legend(handles=patches, loc=3, borderaxespad=0.,prop={'size': 18})
+    # for lh in ax1.legend.legendHandles: 
+    #     lh.set_alpha(1)        
+    #     #lh.set_sizes([50.0])
+    #     #lh._legmarker.set_markersize(18)
+    # ax1.legend.get_frame().set_edgecolor('black')
+    # ax1.legend.get_frame().set_facecolor('white')
     #cBarTicks = [-1,0,1,2]
 
     ax1.coords[1].set_axislabel(r'Dec (J2000)')
@@ -502,11 +502,11 @@ class MOMplot(object):
         contLevels=cfg_par['multipleRegions']['contLevels']
         hduCont = fits.open(contName)[0]
         wcsCont = WCS(hduCont.header)
-        hduContCut = Cutout2D(hduCont.data, centre, size, wcs=wcsCont)    
+        hduContCut = Cutout2D(hduCont.data, centre, size, wcs=wcsCont,mode='partial')    
         array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
                                             hduImCut.wcs, shape_out=hduImCut.shape)
 
-        ax1.contour(array.data,levels=contLevels, colors='gray')
+        ax1.contour(array.data,levels=contLevels, colors='gray',linewidths=2.)
 
     outFigDir = momModDir+'plots/'
     if not os.path.exists(outFigDir):

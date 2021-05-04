@@ -5,8 +5,8 @@
  
 .. _GaussianFit:
 
-==========================
-Gaussian Multi Line Fitter
+**************************
+Gaussian Multi-Line Fitter
 ==========================
  
 .. toctree::

@@ -1202,10 +1202,10 @@ class momplay:
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         lineBPT = hdul['BPT_'+cfg_par['gFit']['modName']].data
-        hbetaMap = fits.open(momModDir+'mom0_'+modName+'-Hb4861.fits')
+        hbetaMap = fits.open(momModDir+'mom0_ToT-NII6583.fits')
         hbetaData = hbetaMap[0].data
 
-        hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
+        hduGen = fits.open(cfg_par['general']['outTableName'])
         tabGen = hduGen[1].data
 
         numCols = len(lineBPT.dtype.names)
@@ -1231,7 +1231,7 @@ class momplay:
             match_bin = np.where(tabGen['BIN_ID']==lineBPT['BIN_ID'][j])[0]
 
             for index in match_bin:
-                if ~np.isnan(hbetaData[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]):
+                #if ~np.isnan(hbetaData[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]):
                     
                     lineMapG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j]['cDist-OIIIG1']
 
@@ -1268,8 +1268,11 @@ class momplay:
             bpt.cDistIM(cfg_par,outBPT)
 
             if modName != 'g1':
+                cfg_par['gFit']['modName'] = 'g2'
                 bpt.cDistIM(cfg_par,outBPTG2)
+                cfg_par['gFit']['modName'] = 'ToT'
                 bpt.cDistIM(cfg_par,outBPTToT)
+                cfg_par['gFit']['modName'] = 'g2'
             elif modName=='g3':
 
                 bpt.cDistIM(cfg_par,outBPTG3)
