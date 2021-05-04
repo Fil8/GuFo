@@ -195,7 +195,7 @@ class fitsplay():
         if fits.getdata(filename).shape !=2:
             fits.writeto(output,fits.getdata(filename)[:,ymin:ymax,xmin:xmax],hh,overwrite=True)
         if ychans is not None:
-            crval3=hh['CRVAL3']+(hh['CRPIX3']*ychans[0])
+            crval3=hh['CRVAL3']+(hh['CDELT3']*ychans[0])
             hh['CRVAL3']=crval3
             print(crval3)
             fits.writeto(output,fits.getdata(filename)[ychans[0]:ychans[1],ymin:ymax,xmin:xmax],hh,overwrite=True)
