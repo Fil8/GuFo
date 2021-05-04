@@ -60,8 +60,6 @@ class fitsplay():
         centre = SkyCoord(ra=hh['CRVAL1']*u.degree, dec=hh['CRVAL2']*u.degree, frame='fk5')
         size = u.Quantity((hh['CRVAL1'],cfg_par['moments']['sizePlots']), u.arcmin)
 
-
-
         dd = np.divide(dd,sub)
         dd[np.isnan(dd)] = 0.0
 
@@ -197,6 +195,8 @@ class fitsplay():
         if fits.getdata(filename).shape !=2:
             fits.writeto(output,fits.getdata(filename)[:,ymin:ymax,xmin:xmax],hh,overwrite=True)
         if ychans is not None:
+            crval3=hh['CRVAL3']+(hh['CRPIX3']*ychans[0])
+            hh['CRVAL3']=crval3
             fits.writeto(output,fits.getdata(filename)[ychans[0]:ychans[1],ymin:ymax,xmin:xmax],hh,overwrite=True)
         if fits.getdata(filename).shape ==2:
             fits.writeto(output,fits.getdata(filename)[ymin:ymax,xmin:xmax],hh,overwrite=True)
