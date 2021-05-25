@@ -2052,7 +2052,7 @@ class MOMplot(object):
         # if titleName is not None:
         #     ax1.set_title(titleName)
 
-        ax1.set_autoscale_on(False)    
+
 
         #SaveOutput
 
