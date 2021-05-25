@@ -1910,8 +1910,8 @@ class MOMplot(object):
 
   def opticalOverlay(self,cfg_par,optName,imNames,
                   cRange,cMap,imLevels=None,
-                  imColors=None,beamCoords= None,titleName=None,plotFormat='png',nanToZero=None,zeroToNan=None,interpMethod=None,
-                  cScale='log',linthresh=None,notes=None,base=2.):
+                  imColors=None,beamCoords= None,titleName=None,plotFormat='png',nanToZero=None,zeroToNan=None,interpMethod=None,notes=None,
+                  cScale='log',linthresh=None,base=2.):
         '''Overlays contours of (typically) one or more moment map over an optical image
 
         Parameters
