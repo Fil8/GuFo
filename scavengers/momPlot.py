@@ -2053,10 +2053,6 @@ class MOMplot(object):
             for key,value in notes.items():
             # if titleName is not None:
             #     ax1.set_title(titleName)
-                raN3100 = '10:00:33.140'
-                decN3100= '-31:39:52.09'
-                raN3100=cP.hms2deg(raN3100)
-                decN3100=cP.dms2deg(decN3100)
 
                 ax1.text(notes[0], value[1],key, transform=ax1.get_transform('fk5'),edgecolor=value[2], facecolor=value[2])
 
