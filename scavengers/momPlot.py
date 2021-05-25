@@ -2056,7 +2056,7 @@ class MOMplot(object):
         raN3100=cP.hms2deg(raN3100)
         decN3100=cP.dms2deg(decN3100)
 
-        ax1.text(raN3100, decN3100,'NGC 3100', transform=ax.get_transform('fk5'),edgecolor='seagreen', facecolor='seagreen')
+        ax1.text(raN3100, decN3100,'NGC 3100', transform=ax1.get_transform('fk5'),edgecolor='seagreen', facecolor='seagreen')
 
         #SaveOutput
 
