@@ -1910,7 +1910,8 @@ class MOMplot(object):
 
   def opticalOverlay(self,cfg_par,optName,imNames,
                   cRange,cMap,imLevels=None,
-                  imColors=None,beamCoords= None,titleName=None,plotFormat='png',nanToZero=None,zeroToNan=None,interpMethod=None,notes=None,
+                  imColors=None,beamCoords= None,titleName=None,plotFormat='png',nanToZero=None,zeroToNan=None,interpMethod=None,
+                  notes=None,
                   cScale='log',linthresh=None,base=2.):
         '''Overlays contours of (typically) one or more moment map over an optical image
 
@@ -2049,7 +2050,7 @@ class MOMplot(object):
         ax1.coords[0].set_axislabel(r'RA (J2000)')
      
         if notes is not None:
-            for key, value in notes:
+            for key,value in notes.items():
             # if titleName is not None:
             #     ax1.set_title(titleName)
                 raN3100 = '10:00:33.140'
@@ -2057,7 +2058,7 @@ class MOMplot(object):
                 raN3100=cP.hms2deg(raN3100)
                 decN3100=cP.dms2deg(decN3100)
 
-                ax1.text(value[0], value[1],key, transform=ax1.get_transform('fk5'),edgecolor=value[2], facecolor=value[2])
+                ax1.text(notes[0], value[1],key, transform=ax1.get_transform('fk5'),edgecolor=value[2], facecolor=value[2])
 
         #SaveOutput
 
