@@ -2032,7 +2032,6 @@ class MOMplot(object):
                 cs = ax1.contour(array.data,levels=imLevels[i,:,0], colors=imColors[i])
 
                 if np.sum(imLevels[i,:,1])!=np.nan:
-                    print("culo")
                     print(np.nanmin(array.data))
                     cs = ax1.contour(array.data,levels=imLevels[i,:,1], colors=imColors[1],linestyles='dashed')
                 if 'BMAJ' in hduMom0.header and beamCoords is not None:
@@ -2040,7 +2039,8 @@ class MOMplot(object):
                     ybeam=beamCoords[1]
                     el = Ellipse((xbeam, ybeam), hduMom0.header['BMAJ'], hduMom0.header['BMIN'],
                              angle=hduMom0.header['BMAJ'], linewidth=2, fill=False, zorder=2,transform=ax1.get_transform('fk5'))
-                    el.set_edgecolor(imColors[i])            
+                    el.set_edgecolor('black')            
+                    #el.set_edgecolor(imColors[i])            
 
                     ax1.add_patch(el)       
 
