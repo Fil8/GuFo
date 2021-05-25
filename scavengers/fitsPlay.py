@@ -191,15 +191,16 @@ class fitsplay():
         aaa = str.split(filename, '.fits')
 
         output=aaa[0]+'_coordCut.fits'
-        print(output)
-        if fits.getdata(filename).shape !=2:
+        print(fits.getdata(filename).shape)
+
+        if len(fits.getdata(filename).shape) !=2:
             fits.writeto(output,fits.getdata(filename)[:,ymin:ymax,xmin:xmax],hh,overwrite=True)
         if ychans is not None:
             crval3=hh['CRVAL3']+(hh['CDELT3']*ychans[0])
             hh['CRVAL3']=crval3
             print(crval3)
             fits.writeto(output,fits.getdata(filename)[ychans[0]:ychans[1],ymin:ymax,xmin:xmax],hh,overwrite=True)
-        if fits.getdata(filename).shape ==2:
+        if len(fits.getdata(filename).shape) ==2:
             fits.writeto(output,fits.getdata(filename)[ymin:ymax,xmin:xmax],hh,overwrite=True)
         return output
 

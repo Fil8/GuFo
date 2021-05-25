@@ -18,12 +18,17 @@ scavengers/bptPlot.py
 scavengers/cubePlay.py
 scavengers/cubePlot.py
 scavengers/cvPlay.py
+scavengers/fitsPlay.py
 scavengers/gPlay.py
 scavengers/gPlayMp.py
+scavengers/headPlay.py
+scavengers/linePlay.py
 scavengers/momPlay.py
 scavengers/momPlot.py
 scavengers/pickle4MPplay.py
+scavengers/plotUtil.py
 scavengers/pvPlay.py
+scavengers/specPlay.py
 scavengers/specPlot.py
 scavengers/starSub.py
 scavengers/tPlay.py

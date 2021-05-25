@@ -8,6 +8,7 @@ from scipy import interpolate
 from astropy.coordinates import Angle
 from astropy.io import fits
 from astropy import units as u 
+from astropy.io.votable import parse_single_table
 
 from matplotlib import pyplot as plt
 
@@ -438,27 +439,64 @@ class convert(object):
 
         return sB
 
-    def hiMassFromTable(self,cfg_par):
+    def hiMassFromSofiaTable(self,cfg_par):
+        '''
 
-        if cfg_par['compute']['hiMassFromTable']['enable']==True:
-            hdul = fits.open(cfg_par['compute']['inTable'])
-            headTab = tab[1].header
-            dataTab = tab[1].data 
+        Estimate total HI mass from moment 0 map
 
-            flux = tab[cfg_par['compute']['hiMassFromTable']['fluxColumn']]
-            totFlux = np.sum(flux)
+        Parameters
+        ----------
+            
+        inMom0: str
+            full path to moment zero
 
-            bx = Angle(cfg_par['compute']['hiMassFromTable']['beamX'], u.arcsec)
-            by = Angle(cfg_par['compute']['hiMassFromTable']['beamX'], u.arcsec)
+        cutoff: float
+            threshold within which compute the mass in _Jy*km/s_
+ 
+        z: float
+        redshift the source
 
-            dl=c.lum_dist(cfg_par['compute']['hiMassFromTable']['dL'])/3.085678e24
+        DL: float
+            luminosity distance of the source in Mpc
 
-            beamcorr=2.*np.pi*(bx.arcminute*by.arcminute/(2.35482**2))/(np.power(cfg_par['compute']['hiMassFromTable']['pixSize'],2))
-            factor=s/beamcorr
+        Returns
+        -------
+            
+            mhi: float
+                HI mass in Msun
 
-            mhi=self.chi*(dl**2)*factor
-    
+        Notes
+        -----
+
+            Conversion formula:
+            M(HI) = 2.35x10^5/(1+z)^2*DL^2[Mpc]*Sdv[Jy*km/s]
+
+        '''
+
+        tab = parse_single_table(cfg_par['compute']['inTable'])
+        dataTab = tab.array
+
+        if cfg_par['compute']['hiMassFromTable']['vunit'] == 'm/s':
+            flux = dataTab['f_sum']/1e3
+        else:
+            flux = dataTab['f_sum']
+        #totFlux = np.sum(flux)
+
+        # bx = Angle(cfg_par['compute']['hiMassFromTable']['beamX'], u.arcsec)
+        # by = Angle(cfg_par['compute']['hiMassFromTable']['beamY'], u.arcsec)
+
+        DL=cfg_par['compute']['hiMassFromTable']['dL']
+        z=cfg_par['compute']['hiMassFromTable']['z']
+        # pixSize= Angle(cfg_par['compute']['hiMassFromTable']['pixSize'], u.arcsec)
+
+        # beamcorr=2.*np.pi*(bx.deg*by.deg/(2.35482**2))/(np.power(pixSize.deg,2))
+
+        mhi=self.HImassEmission/np.power(1+z,2)*(DL**2)*flux    
         
+        for i in range(0,len(mhi)):
+                
+                print('M(HI) = {} x10^9 Msun,'.format(np.round(mhi[i],3)/1e9))
+
         return mhi
 
     def hiMassFromMom0(self,inMom0,cutoff,z,DL):

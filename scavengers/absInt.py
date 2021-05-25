@@ -28,7 +28,7 @@ class absint:
         self.nhi = 1.8216E18
         self.mp=1.67492728E-24   #g
         self.msun=1.98855e33      #g
-
+        self.pc = 3.08577758149137e18
     def zaxis(self,cubename):
 
         cubefile = fits.open(cubename)  # read input
@@ -75,15 +75,15 @@ class absint:
         '''Estimates the mass of the absorbed HI
         Parameters:
             nhi_abs: column density of the absorption line in cm-2
-            area: area over which the column density is integrated in cm (output of hi.beam_area)
+            area: area over which the column density is integrated in pc^2 (output of hi.beam_area)
         
         Returns:
             hi.mhi_abs: hi mass inferred by the absorption line in Msun
         '''
-
+        area*=np.power(self.pc,2)
         mhiabs = area*self.mp*nhi_abs/self.msun
 
-        print('M(HI) = '+str(round(mhiabs, 3)/1e8)+' x10^8 mSun')
+        print('M(HI) = '+str(round(mhiabs, 6)/1e8)+' x10^8 mSun')
 
         return mhiabs
 
@@ -354,7 +354,7 @@ class absint:
 
         return 0
 
-    def absPlotInt(self,cfg_par,specName,contFlux=None):
+    def absPlotInt(self,cfg_par,specName,contFlux=None,y_sigma=None):
         '''Plots the integrated HI absorption profile. If contFlux is given, the y-axis is in optical depth.
 
         Parameters
@@ -387,7 +387,7 @@ class absint:
         spec=np.genfromtxt(specName)
 
         vel=spec[:,0]
-        x_data=vel/1e3
+        x_data=vel
         flux=spec[:,1]
         y_data=flux
 
@@ -419,7 +419,7 @@ class absint:
                 r'S\,$[\mathrm{mJy}\,\mathrm{beam}^{-1}]$')
         else:
             ylabh = ax1.set_ylabel(
-                r'$\tau$')            
+                r'$\tau$',labelpad=-10)            
             ylabh.set_verticalalignment('center')        
 
 
@@ -441,6 +441,9 @@ class absint:
             #    y_data[index_flags_l:index_flags] = 0.0
             
         ax1.step(x_data, y_data, where='mid', color='black', linestyle='-')
+        if y_sigma is not None:
+            ax1.fill_between(x_data, -y_sigma, y_sigma,
+                         facecolor='grey', alpha=0.5,step='mid')
 
         # Calculate axis limits and aspect ratio
         x_min = np.min(x_data)
@@ -463,8 +466,12 @@ class absint:
         ax1.axhline(color='k', linestyle=':', zorder=0)
    
 
+        # Plot noise
+
+
         # Add minor tick marks
         ax1.minorticks_on()
+        ax1.set_autoscale_on(False)    
 
         # Save figure to file
         # name of plot is combination of beam number and name of extracted source
