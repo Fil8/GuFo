@@ -2054,7 +2054,7 @@ class MOMplot(object):
             # if titleName is not None:
             #     ax1.set_title(titleName)
 
-                ax1.text(notes[0], value[1],key, transform=ax1.get_transform('fk5'),edgecolor=value[2], facecolor=value[2])
+                ax1.text(value[0], value[1],key, transform=ax1.get_transform('fk5'),edgecolor=value[2], facecolor=value[2])
 
         #SaveOutput
 
