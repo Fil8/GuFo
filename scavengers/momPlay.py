@@ -18,6 +18,7 @@ import numpy as np
 import numpy.lib.recfunctions as rfn
 
 #import numpy.ma as ma
+import scipy.ndimage
 
 import tPlay,cvPlay,bptPlot,momPlot
 
@@ -183,15 +184,15 @@ class momplay:
         for j in range(0,len(tableNames)):
             momHead = header.copy()
             mom = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
-
+            print(tableNames[j])
             hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[j])
             tabGen = np.asarray(hdul[1].data)
             if 'PixX_1' in tabGen.dtype.names:
                 tabGen = rfn.rename_fields(tabGen, {'PixX_1': 'PixX', 'PixY_1': 'PixY'})
-            # if 'BIN_ID_1' in tabGen.dtype.names:
-            #     tabGen = rfn.rename_fields(tabGen, {'BIN_ID_1': 'BIN_ID'})
             if 'BIN_ID_1' in tabGen.dtype.names:
-                tabGen = rfn.rename_fields(tabGen, {'BIN_ID_1': 'BIN_ID'})
+                 tabGen = rfn.rename_fields(tabGen, {'BIN_ID_1': 'BIN_ID'})
+            #if 'BIN_ID_1' in tabGen.dtype.names:
+            #    tabGen = rfn.rename_fields(tabGen, {'BIN_ID_1': 'BIN_ID'})
             for i in range(0,len(tabGen['BIN_ID'])):
                     
                 mom[int(tabGen['PixY'][i]),int(tabGen['PixX'][i])] = tabGen['CCAIN'][i]
@@ -1351,16 +1352,15 @@ class momplay:
         #print slavename
         #for i in slave.header.keys():
         #    print i,'\t',slave.header[i]
-        
-        newslave, footprint = reproject_exact(slave, bheader)
+        newslave, footprint = reproject_interp(slave, bheader, shape_out=(bheader['BMIN'],bheader['BMAJ']))
         fits.writeto(outName, newslave, bheader, overwrite=True)
 
         return outName
 
-    def regridFromPxSize(self,basename,pxSize):
-        pxString=str(np.round(pxSize,1))
+    def regridFromPxSize(self,basename,pxSize1,pxSize2):
+        pxString=str(np.round(pxSize1,1))
         pxString=pxString.replace('.','-')
-        pxSize/=3600.
+        #pxSize/=3600.
 
         outName = basename.split('.fits')[0]
         outName = outName+'_'+pxString+'.fits'
@@ -1381,17 +1381,17 @@ class momplay:
 
         w = WCS(bheader)
         raC,decC= w.wcs_pix2world(0.0,0.0, 1)
-        bheader['NAXIS2'] = int(bheader['NAXIS2']*(bheader['CDELT2']/pxSize))
-        bheader['NAXIS1'] = int(bheader['NAXIS1']*(-bheader['CDELT1']/pxSize))
+        bheader['NAXIS2'] = int(bheader['NAXIS2']*(bheader['CDELT2']/pxSize2))
+        bheader['NAXIS1'] = int(bheader['NAXIS1']*(-bheader['CDELT1']/pxSize1))
 
-        bheader['CDELT1'] = -pxSize
-        bheader['CDELT2'] = pxSize
+        bheader['CDELT1'] = -pxSize1
+        bheader['CDELT2'] = pxSize2
 
         bheader['CRVAL1'] = float(raC)
         bheader['CRVAL2'] = float(decC)
         bheader['CRPIX1'] = 0.0
         bheader['CRPIX2'] = 0.0
-        print(pxSize,raC,decC,bheader['NAXIS1'],bheader['NAXIS2'])
+        print(pxSize1,raC,decC,bheader['NAXIS1'],bheader['NAXIS2'])
         # if 'FREQ' in slave.header:
         #     bheader['FREQ'] = sheader['FREQ']
         # elif 'CRVAL3' in sheader:
@@ -1404,7 +1404,7 @@ class momplay:
         #for i in slave.header.keys():
         #    print i,'\t',slave.header[i]
 
-        newslave, footprint = reproject_exact(slave, bheader)
+        newslave, footprint = reproject_interp(slave, bheader)
         index = np.where(newslave<=0.5)
         newslave[index]=np.nan
         fits.writeto(outName, newslave, bheader, overwrite=True)

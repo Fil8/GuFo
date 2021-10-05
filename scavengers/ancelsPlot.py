@@ -88,8 +88,6 @@ class ancelsplot():
 
         g1Sort = lines['g1_sigIntr_NII6583'][BinID]
 
-
-
         if cfg_par['gFit']['modName'] == 'g1':
             modString = ['G1']
             x = [np.log10(lines['g1_Centre_NII5683'])]
@@ -236,12 +234,15 @@ class ancelsplot():
             # Set axis limits
             ax1.set_xlim(xMin, xMax)
             ax1.set_ylim(yMin, yMax)
-            ax1.legend = plt.legend(loc=3,prop={'size':18}, markersize=6,handletextpad=0.1)
-            ax1.legend.get_frame().set_edgecolor('black')
-            ax1.legend.get_frame().set_facecolor('white')
+            lgnd = plt.legend(loc=3,prop={'size':18},handletextpad=-0.3,borderaxespad=0.)
+            
+            lgnd.legendHandles[0]._sizes = [200]
+            lgnd.legendHandles[1]._sizes = [200]
+
+            
             #change the marker size manually for both lines
-            # ax1.legend._legmarker.set_markersize(6)
-            # ax1.legend(handletextpad=0.1,markersize(6)
+            #ax1.legend._legmarker.set_markersize(6)
+            #ax1.legend(handletextpad=0.1,markersize(6))
             if outPlotDir==None:
                 outPlotDir = cfg_par['general']['plotMomModDir']
 
@@ -253,12 +254,12 @@ class ancelsplot():
             elif cfg_par['kinematicalAnalysis']['ancillaryInfo']['plotRotation'] == False and cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCAanalysis'] == True:
                 outPlot = outPlotDir+'sigmaCentroid-'+modString[i]+'-'+cfg_par['kinematicalAnalysis']['Name']+'CCA-'+str(int(cfg_par['kinematicalAnalysis']['ancillaryInfo']['sigmaInCCA']))+'sigma.png'
             else:
-                outPlot = outPlotDir+'sigmaCentroid-'+modString[i]+'-'+cfg_par['kinematicalAnalysis']['Name']+'.png'
+                outPlot = outPlotDir+'sigmaCentroid-'+modString[i]+'-'+cfg_par['kinematicalAnalysis']['Name']+'.pdf'
 
-            plt.savefig(outPlot,format=cfg_par['lineRatios']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,
-
+            plt.savefig(outPlot,format=cfg_par['lineRatios']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=300)#,
+            print(outPlot)
                     # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
-            plt.show()
+            #plt.show()
             plt.close()
                
         return 0
@@ -417,7 +418,7 @@ class ancelsplot():
         if not os.path.exists(outPlotDir):
             os.mkdir(outPlotDir)
 
-        outPlot = outPlotDir+'sigmaCentroid-g1-'+cfg_par['otherGasKinAnalysis']['Name']+'.png'
+        outPlot = outPlotDir+'sigmaCentroid-g1-'+cfg_par['otherGasKinAnalysis']['Name']+'.pdf'
         plt.savefig(outPlot,format=cfg_par['lineRatios']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=300)#,
                 # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
         #plt.show()
@@ -447,17 +448,18 @@ class ancelsplot():
 
         params = ut.loadRcParams()
         plt.rcParams.update(params)
-        fig = plt.figure(figsize =(10,8),constrained_layout=False)
+        fig = plt.figure(figsize=(9,7.24409),constrained_layout=False)
         fig.set_tight_layout(False)
         fig.subplots_adjust(hspace=0.0)
         gs = gridspec.GridSpec(1, 1)
         ax1 = fig.add_subplot(gs[0])
 
-        #ax.set_xticks([])
+        #ax1.set_xticks([])
         
         ax1.set_xlabel(r'$\log(|v_{\rm los}-v_{\rm sys}|)$\,\, [km s$^{-1}$]')
         ax1.set_ylabel(r'$\log(\sigma_{\rm los}$)\,\, [km s$^{-1}$]')
-    
+        
+        #ax1.xaxis.set_ticklabels([])
         # Calculate axis limits and aspect ratio
         xMin = 0.
         xMax = 2.9
@@ -472,6 +474,10 @@ class ancelsplot():
         ax1.tick_params(axis='both', which='major', pad=5)
         ax1.tick_params(axis='both', which='minor', pad=2)
 
+        ax1.tick_params(top=True)
+        ax1.tick_params(right=True)
+        ax1.tick_params(top=True, which='minor')
+        ax1.tick_params(right=True, which='minor')
 
         if cfg_par['kinematicalAnalysis']['ancillaryInfo']['theoreticalCCA'] == 'Ensemble':
             Mean_sigmav = 2.13 
@@ -564,7 +570,7 @@ class ancelsplot():
         outPlot = outPlotDir+'K-multiple'+cfg_par['multipleRegions']['Name']+'.png'
         if cfg_par['kinematicalAnalysis']['ancillaryInfo']['plotTheoreticalCCA'] == True or cfg_par['otherGasKinAnalysis']['ancillaryInfo']['plotTheoreticalCCA'] == True:        
             outPlot = outPlotDir+'K-multiple'+cfg_par['multipleRegions']['Name']+'ell.png'
-
+        print(outPlot)
         plt.savefig(outPlot,format=cfg_par['lineRatios']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=300)#,
                 # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
         #plt.show()
@@ -624,9 +630,8 @@ class ancelsplot():
         ax1.set_xscale('symlog')
         ax1.set_yscale('symlog')
         
-        ax1.set_xlabel(r'$r$\,\, [kpc]')
+        #ax1.set_xlabel(r'$r$\,\, [kpc]')
         ax1.set_ylabel(r'${\rm T}_{{\rm a}_t} \simeq \frac{v_{\rm rot}}{\sigma_{\rm los}}$')
-    
         # Calculate axis limits and aspect ratio
         xMin = 0.
         xMax = cfg_par['CCAanalysis']['taylorNumber']['maxRadius']+cfg_par['CCAanalysis']['taylorNumber']['maxRadius']/100.*2. 
@@ -669,6 +674,7 @@ class ancelsplot():
         ax1.tick_params(labelbottom=True, labeltop=False, labelleft=True, labelright=False,
                      bottom=True, top=True, left=True, right=True)
 
+        #ax1.xaxis.set_ticklabels([])
 
         yMax=[]
         #yMin=[]
@@ -843,6 +849,7 @@ class ancelsplot():
         #ax1.yaxis.set_minor_formatter(mticker.ScalarFormatter())
         ax1.tick_params(labelbottom=True, labeltop=False, labelleft=True, labelright=False,
                      bottom=True, top=True, left=True, right=True)
+
 
         yMax=[]
         #yMin=[]

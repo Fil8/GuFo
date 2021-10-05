@@ -11,6 +11,7 @@ Single-column figures will be automatically halfed in size by latTeX, hence font
 
 import sys, os
 import numpy as np
+from astropy.io import fits
 
 def loadRcParams(option):
     '''Loads the standard rc parameters for uniform plots.

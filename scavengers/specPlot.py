@@ -7,6 +7,7 @@ import numpy as np
 from lmfit import Model
 from lmfit.models import GaussianModel
 from lmfit.model import save_modelresult
+from matplotlib.ticker import MaxNLocator # added 
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -38,59 +39,125 @@ class specplot(object):
     '''
 
     def loadRcParamsBig(self):
-    
+        font=18
         params = {'figure.figsize'      : '10,10',
-          'font.family'         :' serif',
-          'font.serif'          :'times',
-          'font.style'          : 'normal',
-          'font.weight'         : 'book',
-          'font.size'           : 24,
-          'axes.linewidth'      : 1.5,
-          'lines.linewidth'     : 2,
-          'xtick.labelsize'     : 22,
-          'ytick.labelsize'     : 22, 
-          'xtick.direction'     :'in',
-          'ytick.direction'     :'in',
-          'xtick.major.size'    : 6,
-          'xtick.major.width'   : 2,
-          'xtick.minor.size'    : 3,
-          'xtick.minor.width'   : 1,
-          'ytick.major.size'    : 6,
-          'ytick.major.width'   : 2,
-          'ytick.minor.size'    : 3,
-          'ytick.minor.width'   : 1, 
-          'text.usetex'         : True,
-          #'text.latex.unicode'  : True
-           }
+        'figure.autolayout' : True,
+        'font.family'         :'serif',
+        'pdf.fonttype'        : 3,
+        'font.serif'          :'times',
+        'font.style'          : 'normal',
+        'font.weight'         : 'book',
+        'font.size'           : font,
+        'axes.linewidth'      : 1.5,
+        'lines.linewidth'     : 1,
+        'xtick.labelsize'     : font-2,
+        'ytick.labelsize'     : font-2,
+        'legend.fontsize'     : font, 
+        'xtick.direction'     :'in',
+        'ytick.direction'     :'in',
+        'xtick.major.size'    : 3,
+        'xtick.major.width'   : 1.5,
+        'xtick.minor.size'    : 2.5,
+        'xtick.minor.width'   : 1.,
+        'ytick.major.size'    : 3,
+        'ytick.major.width'   : 1.5,
+        'ytick.minor.size'    : 2.5,
+        'ytick.minor.width'   : 1., 
+        'text.usetex'         : True,
+        'text.latex.preamble' : r'\usepackage{amsmath}',
+        #'text.latex.unicode'  : True
+         }
+
         
+    # params = {'figure.figsize'      : figSize,
+    #     'figure.autolayout' : True,
+    #     'font.family'         :'serif',
+    #     'pdf.fonttype'        : 3,
+    #     'font.serif'          :'times',
+    #     'font.style'          : 'normal',
+    #     'font.weight'         : 'book',
+    #     'font.size'           : font,
+    #     'axes.linewidth'      : 1.5,
+    #     'lines.linewidth'     : 1,
+    #     'xtick.labelsize'     : font,
+    #     'ytick.labelsize'     : font,
+    #     'legend.fontsize'     : font, 
+    #     'xtick.direction'     :'in',
+    #     'ytick.direction'     :'in',
+    #     'xtick.major.size'    : 3,
+    #     'xtick.major.width'   : 1.5,
+    #     'xtick.minor.size'    : 2.5,
+    #     'xtick.minor.width'   : 1.,
+    #     'ytick.major.size'    : 3,
+    #     'ytick.major.width'   : 1.5,
+    #     'ytick.minor.size'    : 2.5,
+    #     'ytick.minor.width'   : 1., 
+    #     'text.usetex'         : True,
+    #     'text.latex.preamble' : r'\usepackage{amsmath}',
+    #     #'text.latex.unicode'  : True
+    #      }
+
+
         return params
 
     def loadRcParamsZoom(self):
-    
+        font=11
         params = {
-          'font.family'         :' serif',
-          'font.serif'          :'times',
-          'font.style'          : 'normal',
-          'font.weight'         : 'book',
-          'font.size'           : 12,
-          'axes.linewidth'      : 2,
-          'lines.linewidth'     : 1.5,
-          'xtick.labelsize'     : 9,
-          'ytick.labelsize'     : 9, 
-          'xtick.direction'     :'in',
-          'ytick.direction'     :'in',
-          'xtick.major.size'    : 4,
-          'xtick.major.width'   : 1.5,
-          'xtick.minor.size'    : 2,
-          'xtick.minor.width'   : 0.75,
-          'ytick.major.size'    : 4,
-          'ytick.major.width'   : 1.5,
-          'ytick.minor.size'    : 2,
-          'ytick.minor.width'   : 0.75, 
-          'text.usetex'         : True,
-          #'text.latex.unicode'  : True,
+        'figure.autolayout' : True,
+        'font.family'         :'serif',
+        'pdf.fonttype'        : 3,
+        'font.serif'          :'times',
+        'font.style'          : 'normal',
+        'font.weight'         : 'book',
+        'font.size'           : font,
+        'axes.linewidth'      : 1.5,
+        'lines.linewidth'     : 1,
+        'xtick.labelsize'     : font-3,
+        'ytick.labelsize'     : font-3,
+        'legend.fontsize'     : font-3, 
+        'xtick.direction'     :'in',
+        'ytick.direction'     :'in',
+        'xtick.major.size'    : 3,
+        'xtick.major.width'   : 1.5,
+        'xtick.minor.size'    : 2,
+        'xtick.minor.width'   : 0.75,
+        'ytick.major.size'    : 3,
+        'ytick.major.width'   : 1.5,
+        'ytick.minor.size'    : 2,
+        'ytick.minor.width'   : 0.75, 
+        'text.usetex'         : True,
+        'text.latex.preamble' : r'\usepackage{amsmath}',
           'legend.fontsize'     : 10
-           }
+        #'text.latex.unicode'  : True
+         }
+
+
+
+
+        # params = {
+        #   'font.family'         :' serif',
+        #   'font.serif'          :'times',
+        #   'font.style'          : 'normal',
+        #   'font.weight'         : 'book',
+        #   'font.size'           : 12,
+        #   'axes.linewidth'      : 2,
+        #   'lines.linewidth'     : 1.5,
+        #   'xtick.labelsize'     : 9,
+        #   'ytick.labelsize'     : 9, 
+        #   'xtick.direction'     :'in',
+        #   'ytick.direction'     :'in',
+        #   'xtick.major.size'    : 4,
+        #   'xtick.major.width'   : 1.5,
+        #   'xtick.minor.size'    : 2,
+        #   'xtick.minor.width'   : 0.75,
+        #   'ytick.major.size'    : 4,
+        #   'ytick.major.width'   : 1.5,
+        #   'ytick.minor.size'    : 2,
+        #   'ytick.minor.width'   : 0.75, 
+        #   'text.usetex'         : True,
+        #   #'text.latex.unicode'  : True,
+        #   'legend.fontsize'     : 10
+        #    }
         
         return params
 
@@ -114,6 +181,7 @@ class specplot(object):
         plt.rcParams.update(params)
         fig = plt.figure(figsize =(10,8))
         fig.subplots_adjust(hspace=0.0)
+        fig.tight_layout()
         gs = gridspec.GridSpec(1, 1)
         plt.rc('xtick')
 
@@ -127,8 +195,8 @@ class specplot(object):
 
         #ax.set_xticks([])
 
-        ax1.set_xlabel(r'Wavelength [$\AA$]')
-        ax1.set_ylabel(r'Flux ['+cfg_par['general']['unitFlux']+']')
+        ax1.set_xlabel(r'Wavelength [$\AA$]',labelpad=2)
+        ax1.set_ylabel(r'Flux  [$\times 10^{-20} {\rm erg}$ ${\rm s}^{-1}\,{\rm cm}^{-2}{\AA}^{-1}$]',fontsize=18)
 
 
         # Calculate axis limits and aspect ratio
@@ -159,13 +227,13 @@ class specplot(object):
         xText = cfg_par['gFit']['lambdaMin']+50
 
 
-        ax1.text(xText, y1_max*0.90, r'BIN ID:\t'+str(singleVorBinInfo['BIN_ID'][0]), {'color': 'k', 'fontsize': 20})
-        ax1.text(xText, y1_max*0.94, r'X,Y:\t'+str(xx)+','+str(yy), {'color': 'k', 'fontsize': 20})
+        # ax1.text(xText, y1_max*0.90, r'BIN ID:\t'+str(singleVorBinInfo['BIN_ID'][0]), {'color': 'k', 'fontsize': 20})
+        # ax1.text(xText, y1_max*0.94, r'X,Y:\t'+str(xx)+','+str(yy), {'color': 'k', 'fontsize': 20})
 
-        #ax1.text(xText, x_max*0.85, r'Success:\t'+successStr, {'color': 'b'})
-        ax1.text(xText, y1_max*0.88, r'$\tilde{\chi}^2$:\t'+redchiStr, {'color': 'k', 'fontsize': 20})
-        ax1.text(xText, y1_max*0.82, r'aic:\t'+aicStr, {'color': 'k', 'fontsize': 20})
-        ax1.text(xText, y1_max*0.76, r'bic:\t'+bicStr, {'color': 'k', 'fontsize': 20})
+        # #ax1.text(xText, x_max*0.85, r'Success:\t'+successStr, {'color': 'b'})
+        # ax1.text(xText, y1_max*0.88, r'$\tilde{\chi}^2$:\t'+redchiStr, {'color': 'k', 'fontsize': 20})
+        # ax1.text(xText, y1_max*0.82, r'aic:\t'+aicStr, {'color': 'k', 'fontsize': 20})
+        # ax1.text(xText, y1_max*0.76, r'bic:\t'+bicStr, {'color': 'k', 'fontsize': 20})
 
         #ax1.fill_between(vel, yBFit-dely, yBFit+dely, color="#ABABAB",
         #        label='3-$\sigma$ uncertainty band')
@@ -243,7 +311,9 @@ class specplot(object):
 
 
         fig = plt.figure(figsize=(8.25, 11.67), constrained_layout=False)
-        fig.set_tight_layout(False)
+        fig.tight_layout()
+
+        #fig.set_tight_layout(False)
         fig.subplots_adjust(hspace=0.)
 
         gs_top = plt.GridSpec(nrows=n_rows+1, ncols=3,  figure=fig, top=0.95)
@@ -265,6 +335,11 @@ class specplot(object):
             elif i % 3 == 0:
                 j +=1 
                 k =0
+
+            if i ==1:
+                k=2
+            elif i==2:
+                k=1
 
             waveMin =  np.log(lineInfo['Wave'][i] - lineInfo['lineRangeAng'][i])
             waveMax =  np.log(lineInfo['Wave'][i] + lineInfo['lineRangeAng'][i])
@@ -317,18 +392,25 @@ class specplot(object):
                                    left='on', right='on', which='major', direction='in')
             ax.tick_params(axis='both', bottom='on', top='on',
                                    left='on', right='on', which='minor', direction='in')
+            
+            if j==1:
+                ax.yaxis.set_major_locator(MaxNLocator(nbins=3,prune='upper'))
+
+            else:
+                ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
+
             if k==0:
                 ylabh = ax.set_ylabel(
-                    r'Flux [-]')
+                    r'Flux  [$\times 10^{-20} {\rm erg}$ ${\rm s}^{-1}\,{\rm cm}^{-2}{\AA}^{-1}$]')
                 ylabh.set_verticalalignment('center')
 
             ax.tick_params(axis='both', which='major', pad=5)
             #ax1.xaxis.set_minor_locator()
             #ax1.yaxis.set_minor_locator()      
             if lineInfo['Name'][i] == 'Hb':
-                lineInfoName =r'H$_\beta$'
+                lineInfoName =r'H$\beta$'
             elif lineInfo['Name'][i] == 'Ha':
-                lineInfoName =r'H$_\alpha$'
+                lineInfoName =r'H$\alpha$'
             else:
                 lineInfoName =lineInfo['Name'][i]
 
@@ -418,6 +500,8 @@ class specplot(object):
             ax2.set_xlim(x_min, x_max)
             ax2.set_ylim(y1_min, y1_max) 
 
+
+
             #ax2.plot(vel, amp(x, p(x,m,n)))
             ax2.step(x_data_plot, y_Res_plot, 'g-', label='residuals')
             ax2.axhline(color='k', linestyle=':', zorder=0)                           
@@ -429,7 +513,7 @@ class specplot(object):
             if i >= len(lineInfo['Wave'])-3:                
                 ax2.set_xticks(xTicks)
                 ax2.set_xlabel(
-                        r'v$_\mathrm{radio}$\,[$\mathrm{km}\,\mathrm{s}^{-1}$]', labelpad=2)
+                        r'v\,[$\mathrm{km}\,\mathrm{s}^{-1}$]', labelpad=2)
             else:
                 ax2.set_xticklabels([])
 
@@ -446,8 +530,8 @@ class specplot(object):
         #    i +=1
 
 
-        plt.savefig(outPlot,dpi=200,bbox_inches='tight',
-                    format='png') # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
+        plt.savefig(outPlot,dpi=300,bbox_inches='tight',
+                    format='png',overwrite=True) # if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
         #plt.show()
         plt.close()  
 
@@ -493,8 +577,8 @@ class specplot(object):
 
         #ax.set_xticks([])
 
-        ax1.set_xlabel(r'Wavelength [$\AA$]',labelpad=15)
-        ax1.set_ylabel(r'Flux [-]')
+        ax1.set_xlabel(r'Wavelength [$\AA$]',labelpad=20)
+        ax1.set_ylabel(r'Flux  [$\times 10^{-20} {\rm erg}$ ${\rm s}^{-1}\,{\rm cm}^{-2}{\AA}^{-1}$]')
 
 
         # Calculate axis limits and aspect ratio
@@ -512,6 +596,10 @@ class specplot(object):
         ax1.set_ylim(y1_min, y1_max)
 
         ax1.tick_params(axis='both', which='major', pad=5)
+        #nbins = len(ax1.get_yticklabels()) # added 
+
+        ax1.yaxis.set_major_locator(MaxNLocator(nbins=8, prune='upper'))
+
         #ax1.xaxis.set_minor_locator()
         #ax1.yaxis.set_minor_locator()      
         
@@ -525,13 +613,13 @@ class specplot(object):
         xText = cfg_par['gFit']['lambdaMin']+50
 
 
-        ax1.text(xText, y1_max*0.90, r'BIN ID:\t'+str(binName), {'color': 'k', 'fontsize': 8})
-        ax1.text(xText, y1_max*0.80, r'X,Y:\t'+str(xx)+','+str(yy), {'color': 'k', 'fontsize': 8})
+        # ax1.text(xText, y1_max*0.90, r'BIN ID:\t'+str(binName), {'color': 'k', 'fontsize': 8})
+        # ax1.text(xText, y1_max*0.80, r'X,Y:\t'+str(xx)+','+str(yy), {'color': 'k', 'fontsize': 8})
 
-        #ax1.text(xText, x_max*0.85, r'Success:\t'+successStr, {'color': 'b'})
-        ax1.text(xText, y1_max*0.70, r'$\tilde{\chi}^2$:\t'+redchiStr, {'color': 'k', 'fontsize': 8})
-        ax1.text(xText, y1_max*0.60, r'aic:\t'+aicStr, {'color': 'k', 'fontsize': 8})
-        ax1.text(xText, y1_max*0.50, r'bic:\t'+bicStr, {'color': 'k', 'fontsize': 8})
+        # #ax1.text(xText, x_max*0.85, r'Success:\t'+successStr, {'color': 'b'})
+        # ax1.text(xText, y1_max*0.70, r'$\tilde{\chi}^2$:\t'+redchiStr, {'color': 'k', 'fontsize': 8})
+        # ax1.text(xText, y1_max*0.60, r'aic:\t'+aicStr, {'color': 'k', 'fontsize': 8})
+        # ax1.text(xText, y1_max*0.50, r'bic:\t'+bicStr, {'color': 'k', 'fontsize': 8})
 
         #ax1.fill_between(vel, yBFit-dely, yBFit+dely, color="#ABABAB",
         #        label='3-$\sigma$ uncertainty band')

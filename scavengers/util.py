@@ -183,7 +183,7 @@ def loadRcParams():
     '''
 
     figSize= '7.24409,7.24409'
-    font=16
+    font=20
 
     params = {'figure.figsize'      : figSize,
         'figure.autolayout' : True,

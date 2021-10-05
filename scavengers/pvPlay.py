@@ -468,7 +468,7 @@ class pvplay(object):
         wcsIm = WCS(hduIm.header)
 
         if nanToZero is not False:
-            index=np.isnan(hduImCut.data)
+            index=np.isnan(hduIm.data)
             hduIm.data[index] = 0.0
             mapName=nanToZero
         elif zeroToNan is not False:
@@ -480,6 +480,7 @@ class pvplay(object):
 
         vel = ((np.linspace(1, hduIm.data.shape[0], hduIm.data.shape[0]) - hduIm.header['CRPIX2']) 
             * hduIm.header['CDELT2'] + hduIm.header['CRVAL2'])
+        print(vel)
         xS = ((np.linspace(1, hduIm.data.shape[1], hduIm.data.shape[1]) - hduIm.header['CRPIX1']) 
             * hduIm.header['CDELT1'] + hduIm.header['CRVAL1'])
         if velRange[1] is not None:
@@ -510,13 +511,13 @@ class pvplay(object):
 
         if cScale == 'linear':
             img = ax1.imshow(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], cmap=current_cmap,origin='lower',interpolation=interpMethod,
-                            aspect='auto',vmin=vRange[0],vmax=vRange[1],
+                            aspect='auto',vmin=cRange[0],vmax=cRange[1],
                             extent=[ext_xmin,ext_xmax,ext_ymin,ext_ymax]) 
         elif cScale == 'sqrt':
-            img = ax1.imshow(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], cmap=current_cmap,vmin=vRange[0],vmax=vRange[1],norm=PowerNorm(gamma=0.5))
+            img = ax1.imshow(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], cmap=current_cmap,vmin=cRange[0],vmax=cRange[1],norm=PowerNorm(gamma=0.5))
         elif cScale == 'log':
             img = ax1.imshow(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], cmap=current_cmap,norm=SymLogNorm(linthresh=linthresh,linscale=1.,
-                vmin=vRange[0],vmax=vRange[1],base=base),interpolation=interpMethod)
+                vmin=cRange[0],vmax=cRange[1],base=base),interpolation=interpMethod)
 
         if imLevels is not None and imContours==True:
 
@@ -534,7 +535,7 @@ class pvplay(object):
             #     ax1.clabel(csNeg, inline=1, fontsize=14)
 
         # if np.sum(cTicks) == 0.0:
-        cTicks = np.linspace(int(vRange[0]),int(vRange[1]),9)    
+        cTicks = np.linspace(int(cRange[0]),int(cRange[1]),9)    
         ax1.coords[1].get_format_unit()
         ax1.coords[1].set_format_unit(u.km/u.s)
 
@@ -622,7 +623,7 @@ class pvplay(object):
                 ext_xminIm=ext_xmin
                 ext_xmaxIm =ext_xmax
                 
-
+                print(ext_xminCont,ext_xmaxCont)
                 # size= (ext_ymaxCont-ext_yminCont,ext_xmaxCont-ext_xminCont)
                 # centre = (ext_yminCont+size[1]/2.,ext_xminCont+size[0]/2.)
                 # print(size,centre)

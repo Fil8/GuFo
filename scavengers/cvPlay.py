@@ -394,7 +394,8 @@ class convert(object):
             
         '''        
 
-        conversionFactor = 1.10e21*np.power((1+z),2)/(bMaj.arcsecond*bMin.arcsecond)
+#        conversionFactor = 1.10e21*np.power((1+z),2)/(bMaj.arcsecond*bMin.arcsecond)
+        conversionFactor = 1.10e21*np.power((1+z),2)/(bMaj*bMin)
 
         nhi = np.multiply(value*dV,conversionFactor)
 
@@ -672,7 +673,7 @@ class convert(object):
         #multiply by conversion factor
         hh['BUNIT']='atoms cm-2'
         
-        dd = np.multiply(dd,conversionFactor)/1e20
+        dd = np.multiply(dd,conversionFactor)
 
         if outMap == None:
             outMap=str.split(inMap,'.fits')[0]
