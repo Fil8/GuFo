@@ -1,0 +1,9 @@
+gufo
+====
+
+.. toctree::
+   :maxdepth: 4
+
+   gufo
+   scavengers
+   setup

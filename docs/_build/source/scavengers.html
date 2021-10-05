@@ -1,0 +1,1527 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scavengers package &mdash; GaNGiaLF 1.0.0. documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> GaNGiaLF
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../pipes/Introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipes/Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipes/GuFo.html">List of tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../joints/StellarSubtraction.html">Stellar Subtraction using ppxf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../joints/VoronoiBinning.html">Voronoi binning of datacubes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../joints/GaussianFit.html">Gaussian Multi Line Fitter</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">GaNGiaLF</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>scavengers package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/scavengers.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="scavengers-package">
+<h1>scavengers package<a class="headerlink" href="#scavengers-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-scavengers.ancels">
+<span id="scavengers-ancels-module"></span><h2>scavengers.ancels module<a class="headerlink" href="#module-scavengers.ancels" title="Permalink to this headline">¶</a></h2>
+<p>This modules computes the linewidth and lineshift for each fitted line of sight.
+The module works with multiprocessing</p>
+<div class="section" id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
+<p>Fit solutions must have been previously generated.
+Use  <cite>gPlay.py</cite> or <cite>gPlayMp.py</cite> for this.</p>
+<dl class="py function">
+<dt id="scavengers.ancels.main">
+<code class="sig-prename descclassname">scavengers.ancels.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.ancels.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.ancels.widthCentroid">
+<code class="sig-prename descclassname">scavengers.ancels.</code><code class="sig-name descname">widthCentroid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">lines</span></em>, <em class="sig-param"><span class="n">wave</span></em>, <em class="sig-param"><span class="n">lineInfo</span></em>, <em class="sig-param"><span class="n">dLambda</span></em>, <em class="sig-param"><span class="n">sigmaCen</span></em>, <em class="sig-param"><span class="n">counter</span></em>, <em class="sig-param"><span class="n">binID</span></em>, <em class="sig-param"><span class="n">tabGen</span></em>, <em class="sig-param"><span class="n">residuals</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.ancels.widthCentroid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.ancels.workerAncels">
+<code class="sig-prename descclassname">scavengers.ancels.</code><code class="sig-name descname">workerAncels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">lines</span></em>, <em class="sig-param"><span class="n">wave</span></em>, <em class="sig-param"><span class="n">lineInfo</span></em>, <em class="sig-param"><span class="n">dLambda</span></em>, <em class="sig-param"><span class="n">sigmaCen</span></em>, <em class="sig-param"><span class="n">tabGen</span></em>, <em class="sig-param"><span class="n">residuals</span></em>, <em class="sig-param"><span class="n">rank</span></em>, <em class="sig-param"><span class="n">nprocs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.ancels.workerAncels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Worker that divides the computation over the given CPUs</p>
+<dl class="simple">
+<dt>cfg_par: OrderedDictionary</dt><dd><p>Dictionary with alla parameters or gufo. 
+Parameters are given from terminal, or in a <a href="#id1"><span class="problematic" id="id2">`</span></a>.yml’ file.</p>
+</dd>
+<dt>lines: np.array()</dt><dd><p>table with the line parameters from the fit run</p>
+</dd>
+<dt>wave: np.array()</dt><dd><p>array of wavelengths of spectra loaded from PPFX output table <cite>cfg_par[‘general’][‘outVorSpectra’]</cite> or <cite>cfg_par[‘general’][‘outVorSpectra’]</cite>.
+Typically parsed by <cite>tplay.openTablesPPXF()</cite> or <a href="#id3"><span class="problematic" id="id4">`</span></a>tplay.openPPFXforSubtraction()</p>
+</dd>
+<dt>lineInfo: np.array()</dt><dd><p>contains the parameters of each line set in <cite>cfg_par[‘general’][‘runDir’]/LineList.txt</cite> 
+Typically parsed by tplay.openLineList()</p>
+</dd>
+<dt>dLambda: np.array()</dt><dd><p>instrumental spectral resolution at the waveleght of the fitted lines
+Typically loaded by cvPlay.specRes()</p>
+</dd>
+<dt>sigmaCen: np.array()</dt><dd><p>empty table where to store the results of the Ancels run</p>
+</dd>
+<dt>tabGen: np.array()</dt><dd><p>input table, given by the variable cfg_par[‘general’][‘outVorLineTableName’]</p>
+</dd>
+<dt>residuals: np.array()</dt><dd><p>table with the residuals from the fit run</p>
+</dd>
+<dt>rank: int</dt><dd><p>iterator of the number of processes</p>
+</dd>
+<dt>nprocs: int</dt><dd><p>number of available CPU cores 
+Stored in <a href="#id5"><span class="problematic" id="id6">`</span></a>cfg_par[‘general’][‘ncores’]</p>
+</dd>
+</dl>
+<blockquote>
+<div><dl class="simple">
+<dt>sigmaCen: np.array()</dt><dd><p>filled table with the dispersion, intrinsic dispersion, w80 centroid and logarithmic values</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-scavengers.ancelsPlot">
+<span id="scavengers-ancelsplot-module"></span><h2>scavengers.ancelsPlot module<a class="headerlink" href="#module-scavengers.ancelsPlot" title="Permalink to this headline">¶</a></h2>
+<p>Set of tools for generating different versions of the kinematical plot (sigma vs. centroid)
+and compare the values of sigma and centroid of each fitted line with the expectations of Cold Chaotic Accretion.</p>
+<div class="section" id="id7">
+<h3>Requirements<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>Fit solutions must have been previously generated. Sigma and centroid of the integrated line must have been computed</dt><dd><ul class="simple">
+<li><p><cite>gPlay.py</cite> or <cite>gPlayMp.py</cite> : fit solutions</p></li>
+<li><p><cite>ancels.py</cite>: measure sigma and centroid</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt id="scavengers.ancelsPlot.ancelsplot">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.ancelsPlot.</code><code class="sig-name descname">ancelsplot</code><a class="headerlink" href="#scavengers.ancelsPlot.ancelsplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class draws different versions of the kinematical plot (centroid vs sigma), 
+for ionised gas (MUSE observations) and cold gas (interferometric observations)</p>
+<dl class="py method">
+<dt id="scavengers.ancelsPlot.ancelsplot.inCCARegionTable">
+<code class="sig-name descname">inCCARegionTable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.ancelsPlot.ancelsplot.inCCARegionTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes for each fitted line the difference with the expected values of sigma and centroid predicted by
+Cold Chaotic Accretion.</p>
+<dl class="simple">
+<dt>Saves in .fits files the following maps:</dt><dd><ul class="simple">
+<li><p>rotating gas (if XXX has been previously run)</p></li>
+<li><p>gas within 3 sigma from CCA</p></li>
+</ul>
+</dd>
+</dl>
+<p>Calls <cite>momPlay()</cite> to plot all maps.</p>
+<p>Variables are set in section <cite>kinematicalAnalysis</cite> (for the ionised gas) and in <cite>otherGasKinAnalysis</cite>
+(for the cold gas)</p>
+<dl class="simple">
+<dt>cfg_par: OrderedDictionary</dt><dd><p>Dictionary with alla parameters or gufo. 
+Parameters are given from terminal, or in a <a href="#id8"><span class="problematic" id="id9">`</span></a>.yml’ file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.ancelsPlot.ancelsplot.loadRcParams">
+<code class="sig-name descname">loadRcParams</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.ancelsPlot.ancelsplot.loadRcParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the standard rc parameters for uniform plots.</p>
+<p>dict()</p>
+<p>This module should be unique for all classes and be stored in util.py</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.ancelsPlot.ancelsplot.sigmaCentroid">
+<code class="sig-name descname">sigmaCentroid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">outPlotDir</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.ancelsPlot.ancelsplot.sigmaCentroid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws the k-plot from the log_dispIntrXX and log_centroidXX columns of the subtable ancels_YY of ionised gas lines.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>XX = cfg_par[‘kinematicalAnalysis’][‘Name’] : ionised gas emission line name</p></li>
+<li><p>YY = cfg_par[‘modName’][‘modName’] : fit ID (g1, g2 or BF)</p></li>
+</ul>
+</div></blockquote>
+<p>Other variables are set in section <cite>kinematicalAnalysis</cite> of the parameter file.</p>
+<dl class="simple">
+<dt>cfg_par: OrderedDictionary</dt><dd><p>Dictionary with alla parameters or gufo. 
+Parameters are given from terminal, or in a <a href="#id10"><span class="problematic" id="id11">`</span></a>.yml’ file.</p>
+</dd>
+<dt>outPlotDir: str, optional</dt><dd><p>output directory of plot</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.ancelsPlot.ancelsplot.sigmaCentroidColdGas">
+<code class="sig-name descname">sigmaCentroidColdGas</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.ancelsPlot.ancelsplot.sigmaCentroidColdGas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws the k-plot from the log_dispIntrXX and log_centroidXX columns of the subtable ancels_YY of cold gas lines
+(interferometric observations)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>XX = cfg_par[‘otherGasKinAnalysis’][‘Name’] : cold gas emission line name</p></li>
+<li><p>YY = cfg_par[‘modName’][‘modName’] : fit ID (g1, g2 or BF)</p></li>
+</ul>
+</div></blockquote>
+<p>Other variables are set in section <cite>otherGasKinAnalysis</cite> of the parameter file.</p>
+<dl class="simple">
+<dt>cfg_par: OrderedDictionary</dt><dd><p>Dictionary with alla parameters or gufo. 
+Parameters are given from terminal, or in a <a href="#id12"><span class="problematic" id="id13">`</span></a>.yml’ file.</p>
+</dd>
+<dt>outPlotDir: str, optional</dt><dd><p>output directory of plot</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.ancelsPlot.ancelsplot.sigmaCentroidMultiple">
+<code class="sig-name descname">sigmaCentroidMultiple</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.ancelsPlot.ancelsplot.sigmaCentroidMultiple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws the k-plot from the log_dispIntrXX and log_centroidXX columns from multiple tables given in cfg_par[‘multipleRegions’][‘tableNames’]
+of the parameter file.</p>
+<p>Other variables are set in section <cite>otherGasKinAnalysis</cite> of the parameter file.</p>
+<dl class="simple">
+<dt>cfg_par: OrderedDictionary</dt><dd><p>Dictionary with alla parameters or gufo. 
+Parameters are given from terminal, or in a <a href="#id14"><span class="problematic" id="id15">`</span></a>.yml’ file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-scavengers.bptPlot">
+<span id="scavengers-bptplot-module"></span><h2>scavengers.bptPlot module<a class="headerlink" href="#module-scavengers.bptPlot" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="scavengers.bptPlot.BPTplot">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.bptPlot.</code><code class="sig-name descname">BPTplot</code><a class="headerlink" href="#scavengers.bptPlot.BPTplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="scavengers.bptPlot.BPTplot.bptCDist">
+<code class="sig-name descname">bptCDist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">outPlotDir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vRange</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.bptPlot.BPTplot.bptCDist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.bptPlot.BPTplot.bptIM">
+<code class="sig-name descname">bptIM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">outBPT</span></em>, <em class="sig-param"><span class="n">contourColors</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">nameFigLabel</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overlayContours</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">contName</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contLevels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contColors</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.bptPlot.BPTplot.bptIM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.bptPlot.BPTplot.bptOI">
+<code class="sig-name descname">bptOI</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">outPlotDir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">xyRange</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.bptPlot.BPTplot.bptOI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.bptPlot.BPTplot.bptOIII">
+<code class="sig-name descname">bptOIII</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">outPlotDir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">xyRange</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.bptPlot.BPTplot.bptOIII" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.bptPlot.BPTplot.bptSII">
+<code class="sig-name descname">bptSII</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">outPlotDir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">xyRange</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.bptPlot.BPTplot.bptSII" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.bptPlot.BPTplot.cDistIM">
+<code class="sig-name descname">cDistIM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">outBPT</span></em>, <em class="sig-param"><span class="n">vRange</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contourColors</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">nameFigLabel</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overlayContours</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">contName</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contLevels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contColors</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.bptPlot.BPTplot.cDistIM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.bptPlot.BPTplot.loadRcParams">
+<code class="sig-name descname">loadRcParams</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.bptPlot.BPTplot.loadRcParams" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scavengers.cubePlay">
+<span id="scavengers-cubeplay-module"></span><h2>scavengers.cubePlay module<a class="headerlink" href="#module-scavengers.cubePlay" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="scavengers.cubePlay.cubeplay">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.cubePlay.</code><code class="sig-name descname">cubeplay</code><a class="headerlink" href="#scavengers.cubePlay.cubeplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Modules to create cubelets of real fitted lines and residuals
+- makeHeader</p>
+<blockquote>
+<div><p>make header of line in vrad velocity frame</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>makeLineCube</dt><dd><p>make cubelets for each line marked in lineList.txt</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="py method">
+<dt id="scavengers.cubePlay.cubeplay.circPoint">
+<code class="sig-name descname">circPoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">alpha</span></em>, <em class="sig-param"><span class="n">beta</span></em>, <em class="sig-param"><span class="n">m</span></em>, <em class="sig-param"><span class="n">q</span></em>, <em class="sig-param"><span class="n">pa</span></em>, <em class="sig-param"><span class="n">ww</span></em>, <em class="sig-param"><span class="n">keyAlpha</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlay.cubeplay.circPoint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cubePlay.cubeplay.delete_3rd_axis">
+<code class="sig-name descname">delete_3rd_axis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">header</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlay.cubeplay.delete_3rd_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>from SoFiA</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cubePlay.cubeplay.delete_header">
+<code class="sig-name descname">delete_header</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">header</span></em>, <em class="sig-param"><span class="n">keyword</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlay.cubeplay.delete_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>from SoFiA</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cubePlay.cubeplay.findExtremes">
+<code class="sig-name descname">findExtremes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ww</span></em>, <em class="sig-param"><span class="n">pa</span></em>, <em class="sig-param"><span class="n">Xc</span></em>, <em class="sig-param"><span class="n">Yc</span></em>, <em class="sig-param"><span class="n">shape</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlay.cubeplay.findExtremes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cubePlay.cubeplay.makeBFLineCube">
+<code class="sig-name descname">makeBFLineCube</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlay.cubeplay.makeBFLineCube" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cubePlay.cubeplay.makeHeader">
+<code class="sig-name descname">makeHeader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">lineWave</span></em>, <em class="sig-param"><span class="n">header</span></em>, <em class="sig-param"><span class="n">waveAng</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlay.cubeplay.makeHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines header of output line cubelets
+Puts wcs coordinates in datacube from information provided in the configuration file
+Sets velocity axis to vrad</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>cfg_par: configuration file</p></li>
+<li><p>header of datacube</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>header of datacubes</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cubePlay.cubeplay.makeLineCubes">
+<code class="sig-name descname">makeLineCubes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlay.cubeplay.makeLineCubes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cubePlay.cubeplay.medianSubtract">
+<code class="sig-name descname">medianSubtract</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlay.cubeplay.medianSubtract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cubePlay.cubeplay.mosaicCubes">
+<code class="sig-name descname">mosaicCubes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlay.cubeplay.mosaicCubes" title="Permalink to this definition">¶</a></dt>
+<dd><p>calls Montage() to mosaic a set of datacubes</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>cfg_par: configuration file</p></li>
+</ul>
+</dd>
+<dt>Uses:</dt><dd><ul class="simple">
+<li><p>cfg_par[‘cubePlay’][‘mosaic’][‘inDirectory’]: directory of input cubes</p></li>
+</ul>
+</dd>
+<dt>Creates: </dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>cfg_par[‘cubePlay’][‘mosaic’][‘inDirectory’]+ mosaicProjections: directory with</dt><dd><p>datacubes projected to common frame of reference</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>cfg_par[‘cubePlay’][‘mosaic’][‘inDirectory’]+ mosaicProjections: directory with</dt><dd><ul>
+<li><p>projected datacube: mosaicCube.fits</p></li>
+<li><p>tableInputs.tbl: table of input dataCubes</p></li>
+<li><p>tableMosaic.tbl: table of projected dataCubes</p></li>
+<li><p>hdrMosaic.hdr : header of common reference frame for mosaic</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Options:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>cfg_par[‘cubePlay’][‘mosaic’][‘cleanup’] = True</dt><dd><p>intermediate files are deleted and final mosaic is moved in base directory of cfg_par[‘cubePlay’][‘mosaic’][‘inDirectory’]</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cubePlay.cubeplay.pvDiagram">
+<code class="sig-name descname">pvDiagram</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlay.cubeplay.pvDiagram" title="Permalink to this definition">¶</a></dt>
+<dd><p>from SoFiA</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cubePlay.cubeplay.pvDiagramLines">
+<code class="sig-name descname">pvDiagramLines</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">pa</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlay.cubeplay.pvDiagramLines" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cubePlay.cubeplay.rebinCube">
+<code class="sig-name descname">rebinCube</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">templateFile</span></em>, <em class="sig-param"><span class="n">inputFile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlay.cubeplay.rebinCube" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cubePlay.cubeplay.regridCube">
+<code class="sig-name descname">regridCube</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">header</span></em>, <em class="sig-param"><span class="n">inCube</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlay.cubeplay.regridCube" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cubePlay.cubeplay.selectRotation">
+<code class="sig-name descname">selectRotation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlay.cubeplay.selectRotation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scavengers.cubePlot">
+<span id="scavengers-cubeplot-module"></span><h2>scavengers.cubePlot module<a class="headerlink" href="#module-scavengers.cubePlot" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="scavengers.cubePlot.Velo">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.cubePlot.</code><code class="sig-name descname">Velo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">header</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlot.Velo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="scavengers.cubePlot.Velo.to_vel">
+<code class="sig-name descname">to_vel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlot.Velo.to_vel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="scavengers.cubePlot.cubeplot">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.cubePlot.</code><code class="sig-name descname">cubeplot</code><a class="headerlink" href="#scavengers.cubePlot.cubeplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Modules to create cubelets of real fitted lines and residuals
+- makeHeader</p>
+<blockquote>
+<div><p>make header of line in vrad velocity frame</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>makeLineCube</dt><dd><p>make cubelets for each line marked in lineList.txt</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="py method">
+<dt id="scavengers.cubePlot.cubeplot.chanMaps">
+<code class="sig-name descname">chanMaps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlot.cubeplot.chanMaps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cubePlot.cubeplot.setup_axes">
+<code class="sig-name descname">setup_axes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cubePlot.cubeplot.setup_axes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scavengers.cvPlay">
+<span id="scavengers-cvplay-module"></span><h2>scavengers.cvPlay module<a class="headerlink" href="#module-scavengers.cvPlay" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="scavengers.cvPlay.convert">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.cvPlay.</code><code class="sig-name descname">convert</code><a class="headerlink" href="#scavengers.cvPlay.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="scavengers.cvPlay.convert.dms2deg">
+<code class="sig-name descname">dms2deg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dec_dms</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cvPlay.convert.dms2deg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cvPlay.convert.hms2deg">
+<code class="sig-name descname">hms2deg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ra_hms</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cvPlay.convert.hms2deg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cvPlay.convert.lambdaVRad">
+<code class="sig-name descname">lambdaVRad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lambdaWave</span></em>, <em class="sig-param"><span class="n">lambdaRest</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cvPlay.convert.lambdaVRad" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cvPlay.convert.specRes">
+<code class="sig-name descname">specRes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cvPlay.convert.specRes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.cvPlay.convert.vRadLambda">
+<code class="sig-name descname">vRadLambda</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vRad</span></em>, <em class="sig-param"><span class="n">lambdaRest</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.cvPlay.convert.vRadLambda" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scavengers.gPlay">
+<span id="scavengers-gplay-module"></span><h2>scavengers.gPlay module<a class="headerlink" href="#module-scavengers.gPlay" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="scavengers.gPlay.gplay">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.gPlay.</code><code class="sig-name descname">gplay</code><a class="headerlink" href="#scavengers.gPlay.gplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="scavengers.gPlay.gplay.gFit">
+<code class="sig-name descname">gFit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.gPlay.gplay.gFit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.gPlay.gplay.gPlot">
+<code class="sig-name descname">gPlot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.gPlay.gplay.gPlot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.gPlay.gplay.lineModDef">
+<code class="sig-name descname">lineModDef</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">wave</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">lineInfo</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.gPlay.gplay.lineModDef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.gPlay.gplay.modDef">
+<code class="sig-name descname">modDef</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">modName</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.gPlay.gplay.modDef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.gPlay.gplay.plotSingleBin">
+<code class="sig-name descname">plotSingleBin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">binID</span></em>, <em class="sig-param"><span class="n">doFit</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.gPlay.gplay.plotSingleBin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scavengers.gPlayMp">
+<span id="scavengers-gplaymp-module"></span><h2>scavengers.gPlayMp module<a class="headerlink" href="#module-scavengers.gPlayMp" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="scavengers.gPlayMp.gFitMp">
+<code class="sig-prename descclassname">scavengers.gPlayMp.</code><code class="sig-name descname">gFitMp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">lineInfo</span></em>, <em class="sig-param"><span class="n">vorBinInfo</span></em>, <em class="sig-param"><span class="n">wave</span></em>, <em class="sig-param"><span class="n">dd</span></em>, <em class="sig-param"><span class="n">noiseBin</span></em>, <em class="sig-param"><span class="n">counter</span></em>, <em class="sig-param"><span class="n">ii</span></em>, <em class="sig-param"><span class="n">ubins</span></em>, <em class="sig-param"><span class="n">binArr</span></em>, <em class="sig-param"><span class="n">fitResArr</span></em>, <em class="sig-param"><span class="n">lineArr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.gPlayMp.gFitMp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fits the spectrum of a single Voronoi bin a model of 1 or multiple gaussians</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><p>cfg_par - configuration file
+lineInfo - array with columns of lineList.txt file
+vorBinInfo - array of table of voronoi binned datacube
+wave - x-axis of spectrum in log(lambda) units
+dd - datacube
+noiseBin - voronoi binned noise cube
+counter - step of multiprocess loop
+ubins - array of BINID
+binArr - array where to store information about bins
+fitResArr - array where to store information about fit results
+lineArr - array where to store best fit parameters of the multi-gaussian model</p>
+</dd>
+<dt>Returns:</dt><dd><p>binArr
+fitResArr
+lineArr</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.gPlayMp.lineModDefMp">
+<code class="sig-prename descclassname">scavengers.gPlayMp.</code><code class="sig-name descname">lineModDefMp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">wave</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">lineInfo</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.gPlayMp.lineModDefMp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines composite gaussian model for lmfit fitting</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><p>wave: x-axis of spectrum in log(lambda) to be fitted
+y: spectrum
+lineInfo: lines to be fitted, wavelenght and other parameters defined in lineList.txt</p>
+</dd>
+<dt>Returns:</dt><dd><p>model of 1 or multiple gaussians to use for fit in gFitMp module</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.gPlayMp.log_result">
+<code class="sig-prename descclassname">scavengers.gPlayMp.</code><code class="sig-name descname">log_result</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">result</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.gPlayMp.log_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is called whenever foo_pool(i) returns a result.
+result_list is modified only by the main process, not the pool workers.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.gPlayMp.main">
+<code class="sig-prename descclassname">scavengers.gPlayMp.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.gPlayMp.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.gPlayMp.workerGFitMp">
+<code class="sig-prename descclassname">scavengers.gPlayMp.</code><code class="sig-name descname">workerGFitMp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">dd</span></em>, <em class="sig-param"><span class="n">rank</span></em>, <em class="sig-param"><span class="n">nprocs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.gPlayMp.workerGFitMp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Worker of gaussian loop for multiprocess. 
+Fits in the same time N spectra of the Voronoi binned datacube.
+N is the number of cores used.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><p>cfg_par - configuration file
+dd - datacube
+rank - starting point of for loop
+nprocs - number of cores where to send spectraters of the multi-gaussian model</p>
+</dd>
+<dt>Returns:</dt><dd><p>binArr
+fitResArr
+lineArr</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scavengers.momPlay">
+<span id="scavengers-momplay-module"></span><h2>scavengers.momPlay module<a class="headerlink" href="#module-scavengers.momPlay" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="scavengers.momPlay.momplay">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.momPlay.</code><code class="sig-name descname">momplay</code><a class="headerlink" href="#scavengers.momPlay.momplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Modules to create moment maps, residual maps, line ratios maps</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>makeMoments</dt><dd><p>load line list, datacube and create loop for moments module</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>makeSigmaCentroidMap</dt><dd><p>load line list, datacube and create loop for momSigmaCentroid module</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>makeMomPlots</dt><dd><p>load line list, call momPlot for each line for mom0, mom1 maps from gaussian components</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>momSigmaCentroid</dt><dd><p>mom0, mom1 from centroid and sigma of fitted line</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>moments</dt><dd><p>mom0, mom1, mom2 of the fitted gaussian components of the line</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>resCube</dt><dd><p>cube of residuals of fit</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>resLines</dt><dd><p>for each line residuals are computed as the standard deviation of line-fit 
+within vrange and as the sum of the absolute value of line-fit</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>makeLineRatioMaps</dt><dd><p>load line list, and create loop for momLineRatio</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>momLineRatio</dt><dd><p>maps of the line ratios (OIII/Hbeta, NII/Halpha, SII/Halpha)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>momCDist</dt><dd><p>map of the eta-parameter (distance from Kauffmann and Kewley SF curves)</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="py method">
+<dt id="scavengers.momPlay.momplay.makeLineRatioMaps">
+<code class="sig-name descname">makeLineRatioMaps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlay.momplay.makeLineRatioMaps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlay.momplay.makeMomPlots">
+<code class="sig-name descname">makeMomPlots</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlay.momplay.makeMomPlots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlay.momplay.makeMoments">
+<code class="sig-name descname">makeMoments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlay.momplay.makeMoments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlay.momplay.makeMultipleMaps">
+<code class="sig-name descname">makeMultipleMaps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlay.momplay.makeMultipleMaps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlay.momplay.makeSigmaCentroidMaps">
+<code class="sig-name descname">makeSigmaCentroidMaps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlay.momplay.makeSigmaCentroidMaps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlay.momplay.momCDist">
+<code class="sig-name descname">momCDist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlay.momplay.momCDist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlay.momplay.momLineRatio">
+<code class="sig-name descname">momLineRatio</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">header</span></em>, <em class="sig-param"><span class="n">outTableName</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlay.momplay.momLineRatio" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlay.momplay.momSigmaCentroid">
+<code class="sig-name descname">momSigmaCentroid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">lineName</span></em>, <em class="sig-param"><span class="n">lineNameStr</span></em>, <em class="sig-param"><span class="n">header</span></em>, <em class="sig-param"><span class="n">lineThresh</span></em>, <em class="sig-param"><span class="n">cenRange</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlay.momplay.momSigmaCentroid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlay.momplay.moments">
+<code class="sig-name descname">moments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">lineName</span></em>, <em class="sig-param"><span class="n">lineNameStr</span></em>, <em class="sig-param"><span class="n">header</span></em>, <em class="sig-param"><span class="n">outTableName</span></em>, <em class="sig-param"><span class="n">lineThresh</span></em>, <em class="sig-param"><span class="n">doBinMap</span></em>, <em class="sig-param"><span class="n">cenRange</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlay.momplay.moments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlay.momplay.regridFromPxSize">
+<code class="sig-name descname">regridFromPxSize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">basename</span></em>, <em class="sig-param"><span class="n">pxSize</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlay.momplay.regridFromPxSize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlay.momplay.regridMoms">
+<code class="sig-name descname">regridMoms</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">basename</span></em>, <em class="sig-param"><span class="n">slavename</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlay.momplay.regridMoms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlay.momplay.resCube">
+<code class="sig-name descname">resCube</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlay.momplay.resCube" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlay.momplay.resLines">
+<code class="sig-name descname">resLines</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlay.momplay.resLines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes the residual maps from the residual table</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><dl class="simple">
+<dt>cfg_par: parameter file</dt><dd><p>gFit_modName: specifies # of gaussian components used for the fit</p>
+</dd>
+</dl>
+</dd>
+<dt>Uses:</dt><dd><ul class="simple">
+<li><p>voroni binned line subtracted datacube</p></li>
+<li><p>table of voronoi binned datacube and spectra</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns (located in /residuals/modName/):</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>resSTD_linename:  residuals computed as the standard deviation of line-fit</dt><dd><p>within a velocity range given by 6*sigmag1 weighted on the fitted amplitude of the line</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>resSTDPeak_linename:  residuals computed as the standard deviation of line-fit</dt><dd><p>within a velocity range given by 6*sigmag1 weighted on the observed amplitude of the line</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<dl>
+<dt>Options:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>compute noise: </dt><dd><p>when set to True in the parameter file, it computes the noise as the rms in within [-80,-60]AA and [+60,+80]AA with respect to the 
+rest wavelenght of each line
+computes the S/N of each line as the peak/noise in each pixel</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="simple">
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>SN_linename: S/N map of each line</p></li>
+<li><p>noise_linename: noise map of each line</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlay.momplay.resLinesFromTable">
+<code class="sig-name descname">resLinesFromTable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlay.momplay.resLinesFromTable" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Computes for each the residuals of the fit. Within which velocity range? </dt><dd><p>At the moment is within 6*sigmaG1 and 3*sigmaG2</p>
+</dd>
+<dt>Parameters:</dt><dd><dl class="simple">
+<dt>cfg_par: parameter file</dt><dd><p>gFit_modName: specifies # of gaussian components used for the fit</p>
+</dd>
+</dl>
+</dd>
+<dt>Uses:</dt><dd><ul class="simple">
+<li><p>voroni binned line subtracted datacube</p></li>
+<li><p>table of voronoi binned datacube and spectra</p></li>
+<li></li>
+</ul>
+</dd>
+<dt>Returns (located in /residuals/modName/):</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>res_linename: residuals computed as the standard deviation of line-fit</dt><dd><p>within a velocity range given by cenRange centred at the peak of the observed line</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>resSTDPeak_linename:  residuals computed as the standard deviation of line-fit</dt><dd><p>within a velocity range given by cenRange centred at the peak of the observed line multiplied by the peak of the line</p>
+</dd>
+</dl>
+</li>
+<li><p>snRes_linename: residuals divided by the noise</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scavengers.momPlot">
+<span id="scavengers-momplot-module"></span><h2>scavengers.momPlot module<a class="headerlink" href="#module-scavengers.momPlot" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="scavengers.momPlot.MOMplot">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.momPlot.</code><code class="sig-name descname">MOMplot</code><a class="headerlink" href="#scavengers.momPlot.MOMplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="scavengers.momPlot.MOMplot.loadRcParams">
+<code class="sig-name descname">loadRcParams</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlot.MOMplot.loadRcParams" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlot.MOMplot.mom0Plot">
+<code class="sig-name descname">mom0Plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">imageName</span></em>, <em class="sig-param"><span class="n">lineName</span></em>, <em class="sig-param"><span class="n">lineNameStr</span></em>, <em class="sig-param"><span class="n">lineThresh</span></em>, <em class="sig-param"><span class="n">vRange</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contourColors</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">nameFigLabel</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overlayContours</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">contName</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contLevels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contColors</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlot.MOMplot.mom0Plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlot.MOMplot.mom12Triplet">
+<code class="sig-name descname">mom12Triplet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">im1</span></em>, <em class="sig-param"><span class="n">im2</span></em>, <em class="sig-param"><span class="n">im3</span></em>, <em class="sig-param"><span class="n">lineName</span></em>, <em class="sig-param"><span class="n">lineThresh</span></em>, <em class="sig-param"><span class="n">lineNameStr</span></em>, <em class="sig-param"><span class="n">vRange</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">modName</span><span class="o">=</span><span class="default_value">'g1'</span></em>, <em class="sig-param"><span class="n">contourColors</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">nameFigLabel</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overlayContours</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">contName</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">imLevels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contValues</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contColors</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">interpolation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">kind</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlot.MOMplot.mom12Triplet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlot.MOMplot.mom1Plot">
+<code class="sig-name descname">mom1Plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">imageName</span></em>, <em class="sig-param"><span class="n">lineName</span></em>, <em class="sig-param"><span class="n">lineThresh</span></em>, <em class="sig-param"><span class="n">lineNameStr</span></em>, <em class="sig-param"><span class="n">keyword</span></em>, <em class="sig-param"><span class="n">vRange</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">modName</span><span class="o">=</span><span class="default_value">'g1'</span></em>, <em class="sig-param"><span class="n">contourColors</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">nameFigLabel</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overlayContours</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">contName</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">imLevels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contValues</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contColors</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">interpolation</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlot.MOMplot.mom1Plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlot.MOMplot.mom2Plot">
+<code class="sig-name descname">mom2Plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">imageName</span></em>, <em class="sig-param"><span class="n">lineName</span></em>, <em class="sig-param"><span class="n">lineThresh</span></em>, <em class="sig-param"><span class="n">lineNameStr</span></em>, <em class="sig-param"><span class="n">keyword</span></em>, <em class="sig-param"><span class="n">vRange</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">modName</span><span class="o">=</span><span class="default_value">'g1'</span></em>, <em class="sig-param"><span class="n">contourColors</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">nameFigLabel</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overlayContours</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">contName</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contValues</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contColors</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">interpolation</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlot.MOMplot.mom2Plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlot.MOMplot.momAncPlot">
+<code class="sig-name descname">momAncPlot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">imageName</span></em>, <em class="sig-param"><span class="n">Labels</span></em>, <em class="sig-param"><span class="n">CustomCmap</span></em>, <em class="sig-param"><span class="n">colorList</span></em>, <em class="sig-param"><span class="n">contourColors</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">nameFigLabel</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overlayContours</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">contName</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contLevels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contColors</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlot.MOMplot.momAncPlot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlot.MOMplot.momAncPlotMultiple">
+<code class="sig-name descname">momAncPlotMultiple</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlot.MOMplot.momAncPlotMultiple" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlot.MOMplot.momAncPlotOver">
+<code class="sig-name descname">momAncPlotOver</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">imageName</span></em>, <em class="sig-param"><span class="n">secondImageName</span></em>, <em class="sig-param"><span class="n">thirdImageName</span></em>, <em class="sig-param"><span class="n">Labels</span></em>, <em class="sig-param"><span class="n">CustomCmapOne</span></em>, <em class="sig-param"><span class="n">CustomCmapThree</span></em>, <em class="sig-param"><span class="n">colorList</span></em>, <em class="sig-param"><span class="n">contourColors</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">nameFigLabel</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overlayContours</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">contName</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contLevels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contColors</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlot.MOMplot.momAncPlotOver" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.momPlot.MOMplot.resPlot">
+<code class="sig-name descname">resPlot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">imageName</span></em>, <em class="sig-param"><span class="n">lineName</span></em>, <em class="sig-param"><span class="n">lineThresh</span></em>, <em class="sig-param"><span class="n">vRange</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contourColors</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">nameFigLabel</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overlayContours</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">contName</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contLevels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contColors</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.momPlot.MOMplot.resPlot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scavengers.pickle4MPplay">
+<span id="scavengers-pickle4mpplay-module"></span><h2>scavengers.pickle4MPplay module<a class="headerlink" href="#module-scavengers.pickle4MPplay" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="scavengers.pickle4MPplay.ForkingPickler2">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.pickle4MPplay.</code><code class="sig-name descname">ForkingPickler2</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.pickle4MPplay.ForkingPickler2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">multiprocessing.reduction.ForkingPickler</span></code></p>
+<dl class="py method">
+<dt id="scavengers.pickle4MPplay.ForkingPickler2.dumps">
+<em class="property">classmethod </em><code class="sig-name descname">dumps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">protocol</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.pickle4MPplay.ForkingPickler2.dumps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="scavengers.pickle4MPplay.Pickle2Reducer">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.pickle4MPplay.</code><code class="sig-name descname">Pickle2Reducer</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.pickle4MPplay.Pickle2Reducer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">multiprocessing.reduction.AbstractReducer</span></code></p>
+<dl class="py attribute">
+<dt id="scavengers.pickle4MPplay.Pickle2Reducer.ForkingPickler">
+<code class="sig-name descname">ForkingPickler</code><a class="headerlink" href="#scavengers.pickle4MPplay.Pickle2Reducer.ForkingPickler" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#scavengers.pickle4MPplay.ForkingPickler2" title="scavengers.pickle4MPplay.ForkingPickler2"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForkingPickler2</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.pickle4MPplay.Pickle2Reducer.dump">
+<code class="sig-name descname">dump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span></em>, <em class="sig-param"><span class="n">protocol</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.pickle4MPplay.Pickle2Reducer.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replacement for pickle.dump() using ForkingPickler.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.pickle4MPplay.Pickle2Reducer.register">
+<em class="property">classmethod </em><code class="sig-name descname">register</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">type</span></em>, <em class="sig-param"><span class="n">reduce</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.pickle4MPplay.Pickle2Reducer.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a reduce function for a type.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.pickle4MPplay.dump">
+<code class="sig-prename descclassname">scavengers.pickle4MPplay.</code><code class="sig-name descname">dump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">file</span></em>, <em class="sig-param"><span class="n">protocol</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.pickle4MPplay.dump" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scavengers.specPlot">
+<span id="scavengers-specplot-module"></span><h2>scavengers.specPlot module<a class="headerlink" href="#module-scavengers.specPlot" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="scavengers.specPlot.specplot">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.specPlot.</code><code class="sig-name descname">specplot</code><a class="headerlink" href="#scavengers.specPlot.specplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Modules to plot spectra and fits
+- loadRcParamsBig</p>
+<blockquote>
+<div><p>load rc parameters to plot full spectrum</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>loadRcParamsZoom</dt><dd><p>load rc parameters to plot subpanels of fitted lines</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>plotSpecFit</dt><dd><p>plot full spectrum and fitted function</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>plotSpecFitZoom</dt><dd><p>determines the area of the beam of the observations</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>addFullSublot</dt><dd><p>add subplot of total spectrum to plot of fitted lines</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="py method">
+<dt id="scavengers.specPlot.specplot.addFullSubplot">
+<code class="sig-name descname">addFullSubplot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">fig</span></em>, <em class="sig-param"><span class="n">gs</span></em>, <em class="sig-param"><span class="n">vel</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">result</span></em>, <em class="sig-param"><span class="n">noise</span></em>, <em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">yy</span></em>, <em class="sig-param"><span class="n">lineInfo</span></em>, <em class="sig-param"><span class="n">singleVorBinInfo</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.specPlot.specplot.addFullSubplot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.specPlot.specplot.loadRcParamsBig">
+<code class="sig-name descname">loadRcParamsBig</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.specPlot.specplot.loadRcParamsBig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.specPlot.specplot.loadRcParamsZoom">
+<code class="sig-name descname">loadRcParamsZoom</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.specPlot.specplot.loadRcParamsZoom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.specPlot.specplot.plotLineZoom">
+<code class="sig-name descname">plotLineZoom</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">vel</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">result</span></em>, <em class="sig-param"><span class="n">noise</span></em>, <em class="sig-param"><span class="n">i</span></em>, <em class="sig-param"><span class="n">j</span></em>, <em class="sig-param"><span class="n">lineInfo</span></em>, <em class="sig-param"><span class="n">singleVorBinInfo</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.specPlot.specplot.plotLineZoom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.specPlot.specplot.plotSpecFit">
+<code class="sig-name descname">plotSpecFit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">vel</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">result</span></em>, <em class="sig-param"><span class="n">noise</span></em>, <em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">yy</span></em>, <em class="sig-param"><span class="n">lineInfo</span></em>, <em class="sig-param"><span class="n">singleVorBinInfo</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.specPlot.specplot.plotSpecFit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scavengers.starSub">
+<span id="scavengers-starsub-module"></span><h2>scavengers.starSub module<a class="headerlink" href="#module-scavengers.starSub" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="scavengers.starSub.starsub">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.starSub.</code><code class="sig-name descname">starsub</code><a class="headerlink" href="#scavengers.starSub.starsub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Modules to prepare for gaussian fitting of optical lines: 
+- subtract the stellar continuum from PPXF tables run with GISTPipeline ()</p>
+<blockquote>
+<div><p>Stellar subtractions is performed by subtracting the stellar and the nuclear emission from the original 
+unbinned data cube, by rescaling the fitted continuum – constant within each Voronoi bin – to the original 
+unbinned observed continuum flux of each spaxel.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Create a datacube of the stellar subtracted data by</p></li>
+<li><p>Perform Voronoi binning of the stellar subtracted datacube</p></li>
+<li><p>Create the voronoi binned datacube</p></li>
+</ul>
+<dl class="py method">
+<dt id="scavengers.starSub.starsub.makeCubesPix">
+<code class="sig-name descname">makeCubesPix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.starSub.starsub.makeCubesPix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates data cubes from output of PPXF run using the GISTpipeline
+with the pixel size of the input data</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>cfg_par: configuration file</p></li>
+</ul>
+</dd>
+<dt>Uses:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>output tables of voronoi binning </dt><dd><ul>
+<li><p>cfg_par[‘general’][‘tableAllSpecName’],</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>GISTpipeline table of stellar continuum emission</p></li>
+<li><p>module of tPlay: openPPXFforSubtraction</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>datacube</p></li>
+<li><p>noisecube</p></li>
+<li><p>line cube (star subtracted datacube)</p></li>
+<li><p>datacube of stellar continuum emission</p></li>
+</ul>
+</dd>
+<dt>Options:</dt><dd><p>cfg_par[‘starSub’][‘outputs’] defines the kind of output datacubes
+all, stars, data, lines</p>
+</dd>
+<dt>Notes:</dt><dd><p>the stellar emission is subtracted from the original unbinned datacube
+by rescaling the fitted continuum – constant within each Voronoi bin – to the original 
+unbinned observed continuum flux of each spaxel.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.starSub.starsub.makeCubesVorBin">
+<code class="sig-name descname">makeCubesVorBin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.starSub.starsub.makeCubesVorBin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates voronoi binned data cubes from output of PPXF</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>cfg_par: configuration file</p></li>
+</ul>
+</dd>
+<dt>Uses:</dt><dd><ul class="simple">
+<li><p>output tables of PPXF run using the GISTpipeline</p></li>
+<li><p>GISTpipeline table of stellar continuum emission</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>voronoi binned datacube 
+voronoi binned noisecube
+star subtracted voronoi binned datacube
+voronoi binned datacube of stellar continuum emission</p>
+</dd>
+<dt>Options:</dt><dd><p>cfg_par[‘starSub’][‘outputs’] defines the kind of output datacubes
+all, stars, data, lines</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.starSub.starsub.makeCubesVorLine">
+<code class="sig-name descname">makeCubesVorLine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.starSub.starsub.makeCubesVorLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates line datacube from results of Voronoi binning</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>cfg_par: configuration file</p></li>
+</ul>
+</dd>
+<dt>Uses:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>output tables of voronoi binning (created by vorPlay and stored in workdir/runName/tables) </dt><dd><ul>
+<li><p>cfg_par[‘general’][‘outVorLineTableName’], cfg_par[‘general’][‘outVorSpectra’]</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>module of tPlay: openVorLineOutput</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>voronoi binned datacube</p></li>
+<li><p>voronoi binned noisecube</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><p>the output table of voronoi binning is updated with the pixel coordinates of each bin</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.starSub.starsub.makeHeader">
+<code class="sig-name descname">makeHeader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">wave</span></em>, <em class="sig-param"><span class="n">pxSize</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.starSub.starsub.makeHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines header of output datacube
+Puts wcs coordinates in datacube from information provided in the configuration file</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>cfg_par: configuration file</p></li>
+<li><p>wave: x-axis of spectra in log(lamdba) units</p></li>
+<li><p>pxSize: pixel size of output cubes</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>header of datacubes</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scavengers.tPlay">
+<span id="scavengers-tplay-module"></span><h2>scavengers.tPlay module<a class="headerlink" href="#module-scavengers.tPlay" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="scavengers.tPlay.tplay">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.tPlay.</code><code class="sig-name descname">tplay</code><a class="headerlink" href="#scavengers.tPlay.tplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Modules to create and modify tables
+- makeHeader</p>
+<blockquote>
+<div><p>make header of line in vrad velocity frame</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>makeLineCube</dt><dd><p>make cubelets for each line marked in lineList.txt</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.binLineRatio">
+<code class="sig-name descname">binLineRatio</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">lineInfo</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.binLineRatio" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.cardan">
+<code class="sig-name descname">cardan</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>, <em class="sig-param"><span class="n">c</span></em>, <em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.cardan" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.carolloDistOIII">
+<code class="sig-name descname">carolloDistOIII</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.carolloDistOIII" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.cleanTable">
+<code class="sig-name descname">cleanTable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.cleanTable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.findferrari">
+<code class="sig-name descname">findferrari</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>, <em class="sig-param"><span class="n">c</span></em>, <em class="sig-param"><span class="n">d</span></em>, <em class="sig-param"><span class="n">e</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.findferrari" title="Permalink to this definition">¶</a></dt>
+<dd><p>resolution of P=ax^4+bx^3+cx^2+dx+e=0</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.fromMomsToTable">
+<code class="sig-name descname">fromMomsToTable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.fromMomsToTable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.makeInputArrays">
+<code class="sig-name descname">makeInputArrays</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">lineInfo</span></em>, <em class="sig-param"><span class="n">Xdim</span></em>, <em class="sig-param"><span class="n">Ydim</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.makeInputArrays" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.makeInputArraysMP">
+<code class="sig-name descname">makeInputArraysMP</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">lineInfo</span></em>, <em class="sig-param"><span class="n">vorBinInfo</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.makeInputArraysMP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.makePixelTable">
+<code class="sig-name descname">makePixelTable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.makePixelTable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.openLineList">
+<code class="sig-name descname">openLineList</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.openLineList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.openPPXFforSubtraction">
+<code class="sig-name descname">openPPXFforSubtraction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">tableBin</span></em>, <em class="sig-param"><span class="n">tableSpec</span></em>, <em class="sig-param"><span class="n">tableStar</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.openPPXFforSubtraction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.openTablesPPXF">
+<code class="sig-name descname">openTablesPPXF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">tableBin</span></em>, <em class="sig-param"><span class="n">tableSpec</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.openTablesPPXF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.openVorLineOutput">
+<code class="sig-name descname">openVorLineOutput</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">tableBin</span></em>, <em class="sig-param"><span class="n">tableSpec</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.openVorLineOutput" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.rebinTable">
+<code class="sig-name descname">rebinTable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inTable</span></em>, <em class="sig-param"><span class="n">colBin</span></em>, <em class="sig-param"><span class="n">binSize</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.rebinTable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.reorderTable">
+<code class="sig-name descname">reorderTable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.reorderTable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.roots2">
+<code class="sig-name descname">roots2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>, <em class="sig-param"><span class="n">c</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.roots2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.saveAncelsTable">
+<code class="sig-name descname">saveAncelsTable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">sigmaCenArr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.saveAncelsTable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.saveOutputTable">
+<code class="sig-name descname">saveOutputTable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">binArr</span></em>, <em class="sig-param"><span class="n">fitResArr</span></em>, <em class="sig-param"><span class="n">lineArr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.saveOutputTable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.selectBestFit">
+<code class="sig-name descname">selectBestFit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.selectBestFit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.updateBinArray">
+<code class="sig-name descname">updateBinArray</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">binArr</span></em>, <em class="sig-param"><span class="n">vorBinInfo</span></em>, <em class="sig-param"><span class="n">index</span></em>, <em class="sig-param"><span class="n">i</span></em>, <em class="sig-param"><span class="n">j</span></em>, <em class="sig-param"><span class="n">counter</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.updateBinArray" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.updateFitArray">
+<code class="sig-name descname">updateFitArray</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">fitResArr</span></em>, <em class="sig-param"><span class="n">result</span></em>, <em class="sig-param"><span class="n">binIDName</span></em>, <em class="sig-param"><span class="n">counter</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.updateFitArray" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.tPlay.tplay.updateLineArray">
+<code class="sig-name descname">updateLineArray</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">wave</span></em>, <em class="sig-param"><span class="n">lineArr</span></em>, <em class="sig-param"><span class="n">result</span></em>, <em class="sig-param"><span class="n">noiseValue</span></em>, <em class="sig-param"><span class="n">lineInfo</span></em>, <em class="sig-param"><span class="n">binIDName</span></em>, <em class="sig-param"><span class="n">counter</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.tPlay.tplay.updateLineArray" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scavengers.util">
+<span id="scavengers-util-module"></span><h2>scavengers.util module<a class="headerlink" href="#module-scavengers.util" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="scavengers.util.loadCfg">
+<code class="sig-prename descclassname">scavengers.util.</code><code class="sig-name descname">loadCfg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.util.loadCfg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.util.prettyOutput_Done">
+<code class="sig-prename descclassname">scavengers.util.</code><code class="sig-name descname">prettyOutput_Done</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">outputlabel</span></em>, <em class="sig-param"><span class="n">progressbar</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.util.prettyOutput_Done" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.util.prettyOutput_DonePrefix">
+<code class="sig-prename descclassname">scavengers.util.</code><code class="sig-name descname">prettyOutput_DonePrefix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.util.prettyOutput_DonePrefix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.util.prettyOutput_Failed">
+<code class="sig-prename descclassname">scavengers.util.</code><code class="sig-name descname">prettyOutput_Failed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">outputlabel</span></em>, <em class="sig-param"><span class="n">progressbar</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.util.prettyOutput_Failed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.util.prettyOutput_FailedPrefix">
+<code class="sig-prename descclassname">scavengers.util.</code><code class="sig-name descname">prettyOutput_FailedPrefix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.util.prettyOutput_FailedPrefix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.util.prettyOutput_Running">
+<code class="sig-prename descclassname">scavengers.util.</code><code class="sig-name descname">prettyOutput_Running</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">outputlabel</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.util.prettyOutput_Running" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.util.prettyOutput_Warning">
+<code class="sig-prename descclassname">scavengers.util.</code><code class="sig-name descname">prettyOutput_Warning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">outputlabel</span></em>, <em class="sig-param"><span class="n">progressbar</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.util.prettyOutput_Warning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.util.prettyOutput_WarningPrefix">
+<code class="sig-prename descclassname">scavengers.util.</code><code class="sig-name descname">prettyOutput_WarningPrefix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.util.prettyOutput_WarningPrefix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.util.printProgress">
+<code class="sig-prename descclassname">scavengers.util.</code><code class="sig-name descname">printProgress</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iteration</span></em>, <em class="sig-param"><span class="n">total</span></em>, <em class="sig-param"><span class="n">prefix</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">suffix</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">decimals</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">barLength</span><span class="o">=</span><span class="default_value">80</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'g'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.util.printProgress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call in a loop to create terminal progress bar
+&#64;params:</p>
+<blockquote>
+<div><p>iteration   - Required  : current iteration (Int)
+total       - Required  : total iterations (Int)
+prefix      - Optional  : prefix string (Str)
+suffix      - Optional  : suffix string (Str)
+color       - Optional  : color identifier (Str)</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="scavengers.util.set_dirs">
+<code class="sig-prename descclassname">scavengers.util.</code><code class="sig-name descname">set_dirs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.util.set_dirs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scavengers.vorPlay">
+<span id="scavengers-vorplay-module"></span><h2>scavengers.vorPlay module<a class="headerlink" href="#module-scavengers.vorPlay" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="scavengers.vorPlay.vorplay">
+<em class="property">class </em><code class="sig-prename descclassname">scavengers.vorPlay.</code><code class="sig-name descname">vorplay</code><a class="headerlink" href="#scavengers.vorPlay.vorplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="simple">
+<dt>COPYRIGHT</dt><dd><p>This class is deliberately taken from the GIST pipeline: 
+A multi-purpose tool for the analysis and visualisation of (integral-field) spectroscopic data
+(abittner.gitlab.io/thegistpipeline/index.html)
+(ui.adsabs.harvard.edu/abs/2019A%26A…628A.117B/abstract)</p>
+</dd>
+<dt>PURPOSE: </dt><dd><p>This file contains a collection of functions necessary to Voronoi-bin the data. 
+The Voronoi-binning makes use of the algorithm from Cappellari &amp; Copin 2003
+(ui.adsabs.harvard.edu/?#abs/2003MNRAS.342..345C).</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="scavengers.vorPlay.vorplay.apply_voronoi_bins">
+<code class="sig-name descname">apply_voronoi_bins</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">binNum</span></em>, <em class="sig-param"><span class="n">spec</span></em>, <em class="sig-param"><span class="n">espec</span></em>, <em class="sig-param"><span class="n">velscale</span></em>, <em class="sig-param"><span class="n">wave</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.vorPlay.vorplay.apply_voronoi_bins" title="Permalink to this definition">¶</a></dt>
+<dd><p>The constructed Voronoi-binning is applied to the underlying spectra. The
+resulting Voronoi-binned spectra are saved to disk.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.vorPlay.vorplay.define_voronoi_bins">
+<code class="sig-name descname">define_voronoi_bins</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">signal</span></em>, <em class="sig-param"><span class="n">noise</span></em>, <em class="sig-param"><span class="n">pixelsize</span></em>, <em class="sig-param"><span class="n">snr</span></em>, <em class="sig-param"><span class="n">target_snr</span></em>, <em class="sig-param"><span class="n">covar_vor</span></em>, <em class="sig-param"><span class="n">idx_inside</span></em>, <em class="sig-param"><span class="n">idx_outside</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.vorPlay.vorplay.define_voronoi_bins" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function applies the Voronoi-binning algorithm of Cappellari &amp; Copin
+2003 (ui.adsabs.harvard.edu/?#abs/2003MNRAS.342..345C) to the data. It can
+be accounted for spatial correlations in the noise (see function sn_func()).
+A BIN_ID is assigned to every spaxel. Spaxels which do not satisfy the
+minimum SNR threshold are excluded from the Voronoi-binning, but are
+assigned a negative BIN_ID, with the absolute value of the BIN_ID
+corresponding to the nearest Voronoi-bin that satisfies the minimum SNR
+threshold.  All results are saved in a dedicated table to provide easy means
+of matching spaxels and bins.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.vorPlay.vorplay.find_nearest_voronoibin">
+<code class="sig-name descname">find_nearest_voronoibin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">idx_outside</span></em>, <em class="sig-param"><span class="n">xNode</span></em>, <em class="sig-param"><span class="n">yNode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.vorPlay.vorplay.find_nearest_voronoibin" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function determines the nearest Voronoi-bin for all spaxels which do
+not satisfy the minimum SNR threshold.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.vorPlay.vorplay.noBinning">
+<code class="sig-name descname">noBinning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">snr</span></em>, <em class="sig-param"><span class="n">idx_inside</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.vorPlay.vorplay.noBinning" title="Permalink to this definition">¶</a></dt>
+<dd><p>In case no Voronoi-binning is required/possible, treat spaxels in the input
+data as Voronoi bins, in order to continue the analysis.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.vorPlay.vorplay.save_table">
+<code class="sig-name descname">save_table</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">signal</span></em>, <em class="sig-param"><span class="n">snr</span></em>, <em class="sig-param"><span class="n">binNum_new</span></em>, <em class="sig-param"><span class="n">ubins</span></em>, <em class="sig-param"><span class="n">xNode</span></em>, <em class="sig-param"><span class="n">yNode</span></em>, <em class="sig-param"><span class="n">sn</span></em>, <em class="sig-param"><span class="n">nPixels</span></em>, <em class="sig-param"><span class="n">pixelsize</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.vorPlay.vorplay.save_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save all relevant information about the Voronoi binning to disk. In
+particular, this allows to later match spaxels and their corresponding bins.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.vorPlay.vorplay.save_vorspectra">
+<code class="sig-name descname">save_vorspectra</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em>, <em class="sig-param"><span class="n">log_spec</span></em>, <em class="sig-param"><span class="n">log_error</span></em>, <em class="sig-param"><span class="n">velscale</span></em>, <em class="sig-param"><span class="n">logLam</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.vorPlay.vorplay.save_vorspectra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Voronoi-binned spectra and error spectra are saved to disk.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.vorPlay.vorplay.sn_func">
+<code class="sig-name descname">sn_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span></em>, <em class="sig-param"><span class="n">signal</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">noise</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">covar_vor</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.vorPlay.vorplay.sn_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is passed to the Voronoi binning routine of Cappellari &amp;
+Copin 2003 (ui.adsabs.harvard.edu/?#abs/2003MNRAS.342..345C) and used to
+estimate the noise in the bin from the noise in the spaxels. This
+implementation is identical to the default one, but accounts for spatial
+correlations in the noise by applying an empirical equation (see e.g.
+Garcia-Benito et al. 2015;
+ui.adsabs.harvard.edu/?#abs/2015A&amp;A…576A.135G) together with the
+parameter defined in the Config-file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.vorPlay.vorplay.vorBin">
+<code class="sig-name descname">vorBin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.vorPlay.vorplay.vorBin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="scavengers.vorPlay.vorplay.voronoi_binning">
+<code class="sig-name descname">voronoi_binning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">binNum</span></em>, <em class="sig-param"><span class="n">spec</span></em>, <em class="sig-param"><span class="n">error</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scavengers.vorPlay.vorplay.voronoi_binning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spectra belonging to the same Voronoi-bin are added.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scavengers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-scavengers" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Fil8
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
