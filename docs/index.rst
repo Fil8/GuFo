@@ -36,6 +36,12 @@ GaNGiaLF -- Gas N-Gaussians Line Fitter
 
 .. toctree::
    :maxdepth: 2
+   :caption: Science:
+
+   science/NeutralHydrogen
+
+.. toctree::
+   :maxdepth: 2
    :caption: Tutorials:
    
    tutorials/TerminalTutorial

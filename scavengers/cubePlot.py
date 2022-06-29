@@ -21,8 +21,14 @@ from astropy.coordinates import SkyCoord
 from astropy.wcs import WCS
 from astropy.nddata import Cutout2D
 from reproject import reproject_interp
+from scavengers import cvPlay, headPlay
+from scavengers import plotUtil as plUt
+
+import astropy.visualization as astviz
 
 cP = cubePlay.cubeplay()
+cvP = cvPlay.convert()
+hP = headPlay.headplay()
 
 class Velo(object):
     def __init__(self, header):
@@ -45,10 +51,10 @@ class cubeplot:
 
         #gh = pywcsgrid2.GridHelper(wcs=header)
         #gh.locator_params(nbins=3)
-        
-        wcsIm = WCS(header)        
-        wcs2Dim=wcsIm.slice(1,2)
 
+        wcsIm = WCS(header)        
+        #wcs2Dim=wcsIm.slice(1,2)
+        #print(wcs2Dim)
         if nrows>5 and nrows<=7:
             ncols=5
         elif nrows>7:
@@ -59,7 +65,8 @@ class cubeplot:
         fig.subplots_adjust(hspace=0.,wspace=0.)
         gs = plt.GridSpec(nrows=nrows, ncols=ncols,  figure=fig, top=0.95)
        
-        return fig,gs,wcs2Dim,ncols
+        #return fig,gs,wcs2Dim,ncols
+        return fig,gs,wcsIm,ncols
 
 
     def chanMaps(self,cfg_par):
@@ -89,22 +96,40 @@ class cubeplot:
         inIm=cfg_par['cubePlay']['chanMaps']['inCube']
         header=fits.getheader(inIm)
         fits_cube=fits.getdata(inIm)
-
+        
         xyzRange = np.array(cfg_par['cubePlay']['chanMaps']['xyzRange'],dtype=int)
         if xyzRange[0,1]==0:
            xyzRange[0,1]= header['NAXIS1']
         if xyzRange[1,1]==0:
            xyzRange[1,1]= header['NAXIS2']
 
+        ra = cfg_par['cubePlay']['chanMaps']['centreRA']
+        dec = cfg_par['cubePlay']['chanMaps']['centreDec']
+
+
+        objCoordsRA = cvP.hms2deg(ra)
+        objCoordsDec = cvP.dms2deg(dec)
+
+        centre = SkyCoord(ra=objCoordsRA*u.degree, dec=objCoordsDec*u.degree, frame='fk5')
+        size = u.Quantity((cfg_par['cubePlay']['chanMaps']['sizePlots'],cfg_par['cubePlay']['chanMaps']['sizePlots']), u.arcmin)
+  
+        params = plUt.loadRcParams('fw')
+        plt.rcParams.update(params)
+
 
         vel = ((np.linspace(1, fits_cube.shape[0], fits_cube.shape[0]) - header['CRPIX3']) 
             * header['CDELT3'] + header['CRVAL3'])/1e3
-        vsys = cfg_par['cubePlay']['chanMaps']['vsys']
+        vsys = cfg_par['galaxy']['vsys']
         vel -= vsys
         idxMax = np.where(abs(vel-xyzRange[2,0])==abs(vel-xyzRange[2,0]).min())[0][0]
         idxMin = np.where(abs(vel-xyzRange[2,1])==abs(vel-xyzRange[2,1]).min())[0][0]
+        
+
         step=cfg_par['cubePlay']['chanMaps']['step']/(-header['CDELT3']/1e3)
         nrows= int(round((idxMax-idxMin)/(step*4)))
+        
+        header, fits_cube=hP.cleanHead(inIm)
+
         fig,gs, wcsIm, ncols = self.setup_axes(header,nrows)
 
 
@@ -117,7 +142,7 @@ class cubeplot:
 
         c = SkyCoord(cfg_par['cubePlay']['chanMaps']['raSep'],cfg_par['cubePlay']['chanMaps']['decSep'],unit=(u.hourangle,u.deg))
 
-        cmap = plt.cm.Blues
+        #cmap = plt.cm.Blues
         norm = mcolors.Normalize()
         images = []
         start_channel = 2
@@ -139,6 +164,10 @@ class cubeplot:
             v = int(vel[channel_number]+vsys)
 
             channel = fits_cube[channel_number,:,:]
+         #   wcsIm = WCS(header)
+            if any(xyzRange[0:2,0])!=0 or (xyzRange[0,0])!=header['NAXIS2'] or (xyzRange[1,1])!=header['NAXIS2']:
+                channelPlot = Cutout2D(channel, centre, size, wcs=wcsIm)
+
             ax = fig.add_subplot(gs[j,k],projection=wcsIm)
 
             ax.tick_params(axis='both', 
@@ -151,24 +180,30 @@ class cubeplot:
 
         #     if j==4:       
         #         ax.coords[0].set_ticklabel_visible(True)        
+            #norm = astviz.ImageNormalize(channelPlot.data, stretch=astviz.AsinhStretch(0.01), vmin=0, vmax=np.nanpercentile(channelPlot.data, 99.8))
+
             cRange=np.array(cfg_par['cubePlay']['chanMaps']['cRange'],dtype=float)
-            im = ax.imshow(channel[ext_ymin:ext_ymax,ext_xmin:ext_xmax], origin="lower", 
-                           norm=norm, cmap=str(cfg_par['cubePlay']['chanMaps']['colorMap']),aspect='auto',
-                           extent=[ext_xmin,ext_xmax,ext_ymin,ext_ymax],
-                              vmin=cRange[0],vmax=cRange[1])
+            im = ax.imshow(channelPlot.data, origin="lower",
+                           norm=norm, cmap=str(cfg_par['cubePlay']['chanMaps']['colorMap']),aspect='auto',vmin=cRange[0],vmax=cRange[1])
 
             if 'cubeContours' in cfg_par['cubePlay']['chanMaps']:
-                imPos = np.nonzero(cfg_par['cubePlay']['chanMaps']['cubeContours'][0,:,0])
-                
-                ax.contour(channel[ext_ymin:ext_ymax,ext_xmin:ext_xmax],levels=cfg_par['cubePlay']['chanMaps']['cubeContours'][0,imPos,0][0],
+                imPos = np.nonzero(cfg_par['cubePlay']['chanMaps']['cubeContours'][0,0,:])
+                print('contours Begin')
+                print(imPos[0])
+                ax.contour(channelPlot.data,levels=cfg_par['cubePlay']['chanMaps']['cubeContours'][0,0,imPos][0],
                     origin="lower",aspect='auto',linewidths=0.5,
-                    colors=cfg_par['cubePlay']['chanMaps']['contourColor'][0],extent=[ext_xmin,ext_xmax,ext_ymin,ext_ymax])
-                
-                imNeg = np.nonzero(cfg_par['cubePlay']['chanMaps']['cubeContours'][0,:,1])
-                if np.nansum(imNeg) != np.nan:
-                    ax.contour(channel[ext_ymin:ext_ymax,ext_xmin:ext_xmax],levels=cfg_par['cubePlay']['chanMaps']['cubeContours'][0,imNeg,1][0],
-                        origin="lower",aspect='auto',linestyles = 'dashed',linewidths=0.5,
-                        colors=cfg_par['cubePlay']['chanMaps']['contourColor'][1],extent=[ext_xmin,ext_xmax,ext_ymin,ext_ymax])
+                    colors=cfg_par['cubePlay']['chanMaps']['contourColor'][0])
+                print(cfg_par['cubePlay']['chanMaps']['cubeContours'][0,0,0])
+                imNeg = [-cfg_par['cubePlay']['chanMaps']['cubeContours'][0,0,0]]
+
+                # if np.nansum(imNeg) != np.nan:
+
+
+                ax.contour(channelPlot.data,levels=imNeg,
+                    origin="lower",aspect='auto',linestyles = 'dashed',linewidths=0.5,
+                    colors=cfg_par['cubePlay']['chanMaps']['contourColor'][1])
+
+                print('contours end')
 
             if 'overCubes' in cfg_par['cubePlay']['chanMaps']:
                 header2dIm = header.copy()
@@ -201,13 +236,13 @@ class cubeplot:
                     imPos = np.nonzero(cfg_par['cubePlay']['chanMaps']['otherContours'][h,:,0])
                     ax.contour(array.data,levels=cfg_par['cubePlay']['chanMaps']['otherContours'][h,imPos,0][0],
                         origin="lower",aspect='auto',linewidths=0.5,
-                        colors=cfg_par['cubePlay']['chanMaps']['otherColors'][h],extent=[ext_xmin,ext_xmax,ext_ymin,ext_ymax])
+                        colors=cfg_par['cubePlay']['chanMaps']['otherColors'][h])
                    
                     imNeg = np.nonzero(cfg_par['cubePlay']['chanMaps']['otherContours'][h,:,1])
                     if np.nansum(imNeg) != np.nan:
                         ax.contour(array.data,levels=cfg_par['cubePlay']['chanMaps']['otherContours'][h,imNeg,1][0],
                             origin="lower",aspect='auto',linestyles = 'dashed',linewidths=0.5,
-                            colors=cfg_par['cubePlay']['chanMaps']['otherColors'][h],extent=[ext_xmin,ext_xmax,ext_ymin,ext_ymax])
+                            colors=cfg_par['cubePlay']['chanMaps']['otherColors'][h])
            
             patches = [ mpatches.Patch(edgecolor=None, facecolor=None, linewidth=0, linestyle=None,
                                        color='black',  label=str(v)+r' km s$^{-1}$' )]
@@ -281,9 +316,10 @@ class cubeplot:
         if not os.path.exists(outFigDir):
             os.mkdir(outFigDir)
         cfg_par['cubePlay']['chanMaps']['outDir'] = outFigDir
-        outFigName=outFigDir+cfg_par['cubePlay']['chanMaps']['title']+'.'+cfg_par['cubePlay']['chanMaps']['plotFormat']
+        outFigName=outFigDir+cfg_par['general']['outPrefix'][0]+'_chMaps.'+cfg_par['cubePlay']['chanMaps']['plotFormat']
         plt.savefig(outFigName,bbox_inches='tight',dpi=300,format=cfg_par['cubePlay']['chanMaps']['plotFormat']) 
         plt.close()# if pdf,dpi=300,transparent=True,bbox_inches='tight',overwrite=True)
+        
         return outFigName
 
     def chanContoursOverOpt(self,cfg_par):

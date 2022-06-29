@@ -1057,6 +1057,50 @@ class momplay:
 
         return 0
 
+    def makeSNRatioMap(self,cfg_par,noise,ratio=3):
+
+
+        inMap = cfg_par['HIem']['moments']['momDir']+cfg_par['HIem']['moments']['snRatioName'] 
+        d = fits.getdata(inMap)
+
+        cubeName = cfg_par['HIem']['cubeDir']+cfg_par['HIem']['cubeName'][0]
+        h = fits.getheader(cubeName)
+        dV=np.abs(h['CDELT3']) 
+
+        dNew = np.multiply(np.sqrt(d),noise)
+
+        mom0Name = cfg_par['HIem']['moments']['momDir']+cfg_par['HIem']['moments']['mom0Name'][0]
+        mom0Data = fits.getdata(mom0Name)
+
+        snMap = np.divide(mom0Data,dNew)
+
+        if ratio == 3:
+            selectPix = (snMap > 2.75) & ( snMap < 3.20)
+        elif ratio == 5:
+            selectPix = (snMap > 4.75) & ( snMap < 5.20)
+        elif ratio == 10:
+            selectPix = (snMap > 9.75) & ( snMap < 10.20)
+
+
+        meanFlux = np.nanmean(mom0Data[selectPix])
+        medianFlux = np.nanmedian(mom0Data[selectPix])
+        print('################################################# d')
+        print(np.min([meanFlux,medianFlux]))
+        outNoiseName = str.split(cfg_par['HIem']['moments']['momDir']+cfg_par['HIem']['moments']['snRatioName'],'.fits')[0]+'_noiseMap.fits'
+
+        fits.writeto(outNoiseName,dNew,fits.getheader(inMap),overwrite=True)
+        
+        outSnName = str.split(cfg_par['HIem']['moments']['momDir']+cfg_par['HIem']['moments']['snRatioName'],'.fits')[0]+'_snRatio.fits'
+
+        fits.writeto(outSnName,snMap,fits.getheader(inMap),overwrite=True)
+
+        #momPixelled = mom0Data[selectPix]
+        #outSnName = str.split(cfg_par['HIem']['moments']['momDir']+cfg_par['HIem']['moments']['snRatioName'],'.fits')[0]+'_oux.fits'
+
+        #fits.writeto(outSnName,momPixelled,fits.getheader(inMap),overwrite=True)
+
+        return np.min([meanFlux,medianFlux])
+
     def makeLineRatioMaps(self,cfg_par):
 
         workDir = cfg_par['general']['cubeDir']
@@ -1287,22 +1331,18 @@ class momplay:
 
         tHead = tFile[0].header
         tData = tFile[0].data
-        print(tData.shape)
         tVel = ((np.linspace(1,tData.shape[0],tData.shape[0])-tHead['CRPIX2'])*tHead['CDELT2']+tHead['CRVAL2'])
         tVel = tVel[::-1]
-        print(tVel)
         iHead = iFile[0].header
         iData = iFile[0].data
 
         iVel = ((np.linspace(1,iData.shape[0],iData.shape[0])-iHead['CRPIX2'])*iHead['CDELT2']+iHead['CRVAL2'])
         iVel = iVel[::-1]
-        print(iVel)
         data = np.zeros([tData.shape[0],tData.shape[1]])
 
         if iData.shape[0] != tData.shape[0]:
             for i in range(0,tData.shape[0]-1):
                 index = (tVel[i] <= iVel) & (iVel < tVel[i+1])
-                print(index)
                 data[i,:] = np.nansum(iData[index,:])
         else:
             data = np.copy(iData)
@@ -1364,7 +1404,6 @@ class momplay:
 
         outName = basename.split('.fits')[0]
         outName = outName+'_'+pxString+'.fits'
-        print(outName)
         slave = fits.open(basename)
         d=slave[0].data
         index=np.isnan(d)

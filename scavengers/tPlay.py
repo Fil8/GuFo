@@ -859,6 +859,8 @@ class tplay(object):
         if cfg_par['moments']['makeTable']['fov'] == 'MUSE':
             hdul = fits.open(cfg_par['general']['outTableName'])
             tabGen = hdul[1].data
+            pixCenX = cfg_par['starSub']['pixX']
+            pixCenY = cfg_par['starSub']['pixY']
         else:
             xCol = np.zeros([mom0.shape[1]*mom0.shape[0]])
             yCol = np.zeros([mom0.shape[1]*mom0.shape[0]])
@@ -866,7 +868,8 @@ class tplay(object):
             tabGen=np.column_stack([BIN_ID,xCol,yCol])
             dt = np.dtype([('BIN_ID', np.int32), ('PixX', np.int32), ('PixY', np.int32)])
             tabGen = np.array(list(map(tuple, tabGen)), dtype=dt)
-        
+            pixCenX = cfg_par['moments']['makeTable']['pixCentreX']
+            pixCenY = cfg_par['moments']['makeTable']['pixCentreY']        
 
         namBins = tuple(['BIN_ID', 'PixX', 'PixY','r'])
         namLines = tuple(['BIN_ID','g1_Amp_'+lineName])
@@ -885,11 +888,12 @@ class tplay(object):
 
 
         if cfg_par['moments']['makeTable']['unitMoms'] == 'km/s':
-            mom1 -= float(cfg_par['general']['velsys'])
+            print(cfg_par['galaxy']['vsys'])
+            mom1 -= float(cfg_par['galaxy']['vsys'])
 
         if cfg_par['moments']['makeTable']['unitMoms'] == 'm/s':
             mom1 = np.divide(mom1,1e3)
-            mom1 -= float(cfg_par['general']['velsys'])
+            mom1 -= float(cfg_par['galaxy']['vsys'])
             mom2 = np.divide(mom2,1e3)
         if cfg_par['moments']['makeTable']['unitMoms'] == 'Hz':
             deltaV=-self.C/float(cfg_par['moments']['makeTable']['restFreq'])*float(cfg_par['moments']['makeTable']['deltaFreq'])
@@ -906,8 +910,7 @@ class tplay(object):
             #sys.exit(0)
         print(cfg_par['moments']['makeTable']['mom0'])
         
-        pixCenX = cfg_par['starSub']['pixX']
-        pixCenY = cfg_par['starSub']['pixY']
+ 
         indexBin=0
         
         for i in range(0,mom0.shape[1]):

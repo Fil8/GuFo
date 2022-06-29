@@ -22,6 +22,7 @@ scavengers/fitsPlay.py
 scavengers/gPlay.py
 scavengers/gPlayMp.py
 scavengers/headPlay.py
+scavengers/hiPlay.py
 scavengers/linePlay.py
 scavengers/momPlay.py
 scavengers/momPlot.py

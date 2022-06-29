@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>  
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+</head>
+<style>
+    tab1 { padding-left: 2em; }
+    tabimage { padding-right: 3em; }
+    #primary {
+       width:100%;
+       margin:0 auto;
+    }
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+    #left_col {
+       float:left;
+       width:48%;
+    }
+    #right_col {
+       float:right;
+       width:48%;
+    }
+    img.absL{
+      float:left;
+      width: 50%;
+      font-family: Veranda;
+  }
+  img.absR{
+      float:right;
+      font-family: Veranda;
+      width: 50%;
+    }
+    img.absNHIL{
+      float:left;
+      width: 50%;
+      font-family: Veranda;
+  }
+  img.absNHIR{
+      float:right;
+      font-family: Veranda;
+      width: 50%;
+    }
+table, th, td {
+  border:1px solid black;
+}
+</style>
+<body>
+<h1>HI Absorption in {{title}}</h1>
+Cube name: <b>{{cubeName}}</b><br/>
+located in : {{cubeDir}}.<br/>
+Continuum image:<b>{{contName}}</b><br/>located in : {{contDir}}.<br/><br/>
+<div class="row">
+<div id="left_col">
+<table style="width:100%">
+  <tr>
+    <td><b>Noise per channel</b> [mJy beam\(^{-1}\)]</td>
+    <td>{{noise}}</td>
+  </tr>
+  <tr>
+    <td><b>S\(_{1.4 {\rm GHz}}\)</b> [mJy]</td>
+    <td>{{scont}}</td>
+  </tr>
+  <tr>
+    <td>Beam Major ["]</td>
+    <td>{{bMaj}}</td>
+  </tr>
+  <tr>
+    <td>Beam Minor ["]</td>
+    <td>{{bMin}}</td>
+  </tr>
+</table>
+<h3>HI absorption line</h3>
+<table style="width:100%">
+  <tr>
+    <td><b>Peak Flux</b> [mJy beam\(^{-1}\)]</td>
+    <td>{{fluxP}}</td>
+  </tr>
+  <tr>
+    <td>\(\tau_{\rm peak}\)</td>
+    <td>{{tauP}}</td>
+  </tr>
+  <tr>
+    <td><b>Int Flux</b> [mJy beam\(^{-1}\) km s\(^{-1}\)]</td>
+    <td>{{intFlux}}</td>
+  </tr>
+  <tr>
+    <td><b>fwzi</b> [km s\(^{-1}\)]</td>
+    <td>{{fwzi}}</td>
+  </tr>
+  <tr>
+    <td><b>N\(_{\rm HI, int}\)</b> [cm\(^{-2}\)]</td>
+    <td>{{nHIInt}}</td>
+  </tr>
+  <tr>
+    <td><b>M\(_{\rm HI}\)</b> [M\(_\odot\)] </td>  
+    <td>{{mHIInt}}</td>
+  </tr>
+</table>
+</div>
+<div id="right_col">
+<h3>Detection limits</h3>
+<table style="width:100%">
+  <tr>
+    <td> </td>
+    <td><b>\(\tau\)</b>  </td>
+    <td><b>N\(_{\rm HI}\)</b> [cm\(^{-1}\)] </td>
+    <td><b>M\(_{\rm HI}\)</b> [M\(_\odot\)] </td>  
+  </tr>
+  <tr>
+    <td><b>1 r.m.s. - 1 chan ({{dV}} km s\(^{-1}\))</b> </td>
+    <td>{{tau}}</td>
+    <td>{{nHIAbs1}}</td>
+    <td>{{mHIAbs1}}</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td><b>3 r.m.s. - 1 chan ({{dV}} km s\(^{-1}\))</b> </td> 
+    <td>{{tau3}}</td>
+    <td>{{nHIAbs3}}</td>
+    <td>{{mHIAbs3}}</td>
+  </tr>
+  <tr>
+    <td><b>3 r.m.s. - 3 chan ({{dV33}} km s\(^{-1}\))</b> </td> 
+    <td>{{tau33}}</td>
+    <td>{{nHIAbs33}}</td>
+    <td>{{mHIAbs33}}</td>
+  </tr>
+  <tr>
+    <td><b>3 r.m.s. - 5 chan ({{dV5}} km s\(^{-1}\))</b> </td> 
+    <td>{{tau5}}</td>
+    <td>{{nHIAbs5}}</td>
+    <td>{{mHIAbs5}}</td>
+  </tr>
+</table>
+<ul>
+<li> Column densities are computed assuming \(T_{\rm spin}=100 \) K and a covering factor of 1.</li>
+<li> Masses are upper limits assuming the HI extends over the entire beam ({{bMajPC}} kpc\(\times\) {{bMajPC}} kpc).</li>
+</ul>
+</div>
+</div>
+</html>

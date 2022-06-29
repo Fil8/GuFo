@@ -38,12 +38,15 @@ import scipy.ndimage
 
 from astropy import units as u
 from astropy.coordinates import SkyCoord
+from astropy.visualization.wcsaxes import Quadrangle
 from astropy.wcs import WCS
 from astropy.nddata import Cutout2D
 from reproject import reproject_interp, reproject_exact
+import astropy.visualization as astviz
 
 
 from scavengers import cvPlay,tPlay
+from scavengers import plotUtil as plUt
 from scavengers import util as ut
 
 cvP = cvPlay.convert()
@@ -386,14 +389,11 @@ class MOMplot(object):
     momModDir = cfg_par['general']['momDir']+'multipleRegions'+'/'
 
     colorMaps = ListedColormap(colorNames[0])
-    print(colorMaps)
 
     imageName=[]
     for i in range(0,len(tableNames)):
 
         imageName.append(momModDir+'mom-'+regionNames[i]+'.fits')
-    
-    print(imageName)
     # hduImTwoCut = Cutout2D(hduImTwo.data, centre, size, wcs=wcsIm)
     # hduImThreeCut = Cutout2D(hduImThree.data, centre, size, wcs=wcsIm)
 
@@ -532,7 +532,7 @@ class MOMplot(object):
   def momPlot(self,cfg_par,im1,imMom0=None,
     cRange=None,imLevels=None,imContColors=['black','black'],beamCoords=None,
     contName=None,contValues=None,contColors=None,interpolation=None,title=False,
-    colorBar=False,cScale='linear',linthresh=0.6,base=10.,shareScale=True,notes=None,kind='mom1'):
+    colorBar=False,cScale='linear',linthresh=0.6,base=10.,shareScale=True,notes=None,boxes=None,kind='mom1'):
     '''Draws one moment map
 
     Parameters
@@ -601,17 +601,30 @@ class MOMplot(object):
     
     objCoordsRA = cfg_par['moments']['centreRA']
     objCoordsDec = cfg_par['moments']['centreDec']
+    ra=cvP.hms2deg(objCoordsRA)
+    dec=cvP.dms2deg(objCoordsDec)
+    objCoordsRA = ra
+    objCoordsDec = dec
+    
+    beamCoords = np.empty([2],dtype=float)
+    raB= cfg_par['moments']['beamRA']
+    decB = cfg_par['moments']['beamDec']
+    raB=cvP.hms2deg(raB)
+    decB=cvP.dms2deg(decB)
+    
+    beamCoords[0] = raB
+    beamCoords[1] = decB
     
     centre = SkyCoord(ra=objCoordsRA*u.degree, dec=objCoordsDec*u.degree, frame='fk5')
     size = u.Quantity((cfg_par['moments']['sizePlotX'],cfg_par['moments']['sizePlotY']), u.arcmin)
   
-    params = ut.loadRcParams()
+    params = plUt.loadRcParams('fw')
     plt.rcParams.update(params)
 
     hduIm1 = fits.open(im1)[0]
     wcsIm1 = WCS(hduIm1.header)
     hduImCut1 = Cutout2D(hduIm1.data, centre, size, wcs=wcsIm1)
-
+    hduImCut1.data[hduImCut1.data == 0.0] = np.nan
 
     fig = plt.figure(constrained_layout=False)
     fig.set_tight_layout(False)
@@ -620,38 +633,92 @@ class MOMplot(object):
     
     ax1 = fig.add_subplot(gs[0,0],projection=hduImCut1.wcs)
     
+    if cRange is None and kind=='mom0':
+        vRange=np.empty([2],dtype=float)
+        vRange[0] = 1e-17
+        vRange[1] = np.nanmax(hduImCut1.data)*90./100.
 
-    if not isinstance(cRange,np.ndarray):
-        vRange=np.array([2])
-        vRange[0] = np.nanmin(hduImCut1.data)
-        vRange[1] = np.nanmax(hduImCut1.data)
+    elif cRange is None and kind=='mom1':
+        vRange=np.empty([2],dtype=float)
+        vRange[0] = -150.
+        vRange[1] = +150.
+    elif kind =='mom2':
+        vRange=cRange
     else:
         vRange=cRange
-    
+
+
     if kind == 'mom0':
         cMap = cfg_par['moments']['colorMap'][0]
         dd = np.array(hduImCut1.data,dtype=float)
-        index=np.where(dd==0.)
-        dd[index] = np.nan
-        hduImCut1.data= dd
+        index=np.where(dd<=0.)
+        #dd[index] = np.nan
+        #hduImCut1.data= dd
     elif kind =='h2h1':
         cMap = cfg_par['moments']['colorMap'][0]
         if imMom0 is not None:
             hduImMom0 = fits.open(imMom0)[0]
             wcshduImMom0 = WCS(hduImMom0.header)
             hduImMom0Cut = Cutout2D(hduImMom0.data, centre, size, wcs=wcshduImMom0)
-    else:
+    elif kind=='mom1' or kind=='mom2':
         cMap = 'jet'
-    current_cmap = cm.get_cmap(cMap)
-    
+        if cfg_par['HIem']['moments']['vunit']=='m/s':
+        #     cMap='RdBu_r'
+            cmap = plt.cm.jet  # define the colormap
+            # extract all colors from the .jet map
+            cmaplist = [cmap(i) for i in range(cmap.N)]
+            # force the first color entry to be grey
+            #cmaplist[0] = (.5, .5, .5, 1.0)
+            # create the new map
+            cmap = colors.LinearSegmentedColormap.from_list(
+                'Custom cmap', cmaplist, cmap.N)
+
+            # define the bins and normalize
+            bounds = np.linspace(vRange[0],vRange[1], 25)
+            norm = colors.BoundaryNorm(bounds, cmap.N)
+            hduImCut1.data /=1e3
+        elif cfg_par['HIem']['moments']['vunit']=='km/s':
+            cmap = plt.cm.jet  # define the colormap
+            # extract all colors from the .jet map
+            cmaplist = [cmap(i) for i in range(cmap.N)]
+            # force the first color entry to be grey
+            #cmaplist[0] = (.5, .5, .5, 1.0)
+
+            # create the new map
+            cmap = colors.LinearSegmentedColormap.from_list(
+                'Custom cmap', cmaplist, cmap.N)
+
+            # define the bins and normalize
+            bounds = np.linspace(vRange[0],vRange[1], 25)
+            norm = colors.BoundaryNorm(bounds, cmap.N)
+
+        if cfg_par['galaxy']['vsys'] is not None and kind =='mom1':
+            hduImCut1.data-=cfg_par['galaxy']['vsys']
+        
+        if cfg_par['moments']['maskLevel'] is not None:
+
+            hduCont = fits.open(imMom0[0])[0]
+            wcsCont = WCS(hduCont.header)
+            hduContCut = Cutout2D(hduCont.data, centre, size, wcs=wcsCont)    
+            array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
+                                            hduImCut1.wcs, shape_out=hduImCut1.shape)
+
+            dd = np.array(array.data,dtype=float)
+            index=np.where(dd<float(cfg_par['moments']['maskLevel']))
+            hduImCut1.data[index]=np.nan
+    #elif kind=='mom2' :
+    #    cMap = 'jet'
+    #    if cfg_par['HIem']['vunit']=='m/s':
+    #        #cMap='Reds'
+    #        hduImCut1.data /=1e3
+
+    current_cmap= cm.get_cmap(cMap).copy()
     current_cmap.set_bad(color='white')
-
-
     ax1.coords[1].set_axislabel(r'Dec (J2000)')
     ax1.coords[0].set_axislabel(r'RA (J2000)')
-    
+
     if cScale=='linear':
-        img = ax1.imshow(hduImCut1.data, cmap=cMap,vmin=vRange[0]-0.5,vmax=vRange[1]+0.5,
+        img = ax1.imshow(hduImCut1.data, cmap=cMap,vmin=vRange[0],vmax=vRange[1],
             interpolation=interpolation)
     elif cScale == 'log':
         img = ax1.imshow(hduImCut1.data, cmap=current_cmap,norm=SymLogNorm(linthresh=linthresh,linscale=1.,vmin=vRange[0],vmax=vRange[1],base=base),interpolation=interpolation)
@@ -659,16 +726,27 @@ class MOMplot(object):
         ax1.set_title(cfg_par['moments']['line'][0])
 
     ax1.set_autoscale_on(False)    
-    if 'BMAJ' in hduIm1.header and beamCoords is not None:
+    if 'BMAJ' in hduIm1.header:
         xbeam=beamCoords[0]
         ybeam=beamCoords[1]
         el = Ellipse((xbeam, ybeam), hduIm1.header['BMAJ'], hduIm1.header['BMIN'],
-                 angle=hduIm1.header['BMAJ'], linewidth=2, fill=False, zorder=2,transform=ax1.get_transform('fk5'))
+                 angle=hduIm1.header['BMAJ'],edgecolor='red', linewidth=2, fill=False, zorder=2,transform=ax1.get_transform('fk5'))
         ax1.add_patch(el)           
 
-    if isinstance(imLevels,np.ndarray) and kind=='mom0':
+    if isinstance(imLevels,np.ndarray) and kind=='mom0' or kind =='mom2':
+        hduMom0 = fits.open(im1)[0]
+        wcsMom0 = WCS(hduMom0.header)
+        hduMom0Cut = Cutout2D(hduMom0.data, centre, size, wcs=wcsMom0)
+        #dd = np.array(hduMom0Cut.data,dtype=float)
+        #index=np.where(dd==0.)
+        #dd[index] = np.nan
+        #hduMom0Cut.data= dd
+        if kind=='mom2' and cfg_par['HIem']['vunit']=='m/s':
+            hduMom0Cut.data /=1e3
+        cs = ax1.contour(hduMom0Cut.data,levels=imLevels[0,0,:], colors=imContColors[0],linewidths=0.5)
+        #cs = ax1.contour(hduMom0Cut.data,levels=imLevels[0,:,1], colors=imContColors[0])
 
-        cs = ax1.contour(hduImCut1.data,levels=imLevels[0,:], colors=imContColors[0])
+        #cs = ax1.contour(hduImCut1.data,levels=imLevels[0,:,0], colors=imContColors[0])
 
     elif kind=='h2h1':
         if imMom0 is not None:
@@ -684,16 +762,15 @@ class MOMplot(object):
             cs = ax1.contour(hduImCut1.data,levels=imLevels[0,:], colors=imContColors[0])
             cs = ax1.contour(hduImCut1.data,levels=imLevels[1,:], colors=imContColors[1],linestyles = 'dashed',linewidths=2)
 
-    elif isinstance(imLevels,np.ndarray) and kind!='mom0' and imMom0 is not None:
-        hduMom0 = fits.open(imMom0[0])[0]
-        wcsMom0 = WCS(hduMom0.header)
-        hduMom0Cut = Cutout2D(hduMom0.data, centre, size, wcs=wcsMom0)
-        dd = np.array(hduMom0Cut.data,dtype=float)
-        index=np.where(dd==0.)
-        dd[index] = np.nan
-        hduMom0Cut.data= dd
-        cs = ax1.contour(hduMom0Cut.data,levels=imLevels[0,:,0], colors=imContColors[0])
-        cs = ax1.contour(hduMom0Cut.data,levels=imLevels[0,:,1], colors=imContColors[0])
+    elif isinstance(contValues,np.ndarray) and kind!='mom0' and imMom0 is not None:
+
+        hduCont = fits.open(imMom0[0])[0]
+        wcsCont = WCS(hduCont.header)
+        hduContCut = Cutout2D(hduCont.data, centre, size, wcs=wcsCont)    
+        array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
+                                            hduImCut1.wcs, shape_out=hduImCut1.shape)
+    
+        cs = ax1.contour(array.data,levels=contValues[0,0,:], colors=contColors[0])
 
     if contName:
 
@@ -705,13 +782,35 @@ class MOMplot(object):
         array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
                                             hduImCut1.wcs, shape_out=hduImCut1.shape)
 
-        cs = ax1.contour(array.data,levels=contValues[i], colors=contColors[i])
-        if contValues[i]==1:
-            ax1.clabel(cs, inline=1, fontsize=14)
+        cs = ax1.contour(array.data,levels=contValues[i,0,:], colors=contColors[i],linewidths=1)
+
+        # if contValues[i]==1:
+        #     ax1.clabel(cs, inline=1, fontsize=14)
+
+        if 'BMAJ' in hduCont.header:
+            xbeam=beamCoords[0]
+            ybeam=beamCoords[1]
+            el = Ellipse((xbeam, ybeam), hduCont.header['BMAJ'], hduCont.header['BMIN'],
+                     angle=hduCont.header['BMAJ'],edgecolor=contColors[i], linewidth=2, fill=False, zorder=2,transform=ax1.get_transform('fk5'))
+            ax1.add_patch(el)           
+
 
     if colorBar==True:
-        colorTickLabels = cfg_par['moments']['colorTickLabels']
-        mom1BarLabel=cfg_par['moments']['cBarLabel']
+
+        if kind == 'mom0':
+            mom1BarLabel=cfg_par['moments']['cBarLabel']
+            colorTickLabels = cfg_par['moments']['mom0colorTickLabels']
+
+        elif kind=='mom1':
+            mom1BarLabel=r'$v_{\rm los}-v_{\rm sys}$ [km s$^{-1}$]'
+            if cfg_par['moments']['mom1colorTickLabels'] is None:
+                colorTickLabels = np.arange(-600,800,200)
+            else:
+                colorTickLabels = cfg_par['moments']['mom1colorTickLabels']
+
+        elif kind=='mom2':
+            mom1BarLabel=r'$\sigma_{\rm los}$ [km s$^{-1}$]'
+            colorTickLabels = np.arange(vRange[0],vRange[1],25.) 
 
         axins = inset_axes(ax1,
                        width="5%",  # width = 5% of parent_bbox width
@@ -722,17 +821,29 @@ class MOMplot(object):
                        borderpad=0,
                        )
 
-
         cbar = fig.colorbar(img, cax=axins,ticks =colorTickLabels,
                       orientation='vertical')   
         cbar.set_label(mom1BarLabel, rotation=-90, va="bottom")
 
     if notes is not None:
-            for key,value in notes.items():
-            # if titleName is not None:
-            #     ax1.set_title(titleName)
+        for key,value in notes.items():
+        # if titleName is not None:
+        #     ax1.set_title(titleName)
 
-                ax1.text(value[0], value[1],key, transform=ax1.get_transform('fk5'),c=value[2],fontsize=12,fontweight='bold')
+            ax1.text(value[0], value[1],key, transform=ax1.get_transform('fk5'),c=value[2],fontsize=15,fontweight='bold')
+
+
+    if boxes is not None:
+        for key,value in boxes.items():
+        # if titleName is not None:
+        #     ax1.set_title(titleName)
+            xQuad=value[0]
+            yQuad=value[1]
+            sizeQuadx=value[2]
+            sizeQuady=value[3]
+            q = Quadrangle((xQuad, yQuad)*u.deg, sizeQuadx*u.arcsec, sizeQuady*u.arcsec,label=key, edgecolor=value[4], facecolor='none',transform=ax1.get_transform('fk5'),lw=2)
+            ax1.add_patch(q)           
+
 
     #SaveOutput
     fig.subplots_adjust(hspace=0.,wspace=0.)
@@ -747,14 +858,15 @@ class MOMplot(object):
 
     else:
         if contName:
-            outFig= cfg_par['general']['plotMomModDir']+kind+'-'+cfg_par['moments']['line'][0]+'_overCont.'+cfg_par['moments']['plotFormat']
+            # outFig= cfg_par['general']['plotMomModDir']+kind+'-'+os.path.basename(im1).split('.fits')[0]+'_overCont.'+cfg_par['moments']['plotFormat']
+            outFig= cfg_par['general']['plotMomModDir']+kind+'-'+cfg_par['general']['outPrefix'][0]+'_overCont.'+cfg_par['moments']['plotFormat']
         else:
-            outFig= cfg_par['general']['plotMomModDir']+kind+'-'+cfg_par['moments']['line'][0]+'.'+cfg_par['moments']['plotFormat']
-    
-    fig.savefig(outFig,format=cfg_par['moments']['plotFormat'],bbox_inches = "tight", dpi=300,transparent=False,overwrite=True)#,
+            outFig= cfg_par['general']['plotMomModDir']+kind+'-'+cfg_par['general']['outPrefix'][0]+'.'+cfg_par['moments']['plotFormat']
+    print(outFig)
+    fig.savefig(outFig,format=cfg_par['moments']['plotFormat'],bbox_inches = "tight", dpi=300,overwrite=True)#,
     #fig.savefig(outFig,format='png', dpi=300,overwrite=True)#,
     
-    plt.show()
+    #plt.show()
     #plt.close()
 
     return outFig
@@ -870,8 +982,33 @@ class MOMplot(object):
         index=np.where(dd==0.)
         dd[index] = np.nan
         hduImCut1.data= dd
-    else:
+    elif kind=='mom1' :
         cMap = 'jet'
+        if momunit=='m/s':
+        #     cMap='RdBu_r'
+            cmap = plt.cm.jet  # define the colormap
+            # extract all colors from the .jet map
+            cmaplist = [cmap(i) for i in range(cmap.N)]
+            # force the first color entry to be grey
+            #cmaplist[0] = (.5, .5, .5, 1.0)
+
+            # create the new map
+            cmap = colors.LinearSegmentedColormap.from_list(
+                'Custom cmap', cmaplist, cmap.N)
+
+            # define the bins and normalize
+            bounds = np.linspace(vRange[0],vRange[1], 25)
+            norm = colors.BoundaryNorm(bounds, cmap.N)
+            hduImCut1.data /=1e3
+            hduImCut2.data /=1e3
+            hduImCut3.data /=1e3
+    elif kind=='mom2' :
+        cMap = 'jet'
+        if momunit=='m/s':
+            #cMap='Reds'
+            hduImCut1.data /=1e3
+            hduImCut2.data /=1e3
+            hduImCut3.data /=1e3
 
     current_cmap = cm.get_cmap(cMap)
     
@@ -1025,7 +1162,6 @@ class MOMplot(object):
     elif kind=='mom1':
         mom1BarLabel=r'$v_{\rm los}-v_{\rm sys}$ [km s$^{-1}$]'
         colorTickLabels = np.arange(-600,800,200)
-        print(colorTickLabels)  
 
     elif kind=='mom2':
         mom1BarLabel=r'$\sigma_{\rm los}$ [km s$^{-1}$]'
@@ -1051,8 +1187,7 @@ class MOMplot(object):
     else:
         outFig= cfg_par['general']['plotMomModDir']+kind+'-'+cfg_par['moments']['line'][0]+cfg_par['moments']['line'][1]+'.'+cfg_par['moments']['plotFormat']
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'],bbox_inches = "tight", dpi=300,transparent=False,overwrite=True)#,
-    plt.show()
-    print(outFig)
+    #plt.show()
     plt.close()
 
     return outFig
@@ -1169,9 +1304,7 @@ class MOMplot(object):
         cs = ax1.contour(array.data,levels=contValues[i], colors=contColors[i])
         if contValues[i]==1:
             ax1.clabel(cs, inline=1, fontsize=14)
-    #print(outFig)
     outFig = cfg_par['general']['plotMomModDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
-    print(outFig)
 
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=300,transparent=False)#,
             #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
@@ -1261,7 +1394,6 @@ class MOMplot(object):
     centre = SkyCoord(ra=objCoordsRA*u.degree, dec=objCoordsDec*u.degree, frame='fk5')
     size = u.Quantity((cfg_par['moments']['sizePlotY'],cfg_par['moments']['sizePlotX']), u.arcmin)
 
-    print('cio')
     params = ut.loadRcParams()
     plt.rcParams.update(params)
 
@@ -1309,30 +1441,47 @@ class MOMplot(object):
 
     ax1 = fig.add_subplot(gs[0,0],projection=hduImCut1.wcs)
 
-    if not isinstance(cRange,np.ndarray) and kind!='electronDensity' and kind!='dustExtinction':
+    if not isinstance(cRange,np.ndarray) and kind!='electronDensity' and kind!='dustExtinction' and kind!='mom1' and kind!='mom2':
         vRange=np.array([1,2])
         vRange[0] = np.nanmin(hduImCut1.data)
         vRange[1] = np.nanmax(hduImCut1.data)
-        print('cazzo')
+    elif not isinstance(cRange,np.ndarray) and kind=='mom1':
+        vRange=np.array([1,2])
+
+        if cfg_par['moments']['mom1Range'] is None:
+            vRange[0] = -200.
+            vRange[1] = +200
+        else:
+            vRange[0]=cfg_par['moments']['mom1Range'][0]
+
+            vRange[1]=cfg_par['moments']['mom1Range'][1]
+    
+    elif not isinstance(cRange,np.ndarray) and kind=='mom2':
+        vRange=np.array([1,2])
+
+        if cfg_par['moments']['mom1Range'] is None:
+            vRange[0] = 0.
+            vRange[1] = np.nanmax(hduImCut1.data)
+        else:
+            vRange[0]=cfg_par['moments']['mom1Range'][0]
+
+            vRange[1]=cfg_par['moments']['mom1Range'][1]
+
+
+
     elif isinstance(cRange,np.ndarray) and kind!='electronDensity'and kind!='dustExtinction':
         vRange=cRange
-        print('culo')
-        print(vRange)
+    
     elif not isinstance(cRange,np.ndarray) and kind=='electronDensity':
-        print('figa')
-
         vRange=np.array([1,2])
         vRange[0] = np.log10(40.)
         vRange[1] = np.log10(1e4)
 
     elif not isinstance(cRange,np.ndarray) and kind=='dustExtinction':
-        print('cullo')
 
         vRange=np.array([1,2])
         vRange[0] = 1
         vRange[1] =5
-
-
 
     if kind == 'mom0':
         cMap = cfg_par['moments']['colorMap'][0]
@@ -1351,31 +1500,31 @@ class MOMplot(object):
 
     elif kind=='mom1' :
         cMap = 'jet'
-        # if momunit=='m/s':
-        # #     cMap='RdBu_r'
-        #     cmap = plt.cm.jet  # define the colormap
-        #     # extract all colors from the .jet map
-        #     cmaplist = [cmap(i) for i in range(cmap.N)]
-        #     # force the first color entry to be grey
-        #     #cmaplist[0] = (.5, .5, .5, 1.0)
+        if momunit=='m/s':
+        #     cMap='RdBu_r'
+            cmap = plt.cm.jet  # define the colormap
+            # extract all colors from the .jet map
+            cmaplist = [cmap(i) for i in range(cmap.N)]
+            # force the first color entry to be grey
+            #cmaplist[0] = (.5, .5, .5, 1.0)
 
-        #     # create the new map
-        #     cmap = colors.LinearSegmentedColormap.from_list(
-        #         'Custom cmap', cmaplist, cmap.N)
+            # create the new map
+            cmap = colors.LinearSegmentedColormap.from_list(
+                'Custom cmap', cmaplist, cmap.N)
 
-        #     # define the bins and normalize
-        #     bounds = np.linspace(vRange[0],vRange[1], 25)
-        #     norm = colors.BoundaryNorm(bounds, cmap.N)
-        #     hduImCut1.data /=1e3
-        #     hduImCut2.data /=1e3
-        #     hduImCut3.data /=1e3
+            # define the bins and normalize
+            bounds = np.linspace(vRange[0],vRange[1], 25)
+            norm = colors.BoundaryNorm(bounds, cmap.N)
+            hduImCut1.data /=1e3
+            hduImCut2.data /=1e3
+            hduImCut3.data /=1e3
     elif kind=='mom2' :
         cMap = 'jet'
-        # if momunit=='m/s':
-        #     #cMap='Reds'
-        #     hduImCut1.data /=1e3
-        #     hduImCut2.data /=1e3
-        #     hduImCut3.data /=1e3
+        if momunit=='m/s':
+            #cMap='Reds'
+            hduImCut1.data /=1e3
+            hduImCut2.data /=1e3
+            hduImCut3.data /=1e3
 
 
 
@@ -1407,13 +1556,15 @@ class MOMplot(object):
     elif kind=='dustExtinction':
         cMap = 'PuRd_r'
 
-    c = SkyCoord('00:00:02.','00:00:15.0',unit=(u.hourangle,u.deg))
+    c = SkyCoord('00:02:00.','00:10:00.0',unit=(u.hourangle,u.deg))
     ax1.coords[0].set_ticks(spacing=c.ra.degree*u.degree)
     ax1.coords[1].set_ticks(spacing=c.dec.degree*u.degree)
 
 
     ax1.coords[0].set_axislabel(r'RA (J2000)')
-    ax1.coords[0].set_ticklabel_visible(False)
+    ax1.coords[0].set_ticklabel_visible(True)
+    ax1.coords[0].set_ticklabel(exclude_overlapping=True)
+
     ax1.coords[1].set_axislabel(r'Dec (J2000)')
 
     # img = ax1.imshow(hduImCut1.data, cmap=cMap,norm=norm,vmin=vRange[0],vmax=vRange[1],
@@ -1423,7 +1574,7 @@ class MOMplot(object):
         interpolation=interpolation)
 
     if (isinstance(imLevels,np.ndarray) and kind=='mom0' and inMom0 is None):
-        cs = ax1.contour(hduImCut1.data,levels=imLevels[0,:], colors=imContColors[0],lw=0.4)
+        cs = ax1.contour(hduImCut1.data,levels=imLevels[0,0,:], colors=imContColors[0],lw=0.4)
     elif isinstance(imLevels,np.ndarray) and inMom0 is not None:
         hduMom0 = fits.open(inMom0[0])[0]
         wcsMom0 = WCS(hduMom0.header)
@@ -1432,7 +1583,7 @@ class MOMplot(object):
         index=np.where(dd==0.)
         dd[index] = np.nan
         hduMom0Cut.data= dd
-        cs = ax1.contour(hduMom0Cut.data,levels=imLevels[0,:], colors=imContColors[0],lw=0.4)
+        cs = ax1.contour(hduMom0Cut.data,levels=imLevels[0,0,:], colors=imContColors[0],lw=0.4)
 
     # if kind == 'mom2' or kind == None:
     #     colorTickLabels = np.arange(vRange[0],vRange[1]+100.,100.)    
@@ -1478,7 +1629,7 @@ class MOMplot(object):
         array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
                                             hduImCut1.wcs, shape_out=hduImCut1.shape)
 
-        cs = ax1.contour(array.data,levels=contValues[i], colors=contColors[i])
+        cs = ax1.contour(array.data,levels=contLevels[i,0,:], colors=contColors[i])
         if contValues[i]==1:
             ax1.clabel(cs, inline=1, fontsize=14)
 
@@ -1489,7 +1640,7 @@ class MOMplot(object):
     img = ax2.imshow(hduImCut2.data, cmap=cMap,vmin=vRange[0],vmax=vRange[1],
         interpolation=interpolation)
     if isinstance(imLevels,np.ndarray) and kind=='mom0' and inMom0 is None:
-        cs = ax2.contour(hduImCut2.data,levels=imLevels[1,:], colors=imContColors[0],lw=0.4)
+        cs = ax2.contour(hduImCut2.data,levels=imLevels[1,0,:], colors=imContColors[0],lw=0.4)
     elif isinstance(imLevels,np.ndarray) and inMom0 is not None:
 
         hduMom0 = fits.open(inMom0[1])[0]
@@ -1499,7 +1650,7 @@ class MOMplot(object):
         index=np.where(dd==0.)
         dd[index] = np.nan
         hduMom0Cut.data= dd
-        cs = ax2.contour(hduMom0Cut.data,levels=imLevels[1,:], colors=imContColors[0],lw=0.4)
+        cs = ax2.contour(hduMom0Cut.data,levels=imLevels[1,0,:], colors=imContColors[0],lw=0.4)
     
 
     ax2.coords[0].set_ticks(spacing=c.ra.degree*u.degree)
@@ -1507,7 +1658,9 @@ class MOMplot(object):
     ax2.coords[1].set_axislabel(r'Dec (J2000)')
     ax2.coords[1].set_ticklabel_visible(False)
     ax2.coords[0].set_axislabel(r'RA (J2000)')
-    ax2.coords[0].set_ticklabel_visible(False)
+    ax2.coords[0].set_ticklabel_visible(True)
+    ax2.coords[0].set_ticklabel(exclude_overlapping=True)
+
       
 
 
@@ -1546,7 +1699,7 @@ class MOMplot(object):
         array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
                                             hduImCut2.wcs, shape_out=hduImCut2.shape)
 
-        cs = ax2.contour(array.data,levels=contValues[i], colors=contColors[i])
+        cs = ax2.contour(array.data,levels=contValues[i,0,:], colors=contColors[i])
         if contValues[i]==1:
             ax2.clabel(cs, inline=1, fontsize=14)
 
@@ -1563,8 +1716,8 @@ class MOMplot(object):
     
     elif kind=='mom1':
         mom1BarLabel=r'$v_{\rm los}-v_{\rm sys}$ [km s$^{-1}$]'
-        #colorTickLabels = np.linspace(vRange[0],vRange[1],5)  
-        colorTickLabels = np.arange(-600,800,200)
+        colorTickLabels = cfg_par['moments']['colorTickLabels']
+        #colorTickLabels = np.arange(-600,800,200)
 
     elif kind=='mom2':
         mom1BarLabel=r'$\sigma_{\rm los}$ [km s$^{-1}$]'
@@ -1573,11 +1726,9 @@ class MOMplot(object):
     elif kind=='electronDensity':
         mom1BarLabel=r'$\log_{10}(n_e)$'
         colorTickLabels = np.linspace(vRange[0],vRange[1],4)  
-        print(colorTickLabels)  
     elif kind=='dustExtinction':
         mom1BarLabel=r'$A_{\alpha}$'
         colorTickLabels = np.linspace(vRange[0],vRange[1],4)  
-        print(colorTickLabels)        
 
     #img = ax3.imshow(hduImCut3.data,cmap=cMap,norm=norm,vmin=vRange[0],vmax=vRange[1],
     #    interpolation=interpolation)
@@ -1591,7 +1742,9 @@ class MOMplot(object):
     ax3.coords[1].set_axislabel(r'Dec (J2000)')
     ax3.coords[1].set_ticklabel_visible(False)
     ax3.coords[0].set_axislabel(r'RA (J2000)')
-    ax3.coords[0].set_ticklabel_visible(False)
+    ax3.coords[0].set_ticklabel(exclude_overlapping=True)
+
+    ax3.coords[0].set_ticklabel_visible(True)
 
     if beamCoords is not None:
         xbeam=beamCoords[0]
@@ -1623,16 +1776,17 @@ class MOMplot(object):
         # imgFake = ax3.imshow(hduImCut3.data, cmap=cMap,vmin=vRange[0],vmax=vRange[1],
         #     interpolation=interpolation,alpha=0)
 
-        imgFake = ax3.imshow(hduImCut3.data, cmap=cMap,vmin=0,vmax=10.,
+        imgFake = ax3.imshow(hduImCut3.data, cmap=cMap,vmin=vRange[0],vmax=vRange[1],
             interpolation=interpolation,alpha=0)
-        colorTickLabels= [0,2,4,6,8,10.]
+        #colorTickLabels= [0,2,4,6,8,10.]
+        colorTickLabels = cfg_par['moments']['colorTickLabels']
 
         cMap=cm.get_cmap(name=cMap)
         cbar = fig.colorbar(imgFake,cax=axins,cmap =cMap,ticks=colorTickLabels,
                   orientation='vertical', format='%d')
 
         #cbar.ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-        print(colorTickLabels)
+
         fmt = ScalarFormatter(useMathText=True)
         fmt.set_powerlimits((0, 0))
         cbar.ax.yaxis.set_major_formatter(fmt)
@@ -1655,8 +1809,7 @@ class MOMplot(object):
     ax3.set_autoscale_on(False)    
 
     if isinstance(imLevels,np.ndarray) and kind=='mom0' and inMom0 is None:
-        cs = ax3.contour(hduImCut3.data,levels=imLevels[2,:], colors=imContColors[0],lw=0.4)
-        print('out')
+        cs = ax3.contour(hduImCut3.data,levels=imLevels[2,0,:], colors=imContColors[0],lw=0.4)
     elif isinstance(imLevels,np.ndarray) and inMom0 is not None:
         hduMom0 = fits.open(inMom0[2])[0]
         wcsMom0 = WCS(hduMom0.header)
@@ -1665,7 +1818,7 @@ class MOMplot(object):
         index=np.where(dd==0.)
         dd[index] = np.nan
         hduMom0Cut.data= dd
-        cs = ax3.contour(hduMom0Cut.data,levels=imLevels[2,:], colors=imContColors[0],lw=0.4)
+        cs = ax3.contour(hduMom0Cut.data,levels=imLevels[2,0,:], colors=imContColors[0],lw=0.4)
 
     if contName:
       for i in range(0,len(contName)):
@@ -1676,7 +1829,7 @@ class MOMplot(object):
         array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
                                             hduImCut3.wcs, shape_out=hduImCut3.shape)
 
-        cs = ax3.contour(array.data,levels=contValues[i], colors=contColors[i])
+        cs = ax3.contour(array.data,levels=contValues[i,0,:], colors=contColors[i])
         if contValues[i]==1:
             ax3.clabel(cs, inline=1, fontsize=14)
 
@@ -1706,8 +1859,7 @@ class MOMplot(object):
             outFig= cfg_par['general']['bptPlotDir']+'AHalpha'+'.'+cfg_par['moments']['plotFormat']        
 
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'],bbox_inches = "tight", dpi=300,overwrite=True)#,
-    print(outFig)
-    #plt.show()
+    plt.show()
     plt.close()
 
     return outFig
@@ -1975,7 +2127,7 @@ class MOMplot(object):
                   cRange,cMap,imLevels=None,
                   imColors=None,beamCoords= None,titleName=None,plotFormat='png',nanToZero=None,zeroToNan=None,interpMethod=None,
                   notes=None,
-                  cScale='log',linthresh=None,base=2.):
+                  cScale='log',linthresh=None,base=2.,ext=0):
         '''Overlays contours of (typically) one or more moment map over an optical image
 
         Parameters
@@ -2029,11 +2181,15 @@ class MOMplot(object):
 
         '''
 
-        params = ut.loadRcParams()
+        params = plUt.loadRcParams('fw')
         plt.rcParams.update(params)
-        hduIm = fits.open(optName)[0]
+        if ext==1:
+            hduIm = fits.open(optName)[1]
+        else:
+            hduIm=fits.open(optName)[0]
+        
         wcsIm = WCS(hduIm.header)
-        print(optName)
+        
         if nanToZero is not None:
             index=np.isnan(hduImCut.data)
             hduIm.data[index] = 0.0
@@ -2044,13 +2200,38 @@ class MOMplot(object):
             dd[index] = np.nan
             mapName=zeroToNan
             hduIm.data= dd
+        
         objCoordsRA = cfg_par['moments']['centreRA']
         objCoordsDec = cfg_par['moments']['centreDec']
+        ra=cvP.hms2deg(objCoordsRA)
+        dec=cvP.dms2deg(objCoordsDec)
+        objCoordsRA = ra
+        objCoordsDec = dec
+        
+        beamCoords = np.empty([2],dtype=float)
+        raB= cfg_par['moments']['beamRA']
+        decB = cfg_par['moments']['beamDec']
+        raB=cvP.hms2deg(raB)
+        decB=cvP.dms2deg(decB)
+        
+        beamCoords[0] = raB
+        beamCoords[1] = decB
+        #objCoordsRA = cfg_par['moments']['centreRA']
+        #objCoordsDec = cfg_par['moments']['centreDec']
+        
         centre = SkyCoord(ra=objCoordsRA*u.degree, dec=objCoordsDec*u.degree, frame='fk5')
-        sizeUnit = hduIm.header['CDELT2']*hduIm.header['NAXIS2']*60.
+
+        if 'CDELT2' in hduIm.header:
+            pixSize=hduIm.header['CDELT2']
+        elif 'CD2_2' in hduIm.header:
+            pixSize=hduIm.header['CD2_2']
+        #print(hduIm.header)
+        sizeUnit = pixSize*hduIm.header['NAXIS2']*60.
         size = u.Quantity((sizeUnit,sizeUnit), u.arcmin)
         size = u.Quantity((cfg_par['moments']['sizePlotY'],cfg_par['moments']['sizePlotX']), u.arcmin)
 
+
+        wcsIm = WCS(hduIm.header)
         hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsIm)
         fig = plt.figure(constrained_layout=False)
         fig.set_tight_layout(False)
@@ -2064,15 +2245,18 @@ class MOMplot(object):
 
         if nanToZero is not None or zeroToNan is not None:
             current_cmap.set_bad(color=mapName)
-            
 
-        if cScale == 'linear':
-            img = ax1.imshow(hduImCut.data, cmap=current_cmap,vmin=cRange[0],vmax=cRange[1],interpolation=interpMethod)
-        elif cScale == 'sqrt':
-            img = ax1.imshow(hduImCut.data, cmap=current_cmap,vmin=cRange[0],vmax=cRange[1],norm=PowerNorm(gamma=0.5))
-        elif cScale == 'log':
-            img = ax1.imshow(hduImCut.data, cmap=current_cmap,norm=SymLogNorm(linthresh=linthresh,linscale=1.,
-                vmin=cRange[0],vmax=cRange[1],base=base),interpolation=interpMethod)
+        norm = astviz.ImageNormalize(hduImCut.data, stretch=astviz.AsinhStretch(0.01), vmin=0, vmax=np.nanpercentile(hduImCut.data, 99.8))
+        img = ax1.imshow(hduImCut.data, norm=norm, cmap=cMap)
+
+        
+        # if cScale == 'linear':
+        #     img = ax1.imshow(hduImCut.data, cmap=current_cmap,vmin=cRange[0],vmax=cRange[1],interpolation=interpMethod)
+        # elif cScale == 'sqrt':
+        #     img = ax1.imshow(hduImCut.data, cmap=current_cmap,vmin=cRange[0],vmax=cRange[1],norm=PowerNorm(gamma=0.5))
+        # elif cScale == 'log':
+        #     img = ax1.imshow(hduImCut.data, cmap=current_cmap,norm=SymLogNorm(linthresh=linthresh,linscale=1.,
+        #         vmin=cRange[0],vmax=cRange[1],base=base),interpolation=interpMethod)
 
         if imNames is not None:
 
@@ -2082,32 +2266,37 @@ class MOMplot(object):
             for i in range(0,len(imNames)):
                 hduMom0 = fits.open(imNames[i])[0]
                 wcsMom0 = WCS(hduMom0.header)
-                hduMom0Cut = Cutout2D(hduMom0.data, centre, size, wcs=wcsMom0,mode='partial')
+                hduMom0Cut = Cutout2D(hduMom0.data, centre, size, wcs=wcsMom0, mode='partial')
                 dd = np.array(hduMom0Cut.data,dtype=float)
-                index=np.where(dd==0.)
+                index=np.where(dd<=0.)
                 dd[index] = np.nan
                 hduMom0Cut.data= dd
-
+                # array, footprint = reproject_interp((hduMom0Cut.data, hduMom0Cut.wcs) ,
+                #                                     hduImCut.wcs, shape_out=(1000,1000))
                 array, footprint = reproject_interp((hduMom0Cut.data, hduMom0Cut.wcs) ,
-                                                    hduImCut.wcs, shape_out=hduImCut.shape)
+                                                     hduImCut.wcs, shape_out=hduImCut.shape)
 
                 #cs = ax3.contour(array.data,levels=contValues[i], colors=contColors[i])
+                linewidthCont=0.75
+                # if i==2:
+                #     linewidthCont=1.
+                cs = ax1.contour(array.data,levels=imLevels[i,0,:], colors=imColors[i],linewidths=linewidthCont)
+                
 
-                cs = ax1.contour(array.data,levels=imLevels[i,:,0], colors=imColors[i])
+                #cs = ax1.contour(array.data,levels=imLevels[i,0,:], colors=imColors[i],linewidths=linewidthCont,transform=ax1.get_transform(hiwcs))
 
-                if np.sum(imLevels[i,:,1])!=np.nan:
-                    print(np.nanmin(array.data))
-                    cs = ax1.contour(array.data,levels=imLevels[i,:,1], colors=imColors[1],linestyles='dashed')
-                if 'BMAJ' in hduMom0.header and beamCoords is not None:
+                #transform=ax1.get_transform(hiwcs)
+                if np.sum(imLevels[i,1,:])!=np.nan:
+
+                    cs = ax1.contour(array.data,levels=imLevels[i,1,::2], colors=imColors[i],linestyles='dashed')
+                     
+
+                if 'BMAJ' in hduMom0.header:
                     xbeam=beamCoords[0]
                     ybeam=beamCoords[1]
                     el = Ellipse((xbeam, ybeam), hduMom0.header['BMAJ'], hduMom0.header['BMIN'],
-                             angle=hduMom0.header['BMAJ'], linewidth=2, fill=False, zorder=2,transform=ax1.get_transform('fk5'))
-                    el.set_edgecolor('black')            
-                    #el.set_edgecolor(imColors[i])            
-
-                    ax1.add_patch(el)       
-
+                             angle=hduMom0.header['BPA'],edgecolor=imColors[i], linewidth=1, fill=False, zorder=2,transform=ax1.get_transform('fk5'))
+                    ax1.add_patch(el)     
 
         ax1.coords[1].set_axislabel(r'Dec (J2000)')
         ax1.coords[0].set_axislabel(r'RA (J2000)')
@@ -2124,15 +2313,20 @@ class MOMplot(object):
         #     ax1.text(scaleLenght[0]+0.014, value[1],key, transform=ax1.get_transform('fk5'),c=value[2],fontsize=14,fontweight='bold')
 
         #SaveOutput
+        # imNameOut=os.path.basename(imNames[0]).replace('.fits','.'+plotFormat)
 
         ax1.set_autoscale_on(False)    
         plotFormat= cfg_par['moments']['plotFormat']
-        outFigName= cfg_par['general']['plotMomModDir']+'/'+titleName+'.'+plotFormat
+        imNameOut=cfg_par['general']['outPrefix'][0]+'.'+str(plotFormat)
+
+        # outFigName= cfg_par['general']['plotMomModDir']+'/'+titleName.replace(' ','')+imNameOut
+        outFigName= cfg_par['general']['plotMomModDir']+'/'+'optOver_'+imNameOut
+
 
         fig.savefig(outFigName,format=plotFormat, bbox_inches = "tight",overwrite=True,dpi=300,transparent=False)#,
                     #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
 
-        return 0
+        return outFigName
 
   def resPlot(self,cfg_par,imageName,lineName,lineThresh,
     vRange=None,contourColors='black',nameFigLabel=None,overlayContours=False,
@@ -2208,7 +2402,7 @@ class MOMplot(object):
         wcsCont = WCS(hduCont.header)
         hduContCut = Cutout2D(hduCont.data, centre, size, wcs=wcsCont)    
         array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
-                                            hduImCut.wcs, shape_out=hduImCut.shape)
+                                            hduImCut.wcs)
         if contLevels==None:
           contLevels = lineThresh*1.2*(np.arange(1,10,2))
 

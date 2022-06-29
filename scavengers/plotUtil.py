@@ -32,16 +32,17 @@ def loadRcParams(option):
     
     if option=='fw':
         figSize= '7.24409,7.24409'
-        font=16
+        font=12
     elif option=='sc':
         figSize= '3.54331,3.54331'
-        font=16
+        font=12
     elif option=='fwR':
         figSize= '7.24409,4.074800625'
-        font=16
+        font=12
 
     params = {'figure.figsize'      : figSize,
         'figure.autolayout' : True,
+        'figure.facecolor': 'white',
         'font.family'         :'serif',
         'pdf.fonttype'        : 3,
         'font.serif'          :'times',
@@ -67,8 +68,6 @@ def loadRcParams(option):
         'text.latex.preamble' : r'\usepackage{amsmath}',
         'text.latex.preamble' : r'\usepackage{lmodern}',    # latin modern, recommended to replace computer modern sans serif
         'text.latex.preamble' : r'\usepackage{helvet}',    # set the normal font here
-        'text.latex.preamble' : r'\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
-        'text.latex.preamble' : r'\sansmath' 
         #'text.latex.unicode'  : True
          }
   
@@ -107,9 +106,7 @@ def computeContours(noise,maximum=None,inMap=None,sigma=3,step=1):
     c0=sigma*noise
     if maximum==None:
         maximum = np.nanmax(fits.getdata(inMap))
-
+        maximum = maximum*99./100.
     n=np.log2(maximum/c0)
-    print(n)
-    contours=c0*np.power(2,np.arange(0,int(n)+step,step,dtype=float))
-
+    contours=c0*np.power(2.,np.arange(0,int(n)+step,step,dtype=float))
     return contours

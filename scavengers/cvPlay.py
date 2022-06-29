@@ -554,6 +554,36 @@ class convert(object):
         
         return mhi
 
+    def totalFlux(self,inMom0,cutoff,z,DL):
+        '''
+
+        Estimate total flux of a source given a cutoff in flux density
+
+        Parameters
+        ----------
+            
+        inMom0: str
+            full path to moment zero [Jy beam-1*km/s]
+
+        cutoff: float
+            threshold within which compute the mass in _Jy beam-1*km/s_
+
+
+        Returns
+        -------
+            
+            mhi: float
+                HI mass in Msun
+
+        Notes
+        -----
+
+            Conversion formula:
+            S(HI) = Sum(flux_within_cutoff) / beamArea * pixelArea
+
+        '''
+
+
 
     def surfBrightCO(self,value,bmaj,bmin,nu_obs,dV,facMass=4.3):
         '''

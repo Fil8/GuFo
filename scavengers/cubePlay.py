@@ -14,22 +14,27 @@ from reproject import reproject_interp as rp
 
 from astropy.io import ascii, fits
 from astropy.table import Table, Column
-from astropy import wcs
+from astropy.wcs import WCS
 from astropy import units as u
 from astropy.coordinates import SkyCoord
+from astropy.wcs import WCS
+from reproject import reproject_interp, reproject_exact
 
 
-from MontagePy.main    import *
-from MontagePy.archive import *
+from matplotlib import pyplot as plt
+
+#from MontagePy.main    import *
+#from MontagePy.archive import *
 
 import numpy as np
 #import numpy.ma as ma
 
-import tPlay,cvPlay,bptPlot,momPlot
+import tPlay,cvPlay,bptPlot,momPlot, headPlay
 
 tP = tPlay.tplay()
 cvP = cvPlay.convert()
 mPl = momPlot.MOMplot()
+hP = headPlay.headplay()
 
 class cubeplay:
     '''Modules to create cubelets of real fitted lines and residuals
@@ -53,7 +58,6 @@ class cubeplay:
         '''       
             
         vel=cvP.lambdaVRad(waveAng,lineWave)+float(cfg_par['general']['velsys'])
-        print(vel)
         cdelt3=np.mean(np.ediff1d(vel))
 
         if 'CRDER3' in header:
@@ -97,6 +101,55 @@ class cubeplay:
 
         return
 
+    def measRMS(self,cubePath):
+        niter = 4 # nr of noise measurements
+        clip = 4  # clipping at each iteration (in units of std)
+
+        medNoise = []
+
+
+        unit_dict = {
+            'vrad'   :   [1e+3, 'Velocity [km/s]'],
+            'freq'   :   [1e+6, 'Frequency [MHz]'],
+            'velo-hel': [1e+3, 'Velocity [km/s]'],
+            'vopt-f2w': [1e+3, 'Velocity [km/s]'],
+        }
+
+        f=fits.open(cubePath)
+        head=f[0].header
+        cube=f[0].data
+        cube = np.squeeze(cube)
+        cube=cube[:,cube.shape[1]//4:3*cube.shape[1]//4,cube.shape[2]//4:3*cube.shape[2]//4]
+        iter=1
+        while iter<niter:
+          std=np.nanmedian(np.nanstd(cube,axis=(1,2)))
+          #print('# iter {1:d}, median std = {0:.2e} Jy/beam'.format(std,iter))
+          cube[np.abs(cube)>clip*std]=np.nan
+          iter+=1
+
+        noise=np.nanstd(cube,axis=(1,2))
+        #print('# iter {1:d}, median std = {0:.2e} Jy/beam'.format(np.nanmedian(noise),iter))
+
+        freqs=(np.arange(head['naxis3'])-(head['crpix3']-1))*head['cdelt3']+head['crval3']
+
+
+        noisePath = os.path.dirname(cubePath)
+        baseName = os.path.basename(cubePath)
+
+        if not os.path.exists(noisePath+'/noisePlots/'):
+            os.mkdir(noisePath+'/noisePlots/')
+        noisePath=noisePath+'/noisePlots/'
+
+        plt.plot(freqs/unit_dict[head['CTYPE3'].lower()][0],noise*1e+3,'k-')
+        plt.axhline(y=np.median(noise)*1e+3,linestyle=':',color='k')
+        plt.xlabel(unit_dict[head['CTYPE3'].lower()][1])
+        plt.ylabel('Noise [mJy/beam]')
+        outPath=noisePath+baseName.replace('.fits','_rms.png')
+        plt.savefig(outPath)
+        plt.clf()
+
+        return ((np.nanmedian(noise))),outPath
+
     def makeBFLineCube(self,cfg_par):
 
         cubeletsDir = cfg_par['general']['cubeletsDir']
@@ -111,7 +164,6 @@ class cubeplay:
 
 
         hdul = fits.open(cfg_par['general']['outTableName'])
-        print(cfg_par['general']['outTableName'])
         tabGen = hdul['BININFO'].data
 
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
@@ -386,9 +438,7 @@ class cubeplay:
 
             if 'RotMod' not in ancels.dtype.names: 
                 t.add_column(Column(rotArr,name='RotMod'))
-                print('cazzo')
             else:
-                print('culo')
                 t.replace_column('RotMod',Column(rotArr,name='RotMod'))        
 
             try:
@@ -410,7 +460,6 @@ class cubeplay:
 
 
         hdul = fits.open(cfg_par['general']['outTableName'])
-        print(cfg_par['general']['outTableName'])
         tabGen = hdul['BININFO'].data
         ancels = hdul['Ancels'+cfg_par['gFit']['modName']].data
 
@@ -592,7 +641,7 @@ class cubeplay:
         outMomSum =  momDir+str(lineNameName)+'_SumInter.fits'        
         outMomLength =  momDir+str(lineNameName)+'_LengthLine.fits'        
         outMomDiff =  momDir+str(lineNameName)+'_diffInter.fits'        
-        print(outMomRot)
+
         if 'CUNIT3' in header:
             del header['CUNIT3']
         if 'CTYPE3' in header:
@@ -983,6 +1032,64 @@ class cubeplay:
         mProjectCube(inCube,outCube,header)
 
         return 0
+
+
+    def regridCubeExact(self,inCube,pixSize):
+
+
+        d = fits.getdata(inCube)
+        h = fits.getheader(inCube)
+
+        h2D , d2D = hP.cleanHead(inCube)
+
+        h2D_or = h2D.copy()
+   
+        wcsh2D_or = WCS(h2D_or)
+
+        h2D['NAXIS1'] = int(np.floor(-h2D['NAXIS1']*h2D['CDELT1']/(float(pixSize)/3600.)))
+        h2D['NAXIS2'] = int(np.floor(h2D['NAXIS2']*h2D['CDELT2']/(float(pixSize)/3600.)))
+
+
+        h2D['CRPIX1'] = int(np.floor(-h2D['CRPIX1']*h2D['CDELT1']/(float(pixSize)/3600.)))
+        h2D['CRPIX2'] = int(np.floor(h2D['CRPIX2']*h2D['CDELT2']/(float(pixSize)/3600.)))
+
+        h2D['CDELT1'] = float(-pixSize)/3600.
+        h2D['CDELT2'] = float(pixSize)/3600.
+
+
+        wcs2D = WCS(h2D)
+
+        newCube = np.empty([d.shape[0],h2D['NAXIS2'],h2D['NAXIS1']])
+        newIm = np.empty([h2D['NAXIS2'],h2D['NAXIS1']])
+        print(d.shape)
+        print(newIm.shape)
+        for i in range(d.shape[0]):
+
+            array, footprint = reproject_exact((d[i,:,:], h2D_or) ,
+                                            wcs2D, shape_out=newIm.shape)
+            newCube[i,:,:] = array
+
+
+
+        newCubeName=inCube.replace('fits','_reg_pix_'+str(int(pixSize))+'asec.fits') 
+
+
+        h3D = h2D.copy()
+
+        h3D['NAXIS']= 3
+        
+        h3D['CRPIX3'] = h['CRPIX3'] 
+        h3D['CDELT3'] = h['CDELT3'] 
+        h3D['CRVAL3'] = h['CRVAL3'] 
+        
+        if 'CUNIT3' in h:
+            h3D['CUNIT3'] = h['CUNIT3']
+        if 'CTYPE3' in h:
+            h3D['CTYPE3'] = h['CTYPE3']
+
+        fits.writeto(newCubeName,newCube,h3D,overwrite=True)
+
+        return newCubeName
 
     def rebinCube(self,templateFile,inputFile):
 

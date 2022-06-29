@@ -10,6 +10,9 @@ Set of tools for head-play with fits files.
 import sys, os, string
 import numpy as np
 from astropy.io import fits
+from astropy.coordinates import Angle
+from astropy import units as u
+
 
 class headplay():
     '''This class plays modifies the header of .fits files in useful various ways.
@@ -17,7 +20,7 @@ class headplay():
     '''
 
     def cleanHead(self,inFile,writeFile=False):
-        '''Cleans the header of 2D images so that wcs libraries do not have issues.
+        '''Cleans the header of >=2D images so that wcs libraries do not have issues.
             Squeezes the shapes of data to 2-dimensions accordingly.
 
             Parameters
@@ -222,3 +225,30 @@ class headplay():
         fits.writeto(outFile,datas,heads,overwrite=True)
 
         return outFile
+
+    def readBeam(self,inFile):
+        '''Search for beam header keywords, convert them to astropy.Angle format.
+
+            Parameters
+            ----------
+            inFile: str
+                full path of input .fits file
+
+            Returns
+            -------
+            bMaj,bMin: Angle
+                beam major and minor axis in arcseconds
+
+        '''
+        head=fits.getheader(inFile)
+
+        if 'BMAJ' in head:
+            bMaj=Angle(head['BMAJ'],u.deg)
+        else: 
+            print('Beam major axis info missing')
+        if 'BMIN' in head:
+            bMin=Angle(head['BMIN'],u.deg)
+        else: 
+            print('Beam major axis info missing')
+
+        return bMaj,bMin

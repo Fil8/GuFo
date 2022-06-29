@@ -182,12 +182,14 @@ def loadRcParams():
 
     '''
 
+    #figSize= '7.24409,7.24409'
     figSize= '7.24409,7.24409'
     font=20
 
     params = {'figure.figsize'      : figSize,
         'figure.autolayout' : True,
         'font.family'         :'serif',
+        'figure.facecolor': 'white',
         'pdf.fonttype'        : 3,
         'font.serif'          :'times',
         'font.style'          : 'normal',

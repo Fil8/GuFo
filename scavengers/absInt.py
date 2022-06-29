@@ -4,7 +4,8 @@ import sys, os, string
 import numpy as np
 from astropy.io import fits, ascii
 from astropy.table import Table
-
+from astropy import wcs
+from astropy import units as u
 
 from matplotlib import gridspec
 from matplotlib import pyplot as plt
@@ -16,6 +17,12 @@ import argparse
 from  argparse import ArgumentParser
 import textwrap as _textwrap
 
+from scavengers import cvPlay, headPlay, fitsPlay
+from scavengers import util as ut
+
+cvP = cvPlay.convert()
+hP = headPlay.headplay()
+fP = fitsPlay.fitsplay()
 
 class absint:
 
@@ -38,6 +45,31 @@ class absint:
 
         return freq 
 
+    def measContFlux(self,cfg_par,contIm):
+        
+        contData = fits.getdata(contIm)
+        contHead = hP.cleanHead(contIm,writeFile=True)
+        contHead = fits.getheader(contIm)
+
+        w = wcs.WCS(contHead)    
+        objCoordsRA = cfg_par['HIabs']['centreRA']
+        objCoordsDec = cfg_par['HIabs']['centreDec']
+        ra=cvP.hms2deg(objCoordsRA)
+        dec=cvP.dms2deg(objCoordsDec)
+        objCoordsRA = ra
+        objCoordsDec = dec
+
+        #convert coordinates in pixels
+        #cen_x,cen_y=w.wcs_world2pix(ra,dec,0)
+        cen_x, cen_y = w.wcs_world2pix(ra, dec, 1)
+
+        contFlux = float(contData[int(np.round(cen_y)),int(np.round(cen_x))])
+        contFluxScience="{:.2e}".format(contFlux*1e3)
+        if 'contFlux' in cfg_par['HIabs'] :
+            contFlux = cfg_par['HIabs']['contFlux']
+            contFluxScience="{:.2e}".format(cfg_par['HIabs']['contFlux']*1e3)
+        return contFlux, contFluxScience 
+
     def optical_depth(self,sabs,scont):
         '''
         Estimates the optical depth of an absorption line
@@ -48,7 +80,7 @@ class absint:
             hi.tau: optical depth of the line   
         '''
 
-        tau=-np.log(1.-(-sabs/(float(scont))))
+        tau=np.log(1.-(-np.divide(sabs,(float(scont)))))
         if tau.size == 1:
             print('Optical depth = '+str(round(tau,3)))
 
@@ -66,12 +98,11 @@ class absint:
         '''
 
         nhiabs = self.nhi*self.T*tau*dv
-
-        print('N(HI) = '+str(np.round(nhiabs, 3))+' cm-2')
+        #print('N(HI) = '+str(np.round(nhiabs, 3))+' cm-2')
 
         return nhiabs
 
-    def mhi_abs(self,nhi_abs, area):
+    def mhi_abs(self,nhi_abs, bMaj,bMin, dL,z):
         '''Estimates the mass of the absorbed HI
         Parameters:
             nhi_abs: column density of the absorption line in cm-2
@@ -80,15 +111,52 @@ class absint:
         Returns:
             hi.mhi_abs: hi mass inferred by the absorption line in Msun
         '''
-        area*=np.power(self.pc,2)
+        
+        #r = ang * dl / (RAD2DEG * 3600 * (1+z)**2) # Mpc
+        bMaj_pc = (bMaj.arcsecond*dL/(180./np.pi*3600.*np.power(1+z,2)))*1e6
+        bMin_pc = (bMaj.arcsecond*dL/(180./np.pi*3600.*np.power(1+z,2)))*1e6
+
+        area = bMaj_pc*bMin_pc#pc
+
+        area*=np.power(self.pc,2)#cm-2
         mhiabs = area*self.mp*nhi_abs/self.msun
 
-        print('M(HI) = '+str(round(mhiabs, 6)/1e8)+' x10^8 mSun')
+        #print('M(HI) = '+str(round(mhiabs, 6)/1e8)+' x10^8 mSun')
 
         return mhiabs
 
+        
+    def fwzi(self,cfg_par,vel,flux):
 
-    def abSex(self,cubeName,specName,fluxCont,ra,dec,raN,decN):
+
+        peakFlux,idxPeak = self.findPeak(cfg_par,vel,flux)
+        idxPeak = np.abs(flux-peakFlux).argmin()
+        fluxLeft=flux[0:idxPeak][::-1]
+        zeroLeft=np.argmax(fluxLeft>0)
+
+        fluxRight=flux[idxPeak:]
+        zeroRight=np.argmax(fluxRight>0)+1
+        width=-(zeroRight+zeroLeft)*np.nanmean(np.diff(vel))
+
+        return width,zeroLeft,zeroRight
+
+    def findPeak(self,cfg_par,vel,flux):
+        velLineMin=cfg_par['galaxy']['vsys']-cfg_par['HIabs']['stats']['velRange']
+        velLineMax=cfg_par['galaxy']['vsys']+cfg_par['HIabs']['stats']['velRange']
+        
+        if vel[0]>vel[-1]:
+            idxMax = np.abs(vel-velLineMin).argmin()
+            idxMin = np.abs(vel-velLineMax).argmin()
+        else:
+            idxMin = np.abs(vel-velLineMin).argmin()
+            idxMax = np.abs(vel-velLineMax).argmin()            
+        peakFlux=np.nanmin(flux[idxMin:idxMax])
+
+        idxPeak = np.abs(flux-peakFlux).argmin()
+
+        return peakFlux, idxPeak
+
+    def abSex(self,cubeName,specName,fluxCont,ra,dec,raN,decN,vunit='m/s'):
         '''
         Extract spectra from all l.o.s. exctracted using a catalog of sources or a source finder
         WARNING:
@@ -146,18 +214,18 @@ class absint:
         #    flux_cont = np.array(src_list_vec['peak'],dtype=float)
         
 
-        pixels = cvMe.coordToPix(cubeName,ra,dec, verbose=False)
-        pixelsN = cvMe.coordToPix(cubeName,raN,decN, verbose=False)
+        pixels = fP.coordToPix(cubeName,ra,dec, verbose=False)
 
+        pixelsN = fP.coordToPix(cubeName,raN,decN, verbose=False)
         #key = 'spec_ex'
 
         #src_id = np.arange(0,ra.size+1,1)
         #src_id = src_list_vec['ID']
         freq = self.zaxis(cubeName)
 
-        abs_mean_rms = np.zeros(pixels.shape[0])
-        abs_los_rms = np.zeros(pixels.shape[0])
-        tau_los_rms = np.zeros(pixels.shape[0])
+        abs_mean_rms = np.zeros(pixels.shape)
+        abs_los_rms = np.zeros(pixels.shape)
+        tau_los_rms = np.zeros(pixels.shape)
         outNames = []
         count_thresh =0
         count_fov = 0
@@ -178,14 +246,14 @@ class absint:
         #elif (0 < int(pixels[i,0]) < x and
         #        0 < int(pixels[i,1]) < y): 
                 
-        pix_x_or = int(pixels[0,0])
-        pix_y_or = int(pixels[0,1])
+        pix_x_or = int(pixels[0])
+        pix_y_or = int(pixels[1])
 
-        pix_x_orN = int(pixelsN[0,0])
-        pix_y_orN = int(pixelsN[0,1])
+        pix_x_orN = int(pixelsN[0])
+        pix_y_orN = int(pixelsN[1])
 
 
-        for j in xrange(0, z):
+        for j in range(0, z):
             #chrom_aber = cfg_par[key].get('chrom_aberration', False)
             #correct for chromatic aberration
             #if chrom_aber == True:
@@ -257,16 +325,21 @@ class absint:
         
         average_noise.append(mean_rms)
         tau = self.optical_depth(flux, fluxCont)
+        if vunit == 'm/s':
+            freq_del/=1e3
+        nhi = self.nhiAbs(tau,freq_del)
         if np.nansum(madfm)!= 0.0:
             tau_noise = self.optical_depth(madfm, fluxCont)
+            nhi_noise = self.nhiAbs(tau_noise,freq_del)
         else:
             tau_noise = np.zeros(sci.shape[0])
+            nhi_noise = np.zeros(sci.shape[0])
 
         #write spectrum
         #out_spec = str(cfg_par['general']['specdir']+str(src_id[i])+'_J'+J2000_name[i])+'.txt'
         #out_spec = "{0:s}{1:02d}_J{2:s}.txt".format(
         #                   cfg_par['general']['specdir'], src_id[i], J2000_name[i])
-        out_spec = "{0:s}.txt".format(specName)
+        out_spec = specName+'.txt'
         outNames.append(out_spec)
 
         #flag_chans = cfg_par[key].get('flag_chans', None)
@@ -286,8 +359,8 @@ class absint:
         #else:
         #    xcol = 'Frequency [Hz]'
 
-        t = Table([freq, flux, madfm, tau, tau_noise, mean_rms_arr], 
-            names=(xcol,'Flux [Jy]','Noise [Jy]', 'Optical depth','Noise optical depth', 'Mean noise [Jy]'),
+        t = Table([freq, flux, madfm, tau, tau_noise, nhi, nhi_noise, mean_rms_arr], 
+            names=(xcol,'Flux [Jy]','Noise [Jy]', 'Optical depth','Noise optical depth', 'NHI', 'noise_NHI', 'Mean noise [Jy]'),
             meta={'name': 'Spectrum'})
         ascii.write(t,out_spec,overwrite=True)
         #if verb==True:
@@ -352,7 +425,7 @@ class absint:
         #print '# Total number of spectra: \t'+str(pixels.shape[0]-count_thresh-count_fov-count_blanks)
         #print '# Average noise in spectra: \t'+str(round(np.nanmean(average_noise)*1e3,1))+' mJy/beam'
 
-        return 0
+        return out_spec
 
     def absPlotInt(self,cfg_par,specName,contFlux=None,y_sigma=None):
         '''Plots the integrated HI absorption profile. If contFlux is given, the y-axis is in optical depth.
@@ -493,7 +566,7 @@ class absint:
         plt.show()
         plt.close("all")
 
-    def absPlot(self,specName,outPlot,sVel,detPlot):
+    def absPlot(self,specName,outPlot,sVel,detPlot,yunit='flux',zunit='m/s'):
         '''
         Plots spectra of all radio sources found by find_src_imsad
         saved in basedir/beam/abs/spec.
@@ -513,11 +586,7 @@ class absint:
         '''
 
 
-        params = {
-            'text.usetex': True,
-            'text.latex.unicode': True
-        }
-        rc('font', **{'family': 'serif', 'serif': ['serif']})
+        params = ut.loadRcParams()
         plt.rcParams.update(params)
 
 
@@ -553,18 +622,29 @@ class absint:
             #flag_chans = cfg_par['spec_ex'].get('flag_chans', None)
             #flag_chans1 = cfg_par['spec_ex'].get('flag_chans', None)
 
-            #if cfg_par['spec_ex'].get('zunit') == 'm/s':
-            x_data /= 1e3
+            if zunit == 'm/s':
+                x_data /= 1e3
             ax1.set_xlabel(r'$cz\,(\mathrm{km}\,\mathrm{s}^{-1})$', fontsize=font_size)
-            y_data = np.array(spec_vec[spec_vec.colnames[1]], dtype=float)*1e3
-            y_sigma = np.array(spec_vec[spec_vec.colnames[2]])
+            if yunit=='flux':
+                y_data = np.array(spec_vec[spec_vec.colnames[1]], dtype=float)*1e3
+                y_sigma = np.array(spec_vec[spec_vec.colnames[2]])*1e3
+                ylabh = ax1.set_ylabel(r'S\,$[\mathrm{mJy}\,\mathrm{beam}^{-1}]$', fontsize=font_size)
+            elif yunit=='nhi':
+                y_data = np.array(-spec_vec[spec_vec.colnames[5]], dtype=float)/1e18
+                y_sigma = np.array(spec_vec[spec_vec.colnames[6]])/1e18
+                
+                ylabh = ax1.set_ylabel(r'N$_\mathrm{HI}$ [$\times 10^{18} \mathrm{cm}\,^{-2}$]', fontsize=font_size)
+            elif yunit=='tau':
 
+                y_data = np.array(-spec_vec[spec_vec.colnames[3]], dtype=float)
+                y_sigma = np.array(spec_vec[spec_vec.colnames[4]])
+                
+                ylabh = ax1.set_ylabel(r'$\tau$', fontsize=font_size)
             #if cfg_par['spec_ex'].get('zunit') == 'MHz':
             #    x_data /= 1e6
             #    ax1.set_xlabel(r'Frequency [MHz]', fontsize=font_size)
 
-            ylabh = ax1.set_ylabel(
-                r'S\,$[\mathrm{mJy}\,\mathrm{beam}^{-1}]$', fontsize=font_size)
+
             ylabh.set_verticalalignment('center')
 
             
@@ -572,6 +652,9 @@ class absint:
             if sVel> 0:
                 ax1.axvline(sVel,color='k',linestyle='-.',linewidth=1)
             # Plot spectra
+            ax1.axvline(0,color='k',linestyle='-.',linewidth=1)
+
+
     #                if self.abs_ex_plot_linestyle == 'step':
             # ax1.plot(x_data, y_data, color='black', linestyle='-')
 
@@ -585,11 +668,10 @@ class absint:
             #        # y_data[index_flags] = 0.0
             #    y_data[index_flags_l:index_flags] = 0.0
             
-            ax1.step(x_data, y_data, where='mid', color='black', linestyle='-')
-
+            ax1.step(x_data-sVel, y_data, where='mid', color='black', linestyle='-')
             # Calculate axis limits and aspect ratio
-            x_min = np.min(x_data)
-            x_max = np.max(x_data)
+            x_min = np.nanmin(x_data-sVel)
+            x_max = np.nanmax(x_data-sVel)
             y1_array = y_data[np.where((x_data > x_min) & (x_data < x_max))]
             #if cfg_par[key]['fixed_scale']:
             #    y1_min = -50
@@ -617,9 +699,8 @@ class absint:
 
             # Plot noise
            #print y_sigma
-            ax1.fill_between(x_data, -y_sigma*1e3, y_sigma*1e3,
+            ax1.fill_between(x_data-sVel, -y_sigma, y_sigma,
                              facecolor='grey',step='mid',alpha=0.5)
-
             # Plot stuff
             ax1.axhline(color='k', linestyle=':', zorder=0)
 
@@ -634,9 +715,11 @@ class absint:
                 # if self.abs_ex_plot_title == True:
 
             # Add title
-            aaa = string.split(outPlot, '.png')[0]
-            tt=string.split(aaa, '/')[-1]
-            ax1.set_title("{0:s}".format(tt), fontsize=font_size+2)
+            #print(outPlot)
+            #aaa = outPlot.split('.png')[0]
+            #print(aaa)
+            #tt=aaa.split('/')[-1]
+            #ax1.set_title("{0:s}".format(tt), fontsize=font_size+2)
             #ax1.axes.titlepad = 8
 
             # Add minor tick marks
@@ -657,7 +740,7 @@ class absint:
             #else:
             plt.savefig(outPlot,
                             overwrite=True, bbox_inches='tight', dpi=100)
-            plt.show()
+            #plt.show()
             plt.close("all")
 
             # also create multi-plot spectra
@@ -677,7 +760,7 @@ class absint:
             #     # add one row for the plot with full channel width
                 fig, ax = plt.subplots(ncols=1, nrows=n_rows, figsize=(10, 2*n_rows),frameon=False,sharey=True)
                 fig.subplots_adjust(hspace=0.2)
-                fig.text(0.04, 0.5, r'S\,$[\mathrm{mJy}\,\mathrm{beam}^{-1}]$', fontsize=font_size, va='center', rotation='vertical')
+                fig.text(0.04, 0.5, r'S\,$[\rm{mJy}\,\rm{beam}^{-1}]$', fontsize=font_size, va='center', rotation='vertical')
 
             #      # ax1.annotate("Full spectrum", xy=(
             #      #     0.05, 0.95), xycoords='axes fraction', ha='left')
@@ -779,13 +862,14 @@ class absint:
                 #        r'S\,$[\mathrm{mJy}\,\mathrm{beam}^{-1}]$', fontsize=font_size)
                 #ylabh.set_verticalalignment('center')
 
-                aaa = string.split(outPlot, '.png')[0]
-                outPlotDet = aaa+'_Zoom.png'
+                outPlotDet = outPlot.replace('.png','_Zoom.png')
                 plt.savefig(outPlotDet,overwrite=True, bbox_inches='tight', dpi=100)
-                plt.show()
+                #plt.show()
                 plt.close("all")
             #     plt.close("all")
             #if verb == True:
             #    print '# Plotted spectrum of source ' + os.path.basename(specName)+'. #'
         else:
             print('# Missing spectrum of source ' + os.path.basename(specName)+'. #')
+
+ 

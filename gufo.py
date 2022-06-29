@@ -47,7 +47,7 @@ class gufo(object):
         self.cfg_par['general']['gfitPath'] = GFIT_DIR
         self.cfg_par['general']['C'] = self.C
 
-        self.set_dirs()
+        #self.set_dirs()
 
         cfg.close()
 
@@ -79,6 +79,12 @@ class gufo(object):
         if not os.path.exists(tableDir):
             os.mkdir(tableDir)
         self.cfg_par['general']['tableDir'] = tableDir
+
+        reportDir = self.cfg_par['general']['workdir']+'htmlReports/'
+        if not os.path.exists(reportDir):
+            os.mkdir(reportDir)
+        self.cfg_par['general']['reportDir'] = reportDir
+
 
         if self.cfg_par['starSub'].get('enable',False) == True:
             self.cfg_par['general']['outVorTableName'] = self.cfg_par['general']['tableDir']+'GuFo_LineTable.fits'
