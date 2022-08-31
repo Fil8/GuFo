@@ -5,6 +5,7 @@ gufo.py
 requirements.txt
 setup.py
 bin/gufo
+bin/runGufo.sh
 gufo.egg-info/PKG-INFO
 gufo.egg-info/SOURCES.txt
 gufo.egg-info/dependency_links.txt
@@ -15,6 +16,7 @@ scavengers/absInt.py
 scavengers/ancels.py
 scavengers/ancelsPlot.py
 scavengers/bptPlot.py
+scavengers/cosmoPlay.py
 scavengers/cubePlay.py
 scavengers/cubePlot.py
 scavengers/cvPlay.py
@@ -24,6 +26,7 @@ scavengers/gPlayMp.py
 scavengers/headPlay.py
 scavengers/hiPlay.py
 scavengers/linePlay.py
+scavengers/mfs_zoom_report.py
 scavengers/momPlay.py
 scavengers/momPlot.py
 scavengers/pickle4MPplay.py

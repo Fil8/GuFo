@@ -20,7 +20,9 @@ hP = headPlay.headplay()
 
 
 class convert(object):
-
+    '''This class converts units in useful various ways.
+    
+    '''
     def __init__(self):
 
         self.C = 2.99792458e8
@@ -73,15 +75,48 @@ class convert(object):
         return distConv
 
     def lambdaVRad(self,lambdaWave,lambdaRest):
+        '''Converts wavelength to radial velocity
+        
+        Parameters
+        ----------
 
-        # wavelenght in Angstrom
+        lambdaWave: np.array()
+            wavelengths in Angstrom to be converted
+        
+        lambdaRest: float
+            rest wavelenght of reference
+
+        Returns
+        -------
+
+        vRad: np.array()
+            array with radial velocities in km/s
+
+        ''' 
+
         vRad = ((lambdaWave-lambdaRest)/lambdaRest)*self.C/1e3
 
-        #velocity in km/s
         return vRad
 
     def vRadLambda(self,vRad,lambdaRest):
+        '''Converts radial velocity to wavelength
         
+        Parameters
+        ----------
+
+        vRad: np.array()
+            array with radial velocities in km/s
+        
+        lambdaRest: float
+            rest wavelenght of reference
+
+        Returns
+        -------
+
+        lambdaWave: np.array()
+            wavelengths in Angstrom
+
+        '''         
         # velocity in kms
         lambdaWave = (vRad*1e3*lambdaRest*1e-10)/(self.C)/1e-10 +lambdaRest
 
@@ -89,7 +124,19 @@ class convert(object):
         return lambdaWave
 
     def specRes(self,cfg_par):
+        '''Computes the spectral resolution given the MUSE specs
+        
+        Parameters
+        ----------
 
+        cfg_par: configuration file
+        Returns
+        -------
+
+        dVlambda: np.array()
+            spectral resolution in the MUSE wavelength range
+
+        ''' 
 
         MUSEfile = cfg_par['general']['gfitPath'] + 'MUSEspecs.csv'
 
@@ -166,7 +213,22 @@ class convert(object):
         return decDeg
 
     def deg2dms(dec_deg):
+        '''
+        Converts Declination from degrees to DD:MM:SS
+
+        Parameters
+        ----------
         
+        decDeg: float
+            right ascension in degrees
+
+        Returns
+        -------
+            
+        dec_hms: str
+            right ascension 'dd:mm:ss'
+            
+        '''          
         negative = dec_deg < 0
         dec_deg = abs(dec_deg)
         minutes,seconds = divmod(dec_deg*3600,60)
@@ -729,6 +791,9 @@ class convert(object):
         outCube: str, optional
             full path to output map.
 
+        dV : float
+            channel width in km/s
+
         Returns
         -------
             
@@ -742,7 +807,7 @@ class convert(object):
 
             N_{HI} = 1.10e24*np.power((1+z),2) S/{Theta^2}
             
-            - SdV : flux in **Jy beam$^{-1}$            
+            - SdV : flux in **Jy beam$^{-1} m/s$            
         '''
 
         base = fits.open(inCube)

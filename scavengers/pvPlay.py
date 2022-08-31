@@ -457,7 +457,7 @@ class pvplay(object):
 
     def pvPlot(self,cfg_par,imName,cMap,
         imLevels=None,imColors=None,vsys=None,velRange=None,cRange=None,nanToZero=None,
-        zeroToNan=None,interpMethod=None,cScale='linear',linthresh=None,base=10.,imContours=True):
+        zeroToNan=None,interpMethod=None,cScale='linear',pvUnit='mJy',linthresh=None,base=10.,imContours=True):
         '''Draws a pv-diagram. Multiple contours are overlaid if more than one image is given.
 
         Parameters
@@ -543,7 +543,6 @@ class pvplay(object):
         #print(hduIm.header)
         xS = ((np.linspace(1, hduIm.data.shape[1], hduIm.data.shape[1]) - hduIm.header['CRPIX1']) 
             * hduIm.header['CDELT1'] + hduIm.header['CRVAL1'])
-        print(velRange)
         if velRange[1] is not None:
             ext_ymin=np.where(abs(np.asarray(vel,dtype=int)-velRange[1,0])==abs(np.asarray(vel,dtype=int)-velRange[1,0]).min())[0][0]
             ext_ymax =np.where(abs(np.asarray(vel,dtype=int)-velRange[1,1])==abs(np.asarray(vel,dtype=int)-velRange[1,1]).min())[0][0]
@@ -580,7 +579,8 @@ class pvplay(object):
             else:
                 cRangeMin = cRange[0]
                 cRangeMax = cRange[1]
-            cRangeMin=np.nanmin(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax])
+            #cRangeMin=np.nanmin(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax])
+            print('crange')
             print(cRangeMin,cRangeMax)
             # norm = astviz.ImageNormalize(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], vmin=np.nanpercentile(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], 2.5.), vmax=np.nanpercentile(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], 98.))
             img = ax1.imshow(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], cmap=current_cmap,origin='lower',interpolation=interpMethod,vmin=cRangeMin,vmax=cRangeMax,aspect='auto',extent=[ext_xmin,ext_xmax,ext_ymin,ext_ymax]) 
@@ -628,7 +628,10 @@ class pvplay(object):
             cax.coords[0].tick_params(top=False, bottom=False,
                            labeltop=False, labelbottom=False,style='sci')
             cax.coords[1].set_ticklabel_position('r')
-            cBarLabel= r'$\times 10^{-3}$ mJy beam$^{-1}$'
+            if pvUnit == 'mJy':
+                cBarLabel= r'$\times 10^{-3}$ mJy beam$^{-1}$'
+            elif pvUnit == 'nhi':
+                cBarLabel= r'$\times 10^{20}$ cm$^{-2}$'
             cax.coords[1].set_axislabel(cBarLabel)
             cax.coords[1].set_axislabel_position('r')        
 
@@ -640,9 +643,10 @@ class pvplay(object):
             #     corrAxes=[0,0]
             nearest_idx = np.where(abs(vel-cfg_par['pvDiagram']['pvPlots']['vsys'])==abs(vel-cfg_par['pvDiagram']['pvPlots']['vsys']).min())[0][0]
             ax1.axhline(y=nearest_idx+1,color='black',lw=1,ls='-.')
-            nearest_idx = np.where(abs(xS-0.0)==abs(xS-0.0).min())[0][0]
+            
+            #nearest_idx = np.where(abs(xS-0.0)==abs(xS-0.0).min())[0][0]
 
-            ax1.axvline(x=nearest_idx+1,color='black',lw=1,ls='-.')        
+        ax1.axvline(x=830,color='black',lw=1,ls='-.')        
 
 #        ax1.set_autoscale_on(False)    
  
@@ -675,13 +679,12 @@ class pvplay(object):
                     ext_yminCont=ext_ymin_tmp
                 
                 if velRange[0] is not None:
-                    print('figa')
                     ext_xminCont=np.where(abs(xSS-velRange[0,0])==abs(xSS-velRange[0,0]).min())[0][0]
                     ext_xmaxCont = np.where(abs(xSS-velRange[0,1])==abs(xSS-velRange[0,1]).min())[0][0]
                 else:
                     ext_xminCont = 0
                     ext_xmaxCont = hduIm.data.shape[1]       
-                print(ext_xminCont,ext_xmaxCont)      
+
                 # if velRange[0] is not None:
                 #     ext_xminCont=np.where(abs(xSS-velRange[0,0])==abs(xSS-velRange[0,0]).min())[0][0]
                 #     ext_xmaxCont = np.where(abs(xSS-velRange[0,1])==abs(xSS-velRange[0,1]).min())[0][0]
@@ -719,11 +722,11 @@ class pvplay(object):
                 #                             hduImCut.wcs,shape_out=hduImCut.shape)
                 # print(array.data.shape)
                 #print(hduCont.data[ext_yminCont:ext_ymaxCont,ext_xminCont:ext_xmaxCont].shape)
-                print(np.mean(hduCont.data[ext_yminCont:ext_ymaxCont,ext_xminCont:ext_xmaxCont]))
                 csPos = ax1.contour(hduCont.data[ext_yminCont:ext_ymaxCont,ext_xminCont:ext_xmaxCont]*1e3,levels=imLevels[i,~np.isnan(imLevels[i,:,0]),0],
                     colors=imColors[i,0],linestyles = '-',linewidths=1,
                     origin='lower',aspect='auto',extent=[ext_xmin,ext_xmax,ext_ymin,ext_ymax])
                 print(csPos)
+                
                 if np.nansum(imLevels[0,~np.isnan(imLevels[0,:,1]),1]) != np.nan:
                     csNeg = ax1.contour(hduCont.data[ext_yminCont:ext_ymaxCont,ext_xminCont:ext_xmaxCont],levels=imLevels[i,~np.isnan(imLevels[i,:,1]),1], 
                         colors=imColors[i,1],linestyles = 'dashed',linewidths=1,origin='lower',aspect='auto',extent=[ext_xmin,ext_xmax,ext_ymin,ext_ymax])   

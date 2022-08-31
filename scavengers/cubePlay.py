@@ -147,7 +147,7 @@ class cubeplay:
         outPath=noisePath+baseName.replace('.fits','_rms.png')
         plt.savefig(outPath)
         plt.clf()
-
+        print(np.nanmedian(noise))
         return ((np.nanmedian(noise))),outPath
 
     def makeBFLineCube(self,cfg_par):

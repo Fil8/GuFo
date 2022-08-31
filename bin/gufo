@@ -787,7 +787,11 @@ def main (argv):
                 print ('\n\t************ --- GuFo : Computing noise in datacube --- ************\n')
 
                 cubeNoise, noiseFigPath = cP.measRMS(cubePath)
+                #cubeNoise=gPara['HIem']['noise']
+
                 noise.append(cubeNoise)
+                print(noise)
+
                 noisePath.append(noiseFigPath)
                 bMaj_arr.append(bMaj.arcsecond)
                 bMin_arr.append(bMin.arcsecond)
@@ -798,6 +802,10 @@ def main (argv):
                 Nchans=gPara['HIem']['detectionLimits']['deltaV']/dV
                 if gPara['HIem']['vunit']=='m/s':
                     dV_report.append(np.round(dV/1e3,2))
+                else:
+                    dV_report.append(np.round(dV,2))
+
+
 
                 nhiLim1,noiseScience1 = hiP.nhi(1*cubeNoise,bMaj,bMin,dV,z=z,vunit=gPara['HIem']['vunit'])
 
@@ -872,11 +880,16 @@ def main (argv):
 
                 if gPara['HIem']['moments']['snRatio'] == True:
                     cubeNoise, noiseFigPath = cP.measRMS(cubePath)
+                    #cubeNoise=gPara['HIem']['noise']
                     sn3Mom0 = mom.makeSNRatioMap(gPara,cubeNoise*dV,ratio=3)
                     sn5Mom0 = mom.makeSNRatioMap(gPara,cubeNoise*dV,ratio=5)
                     sn10Mom0 = mom.makeSNRatioMap(gPara,cubeNoise*dV,ratio=10)
                 else:
-                    pass
+                    cubeNoise, noiseFigPath = cP.measRMS(cubePath)
+                    sn3Mom0 = cubeNoise*3
+                    sn5Mom0 = cubeNoise*5
+                    sn10Mom0 = cubeNoise*5
+                    #pass
 
 
                 m00NHI = hiP.nhiMap(momPath,outMap=None,z=z,vunit=gPara['HIem']['moments']['vunit'],corrFlux=1e20)
@@ -1109,6 +1122,8 @@ def main (argv):
                 if gPara['HIabs']['vunit']=='m/s':
                     dV_report.append(np.round(dV/1e3,2))
                     dV/=1e3
+                else:
+                    dV_report.append(np.round(dV,2))
 
                 noiseValue=-noise[i]
                 optDepthLim1 = aBs.optical_depth(-noise[i]*1.,float(contFlux))

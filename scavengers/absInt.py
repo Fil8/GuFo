@@ -63,7 +63,7 @@ class absint:
         #cen_x,cen_y=w.wcs_world2pix(ra,dec,0)
         cen_x, cen_y = w.wcs_world2pix(ra, dec, 1)
 
-        contFlux = float(contData[int(np.round(cen_y)),int(np.round(cen_x))])
+        contFlux = np.nanmax(contData[int(np.round(cen_y)-4):int(np.round(cen_y)+4),int(np.round(cen_x-4)):int(np.round(cen_x+4))])
         contFluxScience="{:.2e}".format(contFlux*1e3)
         if 'contFlux' in cfg_par['HIabs'] :
             contFlux = cfg_par['HIabs']['contFlux']
@@ -427,7 +427,7 @@ class absint:
 
         return out_spec
 
-    def absPlotInt(self,cfg_par,specName,contFlux=None,y_sigma=None):
+    def absPlotInt(self,cfg_par,specName,contFlux=None,xLims=None,y_sigma=None,opt='abs'):
         '''Plots the integrated HI absorption profile. If contFlux is given, the y-axis is in optical depth.
 
         Parameters
@@ -457,12 +457,29 @@ class absint:
         params = ut.loadRcParams()
         plt.rcParams.update(params)
 
-        spec=np.genfromtxt(specName)
 
-        vel=spec[:,0]
-        x_data=vel
-        flux=spec[:,1]
-        y_data=flux
+        if opt=='abs':
+            spec=np.genfromtxt(specName)
+
+            vel=spec[:,0]
+            x_data=vel
+            flux=spec[:,1]
+            y_data=flux
+            
+        elif opt =='emSof':
+            spec=np.genfromtxt(specName)
+
+            vel=spec[:,1]
+            x_data=vel/1e3
+            flux=spec[:,2]
+            y_data=flux*1e3
+        elif opt=='em':
+            spec=ascii.read(specName)
+
+            vel=spec['Velocity [km/s]']
+            x_data=vel
+            flux=spec['Flux [Jy]']
+            y_data=flux*1e3
 
         if contFlux is not None:
             tau = self.optical_depth(flux,contFlux)
@@ -519,20 +536,33 @@ class absint:
                          facecolor='grey', alpha=0.5,step='mid')
 
         # Calculate axis limits and aspect ratio
-        x_min = np.min(x_data)
-        x_max = np.max(x_data)
+        if xLims==None:
+            x_min = np.min(x_data)
+            x_max = np.max(x_data)
+        
+        else:
+            x_min=xLims[0]
+            x_max = xLims[1]
         y1_array = y_data[np.where((x_data > x_min) & (x_data < x_max))]
         #if cfg_par[key]['fixed_scale']:
         #    y1_min = -50
         #    y1_max = 50
         #else:
-        peak = np.nanmax([-np.nanmin(y_data),np.nanmax(y_data)])
-        y1_min = np.nanmin(-peak)*1.1
-        #y1_max = np.nanmax(peak)*1.1
-        y1_max = -y1_min/2.
-        # Set axis limits
+
+        if opt=='emSof':
+            peak = np.nanmax([np.nanmin(y_data),np.nanmax(y_data)])
+            y1_min = np.nanmin(-peak/10.)*1.1
+            #y1_max = np.nanmax(peak)*1.1
+            y1_max = peak*1.1
+        else:
+            peak = np.nanmax([-np.nanmin(y_data),np.nanmax(y_data)])
+            y1_min = np.nanmin(-peak)*1.1
+            #y1_max = np.nanmax(peak)*1.1
+            y1_max = -y1_min/2.
+            # Set axis limits
+            ax1.set_ylim(y1_min, y1_max)
+
         ax1.set_xlim(x_min, x_max)
-        ax1.set_ylim(y1_min, y1_max)
         ax1.xaxis.labelpad = 6
         ax1.yaxis.labelpad = 10
         
@@ -564,7 +594,7 @@ class absint:
         plt.savefig(outPlot,
                         overwrite=True, bbox_inches='tight', dpi=100)
         plt.show()
-        plt.close("all")
+        #plt.close("all")
 
     def absPlot(self,specName,outPlot,sVel,detPlot,yunit='flux',zunit='m/s'):
         '''
@@ -670,6 +700,7 @@ class absint:
             
             ax1.step(x_data-sVel, y_data, where='mid', color='black', linestyle='-')
             # Calculate axis limits and aspect ratio
+            print(x_data,sVel)
             x_min = np.nanmin(x_data-sVel)
             x_max = np.nanmax(x_data-sVel)
             y1_array = y_data[np.where((x_data > x_min) & (x_data < x_max))]
@@ -682,8 +713,8 @@ class absint:
             y1_max = np.nanmax(peak)*1.1
 
             # Set axis limits
-            ax1.set_xlim(x_min, x_max)
-            ax1.set_ylim(y1_min, y1_max)
+            ax1.set_xlim(-500, 500)
+            ax1.set_ylim(y1_min, 1)
             ax1.xaxis.labelpad = 6
             ax1.yaxis.labelpad = 10
 

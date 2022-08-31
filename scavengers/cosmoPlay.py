@@ -17,6 +17,10 @@ SIGMAT=6.66524E-25 #cm2
 
 
 class Cosmo(object):
+  '''This class provides a set of colmological calculations, similar to NED's 
+  (https://www.astro.ucla.edu/~wright/CosmoCalc.html
+  
+  '''
   
   def __init__(self, h0=69.6, omega_l=0.714, omega_m=0.286, ztime=False):
 
@@ -43,8 +47,20 @@ class Cosmo(object):
     self.jy=JANSKY
 
   def compute_age(self, z):
-
-    # Returns time at redshift z (from GALAXEV)
+    '''Estimates the mass of the absorbed HI
+    
+        Parameters
+        ----------
+        z: float
+           redshift
+          
+        Returns
+        -------
+              
+        t: float
+           age of the Universe at redshift = z in billion years (10^9 yrs)
+    '''
+    
 
     a = lambda z: (math.sqrt(1. + ((2. * self.q0) * z)) / (1. - (2. * self.q0))) / (1. + z)
     c = lambda z: ((1. - (self.q0 * (1. - z))) / self.q0) / (1. + z)
@@ -111,6 +127,19 @@ class Cosmo(object):
 
 
   def lum_dist(self, z):
+    '''Estimates the luminosity distance given a redshift
+
+        Parameters
+        ----------
+        z: float
+           redshift
+          
+        Returns
+        -------
+              
+        dl: float
+            luminosity distance in cm
+    '''
 
     # Computes luminosity distance corresponding to a redshift z.
     # Uses Mattig formulae for qo both 0 and non 0
@@ -181,6 +210,21 @@ class Cosmo(object):
 
 
   def lin2ang(self, r, z): # r in Mpc
+    '''Estimates the angular size at a given redshift
+
+        Parameters
+        ----------
+        z: float
+           redshift
+        r: float
+           linear size to convert in Mpc
+
+        Returns
+        -------
+              
+        ang: float
+             angular size of luminosity distance in acrseconds
+    '''
 
     dl = self.lum_dist(z) # Mpc
 
@@ -190,6 +234,21 @@ class Cosmo(object):
 
 
   def ang2lin(self, ang, z): # r in arcsec
+    '''Estimates the linear size at a given redshift
+
+        Parameters
+        ----------
+        z: float
+           redshift
+        ang: float
+           angular size to convert in arcseconds
+
+        Returns
+        -------
+              
+        r: float
+             linear size of luminosity distance in Mpc
+    '''
 
     dl = self.lum_dist(z)# Mpc
     r = ang * dl / (RAD2DEG * 3600 * (1+z)**2) # Mpc
@@ -197,7 +256,21 @@ class Cosmo(object):
     return r
     
   def luminosity(self,z, flux):
-    
+    '''Estimates the luminosiy of a source given its redshift and flux
+
+        Parameters
+        ----------
+        z: float
+           redshift
+        flux: float
+           flux of the source in Jy
+
+        Returns
+        -------
+              
+        lum: float
+             luminosity of the source in erg/s
+    '''    
     f=flux*self.jy
     #print f
     

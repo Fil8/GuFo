@@ -15,9 +15,39 @@ from astropy import units as u
 
 
 class headplay():
-    '''This class plays modifies the header of .fits files in useful various ways.
+    '''This class plays with the header of .fits files in useful various ways.
     
     '''
+
+
+    def printHist(self,inFile):
+        '''Prints the history from the header of a .fits file
+
+            Parameters
+            ----------
+            inFile: str
+                full path of input .fits file
+
+    
+
+            Returns
+            -------
+            history: list
+                list with history
+        '''
+
+        files=fits.open(inFile)
+
+        heads=files[0].header
+
+        if heads['HISTORY']:
+            print(inFile+'\n')
+            print(heads['HISTORY'])
+        else:
+            print('\n\t --- WARNING: History is not in header ---\n')
+
+        print('\n\t************* --- History is Over --- **************\n')
+        print('\n\t************* --- radiobs : printHist : DONE --- **************\n')
 
     def cleanHead(self,inFile,writeFile=False):
         '''Cleans the header of >=2D images so that wcs libraries do not have issues.

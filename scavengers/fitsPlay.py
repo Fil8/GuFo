@@ -18,7 +18,7 @@ from astropy.nddata import Cutout2D
 from reproject import reproject_interp, reproject_exact
 from astropy.io import fits
 from astropy.coordinates import Angle
-
+from astropy.wcs import WCS
 
 hP=headPlay.headplay()
 cP=cvPlay.convert()
@@ -166,7 +166,7 @@ class fitsplay():
         decp1 = cP.dms2deg(decp1)
         decp2 = cP.dms2deg(decp2)
         hh,dd = hP.cleanHead(filename,writeFile=False)
-
+        dC=fits.getdata(filename)
         w = WCS(hh)    
 
         xmin,ymin=w.wcs_world2pix(rap1,decp1,0)
@@ -180,20 +180,22 @@ class fitsplay():
         naxis2=ymax-ymin
         
         raCtr,decCtr=w.wcs_pix2world(xmin+(xmax-xmin)/2,ymin+(ymax-ymin)/2,0)
-
-
-        hh['NAXIS1']=naxis1
-        hh['NAXIS2']=naxis2
-        hh['CRPIX1']=naxis1/2
-        hh['CRPIX2']=naxis2/2
-        hh['CRVAL1']=float(raCtr)
-        hh['CRVAL2']=float(decCtr)  
+        hc=fits.getheader(filename)
+        
+        hc['NAXIS1']=naxis1
+        hc['NAXIS1']=naxis1
+        hc['NAXIS2']=naxis2
+        hc['CRPIX1']=naxis1/2
+        hc['CRPIX2']=naxis2/2
+        hc['CRVAL1']=float(raCtr)
+        hc['CRVAL2']=float(decCtr)  
              
         aaa = str.split(filename, '.fits')
 
         output=aaa[0]+'_coordCut.fits'
-        print(output)
-        fits.writeto(output,dd[ymin:ymax,xmin:xmax],hh,overwrite=True)
+        print(dC.shape,ymin,ymax,xmin,xmax)
+        print(hc)
+        fits.writeto(output,dC[:,ymin:ymax,xmin:xmax],hc,overwrite=True)
 
         return output
 

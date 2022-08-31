@@ -730,7 +730,7 @@ class MOMplot(object):
         xbeam=beamCoords[0]
         ybeam=beamCoords[1]
         el = Ellipse((xbeam, ybeam), hduIm1.header['BMAJ'], hduIm1.header['BMIN'],
-                 angle=hduIm1.header['BMAJ'],edgecolor='red', linewidth=2, fill=False, zorder=2,transform=ax1.get_transform('fk5'))
+                 angle=hduIm1.header['BMAJ'],edgecolor='black', linewidth=2, fill=False, zorder=2,transform=ax1.get_transform('fk5'))
         ax1.add_patch(el)           
 
     if isinstance(imLevels,np.ndarray) and kind=='mom0' or kind =='mom2':
@@ -743,8 +743,16 @@ class MOMplot(object):
         #hduMom0Cut.data= dd
         if kind=='mom2' and cfg_par['HIem']['vunit']=='m/s':
             hduMom0Cut.data /=1e3
-        cs = ax1.contour(hduMom0Cut.data,levels=imLevels[0,0,:], colors=imContColors[0],linewidths=0.5)
-        #cs = ax1.contour(hduMom0Cut.data,levels=imLevels[0,:,1], colors=imContColors[0])
+
+
+        #cs = ax1.contour(hduMom0Cut.data,levels=imLevels[0,0,:], colors=imContColors[0,0],linewidths=0.5)
+        cs = ax1.contour(hduMom0Cut.data,levels=imLevels[0,:,1], colors=imContColors[0])
+
+        if np.nansum(imLevels[0,1,~np.isnan(imLevels[0,1,:])])!=0.0:
+            print(imLevels[0,1,~np.isnan(imLevels[0,1,:])])
+            csNeg = ax1.contour(hduMom0Cut.data,levels=imLevels[0,1,~np.isnan(imLevels[0,1,:])], colors=imContColors[0,1],linestyles = 'dashed',linewidths=1.5,)
+
+
 
         #cs = ax1.contour(hduImCut1.data,levels=imLevels[0,:,0], colors=imContColors[0])
 
@@ -772,6 +780,7 @@ class MOMplot(object):
     
         cs = ax1.contour(array.data,levels=contValues[0,0,:], colors=contColors[0])
 
+      
     if contName:
 
       for i in range(0,len(contName)):
@@ -2247,7 +2256,9 @@ class MOMplot(object):
             current_cmap.set_bad(color=mapName)
 
         norm = astviz.ImageNormalize(hduImCut.data, stretch=astviz.AsinhStretch(0.01), vmin=0, vmax=np.nanpercentile(hduImCut.data, 99.8))
+        
         img = ax1.imshow(hduImCut.data, norm=norm, cmap=cMap)
+        #img = ax1.imshow(hduImCut.data, vmin=cRange[0],vmax=cRange[1], cmap=cMap)
 
         
         # if cScale == 'linear':
@@ -2265,12 +2276,13 @@ class MOMplot(object):
 
             for i in range(0,len(imNames)):
                 hduMom0 = fits.open(imNames[i])[0]
+                print(imNames[i])
                 wcsMom0 = WCS(hduMom0.header)
                 hduMom0Cut = Cutout2D(hduMom0.data, centre, size, wcs=wcsMom0, mode='partial')
                 dd = np.array(hduMom0Cut.data,dtype=float)
                 index=np.where(dd<=0.)
-                dd[index] = np.nan
-                hduMom0Cut.data= dd
+                #dd[index] = np.nan
+                #hduMom0Cut.data= dd
                 # array, footprint = reproject_interp((hduMom0Cut.data, hduMom0Cut.wcs) ,
                 #                                     hduImCut.wcs, shape_out=(1000,1000))
                 array, footprint = reproject_interp((hduMom0Cut.data, hduMom0Cut.wcs) ,
@@ -2280,23 +2292,24 @@ class MOMplot(object):
                 linewidthCont=0.75
                 # if i==2:
                 #     linewidthCont=1.
-                cs = ax1.contour(array.data,levels=imLevels[i,0,:], colors=imColors[i],linewidths=linewidthCont)
+                #cs = ax1.contour(array.data,levels=imLevels[i,0,:], colors=imColors[i,0],linewidths=linewidthCont)
                 
 
-                #cs = ax1.contour(array.data,levels=imLevels[i,0,:], colors=imColors[i],linewidths=linewidthCont,transform=ax1.get_transform(hiwcs))
+                cs = ax1.contour(array.data,levels=imLevels[i,0,:], colors=imColors[i],linewidths=linewidthCont,transform=ax1.get_transform(hiwcs))
 
                 #transform=ax1.get_transform(hiwcs)
-                if np.sum(imLevels[i,1,:])!=np.nan:
-
-                    cs = ax1.contour(array.data,levels=imLevels[i,1,::2], colors=imColors[i],linestyles='dashed')
+                # if np.sum(imLevels[i,1,:])!= np.nan:
+                if i==0:
+                  
+                    cs = ax1.contour(array.data,levels=imLevels[i,1,:], colors=imColors[i,1],linestyles='dashed')
                      
 
                 if 'BMAJ' in hduMom0.header:
                     xbeam=beamCoords[0]
                     ybeam=beamCoords[1]
-                    el = Ellipse((xbeam, ybeam), hduMom0.header['BMAJ'], hduMom0.header['BMIN'],
-                             angle=hduMom0.header['BPA'],edgecolor=imColors[i], linewidth=1, fill=False, zorder=2,transform=ax1.get_transform('fk5'))
-                    ax1.add_patch(el)     
+                    # el = Ellipse((xbeam, ybeam), hduMom0.header['BMAJ'], hduMom0.header['BMIN'],
+                    #          angle=hduMom0.header['BPA'],edgecolor=imColors[i], linewidth=1, fill=False, zorder=2,transform=ax1.get_transform('fk5'))
+                    # ax1.add_patch(el)     
 
         ax1.coords[1].set_axislabel(r'Dec (J2000)')
         ax1.coords[0].set_axislabel(r'RA (J2000)')
@@ -2408,6 +2421,9 @@ class MOMplot(object):
 
         ax1.contour(array.data,levels=contLevels, colors=contColors)
       
+    ax1.axis('off')
+    ax1.set(frame_on=False)
+
 
     outFig = cfg_par['general']['momDir']+outMom+nameFigLabel+'.'+cfg_par['moments']['plotFormat']
     fig.savefig(outFig,format=cfg_par['moments']['plotFormat'], bbox_inches = "tight",overwrite=True,dpi=100)#,

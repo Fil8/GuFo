@@ -126,6 +126,44 @@ class hiplay(object):
 
         return sB
 
+    def HISurfBright(self,value):
+        '''
+
+        Module to convert column density into surface brightness
+
+        Parameters
+        ----------
+        
+        value: float
+
+            HI surface brightness value Msun / pc^2
+
+
+        Returns
+        -------
+            
+            nHI: float
+                N(HI)
+        
+        Notes
+        -----
+
+        Conversion formula:
+
+            N_{HI} = 3.1x10^{17} {SdV}/{Theta^2}
+            
+            - SdV : integrated flux
+            - $Theta^2$ : beam size in **arcminutes**
+            
+        '''        
+
+        conversionFactor = self.mH*np.power(self.pc,2)/(self.mSun)
+
+
+        nHI = np.divide(value,conversionFactor)
+
+        return nHI  
+
     def hiMass(self,value,bMaj,bMin,dV,pxSize,DL,z=0.):
         '''
 

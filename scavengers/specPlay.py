@@ -32,10 +32,6 @@ class specplay:
         Parameters
         ----------
 
-        cfg_par: OrderedDictionary
-            Dictionary with alla parameters or gufo. 
-            Parameters are given from terminal, or in a `.yml' file.
-
         spec: np.array()
             input array (2,N) np.array
 
@@ -64,7 +60,14 @@ class specplay:
             spec[0,:] = vel[::-1]/1e3
             spec[1,:] = flux[::-1]
             spec[2,:] = noise[::-1]
-        
+        else:
+            spec_vec=spec
+            spec=np.empty([3,len(spec_vec[0,:])])
+
+            spec[0,:]=spec_vec[0,::-1]/1e3
+            spec[1,:]=spec_vec[1,::-1]
+            spec[2,:]=spec_vec[1,::-1]*np.nan
+            specName=None
 
 
 
