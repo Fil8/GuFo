@@ -665,3 +665,33 @@ class specplot(object):
         #plt.close()
            
         return ax1
+
+
+
+    def plotIntSpec(self,cfg_par,spec,outSpecName=None):
+
+        '''Plots the integrated emission profile extracted for a source identified with SoFiA.
+        
+        Parameters
+        ----------
+
+        cfg_par: OrderedDictionary
+            Dictionary with alla parameters or gufo. 
+            Parameters are given from terminal, or in a `.yml' file.
+
+        specName: str, 
+            _default=None_, full path to spectrum. 2-columns txt file: velocity vs flux
+        
+        contFlux: float, optional
+            _default=None_, integrated continuum flux in Jy. Used to convert the spectrum in optical depth.
+
+        Returns
+        ----------
+        outFig: str
+            full path to output figure
+
+        Notes
+        ----------
+        Conversion to optical depth using self.optical_depth()
+
+        '''

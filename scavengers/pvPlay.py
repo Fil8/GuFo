@@ -60,12 +60,29 @@ class pvplay(object):
         objCoordsDec = cfg_par['pvDiagram']['centreDec']
         objCoordsRA=cvP.hms2deg(objCoordsRA)
         objCoordsDec=cvP.dms2deg(objCoordsDec)
-        centre = SkyCoord(ra=objCoordsRA*u.degree, dec=objCoordsDec*u.degree, frame='fk5')
+        centre = SkyCoord(ra=objCoordsRA*u.degree, dec=objCoordsDec*u.degree,frame='fk5')
 
         pvPath = PathFromCenter(center=centre,length=cfg_par['pvDiagram']['length'] * u.arcmin,angle=pa * u.deg,width=width * u.arcsec)
+        #print(width,cfg_par['pvDiagram']['length'])
+        #print(pvPath.values)
         cubeName=cfg_par['pvDiagram']['cubeName']
         cube = SpectralCube.read(cfg_par['pvDiagram']['cubeDir']+cubeName)
-        slice1 = extract_pv_slice(cube, pvPath)  
+        print(cubeName)
+
+        cube=fits.getdata(cfg_par['pvDiagram']['cubeDir']+cubeName)        
+        header=fits.getheader(cfg_par['pvDiagram']['cubeDir']+cubeName)
+        print(header['CDELT1'],header["CDELT2"])
+        # del header['PC2_1']
+        # del header['PC2_2']
+        # del header['PC1_2']
+        # del header['PC1_1']
+        header['PC3_1']=0.0
+        header['PC3_2']=0.0
+        header['PC3_3']=1.0
+        cubeWCS=WCS(header)
+
+        print(cubeWCS)
+        slice1 = extract_pv_slice(cube, pvPath,wcs=cubeWCS)  
         outName=cubeName.replace('.fits','_pv'+str(pa)+'_'+str(int(width))+'_asec.fits')
         print(outName)
         outPv = cfg_par['pvDiagram']['pvDir']+outName
@@ -535,7 +552,10 @@ class pvplay(object):
             dd[index] = np.nan
             mapName=zeroToNan
             hduIm.data= dd
-        # hduIm.data=1e3
+        
+
+        hduIm.data*=1e3
+        
         vel = ((np.linspace(1, hduIm.data.shape[0], hduIm.data.shape[0]) - hduIm.header['CRPIX2']) 
             * hduIm.header['CDELT2'] + hduIm.header['CRVAL2'])/1e3
         #print(vel)
@@ -582,10 +602,24 @@ class pvplay(object):
             #cRangeMin=np.nanmin(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax])
             print('crange')
             print(cRangeMin,cRangeMax)
-            # norm = astviz.ImageNormalize(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], vmin=np.nanpercentile(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], 2.5.), vmax=np.nanpercentile(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], 98.))
-            img = ax1.imshow(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], cmap=current_cmap,origin='lower',interpolation=interpMethod,vmin=cRangeMin,vmax=cRangeMax,aspect='auto',extent=[ext_xmin,ext_xmax,ext_ymin,ext_ymax]) 
+            norm = astviz.ImageNormalize(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], vmin=np.nanpercentile(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], 0.0), vmax=np.nanpercentile(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], 0.1))
+            
+            # img = ax1.imshow(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax],norm=norm, cmap=current_cmap,origin='lower',
+            #     interpolation=interpMethod,vmin=cRangeMin,vmax=cRangeMax,aspect='auto',
+            #     extent=[ext_xmin-np.abs(hduIm.header['CDELT1']/2),ext_xmax+np.abs(hduIm.header['CDELT1']/2),
+            #     ext_ymin-np.abs(hduIm.header['CDELT1']/2),ext_ymax+np.abs(hduIm.header['CDELT1']/2)]) 
+
+
+            img = ax1.imshow(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax],norm=norm, cmap=current_cmap,origin='lower',
+                interpolation=interpMethod,aspect='auto',
+                extent=[ext_xmin-np.abs(hduIm.header['CDELT1']/2),ext_xmax+np.abs(hduIm.header['CDELT1']/2),
+                ext_ymin-np.abs(hduIm.header['CDELT1']/2),ext_ymax+np.abs(hduIm.header['CDELT1']/2)]) 
+
+
+
+
         elif cScale == 'sqrt':
-            img = ax1.imshow(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], cmap=current_cmap,vmin=cRange[0],vmax=cRange[1],norm=PowerNorm(gamma=0.5))
+            img = ax1.imshow(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], cmap=current_cmap,vmin=cRange[0],vmax=cRange[1])
         elif cScale == 'log':
             img = ax1.imshow(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], cmap=current_cmap,norm=SymLogNorm(linthresh=linthresh,linscale=1.,
                 vmin=cRange[0],vmax=cRange[1],base=base),interpolation=interpMethod)
@@ -594,7 +628,7 @@ class pvplay(object):
 
 
             csPos = ax1.contour(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax],levels=imLevels[0,~np.isnan(imLevels[0,:,0]),0], 
-                colors=imColors[0,0],linestyles = '-',linewidths=1.,
+                colors=imColors[0,0],linestyles = '-',linewidths=2.,
                 origin='lower',aspect='auto',extent=[ext_xmin,ext_xmax,ext_ymin,ext_ymax],interpMethod='nearest')
             if np.nansum(imLevels[0,~np.isnan(imLevels[0,:,1]),1])!=0.0:
                 print(imLevels[0,~np.isnan(imLevels[0,:,1]),1])
@@ -629,9 +663,9 @@ class pvplay(object):
                            labeltop=False, labelbottom=False,style='sci')
             cax.coords[1].set_ticklabel_position('r')
             if pvUnit == 'mJy':
-                cBarLabel= r'$\times 10^{-3}$ mJy beam$^{-1}$'
+                cBarLabel= r'mJy beam$^{-1}$'
             elif pvUnit == 'nhi':
-                cBarLabel= r'$\times 10^{20}$ cm$^{-2}$'
+                cBarLabel= r'$\times 10^{18}$ cm$^{-2}$'
             cax.coords[1].set_axislabel(cBarLabel)
             cax.coords[1].set_axislabel_position('r')        
 
@@ -642,11 +676,11 @@ class pvplay(object):
             # if corrAxes==None:
             #     corrAxes=[0,0]
             nearest_idx = np.where(abs(vel-cfg_par['pvDiagram']['pvPlots']['vsys'])==abs(vel-cfg_par['pvDiagram']['pvPlots']['vsys']).min())[0][0]
-            ax1.axhline(y=nearest_idx+1,color='black',lw=1,ls='-.')
+            ax1.axhline(y=nearest_idx,color='black',lw=1,ls='-.')
             
-            #nearest_idx = np.where(abs(xS-0.0)==abs(xS-0.0).min())[0][0]
+        nearest_idx = np.where(abs(xS-0.0)==abs(xS-0.0).min())[0][0]
 
-        ax1.axvline(x=830,color='black',lw=1,ls='-.')        
+        ax1.axvline(x=nearest_idx,color='black',lw=1,ls='-.')        
 
 #        ax1.set_autoscale_on(False)    
  
@@ -666,6 +700,9 @@ class pvplay(object):
                 #print(vel,hduCont.header['CDELT2'],hduCont.header['CRVAL2'])
                 xSS = ((np.linspace(1, hduCont.data.shape[1], hduCont.data.shape[1]) - hduCont.header['CRPIX1']) 
                     * hduCont.header['CDELT1'] + hduCont.header['CRVAL1'])
+                print(xSS )
+
+
                 if velRange[1] is not None:
                     ext_yminCont=np.where(abs(np.asarray(vell,dtype=int)-velRange[1,0])==abs(np.asarray(vell,dtype=int)-velRange[1,0]).min())[0][0]
                     ext_ymaxCont =np.where(abs(np.asarray(vell,dtype=int)-velRange[1,1])==abs(np.asarray(vell,dtype=int)-velRange[1,1]).min())[0][0]
@@ -681,6 +718,8 @@ class pvplay(object):
                 if velRange[0] is not None:
                     ext_xminCont=np.where(abs(xSS-velRange[0,0])==abs(xSS-velRange[0,0]).min())[0][0]
                     ext_xmaxCont = np.where(abs(xSS-velRange[0,1])==abs(xSS-velRange[0,1]).min())[0][0]
+                    print(velRange[0,0],ext_xminCont,ext_xmaxCont)
+                    print('here')
                 else:
                     ext_xminCont = 0
                     ext_xmaxCont = hduIm.data.shape[1]       
@@ -728,7 +767,8 @@ class pvplay(object):
                 print(csPos)
                 
                 if np.nansum(imLevels[0,~np.isnan(imLevels[0,:,1]),1]) != np.nan:
-                    csNeg = ax1.contour(hduCont.data[ext_yminCont:ext_ymaxCont,ext_xminCont:ext_xmaxCont],levels=imLevels[i,~np.isnan(imLevels[i,:,1]),1], 
+                    print('NEG')
+                    csNeg = ax1.contour(hduCont.data[ext_yminCont:ext_ymaxCont,ext_xminCont:ext_xmaxCont]*1e3,levels=imLevels[i,~np.isnan(imLevels[i,:,1]),1], 
                         colors=imColors[i,1],linestyles = 'dashed',linewidths=1,origin='lower',aspect='auto',extent=[ext_xmin,ext_xmax,ext_ymin,ext_ymax])   
                 
                 # if contValues[i]==1:
@@ -966,10 +1006,10 @@ class pvplay(object):
                 # if corrAxes==None:
                 #     corrAxes=[0,0]
                 nearest_idx = np.where(abs(vel-cfg_par['pvDiagram']['pvPlots']['vsys'])==abs(vel-cfg_par['pvDiagram']['pvPlots']['vsys']).min())[0][0]
-                ax1.axhline(y=nearest_idx+1,color='black',lw=1,ls='-.')
+                ax1.axhline(y=nearest_idx,color='black',lw=1,ls='-.')
                 nearest_idx = np.where(abs(xS-0.0)==abs(xS-0.0).min())[0][0]
 
-                ax1.axvline(x=nearest_idx+1,color='black',lw=1,ls='-.')        
+                ax1.axvline(x=nearest_idx,color='black',lw=1,ls='-.')        
 
     #        ax1.set_autoscale_on(False)    
      

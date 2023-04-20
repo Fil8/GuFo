@@ -126,6 +126,7 @@ class cubeplot:
         
 
         step=cfg_par['cubePlay']['chanMaps']['step']/(-header['CDELT3']/1e3)
+
         nrows= int(round((idxMax-idxMin)/(step*4)))
         
         header, fits_cube=hP.cleanHead(inIm)
@@ -150,8 +151,9 @@ class cubeplot:
                 #for plot_count in range(n_plots):
         k=0
         counter=0
-        figs=((chanStop-idxMin)/int(round(step)))
-        for i in range(idxMin,chanStop,int(round(step))):
+        figs=((chanStop-idxMin)/int(step))
+        print(ncols,chanStop,step)
+        for i in range(idxMin,chanStop,int(np.round(step))):
 
             if counter == 0:
                 j = 0
@@ -184,7 +186,7 @@ class cubeplot:
 
             cRange=np.array(cfg_par['cubePlay']['chanMaps']['cRange'],dtype=float)
             im = ax.imshow(channelPlot.data, origin="lower",
-                           norm=norm, cmap=str(cfg_par['cubePlay']['chanMaps']['colorMap']),aspect='auto',vmin=cRange[0],vmax=cRange[1])
+                           cmap=str(cfg_par['cubePlay']['chanMaps']['colorMap']),aspect='auto',vmin=cRange[0],vmax=cRange[1])
 
             if 'cubeContours' in cfg_par['cubePlay']['chanMaps']:
                 imPos = np.nonzero(cfg_par['cubePlay']['chanMaps']['cubeContours'][0,0,:])

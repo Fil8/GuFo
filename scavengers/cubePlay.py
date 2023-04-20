@@ -101,6 +101,77 @@ class cubeplay:
 
         return
 
+    def makeSubCube(self, src, cubeName, zRange=None):
+        '''
+        Generate a subcube around a source from in a SoFiA catalogue (code from SIP, credit K. Hess)
+
+        Parameters
+        ----------
+
+        cubeName: str
+            path-to-datacube
+
+        src: astropy table (single_row)
+            
+        Returns
+        -------
+
+            subcube: np.array()
+                array with subcube (NAXIS=3 or 4 depending on input cube)
+        '''
+        datacube = fits.open(cubeName)
+
+        if datacube[0].header['NAXIS'] == 4:
+            stokes_dim, z_dim, y_dim, x_dim = 0, 1, 2, 3
+        if datacube[0].header['NAXIS'] == 3:
+            z_dim, y_dim, x_dim = 0, 1, 2
+
+        # Some lines stolen from cubelets in  SoFiA /SIP:
+        # Could consider allowing a user specified range in z.
+        cubeDim = datacube[0].data.shape
+        Xc = src['x']
+        Yc = src['y']
+        Xmin = src['x_min']
+        Ymin = src['y_min']
+        Xmax = src['x_max']
+        Ymax = src['y_max']
+        cPixXNew = int(Xc)
+        cPixYNew = int(Yc)
+        maxX = 2 * max(abs(cPixXNew - Xmin), abs(cPixXNew - Xmax))
+        maxY = 2 * max(abs(cPixYNew - Ymin), abs(cPixYNew - Ymax))
+        XminNew = cPixXNew - maxX
+        if XminNew < 0: XminNew = 0
+        YminNew = cPixYNew - maxY
+        if YminNew < 0: YminNew = 0
+        XmaxNew = cPixXNew + maxX
+        if XmaxNew > cubeDim[x_dim] - 1: XmaxNew = cubeDim[x_dim] - 1
+        YmaxNew = cPixYNew + maxY
+        if YmaxNew > cubeDim[y_dim] - 1: YmaxNew = cubeDim[y_dim] - 1
+
+        if zRange is not None:
+            zmin=zRange[0]
+            zmax=zRange[1]
+
+
+            if len(cubeDim) == 4:
+                subcube = datacube[0].data[0, zmin:zmax, int(YminNew):int(YmaxNew) + 1, int(XminNew):int(XmaxNew) + 1]
+            elif len(cubeDim) == 3:
+                subcube = datacube[0].data[zmin:zmax, int(YminNew):int(YmaxNew) + 1, int(XminNew):int(XmaxNew) + 1]
+            else:
+                subcube = None
+        else:
+            if len(cubeDim) == 4:
+                subcube = datacube[0].data[0, :, int(YminNew):int(YmaxNew) + 1, int(XminNew):int(XmaxNew) + 1]
+            elif len(cubeDim) == 3:
+                subcube = datacube[0].data[:, int(YminNew):int(YmaxNew) + 1, int(XminNew):int(XmaxNew) + 1]
+            else:
+                subcube = None
+
+        datacube.close()
+
+        return subcube, subcube.shape[1]/2,subcube.shape[2]/2
+
+
     def measRMS(self,cubePath):
         niter = 4 # nr of noise measurements
         clip = 4  # clipping at each iteration (in units of std)

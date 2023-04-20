@@ -282,3 +282,38 @@ class headplay():
             print('Beam major axis info missing')
 
         return bMaj,bMin
+
+    def pxBeam(self,inFile):
+        '''Determine number of pixel per beam in the image
+
+            Parameters
+            ----------
+            inFile: str
+                full path of input .fits file
+
+            Returns
+            -------
+            pix_per_beam: float
+                number of pixel per beam (radio psf)
+
+        '''
+
+        head=fits.getheader(inFile)
+
+        if 'BMAJ' in head:
+            bMaj=Angle(head['BMAJ'],u.deg)
+        else: 
+            print('Beam major axis info missing')
+            return
+        if 'BMIN' in head:
+            bMin=Angle(head['BMIN'],u.deg)
+        else: 
+            print('Beam major axis info missing')
+            return
+        cellsize=Angle(head['CDELT2'],u.deg)
+
+
+
+        pix_per_beam = bMaj / cellsize * bMin / cellsize * np.pi / (4. * np.log(2))
+
+        return pix_per_beam

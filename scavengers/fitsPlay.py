@@ -270,35 +270,35 @@ class fitsplay():
         #what follows works for wcs, but can be written better
         # RS added some additional if clauses
         prihdr = hdulist[0].header
+        prihdr, dats = hP.cleanHead(imagename)
         #if prihdr['NAXIS'] == 4:
-        if 'CTYPE4' in prihdr:
-            del prihdr['CTYPE4']
-        if 'CDELT4' in prihdr:
-            del prihdr['CDELT4']
-        if 'CRVAL4' in prihdr:
-            del prihdr['CRVAL4']
-        if 'CRPIX4' in prihdr:
-            del prihdr['CRPIX4']
-        if 'CUNIT4' in prihdr:
-            del prihdr['CUNIT4']   
-        if 'NAXIS4' in prihdr:
-            del prihdr['NAXIS4']
-        if 'CTYPE3' in prihdr:
-            del prihdr['CTYPE3']
-        if 'CDELT3' in prihdr:
-            del prihdr['CDELT3']
-        if 'CRVAL3' in prihdr:
-            del prihdr['CRVAL3']
-        if 'CRPIX3' in prihdr:
-            del prihdr['CRPIX3'] 
-        if 'NAXIS3' in prihdr:
-            del prihdr['NAXIS3']
-        if 'CUNIT3' in prihdr:
-            del prihdr['CUNIT3']
+        # if 'CTYPE4' in prihdr:
+        #     del prihdr['CTYPE4']
+        # if 'CDELT4' in prihdr:
+        #     del prihdr['CDELT4']
+        # if 'CRVAL4' in prihdr:
+        #     del prihdr['CRVAL4']
+        # if 'CRPIX4' in prihdr:
+        #     del prihdr['CRPIX4']
+        # if 'CUNIT4' in prihdr:
+        #     del prihdr['CUNIT4']   
+        # if 'NAXIS4' in prihdr:
+        #     del prihdr['NAXIS4']
+        # if 'CTYPE3' in prihdr:
+        #     del prihdr['CTYPE3']
+        # if 'CDELT3' in prihdr:
+        #     del prihdr['CDELT3']
+        # if 'CRVAL3' in prihdr:
+        #     del prihdr['CRVAL3']
+        # if 'CRPIX3' in prihdr:
+        #     del prihdr['CRPIX3'] 
+        # if 'NAXIS3' in prihdr:
+        #     del prihdr['NAXIS3']
+        # if 'CUNIT3' in prihdr:
+        #     del prihdr['CUNIT3']
 
-        del prihdr['NAXIS']
-        prihdr['NAXIS']=2
-        
+        # del prihdr['NAXIS']
+        # prihdr['NAXIS']=2
         w=wcs.WCS(prihdr)    
 
         pixels=np.zeros([2])
@@ -312,7 +312,7 @@ class fitsplay():
         #px,py=w.wcs_world2pix(ra_deg,dec_deg,0)
         
         px,py=w.wcs_world2pix(ra_deg,dec_deg,0)
-
+        print(px,py)
         if (0 < np.round(px) < prihdr['NAXIS1'] and
                 0 < np.round(py) < prihdr['NAXIS2']): 
             pixels[0]= np.round(px)

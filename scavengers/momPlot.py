@@ -639,9 +639,14 @@ class MOMplot(object):
         vRange[1] = np.nanmax(hduImCut1.data)*90./100.
 
     elif cRange is None and kind=='mom1':
+
         vRange=np.empty([2],dtype=float)
-        vRange[0] = -150.
-        vRange[1] = +150.
+        if 'velRange' in cfg_par['moments']:
+            vRange[0]=cfg_par['moments']['velRange'][0]
+            vRange[1]=cfg_par['moments']['velRange'][1]
+        else:
+            vRange[0] = -150.
+            vRange[1] = +150.
     elif kind =='mom2':
         vRange=cRange
     else:
@@ -695,17 +700,17 @@ class MOMplot(object):
         if cfg_par['galaxy']['vsys'] is not None and kind =='mom1':
             hduImCut1.data-=cfg_par['galaxy']['vsys']
         
-        if cfg_par['moments']['maskLevel'] is not None:
+        # if cfg_par['moments']['maskLevel'] is not None:
 
-            hduCont = fits.open(imMom0[0])[0]
-            wcsCont = WCS(hduCont.header)
-            hduContCut = Cutout2D(hduCont.data, centre, size, wcs=wcsCont)    
-            array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
-                                            hduImCut1.wcs, shape_out=hduImCut1.shape)
+        #     hduCont = fits.open(imMom0[0])[0]
+        #     wcsCont = WCS(hduCont.header)
+        #     hduContCut = Cutout2D(hduCont.data, centre, size, wcs=wcsCont)    
+        #     array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
+        #                                     hduImCut1.wcs, shape_out=hduImCut1.shape)
 
-            dd = np.array(array.data,dtype=float)
-            index=np.where(dd<float(cfg_par['moments']['maskLevel']))
-            hduImCut1.data[index]=np.nan
+        #     dd = np.array(array.data,dtype=float)
+        #     index=np.where(dd<float(cfg_par['moments']['maskLevel']))
+        #     hduImCut1.data[index]=np.nan
     #elif kind=='mom2' :
     #    cMap = 'jet'
     #    if cfg_par['HIem']['vunit']=='m/s':
@@ -741,13 +746,16 @@ class MOMplot(object):
         #index=np.where(dd==0.)
         #dd[index] = np.nan
         #hduMom0Cut.data= dd
+        print(cfg_par['HIem']['vunit'],kind)
         if kind=='mom2' and cfg_par['HIem']['vunit']=='m/s':
             hduMom0Cut.data /=1e3
-
+            print(np.nanmax(hduMom0Cut.data))
 
         #cs = ax1.contour(hduMom0Cut.data,levels=imLevels[0,0,:], colors=imContColors[0,0],linewidths=0.5)
-        cs = ax1.contour(hduMom0Cut.data,levels=imLevels[0,:,1], colors=imContColors[0])
-
+        print('mom0')
+        print(imLevels)
+        
+        cs = ax1.contour(hduMom0Cut.data,levels=imLevels[0,0,:], colors=imContColors[0])
         if np.nansum(imLevels[0,1,~np.isnan(imLevels[0,1,:])])!=0.0:
             print(imLevels[0,1,~np.isnan(imLevels[0,1,:])])
             csNeg = ax1.contour(hduMom0Cut.data,levels=imLevels[0,1,~np.isnan(imLevels[0,1,:])], colors=imContColors[0,1],linestyles = 'dashed',linewidths=1.5,)
@@ -777,7 +785,9 @@ class MOMplot(object):
         hduContCut = Cutout2D(hduCont.data, centre, size, wcs=wcsCont)    
         array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
                                             hduImCut1.wcs, shape_out=hduImCut1.shape)
-    
+        print('mom1')
+        print(contValues)
+
         cs = ax1.contour(array.data,levels=contValues[0,0,:], colors=contColors[0])
 
       
@@ -2242,7 +2252,7 @@ class MOMplot(object):
 
         wcsIm = WCS(hduIm.header)
         hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsIm)
-        fig = plt.figure(constrained_layout=False)
+        fig = plt.figure(figsize=(5.54331,5.54331),constrained_layout=False)
         fig.set_tight_layout(False)
 
         ax1 = plt.subplot(projection=hduImCut.wcs)    
@@ -2259,6 +2269,7 @@ class MOMplot(object):
         
         img = ax1.imshow(hduImCut.data, norm=norm, cmap=cMap)
         #img = ax1.imshow(hduImCut.data, vmin=cRange[0],vmax=cRange[1], cmap=cMap)
+        #img = ax1.imshow(hduImCut.data, cmap=cMap)
 
         
         # if cScale == 'linear':
@@ -2292,16 +2303,18 @@ class MOMplot(object):
                 linewidthCont=0.75
                 # if i==2:
                 #     linewidthCont=1.
-                #cs = ax1.contour(array.data,levels=imLevels[i,0,:], colors=imColors[i,0],linewidths=linewidthCont)
+                print(imColors)
+                cs = ax1.contour(array.data,levels=imLevels[i,0,:], colors=imColors[i],linewidths=linewidthCont)
                 
 
-                cs = ax1.contour(array.data,levels=imLevels[i,0,:], colors=imColors[i],linewidths=linewidthCont,transform=ax1.get_transform(hiwcs))
+                #cs = ax1.contour(array.data,levels=imLevels[i,0,:], colors=imColors[i],linewidths=linewidthCont,transform=ax1.get_transform(hiwcs))
 
                 #transform=ax1.get_transform(hiwcs)
                 # if np.sum(imLevels[i,1,:])!= np.nan:
-                if i==0:
-                  
-                    cs = ax1.contour(array.data,levels=imLevels[i,1,:], colors=imColors[i,1],linestyles='dashed')
+                # if i==0:
+                cs = ax1.contour(array.data,levels=imLevels[i,1,:], colors=imColors[i],linewidths=linewidthCont,linestyles = 'dashed')
+                
+                #     cs = ax1.contour(array.data,levels=imLevels[i,1,:], colors=imColors[i,1],linestyles='dashed')
                      
 
                 if 'BMAJ' in hduMom0.header:

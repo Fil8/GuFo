@@ -11,13 +11,20 @@ import yaml
 
 
 from astropy.io import fits, ascii
+from astropy import units as u 
+from astropy.table import Table
 
 import numpy as np
 
-from scavengers import absInt
-from astropy.table import Table
+from scavengers import absInt, cubePlay, cvPlay, headPlay, hiPlay
 
 aBs=absInt.absint()
+cP = cubePlay.cubeplay()
+cvP = cvPlay.convert()
+hP = headPlay.headplay()
+hiP = hiPlay.hiplay()
+
+
 
 class specplay:
     '''Modules to modify spectra
@@ -128,8 +135,159 @@ class specplay:
         else:
             return newSpec
 
+    def writeSpec(self,cfg_par,source,cubeName,channels,flux,n_pix=None,nameOpt='SoFiA'):
+
+        '''Writes extracted spectrum to table
+
+        Parameters
+        ----------
+        source : astropy table (single_row)
+            properties of the source extracted by SoFiA
+
+        chan: np.array
+            array with channel numbers of spectrum
+
+       cubeName: str
+            path-to-datacube. Needed to generate array of frequencies and velocities
+
+        freq: np.array
+            array with velocities of each channel
+
+        flux: np.array
+            array with fluxes of each channel
+
+        nPix: np.array (optional)
+            _default=None_, array with fluxes of each channel
+
+        Returns
+        -------
+
+            outSpec: str
+                full path to output spectrum
 
 
+        '''
+
+        if 'freq' in source.colnames:
+            velocities = cvP.chan2freq(channels, cubeName) 
+            if n_pix is not None:
+                t = Table([channels,velocities, flux, n_pix], 
+                    names=('chan','freq','f_sum', 'n_pix'),
+                    meta={'name': 'Spectrum'})
+            else:
+                t = Table([channels,velocities, flux], 
+                    names=('chan','freq','f_sum'),
+                    meta={'name': 'Spectrum'})                
+            dV = np.abs(np.nanmean(np.diff(cvP.chan2vel(channels,cubeName))))
+
+        elif 'FELO' in source.colnames:
+            velocities = cvP.felo2vel(channels, cubeName) 
+            if n_pix is not None:
+
+                t = Table([channels,velocities, flux, n_pix], 
+                    names=('chan','vel','f_sum', 'n_pix'),
+                    meta={'name': 'Spectrum'})
+            else:
+                t = Table([channels,velocities, flux], 
+                    names=('chan','freq','f_sum'),
+                    meta={'name': 'Spectrum'})                
+            dV = np.abs(np.nanmean(np.diff(velocities)))
+
+        else:
+            velocities = cvP.chan2vel(channels,cubeName)
+            if n_pix is not None:
+                t = Table([channels,velocities, flux, n_pix], 
+                    names=('chan','vel','f_sum', 'n_pix'),
+                    meta={'name': 'Spectrum'})
+
+            else:
+                t = Table([channels,velocities, flux], 
+                    names=('chan','freq','f_sum'),
+                    meta={'name': 'Spectrum'})                
+
+            dV = np.abs(np.nanmean(np.diff(velocities)))
+
+
+        outSpec = cfg_par['HIabs']['absDir']+cfg_par['HIabs']['specName']+nameOpt+'.txt'
+
+        t.write(outSpec,overwrite=True,format='ascii')
+
+        return outSpec, dV/1e3
+
+
+
+    def intSpecExt(self,cfg_par,source,cubeName,outSpec=None,zRange=None,hiMass=False):
+        
+        '''Extracts integrated spectrum from source in SoFiA catalogue
+
+        Parameters
+        ----------
+        source : astropy table (single_row)
+            properties of the source extracted by SoFiA
+
+        cubeName: str
+            path-to-datacube. The mask produced by Sofia (datacube_mask.fits must be located in the same directory)
+
+        outSpec : str (optional)
+            _default=None_, path-to-output spectrum. Default will save the spectrum in the same folder of the datacube (with postfix _specInt.txt)
+
+        zRange: list (optional)
+            _default=None_, [chan_min,chan_max] range where to extract the spectrum (default is all channels)
+        
+        hiMass : bool (optional)
+            _default=False_, if set to true HI mass from integrated spectrum and HI mass in science format is returned.
+
+        Returns
+        -------
+
+            intSpec: astropy Table
+                integrated spectrum : chanNumb, freq (or velocity), integrated flux, number of pixel per channel
+        '''
+        
+        baseCubeName=str.split(cubeName,'.fits')[0]
+        cube,xCtr,yCtr = cP.makeSubCube(source,cubeName)
+        mask,mxCtr,myCtr = cP.makeSubCube(source, baseCubeName + '_mask.fits')
+        pxBeam = hP.pxBeam(cubeName)
+        channels = np.asarray(range(cube.shape[0]))
+        intFlux = np.zeros(cube.shape[0])
+        n_pix = np.zeros(cube.shape[0])
+
+        
+        for i in range(0,mask.shape[0]):
+            chanFov=cube[i,:,:]
+            chanMask=mask[i,:,:]
+            idxMask = chanMask>0
+            intFlux[i] = np.nansum(chanFov[idxMask])/pxBeam
+            n_pix[i] = np.nansum(idxMask)
+
+        outSpecSof,dV = self.writeSpec(cfg_par,source,cubeName,channels,intFlux,n_pix)
+        totFlux=np.nansum(intFlux)*dV*u.Jy
+        if hiMass==True:
+
+            hiMassVl, hiMassScience = hiP.hiMass(totFlux,cfg_par['galaxy']['dL'],cfg_par['galaxy']['z'])
+        
+
+        areaMaskMed =np.median(n_pix[np.nonzero(n_pix)])
+        hlfSideMaskMed =int(np.rint(np.sqrt(areaMaskMed)/2.))
+        xCtr = int(xCtr)
+        yCtr = int(yCtr)
+        sqrMaskIdx_X = [xCtr-hlfSideMaskMed,xCtr+hlfSideMaskMed] 
+        sqrMaskIdx_Y = [yCtr-hlfSideMaskMed,yCtr+hlfSideMaskMed] 
+
+
+        for i in range(0,cube.shape[0]):
+
+            if intFlux[i] == 0.:
+                chanFov=cube[i,:,:]
+                intFlux[i] = np.nansum(chanFov[sqrMaskIdx_Y[0]:sqrMaskIdx_Y[1],sqrMaskIdx_X[0]:sqrMaskIdx_X[1]])/pxBeam
+                n_pix[i] = int(areaMaskMed)
+
+        outSpecFull = self.writeSpec(cfg_par,source,cubeName,channels,intFlux,n_pix,nameOpt='Full')
+
+        if hiMass == True:
+            return totFlux, hiMassVl, hiMassScience
+        else:
+            return totFlux
 
 
 

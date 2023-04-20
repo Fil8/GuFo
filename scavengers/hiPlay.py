@@ -17,11 +17,10 @@ from matplotlib import pyplot as plt
 
 from specutils import Spectrum1D
 from specutils.analysis import fwzi
-from scavengers import headPlay, absInt, specPlay
+from scavengers import headPlay, absInt
 
 hP = headPlay.headplay()
 aBs = absInt.absint()
-sP = specPlay.specplay()
 
 class hiplay(object):
 
@@ -37,6 +36,8 @@ class hiplay(object):
         self.kb = 1.380649e-16 #erg K-1
         self.Jy = 1e-23
         self.HImassEmission=2.35E5
+        self.G= 6.6742E-08       #cm3 g-1 s-1
+
 
 
     def nhi(self,value,bMaj,bMin,dV,z=0.,vunit='m/s'):
@@ -164,7 +165,7 @@ class hiplay(object):
 
         return nHI  
 
-    def hiMass(self,value,bMaj,bMin,dV,pxSize,DL,z=0.):
+    def hiMass(self,value,DL,z=0.,bMaj=None,bMin=None,dV=None,pxSize=None,corr=False):
         '''
 
         Estimate HI mass from a given flux density, velocity width, beam size and DL
@@ -202,15 +203,55 @@ class hiplay(object):
             - $Theta^2$ : beam size in **arcseconds**
             
         '''
-        
-        beamcorr=2.*np.pi*(bMaj.deg*bMin.deg)/(2.35482**2)/(np.power(pxSize.deg,2))
+        if corr==True:
+            beamcorr=2.*np.pi*(bMaj.deg*bMin.deg)/(2.35482**2)/(np.power(pxSize.deg,2))
 
-        factor=value*dV/beamcorr
+            factor=value*dV/beamcorr
+        else:
+            factor=value
         
+        print(factor)
+        
+
         mhi=self.HImassEmission/np.power(1+z,2)*(DL**2)*factor
-        mhiScience="{:.2e}".format(mhi)
+        mhiScience="{:.2e}".format(mhi*u.Msun)
 
-        return mhi,mhiScience
+        return mhi*u.Msun,mhiScience
+
+
+    def dynMass(self,velocity,r):
+        '''
+
+        Estimate the dynamical mass of a galaxy from its velocity at radius r
+
+        Parameters
+        ----------
+            
+        velocity: float
+            velocity (rotational velocity, or dispersion for pressure supported systems)
+            at the radius r (total extent of the galaxy) in cm/s
+
+        r: float
+            radius of the galaxy in cm
+
+        Returns
+        -------
+            
+            mdyn: float
+                dynamical mass in Msun units
+
+        Notes
+        -----
+
+            Conversion formula, from the virial theorem:
+            M(HI) = v[cm/s]^2*r[cm]/G
+
+        '''
+
+        Mdyn =np.power(velocity/np.sin(np.cos(1-0.610)),2)*r/self.G/1.988e33*u.Msun
+        MdynScience = "{:.2e}".format(Mdyn.value*u.Msun)
+
+        return Mdyn.value*u.Msun, MdynScience
 
 
 
@@ -439,7 +480,7 @@ class hiplay(object):
 
         return sB
 
-    def nhiMap(self,inMap,outMap=None,z=0,vunit='m/s',corrFlux=None):
+    def nhiMap(self,inMap,outMap=None,z=0,vunit='m/s',corrFlux=None,beamSize=None):
         '''
 
         Module converting moment 0 map in column density units [cm^-2]
@@ -472,9 +513,13 @@ class hiplay(object):
             
         '''
         hh,dd = hP.cleanHead(inMap,writeFile=False)
-
-        bMaj = Angle(hh['BMAJ'], u.deg)
-        bMin = Angle(hh['BMIN'], u.deg)
+        if 'BMAJ' in hh:
+            bMaj = Angle(hh['BMAJ'], u.deg)
+            bMin = Angle(hh['BMIN'], u.deg)
+        
+        else:
+            bMaj = Angle(beamSize[0], u.deg)
+            bMin = Angle(beamSize[1], u.deg)
         if vunit == 'm/s':
             conversionFactor = 1.10e21*np.power((1+z),2)/(bMaj.arcsecond*bMin.arcsecond)
         elif vunit == 'km/s':
@@ -489,6 +534,76 @@ class hiplay(object):
         if outMap == None:
             outMap=str.split(inMap,'.fits')[0]
             outMap=outMap+'_nhi.fits'
+
+
+        fits.writeto(outMap,dd,hh,overwrite=True)
+
+        return outMap
+
+    def nhiPv(self,inMap,outMap=None,z=0,vunit='m/s',corrFlux=None,beamSize=None,arcSectoPc=None):
+        '''
+
+        Module converting moment 0 map in column density units [cm^-2]
+
+        Parameters
+        ----------
+        
+        inMap: str
+            full path to input mom0 map. 
+            Units are in Jy beam-1*m/s.
+
+        outMap: str, optional
+            full path to output map.
+
+        Returns
+        -------
+            
+            outMap: str
+                full path to output mom0 map.
+        
+        Notes
+        -----
+
+        Conversion formula:
+
+            N_{HI} = 3.1x10^{17} {SdV}/{Theta^2}
+            
+            - SdV : integrated flux in **Jy beam$^{-1}$ m s$^{-1}$**
+            - $Theta^2$ : beam size in **arcminutes**
+            
+        '''
+        hh,dd = hP.cleanHead(inMap,writeFile=False)
+        if 'BMAJ' in hh:
+            bMaj = Angle(hh['BMAJ'], u.deg)
+            bMin = Angle(hh['BMIN'], u.deg)
+
+
+        else:
+            bMaj = Angle(beamSize[0], u.deg)
+            bMin = Angle(beamSize[1], u.deg)
+
+
+        dv = np.abs(hh['CDELT2'])
+
+        if vunit == 'm/s':
+            dv/=1e3
+        print(dv)
+        conversionFactor = 1.10e24*np.power((1+z),2)/(bMaj.arcsecond*bMin.arcsecond)*dv
+
+        #multiply by conversion factor
+        hh['BUNIT']='atoms cm-2'
+        
+        dd = np.multiply(dd,conversionFactor)
+        if corrFlux is not None:
+            dd/=corrFlux
+        if outMap == None:
+            outMap=str.split(inMap,'.fits')[0]
+            outMap=outMap+'_nhi.fits'
+
+        if arcSectoPc != None:
+            print(arcSectoPc)
+            hh['CDELT1'] = hh['CDELT1']*3600.*arcSectoPc/1e3
+            hh['CUNIT1'] = 'kpc'
 
 
         fits.writeto(outMap,dd,hh,overwrite=True)

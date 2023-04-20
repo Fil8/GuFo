@@ -19,6 +19,8 @@ import textwrap as _textwrap
 
 from scavengers import cvPlay, headPlay, fitsPlay
 from scavengers import util as ut
+from scavengers import plotUtil as plUt
+
 
 cvP = cvPlay.convert()
 hP = headPlay.headplay()
@@ -58,11 +60,11 @@ class absint:
         dec=cvP.dms2deg(objCoordsDec)
         objCoordsRA = ra
         objCoordsDec = dec
-
+        print(dec)
         #convert coordinates in pixels
         #cen_x,cen_y=w.wcs_world2pix(ra,dec,0)
         cen_x, cen_y = w.wcs_world2pix(ra, dec, 1)
-
+        print(cen_x,cen_y)
         contFlux = np.nanmax(contData[int(np.round(cen_y)-4):int(np.round(cen_y)+4),int(np.round(cen_x-4)):int(np.round(cen_x+4))])
         contFluxScience="{:.2e}".format(contFlux*1e3)
         if 'contFlux' in cfg_par['HIabs'] :
@@ -217,6 +219,8 @@ class absint:
         pixels = fP.coordToPix(cubeName,ra,dec, verbose=False)
 
         pixelsN = fP.coordToPix(cubeName,raN,decN, verbose=False)
+        print(pixelsN)
+
         #key = 'spec_ex'
 
         #src_id = np.arange(0,ra.size+1,1)
@@ -427,8 +431,8 @@ class absint:
 
         return out_spec
 
-    def absPlotInt(self,cfg_par,specName,contFlux=None,xLims=None,y_sigma=None,opt='abs'):
-        '''Plots the integrated HI absorption profile. If contFlux is given, the y-axis is in optical depth.
+    def absPlotInt(self,cfg_par,specName,contFlux=None,xLims=None,yLims=None,vSys=None,y_sigma=None,pxBeam=None,source=None,opt='abs'):
+        '''Plots an integrated line profile. If contFlux is given, the y-axis is in optical depth.
 
         Parameters
         ----------
@@ -443,6 +447,22 @@ class absint:
         contFlux: float, optional
             _default=None_, integrated continuum flux in Jy. Used to convert the spectrum in optical depth.
 
+        xLims: list, optional
+            _default=None_, x-axis range: [x_min, x_max]
+
+        yLims: list, optional
+            _default=None_, y-axis range: [y_min, y_max]
+
+        vSys: float, optional
+            _default=None_, systemic velocity of source in km/s
+
+        y_sigma: np.array, optional
+            _default=None_, noise array (must have the same lenght as spectrum)
+
+        opt: str, optional
+            _default='abs'_, kind of spectrum to plot: 'abs': integrated absorption, 'emSof': emission spectrum from SoFiA,
+            'em': generic emission spectrum
+
         Returns
         ----------
         outFig: str
@@ -454,7 +474,7 @@ class absint:
 
         '''
 
-        params = ut.loadRcParams()
+        params = plUt.loadRcParams('fwR')
         plt.rcParams.update(params)
 
 
@@ -467,12 +487,22 @@ class absint:
             y_data=flux
             
         elif opt =='emSof':
-            spec=np.genfromtxt(specName)
+            spec=ascii.read(specName)
 
-            vel=spec[:,1]
-            x_data=vel/1e3
-            flux=spec[:,2]
+            if 'freq' in spec.dtype.names:
+                x_data = spec['freq']
+                xLabel = r'Freq. [Hz]'
+            elif 'vel' in spec.dtype.names:
+                x_data = spec['vel']/1e3
+            else:
+                x_data = spec['felo']/1e3
+            flux = spec['f_sum']
+            n_pix=spec['n_pix']
+    
             y_data=flux*1e3
+         
+            y_sigma *=1e3
+            y_sigma *=np.sqrt(n_pix/pxBeam)
         elif opt=='em':
             spec=ascii.read(specName)
 
@@ -501,12 +531,14 @@ class absint:
         ax1.tick_params(axis='both', bottom='on', top='on',
                         left='on', right='on', which='minor', direction='in')
 
-        ax1.set_xlabel(r'$cz\,(\mathrm{km}\,\mathrm{s}^{-1})$')
 
-        if contFlux is None:
+        if contFlux is None and opt!='emSof':
 
             ylabh = ax1.set_ylabel(
-                r'S\,$[\mathrm{mJy}\,\mathrm{beam}^{-1}]$')
+                r'S\,$[\mathrm{mJy}\,\,\mathrm{beam}^{-1}]$')
+        if contFlux is None and opt=='emSof':
+            ylabh = ax1.set_ylabel(
+                r'Flux density $[\mathrm{mJy}]$')
         else:
             ylabh = ax1.set_ylabel(
                 r'$\tau$',labelpad=-10)            
@@ -514,8 +546,17 @@ class absint:
 
 
 
-        if cfg_par['HIabs']['vsys']> 0:
-            ax1.axvline(cfg_par['HIabs']['vsys'],color='k',linestyle='-.',linewidth=1)
+        if cfg_par['galaxy']['vsys']> 0:
+            if vSys==None:
+                ax1.axvline(cfg_par['galaxy']['vsys'],color='k',linestyle='-.',linewidth=0.8)
+                ax1.set_xlabel(r'$cz\,[\mathrm{km}\,\mathrm{s}^{-1}]$')
+
+            else:
+                ax1.axvline(0,color='k',linestyle='-.',linewidth=0.8)
+                x_data-=vSys
+                ax1.set_xlabel(r'velocity $[\mathrm{km}\,\mathrm{s}^{-1}]$')
+
+
             # Plot spectra
     #                if self.abs_ex_plot_linestyle == 'step':
             # ax1.plot(x_data, y_data, color='black', linestyle='-')
@@ -531,15 +572,17 @@ class absint:
             #    y_data[index_flags_l:index_flags] = 0.0
             
         ax1.step(x_data, y_data, where='mid', color='black', linestyle='-')
-        if y_sigma is not None:
-            ax1.fill_between(x_data, -y_sigma, y_sigma,
-                         facecolor='grey', alpha=0.5,step='mid')
+        # ax1.plot(x_data, y_data,  color='black', linestyle='-')
 
+        if y_sigma is not None:
+            ax1.fill_between(x_data, y_data-y_sigma, y_data+y_sigma,
+                         facecolor='grey', alpha=0.4,step='mid', joinstyle="miter")
+            # ax1.errorbar(x_data, y_data, elinewidth=0.75,
+            #                 yerr=y_sigma, capsize=1, color='black', linestyle='-')
         # Calculate axis limits and aspect ratio
         if xLims==None:
             x_min = np.min(x_data)
-            x_max = np.max(x_data)
-        
+            x_max = np.max(x_data)        
         else:
             x_min=xLims[0]
             x_max = xLims[1]
@@ -550,23 +593,33 @@ class absint:
         #else:
 
         if opt=='emSof':
-            peak = np.nanmax([np.nanmin(y_data),np.nanmax(y_data)])
-            y1_min = np.nanmin(-peak/10.)*1.1
-            #y1_max = np.nanmax(peak)*1.1
-            y1_max = peak*1.1
+            if yLims==None:
+                peak = np.nanmax([np.nanmin(y_data),np.nanmax(y_data)])
+                y1_min = (-peak/10.)*1.1
+                #y1_max = np.nanmax(peak)*1.1
+                y1_max = peak*1.1
+            else:
+                y1_min=yLims[0]
+                y1_max = yLims[1]
+           
+            if source is not None:
+                ax1.axvline(x_data[source['z_min']],color='grey', alpha=0.25,linestyle='-',linewidth=0.8,drawstyle='steps-pre')
+                ax1.axvline(x_data[source['z_max']],color='grey', alpha=0.25,linestyle='-',linewidth=0.8,drawstyle='steps-post')
+
+
         else:
             peak = np.nanmax([-np.nanmin(y_data),np.nanmax(y_data)])
             y1_min = np.nanmin(-peak)*1.1
             #y1_max = np.nanmax(peak)*1.1
             y1_max = -y1_min/2.
             # Set axis limits
-            ax1.set_ylim(y1_min, y1_max)
+        ax1.set_ylim(y1_min, y1_max)
 
         ax1.set_xlim(x_min, x_max)
         ax1.xaxis.labelpad = 6
         ax1.yaxis.labelpad = 10
         
-        ax1.axhline(color='k', linestyle=':', zorder=0)
+        ax1.axhline(color='k', linestyle='--', zorder=0)
    
 
         # Plot noise
@@ -589,12 +642,14 @@ class absint:
         #plt.savefig(outplot.replace('.png', ".pdf"),
         #            overwrite=True, bbox_inches='tight')
         #else:
-        outPlot = cfg_par['HIabs']['absDir']+cfg_par['HIabs']['title']+'.'+cfg_par['HIabs']['plotFormat']
+        outPlot = cfg_par['HIabs']['absDir']+cfg_par['HIabs']['title']+'.'+cfg_par['HIabs']['spectrum']['plotFormat']
 
         plt.savefig(outPlot,
                         overwrite=True, bbox_inches='tight', dpi=100)
         plt.show()
         #plt.close("all")
+
+        return(outPlot)
 
     def absPlot(self,specName,outPlot,sVel,detPlot,yunit='flux',zunit='m/s'):
         '''

@@ -645,7 +645,35 @@ class convert(object):
 
         '''
 
+    def luminosityFromMag(self,mag):
+        '''
 
+        Estimate the luminosity of an object given its absolute magnitude
+
+        Parameters
+        ----------
+            
+        mag: float
+            absolute magnitude
+
+        
+
+        Returns
+        -------
+            
+            lum : float
+                Luminosity in Lsun
+
+        Notes
+        -----
+
+            Conversion formula:
+            L/Lsun = 10^(0.4*(4.85-mag))
+        '''
+
+        L = np.power(10,0.4*(4.85-mag))
+
+        return L
 
     def surfBrightCO(self,value,bmaj,bmin,nu_obs,dV,facMass=4.3):
         '''
@@ -1017,6 +1045,104 @@ class convert(object):
         fits.writeto(outMap,dd,hh,overwrite=True)
 
         return outMap
+
+    def chan2freq(self, channels, cubeName):
+        '''
+        Convert channels to frequencies.
+
+        Parameters
+        ----------
+        
+        channels: array
+            array of channels to convert
+
+        cubeName: str
+            path-to-cube where to read header for conversion
+
+        Returns
+        -------
+            
+            freq: np.array()
+                array of frequencies in Hz
+        
+        Notes
+        -----
+
+        Conversion formula:
+
+            nu [Hz] = deltaNu (cdelt3) * (channels - (chan0-1) + nu0) 
+
+        where nu0 is the reference frequency at chan0
+
+        '''
+
+        header = fits.getheader(cubeName)
+        frequencies = (header['CDELT3'] * (channels - (header['CRPIX3'] - 1)) + header['CRVAL3']) * u.Hz
+
+
+        return frequencies
+
+
+    def chan2vel(self, channels, cubeName):
+        '''
+        Convert channels to optical velocities.
+        N.B.: This assumes the channels have uniform width in velocity space,
+              which may not be the case!
+    
+        Parameters
+        ----------
+        
+        channels: array
+            array of channels to convert
+
+        cubeName: str
+            path-to-cube where to read header for conversion
+        
+        Returns
+        -------
+            
+            velocities: np.array()
+                array of velocities in m/s
+        
+        '''
+
+        header = fits.getheader(cubeName)
+        velocities = (header['CDELT3'] * (channels - (header['CRPIX3'] - 1)) + header['CRVAL3']) * u.m / u.s
+
+        return velocities
+
+
+    def felo2vel(self, channels, cubeName):
+        '''
+        Converts channels to velocities for a cube with non-linear channels.
+        N.B.: This conversion differs from the output of SoFiA-2 which uses wcslib and therefore may not be strictly correct.
+    
+        Parameters
+        ----------
+        
+        channels: array
+            array of channels to convert
+
+        cubeName: str
+            path-to-cube where to read header for conversion
+        
+        Returns
+        -------
+            
+            velocities: np.array()
+                array of velocities in m/s
+        
+        '''
+
+        # Formula taken from here: https://www.astro.rug.nl/software/kapteyn/spectralbackground.html#aips-axis-type-felo
+        
+        print("\tWARNING: Axis type FELO...this conversion may not be precise (may be off by ~10 km/s).")
+        c = const.c.to(u.m/u.s).value
+        header = fits.getheader(cubeName)
+        fr = header['RESTFREQ'] / (1 + header['CRVAL3'] / c)
+        df = -1 * header['RESTFREQ'] * header['CDELT3'] * c / ((c + header['CRVAL3']) * (c + header['CRVAL3']))
+        velocities = header['CRVAL3'] + c * header['RESTFREQ'] * (1 / (fr + (channels - header['CRPIX3']) * df) - 1 / fr)
+        return velocities
 
 
     def vRadCube(self,inCube,line='HI'):

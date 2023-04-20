@@ -836,16 +836,16 @@ def main (argv):
 
                 if gPara['HIem']['vunit']=='m/s':
                     dV/=1e3
-                mhiLim1,hiScienceLim1 = hiP.hiMass(1*cubeNoise,bMaj,bMin,1*dV,bMaj,DL)
+                mhiLim1,hiScienceLim1 = hiP.hiMass(1*cubeNoise,DL,z,bMaj,bMin,1*dV,bMaj,DL)
                 mhiScienceLim1.append(hiScienceLim1)
 
-                mhiLim3,hiScienceLim3 = hiP.hiMass(3*cubeNoise,bMaj,bMin,1*dV,bMaj,DL)
+                mhiLim3,hiScienceLim3 = hiP.hiMass(3*cubeNoise,DL,z,bMaj,bMin,1*dV,bMaj)
                 mhiScienceLim3.append(hiScienceLim3)
 
-                mhiLim33,hiScienceLim33 = hiP.hiMass(3*cubeNoise,bMaj,bMin,3*dV,bMaj,DL)
+                mhiLim33,hiScienceLim33 = hiP.hiMass(3*cubeNoise,DL,z,bMaj,bMin,3*dV,bMaj)
                 mhiScienceLim33.append(hiScienceLim33)
 
-                mhiLim5,hiScienceLim5 = hiP.hiMass(5*cubeNoise,bMaj,bMin,5*dV,bMaj,DL)
+                mhiLim5,hiScienceLim5 = hiP.hiMass(5*cubeNoise,DL,z,bMaj,bMin,5*dV,bMaj)
                 mhiScienceLim5.append(hiScienceLim5)
 
         print ('\n\t************ --- GuFo : HI detection limits computed --- ************\n')
@@ -886,9 +886,9 @@ def main (argv):
                     sn10Mom0 = mom.makeSNRatioMap(gPara,cubeNoise*dV,ratio=10)
                 else:
                     cubeNoise, noiseFigPath = cP.measRMS(cubePath)
-                    sn3Mom0 = cubeNoise*3
-                    sn5Mom0 = cubeNoise*5
-                    sn10Mom0 = cubeNoise*5
+                    sn3Mom0 = cubeNoise*dV*3
+                    sn5Mom0 = cubeNoise*dV*5
+                    sn10Mom0 = cubeNoise*dV*5
                     #pass
 
 
@@ -897,12 +897,12 @@ def main (argv):
                 noise00NHI5,noiseScience5 = hiP.nhi(sn5Mom0/(dV*1e-3),bMaj,bMin,1,z,vunit=gPara['HIem']['moments']['vunit'])
                 noise00NHI10,noiseScience10 = hiP.nhi(sn10Mom0/(dV*1e-3),bMaj,bMin,1,z,vunit=gPara['HIem']['moments']['vunit'])
                 cont00=plUt.computeContours(noise=noise00NHI/1e20,maximum=None,inMap=m00NHI,sigma=1,step=gPara['HIem']['moments']['contStep'])
-       
+                print(noise00NHI/1e20)
                 lenColumns = int((len(cont00)))
                 imLevelsMom0 = np.empty([1,2,lenColumns],dtype=float)+np.nan
                 # imLevelsMom0[0,0,:] = cont00
                 imLevelsMom0[0,0,:] = cont00
-                gPara['HIem']['moments']['maskLevel'] = noise00NHI
+                # gPara['HIem']['moments']['maskLevel'] = noise00NHI
                 gPara['moments']=gPara['HIem']['moments']
  
 
@@ -919,19 +919,22 @@ def main (argv):
                 sbTmp = hiP.surfBrightHI(noise00NHI10)
                 sbScience10.append("{:.3e}".format(sbTmp))
 
-
+                if not os.path.exists(gPara['general']['plotMomModDir']):
+                    os.mkdir(gPara['general']['plotMomModDir'])
+ 
+                print(imLevelsMom0)
+                print('cacca')
                 outMom0 = mPl.momPlot(gPara,m00NHI,imLevels=imLevelsMom0,imContColors=['black'],contName=None,contValues=None,contColors=None,interpolation='bilinear',beamCoords=None,cScale='linear',colorBar=True,kind='mom0')
 
-                if gPara['HIem']['moments']['maskLevel'] is not None:
+                if 'maskLevel' in gPara['HIem']['moments']:
                     gPara['HIem']['moments']['maskLevel']=float(gPara['HIem']['moments']['maskLevel'])/1e20
                     maskScience.append("{:.2e}".format(gPara['HIem']['moments']['maskLevel']*1e20))
                 else:
-                    gPara['HIem']['moments']['maskLevel']=cont00[0]
-                    maskScience.append("{:.2e}".format(cont00[0]*1e20))
-
+                    gPara['HIem']['moments']['maskLevel']=noise00NHI/1e20
+                    maskScience.append("{:.2e}".format(noise00NHI*1e20))
                 gPara['moments']=gPara['HIem']['moments']
 
-
+                print(gPara['HIem']['moments']['maskLevel'])
                 cont00=plUt.computeContours(noise=float(gPara['HIem']['moments']['maskLevel']),maximum=None,inMap=m00NHI,sigma=1,step=gPara['HIem']['moments']['contStep'])
                 moms0.append(outMom0)
                 mom1Path = gPara['HIem']['moments']['momDir']+gPara['HIem']['moments']['mom1Name'][i]
@@ -941,6 +944,10 @@ def main (argv):
 
                 contLevels = np.empty([2,2,lenColumns],dtype=float)+np.nan
                 contLevels[0,0,:] = cont00
+                
+                print(contLevels)
+
+
                 outMom1 = mPl.momPlot(gPara,mom1Path,imMom0=[m00NHI],cRange=None,imLevels=contLevels,imContColors=['black'],contName=None,contValues=contLevels,contColors=['black'],interpolation='bilinear',beamCoords=None,cScale='linear',colorBar=True,kind='mom1')
                 moms1.append(outMom1)
 
@@ -953,16 +960,17 @@ def main (argv):
 
                 mom2Path=gPara['HIem']['moments']['momDir']+gPara['HIem']['moments']['mom2Name'][i]
                 if gPara['moments']['mom2Range'][0] == 0:
-                    startCont = 25
+                    startCont = 15
                 else:
-                    startCont = gPara['moments']['mom2Range']
+                    startCont = gPara['moments']['mom2Range'][0]
 
-                contSigma=np.arange(startCont,gPara['moments']['mom2Range'][1],25)
+                contSigma=np.arange(startCont,gPara['moments']['mom2Range'][1],70)
 
                 lenColumns = int((len(contSigma)))
                 imLevels = np.empty([1,2,lenColumns],dtype=float)+np.nan
                 imLevels[0,0,:] = contSigma
-                outMom2 =  mPl.momPlot(gPara,mom2Path,imMom0=[m00NHI],cRange=np.array([gPara['moments']['mom2Range'][0],gPara['moments']['mom2Range'][1]]),imLevels=imLevels,imContColors=['black'],contName=None,contValues=None,contColors=['black'],interpolation='bilinear',beamCoords=None,cScale='linear',colorBar=True,kind='mom2')
+                outMom2 =  mPl.momPlot(gPara,mom2Path,imMom0=[m00NHI],cRange=np.array([gPara['moments']['mom2Range'][0],gPara['moments']['mom2Range'][1]]),imLevels=imLevels,imContColors=['black'],
+                    contName=None,contValues=None,contColors=['black'],interpolation='bilinear',beamCoords=None,cScale='linear',colorBar=True,kind='mom2')
                 moms2.append(outMom2)
                 
                 if gPara['galaxy']['optIm'] is not None:
@@ -986,7 +994,7 @@ def main (argv):
 
                 if gPara['HIem']['moments']['contStep'] == 1:
                     template = env.get_template('singleDataCube.html')
-                elif gPara['HIem']['moments']['contStep'] == 2:
+                elif gPara['HIem']['moments']['contStep'] == 2 or gPara['HIem']['moments']['contStep'] == 1.5 :
                     template = env.get_template('singleDataCube_st1.html')
 
                 reportName = gPara['general']['reportDir']+'HIReport'+'_'+gPara['general']['outPrefix'][i]+'.html'
@@ -1042,7 +1050,7 @@ def main (argv):
 
                     if gPara['HIem']['moments']['contStep'] == 1:
                         opt_imgInfo=r'''<br/> MeerLicht image with the  \(3\sigma \times 2^n\) (where n=0,1,2,3..) HI contours overlayed.<br/></div></div>'''
-                    elif gPara['HIem']['moments']['contStep'] == 2:
+                    elif gPara['HIem']['moments']['contStep'] == 2 or gPara['HIem']['moments']['contStep'] == 1.5 :
                         opt_imgInfo=r'''<br/> MeerLicht image with the  \(3\sigma \times 2^n\) (where n=0,2,4..) HI contours overlayed.<br/></div></div>'''
 
                     #opt_imgInfo=r'''<br/> MeerLicht image with the  \(3\sigma \times 2^n\) (where n=0,2,4..) HI contours overlayed.<br/></div></div>'''
@@ -1163,7 +1171,9 @@ def main (argv):
 
         if gPara['HIabs']['spectrum'].get('enable',False) == True:
             print ('\n\t************ --- GuFo : extracting HI absorption --- ************\n')
-
+            absDir = gPara['HIabs']['absDir']
+            if not os.path.exists(absDir):
+                os.mkdir(absDir)
 
             raN=gPara['HIabs']['spectrum']['noiseRA']
             decN=gPara['HIabs']['spectrum']['noiseDec']
@@ -1343,7 +1353,7 @@ def main (argv):
             contLevels[0,0,:] =  gPara['cubePlay']['chanMaps']['cubeContours']
             gPara['cubePlay']['chanMaps']['cubeContours']=contLevels
             noiseScience="{:.2e}".format(contLevels[0,0,0]*1e3)
-
+        cubePath=gPara['cubePlay']['chanMaps']['inCube']
         cubeNoise, noiseFigPath = cP.measRMS(cubePath)
 
         maxCube = np.nanmax(fits.getdata(cubePath))
@@ -1400,6 +1410,12 @@ def main (argv):
         gPar = gufo.gufo(args.cfgFile)
         gPara=gPar.cfg_par  
 
+        pvDir = gPara['pvDiagram']['pvDir']
+        if not os.path.exists(pvDir):
+            os.mkdir(pvDir)
+        pvPlotDir = gPara['pvDiagram']['pvPlots']['plotDir']
+        if not os.path.exists(pvPlotDir):
+            os.mkdir(pvPlotDir)
         # if 'cubeContours' in gPara['cubePlay']['chanMaps']:
         #     contLevels = np.empty([2,2,len(gPara['cubePlay']['chanMaps']['cubeContours'])],dtype=float)+np.nan  
         #     contLevels[0,0,:] =  gPara['cubePlay']['chanMaps']['cubeContours']
@@ -1408,19 +1424,18 @@ def main (argv):
         
         pvPlotName=[]
         noiseValue=[]
-
+        print('PVBEGINS------------------------------')
         for i in range(0,len(gPara['pvDiagram']['pa'])):
             for j in range(0, len(gPara['pvDiagram']['width'])):
                 pa = gPara['pvDiagram']['pa'][i]
                 width = gPara['pvDiagram']['width'][j]
 
                 outPv = pvP.pvCut(gPara,pa,width)
-                print(outPv)
                 noiseData= fits.getdata(outPv)
-                print(noiseData.shape)
-                print(gPara['pvDiagram']['noiseRange'][0],gPara['pvDiagram']['noiseRange'][1])
+
                 noise10NHI=np.nanstd(noiseData[gPara['pvDiagram']['noiseRange'][0]:gPara['pvDiagram']['noiseRange'][1],:])
                 noiseValue.append(noise10NHI)
+                print(noise10NHI,outPv)
                 cont10=plUt.computeContours(noise10NHI,inMap=outPv,sigma=2.5,step=1)
                 imLevPos=cont10*1e3
                 imLevNeg = -cont10[::-1]*1e3
@@ -1433,7 +1448,7 @@ def main (argv):
 
                 imColors = np.zeros([1,2],dtype=object)
                 imColors[0,0] = 'black'
-                imColors[0,1] = 'white'
+                imColors[0,1] = 'red'
 
 
                 vsys=gPara['galaxy']['vsys']
@@ -1448,8 +1463,9 @@ def main (argv):
 
 
                 print(width,pa)
+                print(i,j)
         print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
-
+        print(len(pvPlotName))
         if gPara['pvDiagram']['report']==True:
             reportDir = gPara['general']['workdir']+'htmlReports/'
             if not os.path.exists(reportDir):

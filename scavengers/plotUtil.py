@@ -32,18 +32,18 @@ def loadRcParams(option):
     
     if option=='fw':
         figSize= '7.24409,7.24409'
-        font=16
+        font=12
     elif option=='sc':
         figSize= '3.54331,3.54331'
         font=16
     elif option=='fwR':
         figSize= '7.24409,4.074800625'
-        font=16
+        font=14
 
     params = {'figure.figsize'      : figSize,
         'figure.autolayout' : True,
         'figure.facecolor': 'white',
-        'font.family'         :'serif',
+        'font.family'         :'sans-serif',
         'pdf.fonttype'        : 3,
         'font.serif'          :'times',
         'font.style'          : 'normal',
