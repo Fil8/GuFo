@@ -111,12 +111,7 @@ class hiplay(object):
         Notes
         -----
 
-        Conversion formula:
 
-            N_{HI} = 3.1x10^{17} {SdV}/{Theta^2}
-            
-            - SdV : integrated flux
-            - $Theta^2$ : beam size in **arcminutes**
             
         '''        
 
@@ -919,7 +914,48 @@ class hiplay(object):
 
 
     def computeStats(self,cfg_par,contFlux,specName,dV,bMaj,bMin):
+        '''
+        Compute statistics from a given absorption spectrum.
 
+        Parameters
+        ----------
+        cfg_par : dict
+            Configuration parameters.
+            
+        contFlux : float
+            Continuum flux.
+            
+        specName : str
+            Name of the spectrum file.
+            
+        dV : float
+            Velocity dispersion.
+            
+        bMaj : float
+            Major axis of the beam.
+            
+        bMin : float
+            Minor axis of the beam.
+
+        Returns
+        -------
+        fluxArr : float
+            Integrated flux within the specified region.
+            
+        tauArr : float
+            Integrated opacity within the specified region.
+            
+        width : float
+            Width of the spectrum.
+            
+        intNHI : float
+            Integrated NHI.
+            
+        absMass : float
+            Absolute HI mass.
+
+        '''
+        
         spec_vec = ascii.read(specName)
 
         vel = np.array(spec_vec[spec_vec.colnames[0]], dtype=float)
@@ -952,6 +988,20 @@ class hiplay(object):
 
 
     def hiatz(self,z):
+        '''
+        Calculate the observed frequency of HI emission at a given redshift.
+
+        Parameters
+        ----------
+        z : float
+            Redshift value.
+
+        Returns
+        -------
+        hobs : float
+            Observed frequency of HI emission in MHz.
+
+        '''        
         hobs = self.nuHI/(1+z)/1e06   #MHz
     
         return hobs

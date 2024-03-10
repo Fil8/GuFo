@@ -738,6 +738,7 @@ class MOMplot(object):
                  angle=hduIm1.header['BMAJ'],edgecolor='black', linewidth=2, fill=False, zorder=2,transform=ax1.get_transform('fk5'))
         ax1.add_patch(el)           
 
+    # if isinstance(imLevels,np.ndarray) and kind=='mom0' or kind =='mom2':
     if isinstance(imLevels,np.ndarray) and kind=='mom0' or kind =='mom2':
         hduMom0 = fits.open(im1)[0]
         wcsMom0 = WCS(hduMom0.header)
@@ -820,10 +821,17 @@ class MOMplot(object):
             mom1BarLabel=cfg_par['moments']['cBarLabel']
             colorTickLabels = cfg_par['moments']['mom0colorTickLabels']
 
-        elif kind=='mom1':
+        elif kind=='mom1' and cfg_par['galaxy']['vsys'] is not None:
             mom1BarLabel=r'$v_{\rm los}-v_{\rm sys}$ [km s$^{-1}$]'
             if cfg_par['moments']['mom1colorTickLabels'] is None:
                 colorTickLabels = np.arange(-600,800,200)
+            else:
+                colorTickLabels = cfg_par['moments']['mom1colorTickLabels']
+
+        elif kind=='mom1' and cfg_par['galaxy']['vsys'] is None:
+            mom1BarLabel=r'$v_{\rm los}$ [km s$^{-1}$]'
+            if cfg_par['moments']['mom1colorTickLabels'] is None:
+                colorTickLabels = np.arange(vRange[0],vRange[1],200.) 
             else:
                 colorTickLabels = cfg_par['moments']['mom1colorTickLabels']
 
@@ -848,8 +856,15 @@ class MOMplot(object):
         for key,value in notes.items():
         # if titleName is not None:
         #     ax1.set_title(titleName)
+            
+            if key =='NGC 3100':
+                ax1.scatter(value[0],value[1], s=150, c=value[2], transform=ax1.get_transform('fk5'), marker='x', clip_on=False,linewidth=3)
+            
 
-            ax1.text(value[0], value[1],key, transform=ax1.get_transform('fk5'),c=value[2],fontsize=15,fontweight='bold')
+                ax1.text(value[0]-0.02, value[1]+0.01,key, transform=ax1.get_transform('fk5'),c=value[2],fontsize=12,fontweight='bold')
+
+            else:
+                ax1.text(value[0], value[1],key, transform=ax1.get_transform('fk5'),c=value[2],fontsize=12,fontweight='bold')
 
 
     if boxes is not None:
@@ -882,10 +897,10 @@ class MOMplot(object):
         else:
             outFig= cfg_par['general']['plotMomModDir']+kind+'-'+cfg_par['general']['outPrefix'][0]+'.'+cfg_par['moments']['plotFormat']
     print(outFig)
-    fig.savefig(outFig,format=cfg_par['moments']['plotFormat'],bbox_inches = "tight", dpi=300,overwrite=True)#,
+    fig.savefig(outFig,format=cfg_par['moments']['plotFormat'],bbox_inches = "tight", dpi=300)#,
     #fig.savefig(outFig,format='png', dpi=300,overwrite=True)#,
     
-    #plt.show()
+    plt.show()
     #plt.close()
 
     return outFig
@@ -958,12 +973,27 @@ class MOMplot(object):
     Useful for plotting moment maps of different phases of the gas.
 
     '''
-    
+ 
+
+ 
     objCoordsRA = cfg_par['moments']['centreRA']
     objCoordsDec = cfg_par['moments']['centreDec']
-    
+    ra=cvP.hms2deg(objCoordsRA)
+    dec=cvP.dms2deg(objCoordsDec)
+    objCoordsRA = ra
+    objCoordsDec = dec
     centre = SkyCoord(ra=objCoordsRA*u.degree, dec=objCoordsDec*u.degree, frame='fk5')
-    size = u.Quantity((cfg_par['moments']['sizePlots'],cfg_par['moments']['sizePlots']), u.arcmin)
+    size = u.Quantity((cfg_par['moments']['sizePlotX'],cfg_par['moments']['sizePlotY']), u.arcmin)
+
+    beamCoords = np.empty([2],dtype=float)
+    raB= cfg_par['moments']['beamRA']
+    decB = cfg_par['moments']['beamDec']
+    raB=cvP.hms2deg(raB)
+    decB=cvP.dms2deg(decB)
+    
+    beamCoords[0] = raB
+    beamCoords[1] = decB
+
   
     params = ut.loadRcParams()
     plt.rcParams.update(params)
@@ -986,13 +1016,18 @@ class MOMplot(object):
     
     ax1 = fig.add_subplot(gs[0,0],projection=hduImCut1.wcs)
     
+    if cRange is None and kind=='mom0':
+        vRange=np.empty([2,2],dtype=float)
+        # vRange=np.array([2,2])
 
-    if not isinstance(cRange,np.ndarray):
-        vRange=np.array([2,2])
-        vRange[0,0] = np.nanmin(hduImCut1.data)
-        vRange[0,1] = np.nanmax(hduImCut1.data)
-        vRange[1,0] = np.nanmin(hduImCut2.data)
-        vRange[1,1] = np.nanmax(hduImCut2.data)
+        vRange[0,0] = 1e-17
+        vRange[0,1] = np.nanmax(hduImCut1.data)*90./100.
+        vRange[1,0] = 1e-17
+        vRange[1,1] = np.nanmax(hduImCut2.data)*90./100.
+    #     vRange[1,0] = np.nanmin(hduImCut2.data)
+    #     vRange[1,1] = np.nanmax(hduImCut2.data)
+    # if not isinstance(cRange,np.ndarray):
+    #    
     else:
         vRange=cRange
     if kind == 'mom0':
@@ -1033,14 +1068,14 @@ class MOMplot(object):
     
     current_cmap.set_bad(color='white')
     
-    c = SkyCoord('00:00:00.0','00:40:00.0',unit=(u.hourangle,u.deg))
+    # c = SkyCoord('00:00:00.0','00:40:00.0',unit=(u.hourangle,u.deg))
     
-    #ax1.coords[1].set_major_formatter('dd:mm')
-    #ax1.coords[0].set_major_formatter('hh:mm') 
+    ax1.coords[1].set_major_formatter('dd:mm')
+    ax1.coords[0].set_major_formatter('hh:mm') 
 
-    c = SkyCoord('00:00:05.','00:00:25.0',unit=(u.hourangle,u.deg))
-    ax1.coords[0].set_ticks(spacing=c.ra.degree*u.degree)
-    ax1.coords[1].set_ticks(spacing=c.dec.degree*u.degree)
+    # c = SkyCoord('00:00:05.','00:00:25.0',unit=(u.hourangle,u.deg))
+    # ax1.coords[0].set_ticks(spacing=c.ra.degree*u.degree)
+    # ax1.coords[1].set_ticks(spacing=c.dec.degree*u.degree)
 
 
     ax1.coords[0].set_axislabel(r'RA (J2000)')
@@ -1086,13 +1121,13 @@ class MOMplot(object):
         array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
                                             hduImCut1.wcs, shape_out=hduImCut1.shape)
 
-        cs = ax1.contour(array.data,levels=contValues[i], colors=contColors[i])
-        if contValues[i]==1:
+        cs = ax1.contour(array.data,levels=contValues[i,0,:], colors=contColors[i])
+        if contValues[i,0,0]==1:
             ax1.clabel(cs, inline=1)
 
     if shareScale == False:
 
-        colorTickLabels = cfg_par['moments']['colorTickLabels'][0]
+        colorTickLabels = cfg_par['moments']['mom0colorTickLabels'][0]
         mom1BarLabel=cfg_par['moments']['cBarLabel']
 
         axins = inset_axes(ax1,
@@ -1114,14 +1149,16 @@ class MOMplot(object):
 
 
  
-    if kind == 'mom0' and shareScale==False:
+    if kind == 'mom0':
         dd = np.array(hduImCut2.data,dtype=float)
         index=np.where(dd==0.)
         dd[index] = np.nan
         hduImCut2.data= dd
-        cMap = cfg_par['moments']['colorMap'][1]
-    elif kind == 'mom0' and shareScale==True:
-        cMap = cfg_par['moments']['colorMap'][0]
+        if shareScale==True:
+            cMap = cfg_par['moments']['colorMap'][0]
+        else:
+            cMap = cfg_par['moments']['colorMap'][1]
+   
     else:
         cMap = 'jet'
     
@@ -1129,15 +1166,15 @@ class MOMplot(object):
         interpolation=interpolation)
 
 
-    ax2.coords[0].set_ticks(spacing=c.ra.degree*u.degree)
-    ax2.coords[1].set_ticks(spacing=c.dec.degree*u.degree)
+    # ax2.coords[0].set_ticks(spacing=c.ra.degree*u.degree)
+    # ax2.coords[1].set_ticks(spacing=c.dec.degree*u.degree)
     
     ax2.coords[1].set_axislabel(r'Dec (J2000)')
     ax2.coords[1].set_ticklabel_visible(False)
     ax2.coords[0].set_axislabel(r'RA (J2000)')
     #ax2.coords[0].set_ticklabel_visible(False)
-    #ax2.coords[1].set_major_formatter('dd:mm')
-    #ax2.coords[0].set_major_formatter('hh:mm')
+    ax2.coords[1].set_major_formatter('dd:mm')
+    ax2.coords[0].set_major_formatter('hh:mm')
 
     if title==True:
         ax2.set_title(cfg_par['moments']['line'][1],fontsize=19)
@@ -1170,13 +1207,13 @@ class MOMplot(object):
         array, footprint = reproject_interp((hduContCut.data, hduContCut.wcs) ,
                                             hduImCut2.wcs, shape_out=hduImCut2.shape)
 
-        cs = ax2.contour(array.data,levels=contValues[i], colors=contColors[i])
-        if contValues[i]==1:
+        cs = ax2.contour(array.data,levels=contValues[i,0,:], colors=contColors[i])
+        if contValues[i,0,0]==1:
             ax2.clabel(cs, inline=1, fontsize=14)
   
     if kind == 'mom0':
         mom1BarLabel=cfg_par['moments']['cBarLabel']
-        colorTickLabels = cfg_par['moments']['colorTickLabels'][1]
+        colorTickLabels = cfg_par['moments']['mom0colorTickLabels'][1]
 
     elif kind=='mom1':
         mom1BarLabel=r'$v_{\rm los}-v_{\rm sys}$ [km s$^{-1}$]'
@@ -1186,18 +1223,18 @@ class MOMplot(object):
         mom1BarLabel=r'$\sigma_{\rm los}$ [km s$^{-1}$]'
         colorTickLabels = np.arange(vRange[1,0],vRange[1,1],50.)    
 
-    axins = inset_axes(ax2,
-                   width="5%",  # width = 5% of parent_bbox width
-                   height="100%",  # height : 50%
-                   loc='lower left',
-                   bbox_to_anchor=(1.05, 0., 1, 1),
-                   bbox_transform=ax2.transAxes,
-                   borderpad=0,
-                   )
+    # axins = inset_axes(ax2,
+    #                width="5%",  # width = 5% of parent_bbox width
+    #                height="100%",  # height : 50%
+    #                loc='lower left',
+    #                bbox_to_anchor=(1.05, 0., 1, 1),
+    #                bbox_transform=ax2.transAxes,
+    #                borderpad=0,
+    #                )
 
-    cbar = fig.colorbar(img, cax=axins,ticks =colorTickLabels,
-                  orientation='vertical', format='%d')   
-    cbar.set_label(mom1BarLabel, rotation=-90, va="bottom")
+    # cbar = fig.colorbar(img, cax=axins,ticks =colorTickLabels,
+    #               orientation='vertical', format='%d')   
+    # cbar.set_label(mom1BarLabel, rotation=-90, va="bottom")
  
     #SaveOutput
     fig.subplots_adjust(hspace=0.,wspace=0.)
@@ -1205,9 +1242,9 @@ class MOMplot(object):
         outFig= cfg_par['general']['plotMomModDir']+kind+'-'+cfg_par['moments']['line'][0]+cfg_par['moments']['line'][1]+'_overCont.'+cfg_par['moments']['plotFormat']
     else:
         outFig= cfg_par['general']['plotMomModDir']+kind+'-'+cfg_par['moments']['line'][0]+cfg_par['moments']['line'][1]+'.'+cfg_par['moments']['plotFormat']
-    fig.savefig(outFig,format=cfg_par['moments']['plotFormat'],bbox_inches = "tight", dpi=300,transparent=False,overwrite=True)#,
-    #plt.show()
-    plt.close()
+    fig.savefig(outFig,format=cfg_par['moments']['plotFormat'],bbox_inches = "tight", dpi=300,transparent=False)#,
+    plt.show()
+    #plt.close()
 
     return outFig
 
@@ -2252,8 +2289,9 @@ class MOMplot(object):
 
         wcsIm = WCS(hduIm.header)
         hduImCut = Cutout2D(hduIm.data, centre, size, wcs=wcsIm)
-        fig = plt.figure(figsize=(5.54331,5.54331),constrained_layout=False)
+        fig = plt.figure(constrained_layout=True)
         fig.set_tight_layout(False)
+
 
         ax1 = plt.subplot(projection=hduImCut.wcs)    
 
@@ -2324,15 +2362,15 @@ class MOMplot(object):
                     #          angle=hduMom0.header['BPA'],edgecolor=imColors[i], linewidth=1, fill=False, zorder=2,transform=ax1.get_transform('fk5'))
                     # ax1.add_patch(el)     
 
-        ax1.coords[1].set_axislabel(r'Dec (J2000)')
-        ax1.coords[0].set_axislabel(r'RA (J2000)')
+        ax1.coords[1].set_axislabel(r'Dec (J2000)',fontsize=10)
+        ax1.coords[0].set_axislabel(r'RA (J2000)',fontsize=10)
      
         if notes is not None:
             for key,value in notes.items():
             # if titleName is not None:
             #     ax1.set_title(titleName)
 
-                ax1.text(value[0], value[1],key, transform=ax1.get_transform('fk5'),c=value[2],fontsize=12,fontweight='bold')
+                ax1.text(value[0], value[1],key, transform=ax1.get_transform('fk5'),c=value[2],fontsize=8,fontweight='bold')
 
         # if scaleLenght is not None:
         #     ax1.hlines(scaleLenght[0], xmin=scaleLenght[1], xmax=scaleLenght[2], linewidth=2, color='r',transform=ax1.get_transform('fk5'))
@@ -2349,7 +2387,7 @@ class MOMplot(object):
         outFigName= cfg_par['general']['plotMomModDir']+'/'+'optOver_'+imNameOut
 
 
-        fig.savefig(outFigName,format=plotFormat, bbox_inches = "tight",overwrite=True,dpi=300,transparent=False)#,
+        fig.savefig(outFigName,format=plotFormat, bbox_inches = "tight",dpi=300,transparent=False)#,
                     #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
 
         return outFigName

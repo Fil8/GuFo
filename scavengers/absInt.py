@@ -431,7 +431,7 @@ class absint:
 
         return out_spec
 
-    def absPlotInt(self,cfg_par,specName,contFlux=None,xLims=None,yLims=None,vSys=None,y_sigma=None,pxBeam=None,source=None,opt='abs'):
+    def absPlotInt(self,cfg_par,specName,specName2=None,contFlux=None,xLims=None,yLims=None,vSys=None,y_sigma=None,pxBeam=None,source=None,opt='abs'):
         '''Plots an integrated line profile. If contFlux is given, the y-axis is in optical depth.
 
         Parameters
@@ -485,7 +485,9 @@ class absint:
             x_data=vel
             flux=spec[:,1]
             y_data=flux
-            
+            if cfg_par['HIem']['vunit']== 'm/s':
+                vel/=1e3
+                vel=vel[::-1]
         elif opt =='emSof':
             spec=ascii.read(specName)
 
@@ -503,6 +505,25 @@ class absint:
          
             y_sigma *=1e3
             y_sigma *=np.sqrt(n_pix/pxBeam)
+            print(spec['n_pix'])
+
+        elif opt =='emBlind':
+            spec=ascii.read(specName)
+
+            if 'freq' in spec.dtype.names:
+                x_data = spec['freq']
+                xLabel = r'Freq. [Hz]'
+            elif 'vel' in spec.dtype.names:
+                x_data = spec['vel']/1e3
+            else:
+                x_data = spec['felo']/1e3
+            flux = spec['f_sum']
+            
+            y_data=flux*1e3
+            print(y_data,y_sigma)
+            y_sigma =spec['n_pix']*1e3
+            # y_sigma *=np.sqrt(n_pix/pxBeam)
+            # print(spec['n_pix'])
         elif opt=='em':
             spec=ascii.read(specName)
 
@@ -513,7 +534,7 @@ class absint:
 
         if contFlux is not None:
             tau = self.optical_depth(flux,contFlux)
-            y_data=-tau
+            y_data=tau
 
         fig = plt.figure(figsize=(7.24409,4.074800625),constrained_layout=False)
         fig.set_tight_layout(False)
@@ -532,11 +553,11 @@ class absint:
                         left='on', right='on', which='minor', direction='in')
 
 
-        if contFlux is None and opt!='emSof':
+        if contFlux is None and (opt!='emSof' or opt!='emBlind'):
 
             ylabh = ax1.set_ylabel(
                 r'S\,$[\mathrm{mJy}\,\,\mathrm{beam}^{-1}]$')
-        if contFlux is None and opt=='emSof':
+        if contFlux is None and (opt=='emSof' or opt=='emBlind'):
             ylabh = ax1.set_ylabel(
                 r'Flux density $[\mathrm{mJy}]$')
         else:
@@ -571,10 +592,22 @@ class absint:
             #        # y_data[index_flags] = 0.0
             #    y_data[index_flags_l:index_flags] = 0.0
             
-        ax1.step(x_data, y_data, where='mid', color='black', linestyle='-')
+        ax1.step(x_data, y_data, where='mid', color='black', linestyle='-',label=r'MeerKAT - $\Delta v= 1.4$ km s${-1}$')
         # ax1.plot(x_data, y_data,  color='black', linestyle='-')
+        if specName2 is not None:
+
+            spec=np.genfromtxt(specName2)
+
+            vel=spec[:,0]
+            x_data2=vel
+            flux2=spec[:,1]
+            tau2 = self.optical_depth(flux2,491.8e-3)
+            y_data2=tau2
+            ax1.step(x_data2, y_data2, where='mid', color='orange', linestyle='-',lw=2., label=r'ATCA - $\Delta v= 20$ km s${-1}$')
+
 
         if y_sigma is not None:
+
             ax1.fill_between(x_data, y_data-y_sigma, y_data+y_sigma,
                          facecolor='grey', alpha=0.4,step='mid', joinstyle="miter")
             # ax1.errorbar(x_data, y_data, elinewidth=0.75,
@@ -592,7 +625,7 @@ class absint:
         #    y1_max = 50
         #else:
 
-        if opt=='emSof':
+        if opt=='emSof' or opt=='emBlind':
             if yLims==None:
                 peak = np.nanmax([np.nanmin(y_data),np.nanmax(y_data)])
                 y1_min = (-peak/10.)*1.1
@@ -605,7 +638,11 @@ class absint:
             if source is not None:
                 ax1.axvline(x_data[source['z_min']],color='grey', alpha=0.25,linestyle='-',linewidth=0.8,drawstyle='steps-pre')
                 ax1.axvline(x_data[source['z_max']],color='grey', alpha=0.25,linestyle='-',linewidth=0.8,drawstyle='steps-post')
-
+    
+           
+            if source is not None:
+                ax1.axvline(x_data[source['z_min']],color='grey', alpha=0.25,linestyle='-',linewidth=0.8,drawstyle='steps-pre')
+                ax1.axvline(x_data[source['z_max']],color='grey', alpha=0.25,linestyle='-',linewidth=0.8,drawstyle='steps-post')
 
         else:
             peak = np.nanmax([-np.nanmin(y_data),np.nanmax(y_data)])
@@ -628,7 +665,8 @@ class absint:
         # Add minor tick marks
         ax1.minorticks_on()
         ax1.set_autoscale_on(False)    
-
+        # legend = ax1.legend(loc=3,handlelength=1.0, handletextpad=1.0,frameon=True,fontsize=10)
+        # legend.get_frame().set_facecolor('none')
         # Save figure to file
         # name of plot is combination of beam number and name of extracted source
         #outplot = os.path.basename(outPlot)
@@ -645,7 +683,7 @@ class absint:
         outPlot = cfg_par['HIabs']['absDir']+cfg_par['HIabs']['title']+'.'+cfg_par['HIabs']['spectrum']['plotFormat']
 
         plt.savefig(outPlot,
-                        overwrite=True, bbox_inches='tight', dpi=100)
+                         transparent=False,bbox_inches='tight', dpi=300,format=cfg_par['HIabs']['spectrum']['plotFormat'])
         plt.show()
         #plt.close("all")
 

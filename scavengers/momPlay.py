@@ -1075,7 +1075,7 @@ class momplay:
         snMap = np.divide(mom0Data,dNew)
 
         if ratio == 3:
-            selectPix = (snMap > 2.75) & ( snMap < 3.20)
+            selectPix = (snMap > 2.5) & ( snMap < 3.5)
         elif ratio == 5:
             selectPix = (snMap > 4.75) & ( snMap < 5.20)
         elif ratio == 10:
@@ -1084,8 +1084,8 @@ class momplay:
 
         meanFlux = np.nanmean(mom0Data[selectPix])
         medianFlux = np.nanmedian(mom0Data[selectPix])
-        print('################################################# d')
-        print(np.min([meanFlux,medianFlux]))
+        print('#################################################')
+        print(np.nanmin([meanFlux,medianFlux]))
         outNoiseName = str.split(cfg_par['HIem']['moments']['momDir']+cfg_par['HIem']['moments']['snRatioName'],'.fits')[0]+'_noiseMap.fits'
 
         fits.writeto(outNoiseName,dNew,fits.getheader(inMap),overwrite=True)
@@ -1099,7 +1099,7 @@ class momplay:
 
         #fits.writeto(outSnName,momPixelled,fits.getheader(inMap),overwrite=True)
 
-        return np.min([meanFlux,medianFlux])
+        return np.nanmin([meanFlux,medianFlux])
 
     def makeLineRatioMaps(self,cfg_par):
 

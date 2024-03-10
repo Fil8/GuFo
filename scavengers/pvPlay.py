@@ -554,7 +554,6 @@ class pvplay(object):
             hduIm.data= dd
         
 
-        hduIm.data*=1e3
         
         vel = ((np.linspace(1, hduIm.data.shape[0], hduIm.data.shape[0]) - hduIm.header['CRPIX2']) 
             * hduIm.header['CDELT2'] + hduIm.header['CRVAL2'])/1e3
@@ -602,7 +601,7 @@ class pvplay(object):
             #cRangeMin=np.nanmin(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax])
             print('crange')
             print(cRangeMin,cRangeMax)
-            norm = astviz.ImageNormalize(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], vmin=np.nanpercentile(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], 0.0), vmax=np.nanpercentile(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], 0.1))
+            norm = astviz.ImageNormalize(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], vmin=np.nanpercentile(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], 0.0), vmax=np.nanpercentile(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax], 0.95))
             
             # img = ax1.imshow(hduIm.data[ext_ymin:ext_ymax,ext_xmin:ext_xmax],norm=norm, cmap=current_cmap,origin='lower',
             #     interpolation=interpMethod,vmin=cRangeMin,vmax=cRangeMax,aspect='auto',
@@ -782,7 +781,7 @@ class pvplay(object):
             baseName=cfg_par['general']['outPrefix'][0]+'pvPlot.fits'
         outFigName= cfg_par['pvDiagram']['pvPlots']['plotDir']+'/'+baseName.replace('.fits','.'+plotFormat)
         print(outFigName)
-        fig.savefig(outFigName,format=plotFormat, bbox_inches = "tight",overwrite=True,dpi=300,transparent=False)#,
+        fig.savefig(outFigName,format=plotFormat, bbox_inches = "tight",dpi=300,transparent=False)#,
                     #dpi=300,bbox_inches='tight',transparent=False,overwrite=True)
 
         return outFigName

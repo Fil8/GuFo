@@ -29,6 +29,35 @@ class fitsplay():
     '''
 
 
+    def nanToZero(self,inFile,outMap=False):
+        '''Converts nans to zeros in a dataset
+
+            Parameters
+            ----------
+            inFile: str
+                full path of input .fits file
+
+            Returns
+            -------
+                
+                outMap: str
+                    full path to output, if False will add _zr to outName
+            
+
+        '''        
+        hh = fits.getheader(inFile)
+        dd = fits.getdata(inFile)
+
+        dd[np.isnan(dd)] = 0.0
+
+        dd[np.isinf(dd)] = 0.0
+
+        if outMap==False:
+            aaa = str.split(inFile, '.fits')
+            outMap=aaa[0]+'_zr.fits'
+        
+        fits.writeto(outMap,dd,hh,overwrite=True)
+
     def divFits2D(self,cfg_par,inFile,divFile,output=False):
         '''Divides one fit file for another
 
@@ -53,6 +82,8 @@ class fitsplay():
         '''
 
         
+
+       
         
         hh,dd = hP.cleanHead(inFile,writeFile=False)
 
@@ -250,7 +281,6 @@ class fitsplay():
         if len(fits.getdata(filename).shape) ==2:
             fits.writeto(output,fits.getdata(filename)[ymin:ymax,xmin:xmax],hh,overwrite=True)
         return output
-
 
     def coordToPix(self,imagename,ra,dec,verbose=False):
         '''

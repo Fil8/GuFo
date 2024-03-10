@@ -193,7 +193,7 @@ class specplay:
                     meta={'name': 'Spectrum'})                
             dV = np.abs(np.nanmean(np.diff(velocities)))
 
-        else:
+        elif nameOpt=='Full':
             velocities = cvP.chan2vel(channels,cubeName)
             if n_pix is not None:
                 t = Table([channels,velocities, flux, n_pix], 
@@ -206,8 +206,13 @@ class specplay:
                     meta={'name': 'Spectrum'})                
 
             dV = np.abs(np.nanmean(np.diff(velocities)))
-
-
+        else:
+            velocities = cvP.chan2vel(channels,cubeName)
+            print(velocities,flux,n_pix)
+            t = Table([channels,velocities, flux,n_pix], 
+                    names=('chan','vel','f_sum','n_pix'),
+                    meta={'name': 'Spectrum'})  
+            dV = np.abs(np.nanmean(np.diff(cvP.chan2vel(channels,cubeName))))
         outSpec = cfg_par['HIabs']['absDir']+cfg_par['HIabs']['specName']+nameOpt+'.txt'
 
         t.write(outSpec,overwrite=True,format='ascii')
@@ -273,7 +278,7 @@ class specplay:
         yCtr = int(yCtr)
         sqrMaskIdx_X = [xCtr-hlfSideMaskMed,xCtr+hlfSideMaskMed] 
         sqrMaskIdx_Y = [yCtr-hlfSideMaskMed,yCtr+hlfSideMaskMed] 
-
+        print(areaMaskMed)
 
         for i in range(0,cube.shape[0]):
 
@@ -288,6 +293,95 @@ class specplay:
             return totFlux, hiMassVl, hiMassScience
         else:
             return totFlux
+
+
+
+
+    def intSpecExtBlind(self,cfg_par,source,cubeName,Aperture=None,outSpec=None,zRange=None,hiMass=False):
+        
+        '''Extracts integrated spectrum from source in SoFiA catalogue
+
+        Parameters
+        ----------
+        source : astropy table (single_row)
+            properties of the source extracted by SoFiA
+
+        cubeName: str
+            path-to-datacube. The mask produced by Sofia (datacube_mask.fits must be located in the same directory)
+
+        outSpec : str (optional)
+            _default=None_, path-to-output spectrum. Default will save the spectrum in the same folder of the datacube (with postfix _specInt.txt)
+
+        zRange: list (optional)
+            _default=None_, [chan_min,chan_max] range where to extract the spectrum (default is all channels)
+        
+        hiMass : bool (optional)
+            _default=False_, if set to true HI mass from integrated spectrum and HI mass in science format is returned.
+
+        Returns
+        -------
+
+            intSpec: astropy Table
+                integrated spectrum : chanNumb, freq (or velocity), integrated flux, number of pixel per channel
+        '''
+        
+        source['y_min'] = source['y']-int(Aperture/2)
+        source['y_max']=source['y']+int(Aperture/2)
+        source['x_min']=source['x']-int(Aperture/2)
+        source['x_max']=source['x']+int(Aperture/2)
+
+
+        baseCubeName=str.split(cubeName,'.fits')[0]
+        cube,xCtr,yCtr = cP.makeSubCube(source,cubeName)
+        pxBeam = hP.pxBeam(cubeName)
+        channels = np.asarray(range(cube.shape[0]))
+        intFlux = np.zeros(cube.shape[0])
+        n_pix = np.zeros(cube.shape[0])
+        madfm = np.zeros(cube.shape[0])
+        abs_mean_rms=np.zeros(cube.shape[0])
+        sourceNoise=np.copy(source)
+        sourceNoise['y_min'] = sourceNoise['y_min']+int(Aperture*10)
+        sourceNoise['y_max']=sourceNoise['y_max']+int(Aperture*10)
+        sourceNoise['x_min']=sourceNoise['x_min']+int(Aperture*10)
+        sourceNoise['x_max']=sourceNoise['x_max']+int(Aperture*10)
+
+        noise,NxCtr,NyCtr = cP.makeSubCube(sourceNoise,cubeName)
+        print(NxCtr,NyCtr)
+        for i in range(0,cube.shape[0]):
+
+            chanFov=cube[i,:,:]
+            chanNoiseFov=noise[i,:,:]
+
+
+            intFlux[i] = np.nansum(chanFov)/pxBeam
+            n_pix[i] = np.nansum(chanFov)
+            rms = np.std(chanNoiseFov)*np.sqrt(np.power(source['x_max']-source['x_min'],2)/pxBeam)
+            print(rms)
+            if rms != 0.0:
+                med2 = np.abs(chanNoiseFov[ int(chanNoiseFov.shape[0]/2), int(chanNoiseFov.shape[1]/2)] - rms)
+                madfm[i] = np.nanmedian(med2) / 0.6744888
+                madfm[i] =rms
+            else:
+                madfm[i] = 0.0
+                madfm[i] =rms
+            abs_mean_rms = np.nanmean(madfm) 
+
+        print(intFlux)
+        outSpecFull,dV = self.writeSpec(cfg_par,source,cubeName,channels,intFlux,n_pix=madfm,nameOpt='Blind')
+        totFlux=np.nansum(intFlux[373:388])*dV*u.Jy
+        if hiMass==True:
+
+            hiMassVl, hiMassScience = hiP.hiMass(totFlux,cfg_par['galaxy']['dL'],cfg_par['galaxy']['z'])
+
+
+            return totFlux, hiMassVl, hiMassScience
+        else:
+            return totFlux
+
+        
+
+
+
 
 
 

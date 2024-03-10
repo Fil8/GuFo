@@ -12,6 +12,21 @@ Classifier: Programming Language :: Python :: 3
 Classifier: Topic :: Scientific/Engineering :: Astronomy
 Classifier: Topic :: Software Development :: Libraries :: Python Modules
 License-File: LICENSE.md
+Requires-Dist: ipython
+Requires-Dist: numpy
+Requires-Dist: wheel
+Requires-Dist: scipy
+Requires-Dist: matplotlib
+Requires-Dist: lmfit
+Requires-Dist: pyaml
+Requires-Dist: astropy
+Requires-Dist: vorbin
+Requires-Dist: ppxf==6.7.15
+Requires-Dist: tqdm
+Requires-Dist: reproject
+Requires-Dist: pandas
+Requires-Dist: pvextractor
+Requires-Dist: specutils
 
 ## GaNGiaLF
 
