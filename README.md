@@ -6,7 +6,7 @@ Gas N-Gaussians Line fitter  for radioastronomy data analysis
 
 - Clone this repository 
 
-`git clonehttps://github.com/Fil8/GaNGiaLF.git`
+`git clone https://github.com/Fil8/GaNGiaLF.git`
 
 - start and activate virtual-environment (or conda environment) outside of GaNGiaLF directory
 
