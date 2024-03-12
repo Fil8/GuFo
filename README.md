@@ -6,7 +6,7 @@ Gas N-Gaussians Line Fitter is a framework of tools for the analysis of spectral
 
 - Clone this repository 
 
-`git clonehttps://github.com/Fil8/GaNGiaLF.git`
+`git clone https://github.com/Fil8/GaNGiaLF.git`
 
 - start and activate virtual-environment (or conda environment) outside of GaNGiaLF directory
 
