@@ -8,12 +8,17 @@ from lmfit.models import GaussianModel
 from lmfit.model import save_modelresult
 from lmfit.model import load_modelresult
 
-from reproject import reproject_exact
+from reproject import reproject_exact, reproject_interp
 
 from astropy.io import ascii, fits
 from astropy.table import Table, Column
+from astropy.wcs import WCS
+
 import numpy as np
+import numpy.lib.recfunctions as rfn
+
 #import numpy.ma as ma
+import scipy.ndimage
 
 import tPlay,cvPlay,bptPlot,momPlot
 
@@ -24,6 +29,7 @@ mPl = momPlot.MOMplot()
 
 class momplay:
     '''Modules to create moment maps, residual maps, line ratios maps
+    
     - makeMoments
         load line list, datacube and create loop for moments module
     - makeSigmaCentroidMap
@@ -143,6 +149,64 @@ class momplay:
 
         return
 
+
+    def makeMultipleMaps(self,cfg_par):
+
+        tableNames = cfg_par['multipleRegions']['tableNames']
+        regionNames = cfg_par['multipleRegions']['regions']
+
+        momModDir = cfg_par['general']['momDir']+'multipleRegions'+'/'
+
+        if not os.path.exists(momModDir):
+            os.mkdir(momModDir)
+
+        inMom = cfg_par['multipleRegions']['inputMoment']
+        header = fits.open(inMom)[0].header
+
+        if 'CUNIT3' in header:
+            del header['CUNIT3']
+        if 'CTYPE3' in header:
+            del header['CTYPE3']
+        if 'CDELT3' in header:
+            del header['CDELT3']
+        if 'CRVAL3' in header:  
+            del header['CRVAL3']
+        if 'CRPIX3' in header:
+            del header['CRPIX3'] 
+        if 'NAXIS3' in header:
+            del header['NAXIS3']
+        if 'CRDER3' in header:
+            del header['CRDER3']
+        if 'SPECSYS3' in header:
+            del header['SPECSYS3']
+
+
+        for j in range(0,len(tableNames)):
+            momHead = header.copy()
+            mom = np.zeros([header['NAXIS2'],header['NAXIS1']])*np.nan
+            print(tableNames[j])
+            hdul = fits.open(cfg_par['general']['runNameDir']+tableNames[j])
+            tabGen = np.asarray(hdul[1].data)
+            if 'PixX_1' in tabGen.dtype.names:
+                tabGen = rfn.rename_fields(tabGen, {'PixX_1': 'PixX', 'PixY_1': 'PixY'})
+            if 'BIN_ID_1' in tabGen.dtype.names:
+                 tabGen = rfn.rename_fields(tabGen, {'BIN_ID_1': 'BIN_ID'})
+            #if 'BIN_ID_1' in tabGen.dtype.names:
+            #    tabGen = rfn.rename_fields(tabGen, {'BIN_ID_1': 'BIN_ID'})
+            for i in range(0,len(tabGen['BIN_ID'])):
+                    
+                mom[int(tabGen['PixY'][i]),int(tabGen['PixX'][i])] = tabGen['CCAIN'][i]
+
+        
+            momHead['WCSAXES'] = 2
+            momHead['SPECSYS'] = 'LSRK'
+            momHead['BUNIT'] = 'km/s'
+
+            fits.writeto(momModDir+'mom-'+regionNames[j]+'.fits',mom,momHead,overwrite=True)
+
+        return
+
+
     def momSigmaCentroid(self,cfg_par,lineName,lineNameStr,header,lineThresh,cenRange):
 
         modName = cfg_par['gFit']['modName']
@@ -172,12 +236,14 @@ class momplay:
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['Ancels'+cfg_par['gFit']['modName']].data
+        
         if cfg_par['gFit']['modName'] == 'BF':
             cfg_par['gFit']['modName'] = 'g2'
 
         residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
         #esiduals = hdul['Residuals_G1'].data
-        
+        cfg_par['gFit']['modName'] == 'BF'
+
         linesG1 = hdul['LineRes_G1'].data
 
         #hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
@@ -198,7 +264,7 @@ class momplay:
                 thresHold = residuals['SN_NII6583'][index]
                 sigmaThresh = linesG1['g1_SigIntr_NII6583'][index]
 
-                if thresHold >= lineThresh and sigmaThresh < cfg_par['moments']['sigmaThresh']:
+                if thresHold >= lineThresh:
 
 #                if thresHold >= lineThresh :
                     
@@ -214,24 +280,24 @@ class momplay:
 
         fits.writeto(momModDir+'momSigma-'+lineName+'.fits',momSigma,momSigmaHead,overwrite=True)
 
-        mPl.mom2Plot(cfg_par, momModDir+'momSigma-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'ancillary')
+        mPl.mom2Plot(cfg_par, momModDir+'momSigma-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis',vRange=[0,cfg_par['moments']['sigmaThresh']])
 
         fits.writeto(momModDir+'momDisp-'+lineName+'.fits',momDisp,momSigmaHead,overwrite=True)
-        mPl.mom2Plot(cfg_par, momModDir+'momDisp-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'ancillary')
+        mPl.mom2Plot(cfg_par, momModDir+'momDisp-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis',vRange=[0,cfg_par['moments']['sigmaThresh']])
 
         momCentroidHead['WCSAXES'] = 2
         momCentroidHead['SPECSYS'] = 'topocent'
         momCentroidHead['BUNIT'] = 'km/s'
         
         fits.writeto(momModDir+'momCentroid-'+lineName+'.fits',momCentroid,momCentroidHead,overwrite=True)
-        mPl.mom1Plot(cfg_par, momModDir+'momCentroid-'+lineName+'.fits',lineName,lineThresh,
-            lineNameStr,'ancillary',vRange=[-cenRange,cenRange],modName=cfg_par['gFit']['modName'])
+        mPl.mom1Plot(cfg_par, momModDir+'momCentroid-'+lineName+'.fits',lineName,0.,
+            lineNameStr,'kinematicalAnalysis',vRange=[-cenRange,cenRange],modName=cfg_par['gFit']['modName'])
 
         momW80Head['WCSAXES'] = 2
         momW80Head['SPECSYS'] = 'topocent'
         momW80Head['BUNIT'] = 'km/s'
         fits.writeto(momModDir+'momW80-'+lineName+'.fits',momW80,momW80Head,overwrite=True)
-        mPl.mom2Plot(cfg_par, momModDir+'momW80-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'ancillary')
+        mPl.mom2Plot(cfg_par, momModDir+'momW80-'+lineName+'.fits',lineName,0.,lineNameStr,'kinematicalAnalysis',vRange=[0,cfg_par['moments']['sigmaThresh']])
 
         return
 
@@ -396,7 +462,7 @@ class momplay:
             mPl.mom1Plot(cfg_par, momModDir+'mom1_g2-'+lineName+'.fits',lineName,
                 lineNameStr,lineThresh,'moments',vRange=[-cenRange,cenRange],
                 modName='g2')
-            mPl.mom2Plot(cfg_par, momModDir+'mom2_g2-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'moments')
+            mPl.mom2Plot(cfg_par, momModDir+'mom2_g2-'+lineName+'.fits',lineName,lineThresh,lineNameStr,'moments',vRangeMax=cfg_par['moments']['sigmaThresh'])
 
             if modName == 'g2':
                 fits.writeto(momModDir+'mom0_tot-'+lineName+'.fits', mom0G1+mom0G2,mom0Head,overwrite=True)
@@ -452,9 +518,10 @@ class momplay:
         
         hdul = fits.open(cfg_par['general']['outTableName'])
         lines = hdul['LineRes_'+cfg_par['gFit']['modName']].data
-        residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
 
-        bF = np.array(residuals['bestFit'],dtype=int)
+        if cfg_par['residuals']['BFcube'] == True:
+            residuals = hdul['Residuals_'+cfg_par['gFit']['modName']].data
+            bF = np.array(residuals['bestFit'],dtype=int)
 
         hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
         tabGen = hduGen[1].data
@@ -559,7 +626,7 @@ class momplay:
         hdul = fits.open(cfg_par['general']['outTableName'])
         binInfo = hdul['BININFO'].data
 
-        res = hdul['residuals_'+modName].data
+        #res = hdul['residuals_'+modName].data
 
         for ii in range(0,len(lineInfo['ID'])):
             
@@ -990,6 +1057,50 @@ class momplay:
 
         return 0
 
+    def makeSNRatioMap(self,cfg_par,noise,ratio=3):
+
+
+        inMap = cfg_par['HIem']['moments']['momDir']+cfg_par['HIem']['moments']['snRatioName'] 
+        d = fits.getdata(inMap)
+
+        cubeName = cfg_par['HIem']['cubeDir']+cfg_par['HIem']['cubeName'][0]
+        h = fits.getheader(cubeName)
+        dV=np.abs(h['CDELT3']) 
+
+        dNew = np.multiply(np.sqrt(d),noise)
+
+        mom0Name = cfg_par['HIem']['moments']['momDir']+cfg_par['HIem']['moments']['mom0Name'][0]
+        mom0Data = fits.getdata(mom0Name)
+
+        snMap = np.divide(mom0Data,dNew)
+
+        if ratio == 3:
+            selectPix = (snMap > 2.5) & ( snMap < 3.5)
+        elif ratio == 5:
+            selectPix = (snMap > 4.75) & ( snMap < 5.20)
+        elif ratio == 10:
+            selectPix = (snMap > 9.75) & ( snMap < 10.20)
+
+
+        meanFlux = np.nanmean(mom0Data[selectPix])
+        medianFlux = np.nanmedian(mom0Data[selectPix])
+        print('#################################################')
+        print(np.nanmin([meanFlux,medianFlux]))
+        outNoiseName = str.split(cfg_par['HIem']['moments']['momDir']+cfg_par['HIem']['moments']['snRatioName'],'.fits')[0]+'_noiseMap.fits'
+
+        fits.writeto(outNoiseName,dNew,fits.getheader(inMap),overwrite=True)
+        
+        outSnName = str.split(cfg_par['HIem']['moments']['momDir']+cfg_par['HIem']['moments']['snRatioName'],'.fits')[0]+'_snRatio.fits'
+
+        fits.writeto(outSnName,snMap,fits.getheader(inMap),overwrite=True)
+
+        #momPixelled = mom0Data[selectPix]
+        #outSnName = str.split(cfg_par['HIem']['moments']['momDir']+cfg_par['HIem']['moments']['snRatioName'],'.fits')[0]+'_oux.fits'
+
+        #fits.writeto(outSnName,momPixelled,fits.getheader(inMap),overwrite=True)
+
+        return np.nanmin([meanFlux,medianFlux])
+
     def makeLineRatioMaps(self,cfg_par):
 
         workDir = cfg_par['general']['cubeDir']
@@ -1136,10 +1247,10 @@ class momplay:
 
         hdul = fits.open(cfg_par['general']['outTableName'])
         lineBPT = hdul['BPT_'+cfg_par['gFit']['modName']].data
-        hbetaMap = fits.open(momModDir+'mom0_'+modName+'-Hb4861.fits')
+        hbetaMap = fits.open(momModDir+'mom0_ToT-NII6583.fits')
         hbetaData = hbetaMap[0].data
 
-        hduGen = fits.open(cfg_par['general']['outVorLineTableName'])
+        hduGen = fits.open(cfg_par['general']['outTableName'])
         tabGen = hduGen[1].data
 
         numCols = len(lineBPT.dtype.names)
@@ -1165,7 +1276,7 @@ class momplay:
             match_bin = np.where(tabGen['BIN_ID']==lineBPT['BIN_ID'][j])[0]
 
             for index in match_bin:
-                if ~np.isnan(hbetaData[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]):
+                #if ~np.isnan(hbetaData[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]):
                     
                     lineMapG1[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lineBPT[j]['cDist-OIIIG1']
 
@@ -1202,13 +1313,51 @@ class momplay:
             bpt.cDistIM(cfg_par,outBPT)
 
             if modName != 'g1':
+                cfg_par['gFit']['modName'] = 'g2'
                 bpt.cDistIM(cfg_par,outBPTG2)
+                cfg_par['gFit']['modName'] = 'ToT'
                 bpt.cDistIM(cfg_par,outBPTToT)
+                cfg_par['gFit']['modName'] = 'g2'
             elif modName=='g3':
 
                 bpt.cDistIM(cfg_par,outBPTG3)
 
         return
+
+    def rebinPV(self,templateFile,inputFile):
+
+        tFile = fits.open(templateFile)
+        iFile = fits.open(inputFile)
+
+        tHead = tFile[0].header
+        tData = tFile[0].data
+        tVel = ((np.linspace(1,tData.shape[0],tData.shape[0])-tHead['CRPIX2'])*tHead['CDELT2']+tHead['CRVAL2'])
+        tVel = tVel[::-1]
+        iHead = iFile[0].header
+        iData = iFile[0].data
+
+        iVel = ((np.linspace(1,iData.shape[0],iData.shape[0])-iHead['CRPIX2'])*iHead['CDELT2']+iHead['CRVAL2'])
+        iVel = iVel[::-1]
+        data = np.zeros([tData.shape[0],tData.shape[1]])
+
+        if iData.shape[0] != tData.shape[0]:
+            for i in range(0,tData.shape[0]-1):
+                index = (tVel[i] <= iVel) & (iVel < tVel[i+1])
+                data[i,:] = np.nansum(iData[index,:])
+        else:
+            data = np.copy(iData)
+
+        iHead['CRVAL2'] = tHead['CRVAL2']
+        iHead['CDELT2'] = tHead['CDELT2']
+        iHead['CRPIX2'] = tHead['CRPIX2']
+        iHead['CTYPE2'] = 'km/s'
+
+
+        rebinFileName = str.split((inputFile),'.')[0]
+        rebinFileName=rebinFileName+'-rebin.fits'
+        fits.writeto(rebinFileName,data,iHead,overwrite=True)
+
+        return(rebinFileName)
 
     def regridMoms(self,basename,slavename):
         
@@ -1243,8 +1392,60 @@ class momplay:
         #print slavename
         #for i in slave.header.keys():
         #    print i,'\t',slave.header[i]
+        newslave, footprint = reproject_interp(slave, bheader, shape_out=(bheader['BMIN'],bheader['BMAJ']))
+        fits.writeto(outName, newslave, bheader, overwrite=True)
+
+        return outName
+
+    def regridFromPxSize(self,basename,pxSize1,pxSize2):
+        pxString=str(np.round(pxSize1,1))
+        pxString=pxString.replace('.','-')
+        #pxSize/=3600.
+
+        outName = basename.split('.fits')[0]
+        outName = outName+'_'+pxString+'.fits'
+        slave = fits.open(basename)
+        d=slave[0].data
+        index=np.isnan(d)
+        d[index]=0.0
+        fits.writeto(outName,d,slave[0].header,overwrite=True)
         
-        newslave, footprint = reproject_exact(slave, bheader)
+        slave = fits.open(outName)
+        sheader = slave[0].header
+        if 'WCSAXES' in sheader:
+            sheader['WCSAXES'] = 2
+        sheader['NAXIS'] = 2
+
+        bheader=sheader.copy()
+
+        w = WCS(bheader)
+        raC,decC= w.wcs_pix2world(0.0,0.0, 1)
+        bheader['NAXIS2'] = int(bheader['NAXIS2']*(bheader['CDELT2']/pxSize2))
+        bheader['NAXIS1'] = int(bheader['NAXIS1']*(-bheader['CDELT1']/pxSize1))
+
+        bheader['CDELT1'] = -pxSize1
+        bheader['CDELT2'] = pxSize2
+
+        bheader['CRVAL1'] = float(raC)
+        bheader['CRVAL2'] = float(decC)
+        bheader['CRPIX1'] = 0.0
+        bheader['CRPIX2'] = 0.0
+        print(pxSize1,raC,decC,bheader['NAXIS1'],bheader['NAXIS2'])
+        # if 'FREQ' in slave.header:
+        #     bheader['FREQ'] = sheader['FREQ']
+        # elif 'CRVAL3' in sheader:
+        #     bheader['FREQ'] = sheader['CRVAL3']
+
+        #print basename
+        #for i in base.header.keys():
+        #    print i,'\t',base.header[i]
+        #print slavename
+        #for i in slave.header.keys():
+        #    print i,'\t',slave.header[i]
+
+        newslave, footprint = reproject_interp(slave, bheader)
+        index = np.where(newslave<=0.5)
+        newslave[index]=np.nan
         fits.writeto(outName, newslave, bheader, overwrite=True)
 
         return outName

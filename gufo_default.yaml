@@ -78,3 +78,55 @@ ancillary:
   enable: False 
   cBarLabel: ['$\sigma$ [km s$^{-1}$]','velocity [km s$^{-1}$]','W80 [km s$^{-1}$]'  ]
   colorMap: ['jets','jets','jets']
+kinematicalAnalysis:
+  enable: False
+  kPlot:
+    enable: False
+    kPlot: False
+    computeSigmaCentroid: False
+    Name: 'NII6583'
+    cBarLabel: ['w80 [km s$^{-1}$]','velocity [km s$^{-1}$]','W80 [km s$^{-1}$]'  ]
+    colorMap: ['jets','jets','jets']
+    ancillaryInfo:
+      CCAanalysis: False
+      theoreticalCCA: Pencil
+      plotTheoreticalCCA: True
+      sigmaInCCA: 1.5
+      CCALabel: ['[NII]6583-g1','[NII]6583-g2','[NII]6583' ]
+      plotRotation: True
+      rotOutCCA: False
+      plotElse: False
+  kPlotMultiReg:
+    enable: False
+    inputMoment: '/Users/maccagni/Projects/MFS/FornaxA/MUSE/cubes/results/FornaxE_4750-6800-v402/rFit/moments/g2/mom0_tot-NII6583.fits'
+    tableNames: ['alongRotNII.fits','rotNII.fits','Br1.fits','Br2.fits','Br3.fits','Br4.fits','Br5.fits','BrO.fits']
+    colors: ['dodgerblue','blue','cyan','darkgreen','seagreen','limegreen','darkorange','firebrick']
+    regions: ['Rotation Region','Rotation Model','R1','R2','R3','R4','R5','R6']
+    contOver: True
+    contName: '/Users/maccagni/Projects/MFS/FornaxA/centreHI/continuum/Meer_1440MHz.fits'
+    contLevels: [5e-4,1e-3,2.5e-3,5e-3,1e-2,2e-2,4e-2,8e-2,1.6e-1]
+    #Name: 'HI'  
+    Name: 'NII6583'
+  CCAanalysis:
+    taylorNumber:
+      enable: False
+      maxRadius: 5.8 #kpc
+      inTables: ['IonRotAllSmall.fits','HIRotAllSmall.fits','CORotAllSmall.fits']
+      yColumns: ['dispIntr_NII6583','sigma_HI','sigma_CO']
+      gasColors: ['dodgerblue','darkorange','seagreen']
+      gasNames: ['[NII]6583 inside disk','HI inside disk','CO inside disk']
+      vRot: 340.
+    cRatio:
+      enable: False
+      maxRadius: 5.
+      inTables: ['IonRotAllSmall.fits','IonOutAllSmall.fits','IonCCAAllSmall.fits']
+      #inTables: ['HIRotAllSmall.fits','HIOutAllSmall.fits','HICCAAllSmall.fits']
+      #inTables: ['CORotAllSmall.fits','COOutAllSmall.fits','COCCAAllSmall.fits']
+      tEddy: ['teddyAlt','teddyAlt','teddyAlt']
+      rColumns: ['r','r','r']
+      tCool: ['tCool','tCool','tCool']
+      gasColors: ['dodgerblue','firebrick','seagreen']
+      #gasNames: ['HI in rotation','HI outflow','HI CCA candidate']
+      #gasNames: ['CO in rotation','CO outflow','CO CCA candidate']
+      gasNames: ['[NII]6583 in rotation','[NII]6583 outflow','[NII]6583 CCA candidate']
+

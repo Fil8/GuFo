@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>  
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+</head>
+<style>
+    tab1 { padding-left: 2em; }
+    tabimage { padding-right: 3em; }
+    #primary {
+       width:100%;
+       margin:0 auto;
+    }
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+    #left_col {
+       float:left;
+       width:48%;
+    }
+    #right_col {
+       float:right;
+       width:48%;
+    }
+    img.chMaps{
+      float:left;
+      width: 75%;
+      font-family: Veranda;
+  }
+table, th, td {
+  border:1px solid black;
+}
+</style>
+<body>
+<h1>Channel Maps</h1>
+<div id="row">
+{{img_chans}}<br/>
+</div>
+<div id="wrap">
+Contour levels are {{noise}}\(\times 2^{n}\) mJy beam\(^{-1}\) where (\(n=0,1,2,...\)), up to the maximum detected flux.<br/>
+The lowest contour corresponds to a \(2.5\sigma\) in a single channel at the centre of the HI cube. <br/>\(v_{sys}\)={{vsys}} km s\(^{-1}\)<br/>
+</div>
+
+</html>

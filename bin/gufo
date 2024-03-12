@@ -6,13 +6,22 @@ import logging
 import time
 
 import gufo
-from scavengers import gPlay, starSub, momPlay, tPlay, cubePlay
-from scavengers import gPlayMp, bptPlot, vorPlay, ancels, ancelsPlot
+from scavengers import gPlay, starSub, momPlay, tPlay, cubePlay, momPlot, specPlay, pvPlay, hiPlay
+from scavengers import gPlayMp, bptPlot, vorPlay, ancels, ancelsPlot,linePlay, absInt, cvPlay, headPlay,specPlay
+from scavengers import cubePlot, cosmoPlay
 from scavengers import util as pretty
+from scavengers import plotUtil as plUt
+
+from astropy.coordinates import Angle
+from astropy.io import fits, ascii
+from astropy import units as u 
+import numpy as np
+import base64
 
 import argparse
 from  argparse import ArgumentParser
 import textwrap as _textwrap
+from jinja2 import FileSystemLoader, Environment
 
 import pkg_resources
 try:
@@ -25,11 +34,22 @@ except pkg_resources.DistributionNotFound:
 gp = gPlay.gplay()
 ss = starSub.starsub()
 mom = momPlay.momplay()
+mPl = momPlot.MOMplot()
+lP=linePlay.lineplay()
 tP = tPlay.tplay()
 cP = cubePlay.cubeplay()
+cPl = cubePlot.cubeplot()
 bpt = bptPlot.BPTplot()
 vor = vorPlay.vorplay()
 aPl = ancelsPlot.ancelsplot()
+cvP = cvPlay.convert()
+hP = headPlay.headplay()
+hiP = hiPlay.hiplay()
+aBs=absInt.absint()
+sP=specPlay.specplay()
+pvP = pvPlay.pvplay()
+coP = cosmoPlay.Cosmo()
+
 
 class MultilineFormatter(argparse.HelpFormatter):
     '''
@@ -57,8 +77,8 @@ def outFunction ():
     '''
     
     print ("""\nRun one of the following commands:\n
-    gufo\t\t\t-gd <configFileName>\tgenerate config file in working directory
-    gufo\t\t\t-c  <configFileName>\trun GuFo with modules enabled from config file
+    gufo\t\t-gd <configFileName>\tgenerate config file in working directory
+    gufo\t\t-c  <configFileName>\trun GuFo with modules enabled from config file
     gufo -stS\t\t-c  <configFileName>\tmake line cube from PPXF outputs
     gufo -gp\t\t-c  <configFileName>\trun fit with parameters from config file and lineList file (outdated)
     gufo -gpMp\t\t-c  <configFileName>\trun fit on multiprocess with parameters from config file and lineList file
@@ -70,7 +90,6 @@ def outFunction ():
     gufo -lr\t\t-c  <configFileName>\testimate lineRatios, make lineRatio maps and BPT plots of fitted lines
     gufo -clT\t\t-c  <configFileName>\tclean table leaving only fit results
     gufo -vor\t\t-c  <configFileName>\tVoronoi binning of output of PPXF (star subtracted datacube) 
-    gufo -stS\t\t-c  <configFileName>\tmake stellar subtracted datacube (the output of PPXF is a table)
     gufo -af\t\t-c   <configFileName>\tcompute sigma, centroid, w80 for each voronoi bin
     gufo -pV -pa -inCube <pathToCube> -c <configFileName>\tcompute sigma, centroid, w80 for each voronoi bin
     gufo -gPs -bin <binNum>\t-c  <configFileName>\t\tplot fit results for binNum
@@ -83,8 +102,8 @@ def main (argv):
     '''
     Main function of GaNGiaLF
 
-    Parameters:
-        arguments given from terminal
+    Keywords:
+        arguments given from terminal, typically a .yml configuration file.
 
     Help:
 
@@ -95,9 +114,9 @@ def main (argv):
     for i, arg in enumerate(argv):
         if (arg[0] == '-') and arg[1].isdigit(): argv[i] = ' ' + arg
 
-    parser = ArgumentParser(description='gufo: tools to fit gaussian lines in cubes'
+    parser = ArgumentParser(description='GaNGiaLF: tools for the analysis of radio and optical spectral observations'
                             '|n version {:s} |n install path {:s} |n '
-                            'Filippo Maccagni <filippo.maccagni@gmial.com>'.format(__version__,
+                            'Fil8'.format(__version__,
                                                                                os.path.dirname(__file__)),
                             formatter_class=MultilineFormatter,
                             add_help=False)
@@ -161,6 +180,11 @@ def main (argv):
     add('-bptMp', '--bptMaps',
         action='store_true',
         help= 'tool to draw BPT maps')
+
+    add('-nE', '--electronDensity',
+        action='store_true',
+        help= 'tool to compute electron density maps from [SII] doublet')
+
  
     add('-cBl', '--cubelets',
         action='store_true',
@@ -174,9 +198,9 @@ def main (argv):
         action='store_true',
         help= 'compute and plot eta-parameter')
 
-    add('-af', '--ancillaryInfo',
+    add('-kA', '--kinAnal',
         action='store_true',
-        help= 'compute sigma, w80 and centroid of fitted line')
+        help= 'compute sigma, w80 and centroid of fitted lines')
 
     add('-clT', '--clTbl',
         action='store_true',
@@ -216,6 +240,25 @@ def main (argv):
         action = 'store_true',
         default = False,
         help= 'make table from moment maps')
+
+    add('-rbT', '--rebinTable',
+        action='store_true',
+        help= 'rebin table')
+
+    add('-rbIt', '--rebinInputTable',
+        type= str,
+        default= False,
+        help = 'input table for rebinning')  
+
+    add('-rbCt', '--columnForRebin',
+        type= str,
+        default= False,
+        help = 'columnName for rebinning')
+
+    add('-rbSt', '--binSize',
+        type= float,
+        default= False,
+        help = 'size of binning table')
 
     add('-rC', '--rebCube',
         action = 'store_true',
@@ -307,43 +350,16 @@ def main (argv):
     if args.cfgFile:
         print("\n\t +---------+\t\t  config File\t\t +---------+")
         gPar = gufo.gufo(args.cfgFile)
-    #    print("## Load parameter file ... Done ({0:.2f}s)".format(
-    #time.time() - time_start_load))
-    else:
+        print(gPar)
+    elif args.cfgFile is None:
+        print ('\n\t************ --- GuFo : ERROR --- ************\n')
+        print ('\t... you have not entered a config File or a valid command ...')
         outFunction()
+        print ('\n\t************ --- GuFo : DONE  --- ************\n')
+        sys.exit(0)
 
-
-    if args.clTbl or gPar.cfg_par['general'].get('cleanTable',False) == True:
-        
-        print ('\n\t************ --- GuFo : clean Table --- ************\n')
-        gPar = gufo.gufo(args.cfgFile)
-        tP.cleanTable(gPar.cfg_par)
-        print('\n\t************ --- GuFo : DONE --- ************\n') 
-
-
-    if args.reordTable :
-        
-        print ('\n\t************ --- GuFo : reorder Table --- ************\n')
-        gPar = gufo.gufo(args.cfgFile)
-        tP.reordTable(gPar.cfg_par)
-        print('\n\t************ --- GuFo : DONE --- ************\n') 
-
-
-    if args.makeTable or gPar.cfg_par['moments']['makeTable'].get('enable',False) == True:
-        
-        print ('\n\t************ --- GuFo : make Table --- ************\n')
-        gPar = gufo.gufo(args.cfgFile)
-        tP.fromMomsToTable(gPar.cfg_par)
-        print('\n\t************ --- GuFo : DONE --- ************\n') 
-
-    if args.selBF  or gPar.cfg_par['bestFitSel'].get('enable',False) == True:
-        time_start_bf = time.time()                
-        print ('\n\t************ --- GuFo : select Best Fit --- ************\n')
-        gPar = gufo.gufo(args.cfgFile)
-        tP.selectBestFit(gPar.cfg_par)
-        timeBF = (time.time()- time_start_bf)/60.
-        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeBF))
-
+    # Stellar subtracted datacubes
+    # ++++++++++++++++++++++++++++
     if args.starSub or gPar.cfg_par['starSub'].get('enable',False) == True:
         time_start_load = time.time()        
         print ('\n\t +---------+\t\t    make Cubes\t\t +---------+')
@@ -354,7 +370,9 @@ def main (argv):
             ss.makeCubesVorBin(gPar.cfg_par)
         timeStar = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeStar))
-
+    
+    # Voronoi binning of datacubes
+    # ++++++++++++++++++++++++++++
     if args.vorPlay or gPar.cfg_par['vorBin'].get('enable',False) == True:
         time_start_load = time.time()        
         gPar = gufo.gufo(args.cfgFile)
@@ -364,17 +382,20 @@ def main (argv):
         ss.makeCubesVorLine(gPar.cfg_par)
         print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
         print('\n\t************* --- GuFo : DONE --- **************\n')
+ 
+    # Make Pixel Table for Multi-gaussian fit on pixels
+    # ++++++++++++++++++++++++++++++++++++++++++++++
+    #if gPar.cfg_par['gFit']['method'] == 'pixel' and gPar.cfg_par['gFit'].get('enable',False) == True:
+    #    time_start_load = time.time()        
+    #    print ('\n\t************* --- GuFo : gPlay --- **************\n')
+    #    gPar = gufo.gufo(args.cfgFile)
+    #    tP.makePixelTable(gPar.cfg_par)
+    #    #gp.gFit(gPar.cfg_par)
+    #    print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
+    #    print('\n\t************* --- GuFo : DONE --- **************\n')
 
-    if args.gPlay or gPar.cfg_par['gFit'].get('enable',False) == True and gPar.cfg_par['general'].get('enableMP',False) == False :
-        time_start_load = time.time()        
-        print ('\n\t************* --- GuFo : gPlay --- **************\n')
-        gPar = gufo.gufo(args.cfgFile)
-        if gPar.cfg_par['gFit']['method'] == 'pixel':
-            tp.makePixelTable(gPar.cfg_par)
-        gp.gFit(gPar.cfg_par)
-        print("## fits ... Done ({0:.2f}m)".format((time.time()- time_start_load)))
-        print('\n\t************* --- GuFo : DONE --- **************\n')
-
+    # Multi-Gaussian Fit 
+    # ++++++++++++++++++
     if args.gMpPlay or gPar.cfg_par['general'].get('enableMP',False) == True and gPar.cfg_par['gFit'].get('enable',False) == True or args.gPlay:
         time_start_load = time.time()        
         print ('\n\t +---------+\t\t    Fitting\t\t +---------+')
@@ -383,6 +404,8 @@ def main (argv):
         timeFit = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\t  Done ({0:.2f}m)\t\t+---------+'.format(timeFit))
 
+    # Plot all fits 
+    # ++++++++++++++
     if args.gPlot or gPar.cfg_par['gPlot'].get('enable',False) == True and gPar.cfg_par['gFit'].get('enable',False) == False:
         time_start_load = time.time()
         print ('\n\t************ --- GuFo : gPlot --- ************\n')
@@ -391,6 +414,8 @@ def main (argv):
         print("## plot fits ... Done ({0:.2f}s)".format((time.time()- time_start_load)))
         print('\n\t  ************ --- GuFo : DONE --- ***********\n')
 
+    # Plot single fit or re-do fit for single bin and plot
+    # +++++++++++++++++++++++++++++++++++++++++++++++++++++
     if args.gPlotSingle:
         time_start_load = time.time()
         gPar = gufo.gufo(args.cfgFile)
@@ -410,6 +435,8 @@ def main (argv):
         timeSpec = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeSpec))
 
+    # Compute residuals
+    # +++++++++++++++++
     if args.resPlot or gPar.cfg_par['residuals'].get('enable',False) == True:
         time_start_load = time.time()
         gPar = gufo.gufo(args.cfgFile)
@@ -424,6 +451,8 @@ def main (argv):
         timeRes = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeRes))
 
+    # Compute moment Maps
+    # +++++++++++++++++++
     if args.moments or gPar.cfg_par['moments'].get('enable',False) == True:
         time_start_load = time.time()
         print('\n\t +---------+\t\t    moments\t\t +---------+')
@@ -435,6 +464,51 @@ def main (argv):
         timeMom = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))
 
+    # Plot moment Maps
+    # ++++++++++++++++
+    if args.momPlot or gPar.cfg_par['moments'].get('plot',False) == True:  
+        time_start_load = time.time()
+        print('\n\t +---------+\t\t   moments Plot\t\t+---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        #gPar.cfg_par['general']['cleanTable'] = True
+        mom.makeMomPlots(gPar.cfg_par)
+        #gPar.cfg_par['general']['cleanTable'] = False
+        timeMom = (time.time()- time_start_load)/60.
+        print('\n\t ************ --- GuFo : DONE --- ************\n'.format(timeMom))
+
+
+    # Regrid Moment Map
+    # +++++++++++++++++
+    if args.regMom or gPar.cfg_par['moments']['regrid'].get('enable',False) == True: 
+        time_start_load = time.time()
+        print('\n\t +---------+\t\t  regrid MoM\t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        mom.regridMoms(args.momTemp,args.momIn)
+        timeMS = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMS)) 
+
+    # Select BestFit solutions within multiple ouput tables
+    # +++++++++++++++++++++++++++++++++++++++++++++++++++++
+    if args.selBF  or gPar.cfg_par['bestFitSel'].get('enable',False) == True:
+        time_start_bf = time.time()                
+        print ('\n\t************ --- GuFo : select Best Fit --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        tP.selectBestFit(gPar.cfg_par)
+        timeBF = (time.time()- time_start_bf)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeBF))
+
+    # Make cube of BestFit solutions
+    # ++++++++++++++++++++++++++++++    
+    if gPar.cfg_par['bestFitSel']['BFcube'].get('enable',False) == True:
+        time_start_load = time.time()
+        print('\n\t +---------+\t\t    BF cube\t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        cP.makeBFLineCube(gPar.cfg_par)
+        timeMom = (time.time()- time_start_load)/60.
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))  
+
+    # Compute residuals of BestFit solutions
+    # ++++++++++++++++++++++++++++++++++++++
     if gPar.cfg_par['residuals'].get('BFcube',False) == True:
         time_start_load = time.time()
         print('\n\t +---------+\t\t    BF cube\t\t +---------+')
@@ -442,25 +516,9 @@ def main (argv):
         mom.resCube(gPar.cfg_par)
         timeMom = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))   
-    
-    if gPar.cfg_par['bestFitSel']['BFcube'].get('enable',False) == True:
-        time_start_load = time.time()
-        print('\n\t +---------+\t\t    BF cube\t\t +---------+')
-        gPar = gufo.gufo(args.cfgFile)
-        cP.makeBFLineCube(gPar.cfg_par)
-        timeMom = (time.time()- time_start_load)/60.
-        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))   
 
-    if args.momPlot or gPar.cfg_par['moments'].get('plot',False) == True:
-        
-        print('\n\t +---------+\t\t   moments Plot\t\t+---------+')
-        gPar = gufo.gufo(args.cfgFile)
-        #gPar.cfg_par['general']['cleanTable'] = True
-        mom.makeMomPlots(gPar.cfg_par)
-        #gPar.cfg_par['general']['cleanTable'] = False
-        print('\n\t ************ --- GuFo : DONE --- ************\n')
-
-
+    # Create cubelets around fitted lines
+    # +++++++++++++++++++++++++++++++++++  
     if args.cubelets or gPar.cfg_par['cubePlay']['cubelets'].get('enable',False) == True:
         time_start_load = time.time()
         print('\n\t +---------+\t\t    cubelets\t\t +---------+')
@@ -482,53 +540,42 @@ def main (argv):
         timeMom = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))
 
-    if args.cubelets or gPar.cfg_par['cubePlay'].get('convolveGauss',False) == True:
-        time_start_load = time.time()
-        print('\n\t +---------+\t\t    cubelets\t\t +---------+')
-        gPar = gufo.gufo(args.cfgFile)
-        #gPar.cfg_par['general']['cleanTable'] = True
-        #tP.cleanTable(gPar.cfg_par)  
-        cP.regridPix(gPar.cfg_par)            
-        #gPar.cfg_par['general']['cleanTable'] = False
-        timeMom = (time.time()- time_start_load)/60.
-        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMom))
-
-    if args.pVsingle or gPar.cfg_par['cubePlay']['pvDiagram'].get('enable',False) == True: 
-        time_start_load = time.time()
-        print('\n\t +---------+\t\t    pV diagram\t\t +---------+')
-        gPar = gufo.gufo(args.cfgFile)
-        gPar.cfg_par['cubePlay']['cubelets']['pa'] = args.positionAngle
-        if args.inputCube:
-            gPar.cfg_par['cubePlay']['cubelets']['inCube'] = args.inputCube
-        cP.pvDiagram(gPar.cfg_par)
-        timePV = (time.time()- time_start_load)/60.
-        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timePV))
-
+    # Rebin Datacube
+    # ++++++++++++++ 
     if args.rebCube or gPar.cfg_par['cubePlay']['rebinCube'].get('enable',False) == True: 
         time_start_load = time.time()
         print('\n\t +---------+\t\t  rebin Cube\t\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
         cP.rebinCube(args.cubeTemp,args.cubeIn)
         timeMS = (time.time()- time_start_load)/60.
-        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMS))    
+        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMS)) 
 
+    # PV-Diagram
+    # ++++++++++
+    # if args.pVsingle or gPar.cfg_par['pvDiagram'].get('enable',False) == True: 
+    #     time_start_load = time.time()
+    #     print('\n\t +---------+\t\t    pV diagram\t\t +---------+')
+    #     gPar = gufo.gufo(args.cfgFile)
+    #     gPar.cfg_par['cubePlay']['cubelets']['pa'] = args.positionAngle
+    #     if args.inputCube:
+    #         gPar.cfg_par['cubePlay']['cubelets']['inCube'] = args.inputCube
+    #     pvP.pvDiagram(gPar.cfg_par)
+    #     timePV = (time.time()- time_start_load)/60.
+    #     print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timePV))
+
+   
+    # Regrid cube with Montage: !!! does not work except headers are perfect !!!!
+    # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     if args.regCube: 
         time_start_load = time.time()
-        print('\n\t +---------+\t\t  regrid MoM\t\t +---------+')
+        print('\n\t +---------+\t\t  regrid Cube\t\t+---------+')
         gPar = gufo.gufo(args.cfgFile)
         cP.regridCube(gPar,args.cubeTemp,args.cubeIn)
         timeMS = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMS))   
-
-
-    if args.regMom or gPar.cfg_par['moments']['regrid'].get('enable',False) == True: 
-        time_start_load = time.time()
-        print('\n\t +---------+\t\t  regrid MoM\t\t +---------+')
-        gPar = gufo.gufo(args.cfgFile)
-        mom.regridMoms(args.momTemp,args.momIn)
-        timeMS = (time.time()- time_start_load)/60.
-        print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMS))    
-
+   
+    # Subtract median value from each spectra of datacube
+    # +++++++++++++++++++++++++++++++++++++++++++++++++++
     if args.medSub or gPar.cfg_par['cubePlay']['medSub'].get('enable',False) == True: 
         time_start_load = time.time()
         print('\n\t +---------+\t\t  median Sub\t\t +---------+')
@@ -537,69 +584,122 @@ def main (argv):
         timeMS = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timeMS))
 
-
+    # Mosaic cubes with Montage
+    # +++++++++++++++++++++++++
     if args.mosaic or gPar.cfg_par['cubePlay']['mosaic'].get('enable',False) == True: 
         time_start_load = time.time()
         print('\n\t +---------+\t\t  mosaic Cubes\t\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
-        cP.mosaicCubes(gPar.cfg_par)
+        mosaicCubes.mosaicCubes(gPar.cfg_par)
         timePV = (time.time()- time_start_load)/60.
         print('\n\t +---------+\t\t  Done ({0:.2f}m)\t\t +---------+'.format(timePV))
 
-        
-    if args.ancillaryInfo or gPar.cfg_par['ancillary'].get('enable',False) == True:
+    # Analysis of the kinematics
+    # ++++++++++++++++++++++++++        
+    if args.kinAnal or gPar.cfg_par['kinematicalAnalysis']['ancillaryInfo']['CCAanalysis'] == True:
         time_start_load = time.time()
-        print ('\n\t +---------+\t\t ancillary Info\t\t +---------+')
+        print ('\n\t +---------+\t      kinematical Analysis\t +---------+')
         gPar = gufo.gufo(args.cfgFile)
-        print('\n\t         +++\t\tsigma & centroid\t +++')
-        if gPar.cfg_par['ancillary']['compute']==True:
-            ancels.main(gPar.cfg_par)
-        print('\n\t         +++\t\t plotting maps\t +++')
-        aPl.inCCARegionTable(gPar.cfg_par)
+        print('\n\t         +++\t          CCA & Rotation\t +++')
+        #aPl.inCCARegionTable(gPar.cfg_par)
         aPl.sigmaCentroid(gPar.cfg_par)
-        #mom.makeSigmaCentroidMaps(gPar.cfg_par)
         timeAnc = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
 
-        #ap.centroid(gPar.cfg_par)
-     
 
-
-    if gPar.cfg_par['ancillary']['coldGas'].get('enable',False) == True:
+    if gPar.cfg_par['multipleRegions']['enable'] == True:
         time_start_load = time.time()
-        print ('\n\t +---------+\t\t cold Gas CCA \t\t +---------+')
+        print ('\n\t +---------+\t      kinematical Analysis\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        print('\n\t         +++\t          K-Plot Multiple\t +++')
+        #aPl.inCCARegionTable(gPar.cfg_par)
+        aPl.sigmaCentroidMultiple(gPar.cfg_par)
+        timeAnc = (time.time()- time_start_load)/60.
+        print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
+
+    if gPar.cfg_par['multipleRegions']['enable'] == True:
+        time_start_load = time.time()
+        print ('\n\t +---------+\t      kinematical Analysis\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        print('\n\t         +++\t          K-Plot Multiple\t +++')
+        #aPl.inCCARegionTable(gPar.cfg_par)
+        mom.makeMultipleMaps(gPar.cfg_par)
+        mPl.momAncPlotMultiple(gPar.cfg_par)
+        timeAnc = (time.time()- time_start_load)/60.
+        print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
+
+
+    # Sigma and Centroid Maps
+    # ++++++++++++++++++++++++++        
+    if args.kinAnal or gPar.cfg_par['kinematicalAnalysis']['sigmaCentroid'] == True:
+        time_start_load = time.time()
+        print ('\n\t +---------+\t      kinematical Analysis\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        print('\n\t         +++\t\tsigma & centroid\t +++')
+        if gPar.cfg_par['kinematicalAnalysis']['compute']==True:
+            ancels.main(gPar.cfg_par)
+        print('\n\t         +++\t\t plotting maps\t\t +++')
+        mom.makeSigmaCentroidMaps(gPar.cfg_par)
+        timeAnc = (time.time()- time_start_load)/60.
+        print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
+
+    # Cold gas kinematical analysis
+    # +++++++++++++++++++++++++++++          
+    if gPar.cfg_par['otherGasKinAnalysis'].get('enable',False) == True:
+        time_start_load = time.time()
+        print ('\n\t +---------+\t\t gas Kinematics \t\t +---------+')
+        gPar = gufo.gufo(args.cfgFile)
+        if gPar.cfg_par['otherGasKinAnalysis']['rotID'].get('enable',False) == True:
+            cP.selectRotation(gPar.cfg_par)
+        #sys.exit(0)
         aPl.inCCARegionTable(gPar.cfg_par)
         aPl.sigmaCentroidColdGas(gPar.cfg_par)
         timeAnc = (time.time()- time_start_load)/60.
         print('\n\t  +---------+\t\tDone ({0:.2f}m)\t\t+---------+'.format(timeAnc))
 
-    if args.lineRatios or gPar.cfg_par['lineRatios'].get('enable',False) == True:
-        
+    # Line ratios
+    # +++++++++++
+    if args.lineRatios or gPar.cfg_par['lineRatios'].get('enable',False) == True:        
         print('\n\t************ --- GuFo : lineRatios --- ************\n')
         gPar = gufo.gufo(args.cfgFile)
         #gPar.cfg_par['general']['cleanTable'] = True
         #tP.cleanTable(gPar.cfg_par)   
         #gPar.cfg_par['general']['cleanTable'] = False
         lineInfo = tP.openLineList(gPar.cfg_par)
-        tP.binLineRatio(gPar.cfg_par,lineInfo)
-        mom.makeLineRatioMaps(gPar.cfg_par)
+        #tP.binLineRatio(gPar.cfg_par,lineInfo)
+        #mom.makeLineRatioMaps(gPar.cfg_par)
         print('\n\t  ************ --- GuFo : DONE --- ************\n')    
-  
+
+    # Electron Density
+    # ++++++++++++++++
+    if args.electronDensity or gPar.cfg_par['lineRatios'].get('electronDensity',False) == True:        
+        print('\n\t************ --- GuFo : electron Density --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        #gPar.cfg_par['general']['cleanTable'] = True
+        #tP.cleanTable(gPar.cfg_par)   
+        #gPar.cfg_par['general']['cleanTable'] = False
+        tP.electronDensityTable(gPar.cfg_par)
+        lP.electronDensityMap(gPar.cfg_par)
+        print('\n\t  ************ --- GuFo : DONE --- ************\n')    
+
+
+
+    # BPT plots
+    # +++++++++  
     if args.bptPlots or gPar.cfg_par['lineRatios'].get('bptPlot',False) == True:    
         print ('\n\t************* --- GuFo : BPT plots --- **************\n')
         gPar.cfg_par['lineRatios'].get('bptMap',False) == True
         #gPar.cfg_par['general']['cleanTable'] = True
         bpt.bptOIII(gPar.cfg_par)
-        #bpt.bptSII(gPar.cfg_par)
+        bpt.bptSII(gPar.cfg_par)
         #bpt.bptOI(gPar.cfg_par)
         #gPar.cfg_par['general']['cleanTable'] = False
-
         print('\n\t  ************ --- GuFo : DONE --- ************\n')
 
+    # BPT maps
+    # ++++++++
     if args.bptMaps or gPar.cfg_par['lineRatios'].get('bptMap',False) == True:    
-        
         print ('\n\t************ --- GuFo : BPT maps --- ************\n')
-        print(gPar.cfg_par['general']['bptDir']+gPar.cfg_par['gFit']['modName'])
         #gPar.cfg_par['general']['cleanTable'] = True
         outBPT = glob.glob(gPar.cfg_par['general']['bptDir']+gPar.cfg_par['gFit']['modName']+"/*.fits")
         for i in outBPT:
@@ -608,21 +708,983 @@ def main (argv):
 
         print('\n\t  ************ --- GuFo : DONE --- ************\n')
 
+    # Carollo-distance and plot and maps
+    # ++++++++++++++++++++++++++++++++++
     if args.cDist or gPar.cfg_par['lineRatios'].get('cDist',False) == True:    
         print ('\n\t************ --- GuFo : Carollo Distance --- ************\n')
         gPar = gufo.gufo(args.cfgFile)
-        tP.carolloDistOIII(gPar.cfg_par)
+        #tP.carolloDistOIII(gPar.cfg_par)
         mom.momCDist(gPar.cfg_par)
         print('\n\t      ************ --- GuFo : cDistBPT --- ************\n')
         bpt.bptCDist(gPar.cfg_par)
         print('\n\t      ************ --- GuFo : DONE --- ************\n')
 
-    if args.cfgFile is None:
-        print ('\n\t************ --- GuFo : ERROR --- ************\n')
-        print ('\t... you have not entered a config File ...')
-        outFunction()
-        print ('\n\t************ --- GuFo : DONE  --- ************\n')
-        sys.exit(0)
+    # Modify output table
+    # +++++++++++++++++++
+    if args.clTbl or gPar.cfg_par['general'].get('cleanTable',False) == True:
+        print ('\n\t************ --- GuFo : clean Table --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        tP.cleanTable(gPar.cfg_par)
+        print('\n\t************ --- GuFo : DONE --- ************\n') 
+
+    if args.reordTable :
+        print ('\n\t************ --- GuFo : reorder Table --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        tP.reordTable(gPar.cfg_par)
+        print('\n\t************ --- GuFo : DONE --- ************\n') 
+
+    if args.rebinTable :
+        print ('\n\t************ --- GuFo : rebin Table --- ************\n')
+        inTable=args.rebinInputTable
+        columnBin=args.columnForRebin
+        binSize=args.binSize
+        tP.rebinTable(inTable,columnBin,binSize)
+        print('\n\t************ --- GuFo : DONE --- ************\n') 
+
+    if args.makeTable or gPar.cfg_par['moments']['makeTable'].get('enable',False) == True:
+        print ('\n\t************ --- GuFo : make Table --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        tP.fromMomsToTable(gPar.cfg_par)
+        print('\n\t************ --- GuFo : DONE --- ************\n') 
+
+
+ 
+    #------------------------#
+    #HI emission diagnostics #
+    #------------------------#
+
+
+
+    if gPar.cfg_par['HIem'].get('enable',False) == True:
+        print ('\n\t************ --- GuFo : HI emission diagnostics --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        gPara=gPar.cfg_par
+        DL=gPara['galaxy']['dL']
+        z=gPara['galaxy']['z']
+        print ('\n\t************ --- GuFo : Computing HI detection limits --- ************\n')
+
+        if gPara['HIem']['detectionLimits']['enable'] == True:
+            noise=[]
+            noisePath=[]
+            bMaj_arr=[]
+            bMin_arr=[]
+            nHIScience1=[]   
+            nHIScience3=[]   
+            nHIScience33=[]   
+            nHIScience5=[] 
+            sbHILim1=[]
+            sbHILim3=[]
+            sbHILim33=[]
+            sbHILim5=[]  
+            mhiScienceLim1=[]   
+            mhiScienceLim3=[]   
+            mhiScienceLim33=[]   
+            mhiScienceLim5=[]  
+            dV_report=[]
+            for i in range(0, len(gPara['HIem']['cubeName'])):
+                cubePath=gPara['HIem']['cubeDir']+gPara['HIem']['cubeName'][i]
+                bMaj,bMin = hP.readBeam(cubePath)
+                print ('\n\t************ --- GuFo : Computing noise in datacube --- ************\n')
+
+                cubeNoise, noiseFigPath = cP.measRMS(cubePath)
+                #cubeNoise=gPara['HIem']['noise']
+
+                noise.append(cubeNoise)
+                print(noise)
+
+                noisePath.append(noiseFigPath)
+                bMaj_arr.append(bMaj.arcsecond)
+                bMin_arr.append(bMin.arcsecond)
+
+                #display(Markdown(r'''\n 1$\sigma$ noise per channel =%04.3f mJy beam-1 '''%(1*cubeNoise00*1e3)))
+                headCube=fits.getheader(cubePath)
+                dV=np.abs(headCube['CDELT3']) 
+                Nchans=gPara['HIem']['detectionLimits']['deltaV']/dV
+                if gPara['HIem']['vunit']=='m/s':
+                    dV_report.append(np.round(dV/1e3,2))
+                else:
+                    dV_report.append(np.round(dV,2))
+
+
+
+                nhiLim1,noiseScience1 = hiP.nhi(1*cubeNoise,bMaj,bMin,dV,z=z,vunit=gPara['HIem']['vunit'])
+
+                nHIScience1.append(noiseScience1)
+
+                sbHILim1tmp = hiP.surfBrightHI(nhiLim1)
+                sbHILim1.append("{:.3e}".format(sbHILim1tmp))
+
+                nhiLim3, noiseScience3 = hiP.nhi(3*cubeNoise,bMaj,bMin,1*dV,z=z,vunit=gPara['HIem']['vunit'])
+                nHIScience3.append(noiseScience3)
+
+                sbHILim3tmp = hiP.surfBrightHI(nhiLim3)
+                sbHILim3.append("{:.3e}".format(sbHILim3tmp))
+
+                nhiLim33, noiseScience33 = hiP.nhi(3*cubeNoise,bMaj,bMin,3*dV,z=z,vunit=gPara['HIem']['vunit'])
+                
+                nHIScience33.append(noiseScience33)
+
+                sbHILim33tmp = hiP.surfBrightHI(nhiLim33)
+                sbHILim33.append("{:.3e}".format(sbHILim33tmp))
+
+                nhiLim5,noiseScience5 = hiP.nhi(5*cubeNoise,bMaj,bMin,3*dV,z=z,vunit=gPara['HIem']['vunit'])
+
+                nHIScience5.append(noiseScience5)
+
+                sbHILim5tmp = hiP.surfBrightHI(nhiLim5)
+                sbHILim5.append("{:.3e}".format(sbHILim5tmp))
+
+                if gPara['HIem']['vunit']=='m/s':
+                    dV/=1e3
+                mhiLim1,hiScienceLim1 = hiP.hiMass(1*cubeNoise,DL,z,bMaj,bMin,1*dV,bMaj,DL)
+                mhiScienceLim1.append(hiScienceLim1)
+
+                mhiLim3,hiScienceLim3 = hiP.hiMass(3*cubeNoise,DL,z,bMaj,bMin,1*dV,bMaj)
+                mhiScienceLim3.append(hiScienceLim3)
+
+                mhiLim33,hiScienceLim33 = hiP.hiMass(3*cubeNoise,DL,z,bMaj,bMin,3*dV,bMaj)
+                mhiScienceLim33.append(hiScienceLim33)
+
+                mhiLim5,hiScienceLim5 = hiP.hiMass(5*cubeNoise,DL,z,bMaj,bMin,5*dV,bMaj)
+                mhiScienceLim5.append(hiScienceLim5)
+
+        print ('\n\t************ --- GuFo : HI detection limits computed --- ************\n')
+        print ('\n\t************ --- GuFo : Making Moment Maps Figures   --- ************\n')
+
+        if gPara['HIem']['moments']['enable'] == True:
+            moms0=[]
+            moms1=[]
+            moms2=[]
+            massHIScience=[]
+            maskScience=[]
+            sn3Mom0Science = []
+            sn5Mom0Science =[]
+            sn10Mom0Science =[]
+            snNHIScience3=[]
+            snNHIScience5=[]
+            snNHIScience10=[]
+            sbScience3=[]
+            sbScience5=[]
+            sbScience10=[]
+            
+            for i in range(0, len(gPara['HIem']['moments']['mom0Name'])):
+                momPath=gPara['HIem']['moments']['momDir']+gPara['HIem']['moments']['mom0Name'][i]
+                cubePath=gPara['HIem']['cubeDir']+gPara['HIem']['cubeName'][i]
+                bMaj,bMin = hP.readBeam(momPath) 
+                headCube=fits.getheader(cubePath)
+                dV=np.abs(headCube['CDELT3']) 
+                
+                if gPara['HIem']['moments']['vunit'] == 'km/s' and gPara['HIem']['vunit'] == 'm/s': #sofia1 exception
+                    dV*=1e3
+         
+
+                if gPara['HIem']['moments']['snRatio'] == True:
+                    cubeNoise, noiseFigPath = cP.measRMS(cubePath)
+                    #cubeNoise=gPara['HIem']['noise']
+                    sn3Mom0 = mom.makeSNRatioMap(gPara,cubeNoise*dV,ratio=3)
+                    sn5Mom0 = mom.makeSNRatioMap(gPara,cubeNoise*dV,ratio=5)
+                    sn10Mom0 = mom.makeSNRatioMap(gPara,cubeNoise*dV,ratio=10)
+                else:
+                    cubeNoise, noiseFigPath = cP.measRMS(cubePath)
+                    sn3Mom0 = cubeNoise*dV*3
+                    sn5Mom0 = cubeNoise*dV*5
+                    sn10Mom0 = cubeNoise*dV*5
+                    #pass
+
+
+                m00NHI = hiP.nhiMap(momPath,outMap=None,z=z,vunit=gPara['HIem']['moments']['vunit'],corrFlux=1e20)
+                noise00NHI,noiseScience3 = hiP.nhi(sn3Mom0/(dV*1e-3),bMaj,bMin,1,z,vunit=gPara['HIem']['moments']['vunit'])
+                noise00NHI5,noiseScience5 = hiP.nhi(sn5Mom0/(dV*1e-3),bMaj,bMin,1,z,vunit=gPara['HIem']['moments']['vunit'])
+                noise00NHI10,noiseScience10 = hiP.nhi(sn10Mom0/(dV*1e-3),bMaj,bMin,1,z,vunit=gPara['HIem']['moments']['vunit'])
+                cont00=plUt.computeContours(noise=noise00NHI/1e20,maximum=None,inMap=m00NHI,sigma=1,step=gPara['HIem']['moments']['contStep'])
+                print(noise00NHI/1e20)
+                lenColumns = int((len(cont00)))
+                imLevelsMom0 = np.empty([1,2,lenColumns],dtype=float)+np.nan
+                # imLevelsMom0[0,0,:] = cont00
+                imLevelsMom0[0,0,:] = cont00
+                # gPara['HIem']['moments']['maskLevel'] = noise00NHI
+                gPara['moments']=gPara['HIem']['moments']
+ 
+
+                snNHIScience3.append(noiseScience3)
+                snNHIScience5.append(noiseScience5)
+                snNHIScience10.append(noiseScience10)
+
+                sbTmp = hiP.surfBrightHI(noise00NHI)
+                sbScience3.append("{:.3e}".format(sbTmp))
+
+                sbTmp = hiP.surfBrightHI(noise00NHI5)
+                sbScience5.append("{:.3e}".format(sbTmp))
+
+                sbTmp = hiP.surfBrightHI(noise00NHI10)
+                sbScience10.append("{:.3e}".format(sbTmp))
+
+                if not os.path.exists(gPara['general']['plotMomModDir']):
+                    os.mkdir(gPara['general']['plotMomModDir'])
+ 
+                print(imLevelsMom0)
+                print('cacca')
+                outMom0 = mPl.momPlot(gPara,m00NHI,imLevels=imLevelsMom0,imContColors=['black'],contName=None,contValues=None,contColors=None,interpolation='bilinear',beamCoords=None,cScale='linear',colorBar=True,kind='mom0')
+
+                if 'maskLevel' in gPara['HIem']['moments']:
+                    gPara['HIem']['moments']['maskLevel']=float(gPara['HIem']['moments']['maskLevel'])/1e20
+                    maskScience.append("{:.2e}".format(gPara['HIem']['moments']['maskLevel']*1e20))
+                else:
+                    gPara['HIem']['moments']['maskLevel']=noise00NHI/1e20
+                    maskScience.append("{:.2e}".format(noise00NHI*1e20))
+                gPara['moments']=gPara['HIem']['moments']
+
+                print(gPara['HIem']['moments']['maskLevel'])
+                cont00=plUt.computeContours(noise=float(gPara['HIem']['moments']['maskLevel']),maximum=None,inMap=m00NHI,sigma=1,step=gPara['HIem']['moments']['contStep'])
+                moms0.append(outMom0)
+                mom1Path = gPara['HIem']['moments']['momDir']+gPara['HIem']['moments']['mom1Name'][i]
+
+                
+                lenColumns = int((len(cont00)))
+
+                contLevels = np.empty([2,2,lenColumns],dtype=float)+np.nan
+                contLevels[0,0,:] = cont00
+                
+                print(contLevels)
+
+
+                outMom1 = mPl.momPlot(gPara,mom1Path,imMom0=[m00NHI],cRange=None,imLevels=contLevels,imContColors=['black'],contName=None,contValues=contLevels,contColors=['black'],interpolation='bilinear',beamCoords=None,cScale='linear',colorBar=True,kind='mom1')
+                moms1.append(outMom1)
+
+                momPathPbCorr = gPara['HIem']['moments']['momDir']+gPara['HIem']['moments']['mom0Name'][i]
+                momPathPbCorr = momPathPbCorr.replace('_mom0.fits','_pbcorr_mom0.fits')
+
+                massHI = hiP.hiMassFromMom0(momPathPbCorr,sn3Mom0*1e-3,gPara['galaxy']['z'],gPara['galaxy']['dL'],'m/s')
+                massHIScience.append("{:.4e}".format(massHI))
+
+
+                mom2Path=gPara['HIem']['moments']['momDir']+gPara['HIem']['moments']['mom2Name'][i]
+                if gPara['moments']['mom2Range'][0] == 0:
+                    startCont = 15
+                else:
+                    startCont = gPara['moments']['mom2Range'][0]
+
+                contSigma=np.arange(startCont,gPara['moments']['mom2Range'][1],70)
+
+                lenColumns = int((len(contSigma)))
+                imLevels = np.empty([1,2,lenColumns],dtype=float)+np.nan
+                imLevels[0,0,:] = contSigma
+                outMom2 =  mPl.momPlot(gPara,mom2Path,imMom0=[m00NHI],cRange=np.array([gPara['moments']['mom2Range'][0],gPara['moments']['mom2Range'][1]]),imLevels=imLevels,imContColors=['black'],
+                    contName=None,contValues=None,contColors=['black'],interpolation='bilinear',beamCoords=None,cScale='linear',colorBar=True,kind='mom2')
+                moms2.append(outMom2)
+                
+                if gPara['galaxy']['optIm'] is not None:
+                    optIm=gPara['galaxy']['optIm']
+                    optImOut = mPl.opticalOverlay(gPara, optIm, [m00NHI], cRange=None,cMap='Greys_r',imLevels=imLevelsMom0, imColors=['dodgerblue'], beamCoords=None,titleName=gPara['galaxy']['name'][i]+' r-band',ext=gPara['galaxy']['optIm_ext'])
+        
+        if gPara['HIem']['report']['enable'] == True:
+            reportDir = gPara['general']['workdir']+'htmlReports/'
+            if not os.path.exists(reportDir):
+                os.mkdir(reportDir)
+            gPara['general']['reportDir'] = reportDir
+            env = Environment(
+                loader=FileSystemLoader(gPara['general']['templateFolder'])
+            )            
+            for i in range(0,len(gPara['HIem']['cubeName'])):
+                img_noise = base64.b64encode(open(noiseFigPath, 'rb').read()).decode('utf-8').replace('\n', '')
+                #img_noise = open(noiseFigPath, 'r',encoding='utf8').read()
+                img_mom0 = base64.b64encode(open(moms0[0], 'rb').read()).decode('utf-8').replace('\n', '')
+                img_mom1 = base64.b64encode(open(moms1[0], 'rb').read()).decode('utf-8').replace('\n', '')
+                img_mom2 = base64.b64encode(open(moms2[0], 'rb').read()).decode('utf-8').replace('\n', '')
+
+                if gPara['HIem']['moments']['contStep'] == 1:
+                    template = env.get_template('singleDataCube.html')
+                elif gPara['HIem']['moments']['contStep'] == 2 or gPara['HIem']['moments']['contStep'] == 1.5 :
+                    template = env.get_template('singleDataCube_st1.html')
+
+                reportName = gPara['general']['reportDir']+'HIReport'+'_'+gPara['general']['outPrefix'][i]+'.html'
+                with open(reportName, "w") as f:
+                    f.write(template.render(
+                        title=str(gPara['galaxy']['name'][i]),
+                        ra=gPara['HIem']['moments']['centreRA'],
+                        dec = gPara['HIem']['moments']['centreDec'],
+                        z=gPara['galaxy']['z'],
+                        dL=gPara['galaxy']['dL'],
+                        vsys=str(np.round(gPara['galaxy']['vsys'],2)),
+                        cubeName=gPara['HIem']['cubeName'][i],
+                        cubeDir =gPara['HIem']['cubeDir'],
+                        BMaj =   str(np.round(bMaj_arr[i],2)),
+                        BMin = str(np.round(bMin_arr[i],2)),
+                        dV = str(dV_report[i]),
+                        noise = str(np.round(noise[i]*1e3,3)),
+                        nhi = str(nHIScience1[i]),
+                        sbHI = str(sbHILim1[i]),
+                        mHI1 =str(mhiScienceLim1[i]),
+                        nhi3 = str(nHIScience3[i]),
+                        sbHI3 = str(sbHILim3[i]),
+                        mHI3 =str(mhiScienceLim3[i]),
+                        nhi33 = str(nHIScience33[i]),
+                        sbHI33 = str(sbHILim33[i]),
+                        mHI33 =str(mhiScienceLim33[i]),
+                        nhi5 = str(nHIScience5[i]),
+                        sbHI5 = str(sbHILim5[i]),
+                        mHI5 =str(mhiScienceLim5[i]),
+                        vRes3=str(np.round(dV_report[i]*3,2)),
+                        vRes5=str(np.round(dV_report[i]*5,2)),
+                        mhi=str(massHIScience[i]),
+                        nhiMask=str(maskScience[i]),
+                        maxMom2=str(gPara['moments']['mom2Range'][1]),
+                        SN3 = str(("{:.3e}".format(sn3Mom0))),
+                        SN5 = str(("{:.3e}".format(sn5Mom0))),
+                        SN10 = str(("{:.3e}".format(sn10Mom0))),
+                        SN3Nhi = str(snNHIScience3[i]),
+                        SN5Nhi = str(snNHIScience5[i]),
+                        SN10Nhi = str(snNHIScience10[i]),
+                        SN3Sb = str(sbScience3[i]),
+                        SN5Sb = str(sbScience5[i]),
+                        SN10Sb = str(sbScience10[i]),
+                        #rms_img = '<img class="rms" src="data:image/png;base64,{0}">'.format(img_noise),        
+                        img_mom0 = '<img class="mom0" src="data:image/png;base64,{0}">'.format(img_mom0),        
+                        img_mom1 = '<img class="mom1" src="data:image/png;base64,{0}">'.format(img_mom1),        
+                        img_mom2 = '<img class="mom2" src="data:image/png;base64,{0}">'.format(img_mom2)                    
+                    ))
+                if gPara['galaxy']['optIm'] is not None:
+                    opt_img = base64.b64encode(open(optImOut, 'rb').read()).decode('utf-8').replace('\n', '')
+
+                    opt_imgTxt = '''<div id="right_col"> <img class="opt" src="data:image/png;base64,{0}"><br/>'''.format(opt_img)   
+
+                    if gPara['HIem']['moments']['contStep'] == 1:
+                        opt_imgInfo=r'''<br/> MeerLicht image with the  \(3\sigma \times 2^n\) (where n=0,1,2,3..) HI contours overlayed.<br/></div></div>'''
+                    elif gPara['HIem']['moments']['contStep'] == 2 or gPara['HIem']['moments']['contStep'] == 1.5 :
+                        opt_imgInfo=r'''<br/> MeerLicht image with the  \(3\sigma \times 2^n\) (where n=0,2,4..) HI contours overlayed.<br/></div></div>'''
+
+                    #opt_imgInfo=r'''<br/> MeerLicht image with the  \(3\sigma \times 2^n\) (where n=0,2,4..) HI contours overlayed.<br/></div></div>'''
+                    with open(reportName, 'r+') as f:
+                        lines = f.readlines()
+                        for i, line in enumerate(lines):
+                            if line.startswith('<h2>HI Emission detection limits</h2>'): 
+                                lines[i] = opt_imgTxt+opt_imgInfo+lines[i]
+                        f.truncate()
+                        f.seek(0)                                           # rewrite into the file
+                        for line in lines:
+                            f.write(line)
+                    #   with open(reportName, "w") as f:
+                    #        f.write(template.render( 
+                    #            optIm=gPara['galaxy']['optImage']))
+
+        print ('\n\t************ --- GuFo : HI emission report written --- ************\n')
+
+
+        print('\n\t************ --- GuFo : DONE --- ************\n') 
+    
+    if gPar.cfg_par['HIabs'].get('enable',False) == True:
+        print ('\n\t************ --- GuFo : HI absorption diagnostics --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        gPara=gPar.cfg_par
+        DL=gPara['galaxy']['dL']
+        z=gPara['galaxy']['z']
+        print ('\n\t************ --- GuFo : Computing HI detection limits --- ************\n')
+        
+
+        #measure continuum
+        contFlux_arr=[]
+        contFluxScience_arr=[]
+        for i in range(0, len(gPara['HIabs']['cubeName'])):
+            cubePath=gPara['HIabs']['cubeDir']+gPara['HIabs']['cubeName'][i]
+
+            contIm=gPara['HIabs']['contDir']+gPara['HIabs']['contIm'][i]
+    
+            contFlux,contFluxScience = aBs.measContFlux(gPara,contIm)
+            contFlux_arr.append(contFlux)
+            contFluxScience_arr.append(contFluxScience)
+
+        if gPara['HIabs']['detectionLimits']['enable']==True:
+
+            optDepthLim1=[]
+            optDepthLim3=[]
+            optDepthLim33=[]
+            optDepthLim5=[]
+
+            NHIMin1=[]
+            NHIMin3=[]
+            NHIMin33=[]
+            NHIMin5=[]
+
+            minMass1=[]
+            minMass3=[]
+            minMass33=[]
+            minMass5=[]
+
+            if gPar.cfg_par['HIem'].get('enable',False) == False:
+                noise=[]
+                noisePath=[]
+                dV_report=[]
+
+            for i in range(0,len(gPara['HIabs']['cubeName'])):
+                cubePath=gPara['HIabs']['cubeDir']+gPara['HIabs']['cubeName'][i]
+
+                bMaj,bMin = hP.readBeam(cubePath)
+
+                print ('\n\t************ --- GuFo : Computing noise in datacube --- ************\n')
+                if gPar.cfg_par['HIem'].get('enable',False) == False:
+                    cubeNoise, noiseFigPath = cP.measRMS(cubePath)
+                    noise.append(float(cubeNoise))
+                    noisePath.append(noiseFigPath)
+                headCube=fits.getheader(cubePath)
+                dV=np.abs(headCube['CDELT3'])  
+                if gPara['HIabs']['vunit']=='m/s':
+                    dV_report.append(np.round(dV/1e3,2))
+                    dV/=1e3
+                else:
+                    dV_report.append(np.round(dV,2))
+
+                noiseValue=-noise[i]
+                optDepthLim1 = aBs.optical_depth(-noise[i]*1.,float(contFlux))
+                optDepthLim3 = aBs.optical_depth(-noise[i]*3.,float(contFlux))
+                optDepthLim5 = aBs.optical_depth(-noise[i]*5.,float(contFlux))
+
+                NHIMin1 = aBs.nhiAbs(optDepthLim1,dV)
+                nhiAbsScience1="{:.2e}".format(NHIMin1)
+ 
+                NHIMin3 = aBs.nhiAbs(optDepthLim3,dV)
+                nhiAbsScience3="{:.2e}".format(NHIMin3)
+
+                NHIMin33 = aBs.nhiAbs(optDepthLim3,3*dV)
+                nhiAbsScience33="{:.2e}".format(NHIMin33)
+
+                NHIMin5 = aBs.nhiAbs(optDepthLim5,5*dV)
+                nhiAbsScience5="{:.2e}".format(NHIMin5)
+                
+                #radioExt = np.pi*bMaj.arcsecond*bMin.arcsecond*np.power(0.3e3,2)#pc
+                
+                minMass1 =aBs.mhi_abs(NHIMin1,bMaj,bMin,DL,z)
+                minMassScience1="{:.2e}".format(minMass1)
+
+                minMass3 =aBs.mhi_abs(NHIMin3,bMaj,bMin,DL,z)
+                minMassScience3="{:.2e}".format(minMass3)
+
+                minMass33 =aBs.mhi_abs(NHIMin33,bMaj,bMin,DL,z)
+                minMassScience33="{:.2e}".format(minMass33)
+
+                minMass5 =aBs.mhi_abs(NHIMin5,bMaj,bMin,DL,z)
+                minMassScience5="{:.2e}".format(minMass5)
+
+
+                #     opt_imgInfo=r'''</div> <div id="right_col"> MeerLicht image with the  \(3\sigma \times 2^n\) (
+
+            print ('\n\t************ --- GuFo : HI detection limits computed --- ************\n')
+
+        if gPara['HIabs']['spectrum'].get('enable',False) == True:
+            print ('\n\t************ --- GuFo : extracting HI absorption --- ************\n')
+            absDir = gPara['HIabs']['absDir']
+            if not os.path.exists(absDir):
+                os.mkdir(absDir)
+
+            raN=gPara['HIabs']['spectrum']['noiseRA']
+            decN=gPara['HIabs']['spectrum']['noiseDec']
+            ra=gPara['HIabs']['centreRA']
+            dec=gPara['HIabs']['centreDec']
+            outSpec=[]
+            outPlot=[]
+            outPlotNHI=[]
+
+            outPlotRb=[]
+            outPlotNHIRb=[]
+
+            rebinSpec=[]
+            for i in range(0, len(gPara['HIabs']['cubeName'])):
+                cubePath=gPara['HIabs']['cubeDir']+gPara['HIabs']['cubeName'][i]
+                
+                specName=gPara['HIabs']['absDir']+gPara['general']['outPrefix'][i]+'_spec'
+                outSpec.append(aBs.abSex(cubePath,specName,contFlux_arr[i],ra,dec,raN,decN,vunit=gPara['HIabs']['vunit']))
+                outPlot.append(gPara['HIabs']['absDir']+gPara['general']['outPrefix'][i]+'_specFlux.png')
+                outPlotNHI.append(gPara['HIabs']['absDir']+gPara['general']['outPrefix'][i]+'_rebinSpecNhi.png')
+
+                aBs.absPlot(outSpec[i], outPlot[i],gPara['galaxy']['vsys'],-1,'flux',gPara['HIabs']['vunit'])
+                aBs.absPlot(outSpec[i], outPlotNHI[i],gPara['galaxy']['vsys'],-1,'nhi',gPara['HIabs']['vunit'])
+
+                if gPara['HIabs']['spectrum']['rebin']['enable']==True:
+
+                    rebinSpec.append(sP.rebinSpec(outSpec[i],gPara['HIabs']['spectrum']['rebin']['deltaV'],contFlux_arr[i]))
+                    outPlotRb.append(gPara['HIabs']['absDir']+gPara['general']['outPrefix'][i]+'_rebinSpecFlux.png')
+                    outPlotNHIRb.append(gPara['HIabs']['absDir']+gPara['general']['outPrefix'][i]+'_rebinSpecNhi.png')
+
+                    aBs.absPlot(rebinSpec[i], outPlotRb[i],gPara['galaxy']['vsys'],-1,'flux')
+                    aBs.absPlot(rebinSpec[i], outPlotNHIRb[i],gPara['galaxy']['vsys'],-1,'tau')
+                else:
+                    rebinSpec.append(outSpec[i])
+                    outPlotRb.append(outPlot[i])
+                    outPlotNHIRb.append(outPlot[i])
+
+        print ('\n\t************ --- GuFo : HI absorption plotted --- ************\n')
+
+        if gPara['HIabs']['stats'].get('enable',False) == True:
+            print ('\n\t************ --- GuFo : computing HI absorption statistics --- ************\n')
+            
+            if gPara['HIem']['enable']==False:
+                dV_report=[]
+            
+            for i in range(0, len(gPara['HIabs']['cubeName'])):
+                headCube=fits.getheader(cubePath)
+                dV=np.abs(headCube['CDELT3']) 
+                if gPara['HIabs']['vunit']=='m/s':
+                    dV/=1e3
+                dV_report.append(np.round(dV,2))
+                
+                bMaj,bMin = hP.readBeam(cubePath)
+                bMaj_pc = (bMaj.arcsecond*DL/(180./np.pi*3600.*np.power(1+z,2)))*1e6
+                bMin_pc = (bMaj.arcsecond*DL/(180./np.pi*3600.*np.power(1+z,2)))*1e6
+                spec_vec = ascii.read(outSpec[i])
+                
+                vel = np.array(spec_vec[spec_vec.colnames[0]], dtype=float)
+                flux = np.array(spec_vec[spec_vec.colnames[1]], dtype=float)
+                tau = np.array(spec_vec[spec_vec.colnames[3]], dtype=float)
+                if gPara['HIabs']['vunit']=='m/s':
+                    vel/=1e3
+                peakFlux, idxPeak = aBs.findPeak(gPara,vel,flux)
+                peakTau = tau[idxPeak]
+                if gPara['HIabs']['spectrum']['rebin']['enable']==True:
+                    intFlux,intTau,width,intNHI,absMass = hiP.computeStats(gPara,contFlux_arr[i],rebinSpec[i],gPara['HIabs']['spectrum']['rebin']['deltaV'],bMaj,bMin)
+                else:
+                    intFlux,intTau,width,intNHI,absMass = hiP.computeStats(gPara,contFlux_arr[i],outSpec[i],gPara['HIabs']['spectrum']['rebin']['deltaV'],bMaj,bMin)
+
+                width="{:.2e}".format(width)
+                intNHI="{:.2e}".format(intNHI)
+                absMass="{:.2e}".format(absMass)
+
+
+                if gPara['HIabs']['report']['enable']==True:
+                    reportDir = gPara['general']['workdir']+'htmlReports/'
+                    if not os.path.exists(reportDir):
+                        os.mkdir(reportDir)
+                    gPara['general']['reportDir'] = reportDir
+                    
+                    env = Environment(
+                        loader=FileSystemLoader(gPara['general']['templateFolder'])
+                    ) 
+                    templateAbs = env.get_template('absReport.html')
+
+                    reportName = gPara['general']['reportDir']+'HIabsReport'+'_'+gPara['general']['outPrefix'][i]+'.html'
+                    
+                    with open(reportName, "w") as f:
+                    
+                        f.write(templateAbs.render(title=gPara['galaxy']['name'][0],
+                            cubeName=gPara['HIabs']['cubeName'][i],
+                            cubeDir=gPara['HIabs']['cubeDir'],
+                            contName=gPara['HIabs']['contIm'][i],
+                            contDir=gPara['HIabs']['contDir'],
+                            noise=np.round(-noiseValue*1e3,3),
+                            scont=contFluxScience,
+                            tau=np.round(optDepthLim1,3),
+                            bMaj = str(np.round(bMaj.arcsecond,2)),
+                            bMin = str(np.round(bMin.arcsecond,2)),
+                            nHIAbs1=nhiAbsScience1,
+                            mHIAbs1=minMassScience1,
+                            tau3=np.round(optDepthLim3,3),
+                            nHIAbs3=nhiAbsScience3,
+                            mHIAbs3=minMassScience3,
+                            tau33=np.round(optDepthLim3,3),
+                            nHIAbs33=nhiAbsScience33,
+                            mHIAbs33=minMassScience33,
+                            tau5=np.round(optDepthLim5,3),
+                            nHIAbs5=nhiAbsScience5,
+                            mHIAbs5=minMassScience5,
+                            dV=dV_report[i],
+                            dV33=3*dV_report[i],
+                            dV5=np.round(5*dV_report[i]),
+                            fluxP=np.round(peakFlux*1e3,3),
+                            tauP=np.round(peakTau,4),
+                            fwzi=width,
+                            intFlux=np.round(intFlux*1e3,3),
+                            intTau=np.round(peakTau,4),
+                            nHIInt=intNHI,
+                            mHIInt=absMass,
+                            bMajPC = str(np.round(bMaj_pc/1e3,2)),
+                            bMinPC = str(np.round(bMin_pc/1e3,2))))
+                
+                reportNameEm=gPara['general']['reportDir']+'HIReport'+'_'+gPara['general']['outPrefix'][i]+'.html'
+
+
+                if os.path.isfile(reportNameEm)==True:
+                    lineText = '''<div id="right_col"><h3>Ancillary Information</h3> <A  HREF="'''+reportName+'''">HI absorption</A></div>'''
+                    with open(reportNameEm, 'r+') as f:
+                        lines = f.readlines()
+                        for j, line in enumerate(lines):
+                            if line.startswith('</html>'): 
+                                lines[j] = lineText+line
+                        f.truncate()
+                        f.seek(0)                                           # rewrite into the file
+                        for line in lines:
+                            f.write(line)
+
+        if gPara['HIabs']['report']['enable']==True:
+            
+            for i in range(0, len(gPara['HIabs']['cubeName'])):
+                reportName = gPara['general']['reportDir']+'HIabsReport'+'_'+gPara['general']['outPrefix'][i]+'.html'
+                abs_img = base64.b64encode(open(outPlot[i], 'rb').read()).decode('utf-8').replace('\n', '')
+                abs_imgRb = base64.b64encode(open(outPlotRb[i], 'rb').read()).decode('utf-8').replace('\n', '')
+                abs_imgNHI = base64.b64encode(open(outPlotNHI[i], 'rb').read()).decode('utf-8').replace('\n', '')
+                abs_imgNHIRb = base64.b64encode(open(outPlotNHIRb[i], 'rb').read()).decode('utf-8').replace('\n', '')                
+                lineText = '''</div class="row"><h3>HI absorption spectra</h3>'''
+
+                absimgTxt = '<img class="absL" src="data:image/png;base64,{0}">'.format(abs_img)
+                absimgTxtRb = '<img class="absR" src="data:image/png;base64,{0}"><br/>'.format(abs_imgRb)
+                absimgTxtNHI = '<img class="absNHIL" src="data:image/png;base64,{0}">'.format(abs_imgNHI)
+                absimgTxtNHIRb = '<img class="absNHIR" src="data:image/png;base64,{0}"><br/>'.format(abs_imgNHIRb)
+                lineText2 = r'''<i>Left Panels</i>: spectrum extracted against the continuum peak at the original spectral resolution. <tab1> <i>Right Panels</i>: spectrum rebinned with %2.1f km s\(^{-1}\)-wide channels</div>''' % (gPara['HIabs']['spectrum']['rebin']['deltaV'])
+
+
+            #     opt_imgInfo=r'''</div> <div id="right_col"> MeerLicht image with the  \(3\sigma \times 2^n\) (where n=0,2,4..) HI contours overlayed.<br/></div>'''
+                with open(reportName, 'r+') as f:
+                    lines = f.readlines()
+                    for j, line in enumerate(lines):
+                        if line.startswith('</html>'): 
+                            lines[j] = lineText+absimgTxt+absimgTxtRb+absimgTxtNHI+absimgTxtNHIRb+lineText2+lines[j]
+                    f.truncate()
+                    f.seek(0)                                           # rewrite into the file
+                    for line in lines:
+                        f.write(line)
+
+    #------------------------#
+    #Cube channel maps       #
+    #------------------------#
+    if 'chanMaps' in gPar.cfg_par['cubePlay'] and gPar.cfg_par['cubePlay']['chanMaps']['enable']==True:
+        print ('\n\t************ --- GuFo : drawing channel maps --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        gPara=gPar.cfg_par  
+
+        if 'cubeContours' in gPara['cubePlay']['chanMaps']:
+            contLevels = np.empty([2,2,len(gPara['cubePlay']['chanMaps']['cubeContours'])],dtype=float)+np.nan  
+            contLevels[0,0,:] =  gPara['cubePlay']['chanMaps']['cubeContours']
+            gPara['cubePlay']['chanMaps']['cubeContours']=contLevels
+            noiseScience="{:.2e}".format(contLevels[0,0,0]*1e3)
+        cubePath=gPara['cubePlay']['chanMaps']['inCube']
+        cubeNoise, noiseFigPath = cP.measRMS(cubePath)
+
+        maxCube = np.nanmax(fits.getdata(cubePath))
+        cont00=plUt.computeContours(noise=cubeNoise,maximum=maxCube,inMap=None,sigma=2.5,step=1)
+
+        contLevels = np.empty([2,2,len(cont00)],dtype=float)+np.nan  
+        contLevels[0,0,:] =  cont00
+        gPara['cubePlay']['chanMaps']['cubeContours'] = contLevels
+        chanMaps = cPl.chanMaps(gPara)
+
+        if gPara['cubePlay']['chanMaps']['report']==True:
+            reportDir = gPara['general']['workdir']+'htmlReports/'
+            if not os.path.exists(reportDir):
+                os.mkdir(reportDir)
+            gPara['general']['reportDir'] = reportDir
+                    
+
+        env = Environment(
+                loader=FileSystemLoader(gPara['general']['templateFolder'])
+            )            
+        
+        img_chans = base64.b64encode(open(chanMaps, 'rb').read()).decode('utf-8').replace('\n', '')
+
+        reportNameChans= gPara['general']['reportDir']+'HIChansReport'+'_'+gPara['general']['outPrefix'][0]+'.html'
+        template = env.get_template('chanMapsReport.html')
+
+        with open(reportNameChans, "w") as f:
+            f.write(template.render(
+                        noise=str(np.round(cont00[0]*1e3,3)),
+                        vsys=str(np.round(gPara['galaxy']['vsys'],2)),
+                        img_chans = '<img class="chMaps" src="data:image/png;base64,{0}">'.format(img_chans),                         
+                    ))
+        reportNameEm = gPara['general']['reportDir']+'HIReport'+'_'+gPara['general']['outPrefix'][0]+'.html'
+        if os.path.isfile(reportNameEm)==True:
+            lineText = '''<div id="right_col"><A  HREF="'''+reportNameChans+'''">Channel maps</A></div>'''
+            with open(reportNameEm, 'r+') as f:
+                lines = f.readlines()
+                for j, line in enumerate(lines):
+                    if '</html>' in line: 
+                        line=line.split('</html>')[0]
+                        lines[j] = line+lineText+'</html>'
+                f.truncate()
+                f.seek(0)                                           # rewrite into the file
+                for line in lines:
+                    f.write(line)
+
+
+
+    #------------------------#
+    #PvPlots                 #
+    #------------------------#
+    if gPar.cfg_par['pvDiagram']['enable']==True:
+        print ('\n\t************ --- GuFo : extracting pv-diagram --- ************\n')
+        gPar = gufo.gufo(args.cfgFile)
+        gPara=gPar.cfg_par  
+
+        pvDir = gPara['pvDiagram']['pvDir']
+        if not os.path.exists(pvDir):
+            os.mkdir(pvDir)
+        pvPlotDir = gPara['pvDiagram']['pvPlots']['plotDir']
+        if not os.path.exists(pvPlotDir):
+            os.mkdir(pvPlotDir)
+        # if 'cubeContours' in gPara['cubePlay']['chanMaps']:
+        #     contLevels = np.empty([2,2,len(gPara['cubePlay']['chanMaps']['cubeContours'])],dtype=float)+np.nan  
+        #     contLevels[0,0,:] =  gPara['cubePlay']['chanMaps']['cubeContours']
+        #     gPara['cubePlay']['chanMaps']['cubeContours']=contLevels
+        #     noiseScience="{:.2e}".format(contLevels[0,0,0]*1e3)
+        
+        pvPlotName=[]
+        noiseValue=[]
+        print('PVBEGINS------------------------------')
+        for i in range(0,len(gPara['pvDiagram']['pa'])):
+            for j in range(0, len(gPara['pvDiagram']['width'])):
+                pa = gPara['pvDiagram']['pa'][i]
+                width = gPara['pvDiagram']['width'][j]
+
+                outPv = pvP.pvCut(gPara,pa,width)
+                noiseData= fits.getdata(outPv)
+
+                noise10NHI=np.nanstd(noiseData[gPara['pvDiagram']['noiseRange'][0]:gPara['pvDiagram']['noiseRange'][1],:])
+                noiseValue.append(noise10NHI)
+                print(noise10NHI,outPv)
+                cont10=plUt.computeContours(noise10NHI,inMap=outPv,sigma=2.5,step=1)
+                imLevPos=cont10*1e3
+                imLevNeg = -cont10[::-1]*1e3
+
+                lenColumns3 = int(max(len(imLevPos),len(imLevNeg)))
+
+                imLevels = np.empty([1,lenColumns3,2],dtype=float)+np.nan
+                imLevels[0,0:len(imLevPos),0] = imLevPos
+                imLevels[0,0:len(imLevNeg),1] = imLevNeg
+
+                imColors = np.zeros([1,2],dtype=object)
+                imColors[0,0] = 'black'
+                imColors[0,1] = 'red'
+
+
+                vsys=gPara['galaxy']['vsys']
+
+                velRange= np.array([[gPara['pvDiagram']['pvPlots']['xRange'][0],gPara['pvDiagram']['pvPlots']['xRange'][1]],[vsys+gPara['pvDiagram']['pvPlots']['vRange'][0],vsys+gPara['pvDiagram']['pvPlots']['vRange'][1]]])
+                #[-0.02,0.02]
+                cMap = 'Greys_r'
+                #vRange=np.array([vRangeMin,vRangeMax])
+                        
+                pvPlotName.append(pvP.pvPlot(gPara,[outPv],cMap,imLevels,
+                              imColors,vsys,velRange,interpMethod='none',cScale='linear',linthresh=0.1,imContours=True))
+
+
+                print(width,pa)
+                print(i,j)
+        print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+        print(len(pvPlotName))
+        if gPara['pvDiagram']['report']==True:
+            reportDir = gPara['general']['workdir']+'htmlReports/'
+            if not os.path.exists(reportDir):
+                os.mkdir(reportDir)
+            gPara['general']['reportDir'] = reportDir
+                    
+
+            env = Environment(
+                    loader=FileSystemLoader(gPara['general']['templateFolder'])
+                )            
+
+
+            reportNamePV= gPara['general']['reportDir']+'HIPVReport'+'_'+gPara['general']['outPrefix'][0]+'.html'
+            print(reportNamePV)
+            print('________________________________________________')
+            if os.path.exists(reportNamePV) == False:
+
+                if   len(pvPlotName) == 2:  
+                    template = env.get_template('pvPlotsReportMajMin.html')
+
+                    imgPv_Maj = base64.b64encode(open(pvPlotName[0], 'rb').read()).decode('utf-8').replace('\n', '')
+                    imgPv_Min = base64.b64encode(open(pvPlotName[1], 'rb').read()).decode('utf-8').replace('\n', '')
+                    with open(reportNamePV, "w") as f:
+
+                        f.write(template.render(
+                                    title=gPara['galaxy']['name'][0],
+                                    title1=gPara['pvDiagram']['pvPlots']['titleCuts'][0],
+                                    title2=gPara['pvDiagram']['pvPlots']['titleCuts'][1],
+                                    pa1=str(gPara['pvDiagram']['pa'][0]),
+                                    pa2=str(gPara['pvDiagram']['pa'][1]),
+                                    noise1=str(np.round(noiseValue[0]*2.5e3,3)),
+                                    noise2=str(np.round(noiseValue[1]*2.5e3,3)),
+                                    vsys=str(np.round(gPara['galaxy']['vsys'],2)),   
+                                    imgPVMaj = '<img class="pvMaj" src="data:image/png;base64,{0}"><br/>'.format(imgPv_Maj),                         
+                                    imgPVMin = '<img class="pvMin" src="data:image/png;base64,{0}"><br/>'.format(imgPv_Min),   
+                                ))
+           
+                    print('cazzzo')
+                elif len(pvPlotName) == 3:  
+                    template = env.get_template('pvPlotsReport.html')
+
+                    imgPv_Maj = base64.b64encode(open(pvPlotName[0], 'rb').read()).decode('utf-8').replace('\n', '')
+                    imgPv_Min = base64.b64encode(open(pvPlotName[1], 'rb').read()).decode('utf-8').replace('\n', '')
+                    imgPv_Fil = base64.b64encode(open(pvPlotName[2], 'rb').read()).decode('utf-8').replace('\n', '')
+                    with open(reportNamePV, "w") as f:
+                        f.write(template.render(
+                                    title=gPara['galaxy']['name'][0],
+                                    title1=gPara['pvDiagram']['pvPlots']['titleCuts'][0],
+                                    title2=gPara['pvDiagram']['pvPlots']['titleCuts'][1],
+                                    title3=gPara['pvDiagram']['pvPlots']['titleCuts'][2],
+                                    pa1=str(gPara['pvDiagram']['pa'][0]),
+                                    pa2=str(gPara['pvDiagram']['pa'][1]),
+                                    pa3=str(gPara['pvDiagram']['pa'][2]),
+                                    noise1=str(np.round(noiseValue[0]*2.5e3,3)),
+                                    noise2=str(np.round(noiseValue[1]*2.5e3,3)),
+                                    noise3=str(np.round(noiseValue[2]*2.5e3,3)),
+                                    vsys=str(np.round(gPara['galaxy']['vsys'],2)),   
+                                    imgPVMaj = '<img class="pvMaj" src="data:image/png;base64,{0}"><br/>'.format(imgPv_Maj),                         
+                                    imgPVMin = '<img class="pvMin" src="data:image/png;base64,{0}"><br/>'.format(imgPv_Min),   
+                                    imgPVFil = '<img class="pvMin" src="data:image/png;base64,{0}"><br/>'.format(imgPv_Fil)                      
+                                ))
+                print('reportSaved')
+                print(reportNamePV)
+                reportNameEm = gPara['general']['reportDir']+'HIReport'+'_'+gPara['general']['outPrefix'][0]+'.html'
+
+
+
+
+            else:
+                j=0
+                k=0
+                print('++++++++++++++++++++++++++++++++++')
+                print(len(pvPlotName))
+                for i in range(0,len(gPara['pvDiagram']['pa'])):
+                    for j in range(0, len(gPara['pvDiagram']['width'])):
+ 
+                        pvImg = base64.b64encode(open(pvPlotName[i+j], 'rb').read()).decode('utf-8').replace('\n', '')
+
+                        #captionLine1 = r'''<li>Contour levels are %2.1f \(\times 2^n\) mJy beam\(^{-1}\) where (\( n=0,1,2,...\)), up to the maximum detected flux.</li>''' % np.round(noiseValue[i]*2.5e3,3)
+                        #captionLine2 = r'''<li>Width of cut: %d arcsec.</li>''' % int(gPara['pvDiagram']['width'][k])
+                        
+                        if ( (i+j) % 2) == 0:
+                            print('THIERE')
+                            #titleLine = r'''<br/> </div id="left_col"><h3>PA  = %2.1f \( ^\circ \)</h3><br/>'''% gPara['pvDiagram']['pa'][j]
+                            titleLine = r'''<br/> </div id="left_col"><h3>PA  = %2.1f \( ^\circ \)</h3><br/>'''% gPara['pvDiagram']['pa'][i]
+                            figLine = '<img class="pvMaj" src="data:image/png;base64,{0}"><br/>'.format(pvImg)
+                            endLine = '''</div>'''
+                        else:
+                            print('HIERE')
+                            #titleLine = r'''<br/> </div id="right_col"><h3>PA  = %2.1f \(^\circ \)</h3><br/>'''% gPara['pvDiagram']['pa'][j]
+                            titleLine = r'''<br/> </div id="right_col"><h3>PA  = %2.1f \(^\circ \)</h3><br/>'''% gPara['pvDiagram']['pa'][i]
+                            figLine = '<img class="pvMin" src="data:image/png;base64,{0}"><br/>'.format(pvImg)
+                            endLine = '''</div>'''
+
+
+                        with open(reportNamePV, 'r+') as f:
+                            lines = f.readlines()
+                            for jj, line in enumerate(lines):
+                                if line.startswith('</html>'): 
+    #                                lines[jj] = titleLine+figLine+captionLine1+captionLine2+endLine+lines[jj]
+                                    lines[jj] = figLine+lines[jj]
+
+                            f.truncate()
+                            f.seek(0)                                           # rewrite into the file
+                            for line in lines:
+                                f.write(line)
+
+
+            if os.path.isfile(reportNameEm)==True:
+                lineText = '''<div id="right_col"><A  HREF="'''+reportNamePV+'''">Pv Plots</A></div>'''
+                with open(reportNameEm, 'r+') as f:
+                    lines = f.readlines()
+                    for j, line in enumerate(lines):
+                        if '</html>' in line: 
+                            line=line.split('</html>')[0]
+                            lines[j] = line+lineText+'</html>'
+                    f.truncate()
+                    f.seek(0)                                           # rewrite into the file
+                    for line in lines:
+                        f.write(line)
+
+
+
+        # cubeNoise, noiseFigPath = cP.measRMS(cubePath)
+
+        # maxCube = np.nanmax(fits.getdata(cubePath))
+        # cont00=plUt.computeContours(noise=cubeNoise,maximum=maxCube,inMap=None,sigma=2.5,step=1)
+
+        # contLevels = np.empty([2,2,len(cont00)],dtype=float)+np.nan  
+        # contLevels[0,0,:] =  cont00
+        # gPara['cubePlay']['chanMaps']['cubeContours'] = contLevels
+        # chanMaps = cPl.chanMaps(gPara)
+
+        # if gPara['cubePlay']['chanMaps']['report']==True:
+        #     reportDir = gPara['general']['workdir']+'htmlReports/'
+        #     if not os.path.exists(reportDir):
+        #         os.mkdir(reportDir)
+        #     gPara['general']['reportDir'] = reportDir
+                    
+
+        # env = Environment(
+        #         loader=FileSystemLoader(gPara['general']['templateFolder'])
+        #     )            
+        
+        # img_chans = base64.b64encode(open(chanMaps, 'rb').read()).decode('utf-8').replace('\n', '')
+
+        # reportNameChans= gPara['general']['reportDir']+'HIChansReport'+'_'+gPara['general']['outPrefix'][0]+'.html'
+        # template = env.get_template('chanMapsReport.html')
+
+        # with open(reportNameChans, "w") as f:
+        #     f.write(template.render(
+        #                 noise=str(np.round(cont00[0]*1e3,3)),
+        #                 vsys=str(np.round(gPara['galaxy']['vsys'],2)),
+        #                 img_chans = '<img class="chMaps" src="data:image/png;base64,{0}">'.format(img_chans),                         
+        #             ))
+        # reportNameEm = gPara['general']['reportDir']+'HIReport'+'_'+gPara['general']['outPrefix'][0]+'.html'
+        # if os.path.isfile(reportNameEm)==True:
+        #     lineText = '''<div id="right_col"><A  HREF="'''+reportNameChans+'''">Channel maps</A></div>'''
+        #     with open(reportNameEm, 'r+') as f:
+        #         lines = f.readlines()
+        #         for j, line in enumerate(lines):
+        #             if '</html>' in line: 
+        #                 line=line.split('</html>')[0]
+        #                 lines[j] = line+lineText+'</html>'
+        #         f.truncate()
+        #         f.seek(0)                                           # rewrite into the file
+        #         for line in lines:
+        #             f.write(line)
+
+
+        print('\n\t************ --- GuFo : DONE --- ************\n') 
+
+
+
+# print('''\n\t+---------+\n\t HI absorption \n\t+---------+''')
+
+# specAbs=gPar['general']['workdir']+'absorption/spec_bin3_vopt.txt'
+# spec=ascii.read(specAbs)
+# flux=spec['col2']
+# print(flux)
+# vel=spec['col1']
+# tau=aBs.optical_depth(flux,491.8e-3)
+# vMin = 2298.76
+# vMax = 2853.27
+
+# idxVmin = np.abs(vel-vMin).argmin()
+# idxVmax = np.abs(vel-vMax).argmin()
+
+# tauInt = np.sum(tau[idxVmin:idxVmax])
+# fluxInt = np.sum(flux[idxVmin:idxVmax])
+
+# print('{0} Int Flux = {1:.4f} '.format('NGC3100',fluxInt))
+
+# dataCube=gPar['general']['workdir']+'cubeAll/dataReduction/cbR2_05_bin3_vopt.fits'
+# dV= np.mean(np.diff(aBs.zaxis(dataCube)))
+# print(dV)
+
+# NHIInt = aBs.nhiAbs(tauInt,dV)
+# noise=873.778e-6
+# tauNoise=aBs.optical_depth(-noise*3,491.8e-3)
+# NHIMin = aBs.nhiAbs(tauNoise,dV)
+
+
+# radioExt = 2e3*0.3e3#pc
+
+# minMass =aBs.mhi_abs(NHIInt,radioExt)
+
+
+
+# bx = Angle(0.00582832144573,u.deg)
+# by = Angle(0.00582832144573,u.deg)
+# radioExt = np.pi*bx.arcsecond*by.arcsecond*np.power(0.3e3,2)#pc
+
+# minMass =aBs.mhi_abs(NHIInt,radioExt)
+
+
+        #if gPara['HIabs']['detectionLimits']['enable'] == True:
+
+
 
 print ('\n\t*************\t\t---   GuFo   ---\t*************')
 

@@ -1,5 +1,5 @@
 ipython
-numpy==1.22.0
+numpy
 wheel
 scipy
 matplotlib
@@ -11,4 +11,6 @@ ppxf==6.7.15
 tqdm
 reproject
 pandas
-MontagePy
+pvextractor
+specutils
+#MontagePy

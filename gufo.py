@@ -47,7 +47,7 @@ class gufo(object):
         self.cfg_par['general']['gfitPath'] = GFIT_DIR
         self.cfg_par['general']['C'] = self.C
 
-        self.set_dirs()
+        #self.set_dirs()
 
         cfg.close()
 
@@ -79,6 +79,12 @@ class gufo(object):
         if not os.path.exists(tableDir):
             os.mkdir(tableDir)
         self.cfg_par['general']['tableDir'] = tableDir
+
+        reportDir = self.cfg_par['general']['workdir']+'htmlReports/'
+        if not os.path.exists(reportDir):
+            os.mkdir(reportDir)
+        self.cfg_par['general']['reportDir'] = reportDir
+
 
         if self.cfg_par['starSub'].get('enable',False) == True:
             self.cfg_par['general']['outVorTableName'] = self.cfg_par['general']['tableDir']+'GuFo_LineTable.fits'
@@ -128,15 +134,23 @@ class gufo(object):
             self.cfg_par['general']['outVorLineTableName'] =self.cfg_par['general']['outVorTableName']
             self.cfg_par['general']['outVorLines'] = self.cfg_par['general']['outLines']
 
-        outTableName = self.cfg_par['general']['runNameDir']+'gPlayOut.fits'
+        outTableName = self.cfg_par['general']['runNameDir']+self.cfg_par['general']['outTable']
+        outTableName2 = self.cfg_par['general']['runNameDir']+self.cfg_par['general']['outTable2']
 
         self.cfg_par['general']['outTableName'] = outTableName
+        self.cfg_par['general']['outTableName2'] = outTableName2
 
         outPlotDir = self.cfg_par['general']['runNameDir']+'spectra/'
         if not os.path.exists(outPlotDir):
             os.mkdir(outPlotDir)
         
         self.cfg_par['general']['outPlotDir'] = outPlotDir
+
+        ccaDir =self.cfg_par['general']['runNameDir']+'CCA/'
+        self.cfg_par['general']['CCAanalysis'] = ccaDir
+        ccaPlotDir =self.cfg_par['general']['runNameDir']+'CCA/plots'
+
+        self.cfg_par['general']['CCAanalysisPlotDir'] = ccaPlotDir
 
         momDir =self.cfg_par['general']['runNameDir']+'moments/'
         if not os.path.exists(momDir):
@@ -153,10 +167,15 @@ class gufo(object):
             os.mkdir(plotMomModDir)
         self.cfg_par['general']['plotMomModDir'] = plotMomModDir
 
-        bptDir =self.cfg_par['general']['runNameDir']+'bpt/'
+        bptDir =self.cfg_par['general']['runNameDir']+'lineRatios/'
         if not os.path.exists(bptDir):
             os.mkdir(bptDir)
         self.cfg_par['general']['bptDir'] = bptDir
+
+        bptPlotDir =self.cfg_par['general']['bptDir']+'plots/'
+        if not os.path.exists(bptPlotDir):
+            os.mkdir(bptPlotDir)
+        self.cfg_par['general']['bptPlotDir'] = bptPlotDir
 
         bptModDir =self.cfg_par['general']['runNameDir']+'bpt/'+self.cfg_par['gFit']['modName']+'/'
         if not os.path.exists(bptModDir):

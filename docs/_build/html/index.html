@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GaNGiaLF – Gas N-Gaussians Line Fitter &mdash; GaNGiaLF 1.0.0. documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=58f5e731"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Introduction" href="pipes/Introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            GaNGiaLF
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pipes/Introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipes/Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipes/listOfTools.html">List of tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipes/configFile.html">Configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipes/AutoGangia.html">Automated GaNGiaLF</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Joints:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="joints/StellarSubtraction.html">Stellar Subtraction using ppxf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/VoronoiBinning.html">Voronoi binning of datacubes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/GaussianFit.html">Line Fitter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/GaussianFit.html#line-analysis">Line Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/Residuals.html">Measure residuals of fit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/BestFitSelection.html">Select best fit among different runs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/IntegratedLineParameters.html">Kinematics of total fitted lines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/MomentMaps.html">Moments maps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/DataCubes.html">Data cubes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/LineRatios.html">Line ratios</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/KinematicalAnalysis.html">Kinematical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/ColdGas.html">Cold gas kinematical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/dataCubeOps.html">Datacube analysis tools</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Science:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="science/NeutralHydrogen.html">Neutral Hydrogen</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/TerminalTutorial.html">GaNGiaLF from terminal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/JupyterTutorial.html">GaNGiaLF with jupyter notebook</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/gufo.html">gufo module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/scavengers.html">scavengers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/setup.html">setup module</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">GaNGiaLF</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">GaNGiaLF – Gas N-Gaussians Line Fitter</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gangialf-gas-n-gaussians-line-fitter">
+<h1>GaNGiaLF – Gas N-Gaussians Line Fitter<a class="headerlink" href="#gangialf-gas-n-gaussians-line-fitter" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pipes/Introduction.html">Introduction</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pipes/Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipes/listOfTools.html">List of tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipes/configFile.html">Configuration file</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pipes/AutoGangia.html">Automated GaNGiaLF</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Joints:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="joints/StellarSubtraction.html">Stellar Subtraction using ppxf</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="joints/StellarSubtraction.html#stellar-subtraction">Stellar subtraction</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="joints/VoronoiBinning.html">Voronoi binning of datacubes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="joints/VoronoiBinning.html#voronoi-binning">Voronoi Binning</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="joints/GaussianFit.html">Line Fitter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/GaussianFit.html#line-analysis">Line Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joints/Residuals.html">Measure residuals of fit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="joints/Residuals.html#residual-cube">Residual cube</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joints/Residuals.html#line-residuals">Line residuals</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="joints/BestFitSelection.html">Select best fit among different runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="joints/BestFitSelection.html#best-fit-selection">Best fit selection</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="joints/IntegratedLineParameters.html">Kinematics of total fitted lines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="joints/IntegratedLineParameters.html#linewidths">Linewidths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joints/IntegratedLineParameters.html#centroid">Centroid</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="joints/MomentMaps.html">Moments maps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="joints/MomentMaps.html#mom0">Mom0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joints/MomentMaps.html#mom1">Mom1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joints/MomentMaps.html#mom2">Mom2</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="joints/DataCubes.html">Data cubes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="joints/DataCubes.html#line-cubelets">Line cubelets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joints/DataCubes.html#position-velocity-diagrams">Position-velocity diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joints/DataCubes.html#mosaics">Mosaics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="joints/LineRatios.html">Line ratios</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="joints/LineRatios.html#bpts">BPTs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joints/LineRatios.html#eta-parameter">Eta-parameter</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="joints/KinematicalAnalysis.html">Kinematical analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="joints/KinematicalAnalysis.html#select-rotation">Select-rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joints/KinematicalAnalysis.html#kinematical-plot">Kinematical-plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joints/KinematicalAnalysis.html#multi-region-k-plot">Multi-region k-plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joints/KinematicalAnalysis.html#cold-chaotic-accretion-aanalysis-tools">Cold Chaotic Accretion Aanalysis tools</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="joints/ColdGas.html">Cold gas kinematical analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="joints/ColdGas.html#moment-maps">Moment maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joints/ColdGas.html#kinematical-plot">Kinematical-plot</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="joints/dataCubeOps.html">Datacube analysis tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="joints/dataCubeOps.html#pv-diagrams">pv-Diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joints/dataCubeOps.html#regrid">Regrid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joints/dataCubeOps.html#rebin">Rebin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joints/dataCubeOps.html#header-manipulation">Header manipulation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Science:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="science/NeutralHydrogen.html">Neutral Hydrogen</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="science/NeutralHydrogen.html#hi-emission">HI emission</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Tutorials:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/TerminalTutorial.html">GaNGiaLF from terminal</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/JupyterTutorial.html">GaNGiaLF with jupyter notebook</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Source:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/gufo.html">gufo module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/gufo.html#gufo.gufo"><code class="docutils literal notranslate"><span class="pre">gufo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="source/scavengers.html">scavengers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.ancels">scavengers.ancels module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.ancelsPlot">scavengers.ancelsPlot module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.bptPlot">scavengers.bptPlot module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.cubePlay">scavengers.cubePlay module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.cubePlot">scavengers.cubePlot module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.cvPlay">scavengers.cvPlay module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.gPlay">scavengers.gPlay module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.gPlayMp">scavengers.gPlayMp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.hiPlay">scavengers.hiPlay module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.momPlay">scavengers.momPlay module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.momPlot">scavengers.momPlot module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.pickle4MPplay">scavengers.pickle4MPplay module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.specPlot">scavengers.specPlot module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.starSub">scavengers.starSub module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.tPlay">scavengers.tPlay module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.util">scavengers.util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers.vorPlay">scavengers.vorPlay module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/scavengers.html#module-scavengers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="source/setup.html">setup module</a></li>
+</ul>
+</div>
+<section id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pipes/Introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Fil8.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

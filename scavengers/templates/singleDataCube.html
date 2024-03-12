@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>  
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+</head>
+<style>
+    tab1 { padding-left: 2em; }
+    tabimage { padding-right: 3em; }
+    #wrap {
+       width:100%;
+       margin:0 auto;
+    }
+    #left_col {
+       float:left;
+       width:48%;
+    }
+    #right_col {
+       float:right;
+       width:48%;
+    }
+    /* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+    img.opt{
+      float:right;
+      width: 95%;
+      font-family: Veranda;
+  }
+    img.rms{
+    	float:right;
+      width: 55%;
+  		font-family: Veranda;
+	}
+    img.abs{
+      float:right;
+      width: 100%;
+      font-family: Veranda;
+  }
+	img.mom0{
+        font-family: Veranda;
+        width: 100%;
+  	}
+	img.mom1{
+  		font-family: Veranda;
+      width: 100%;
+  	}
+  	img.mom2{
+  		font-family: Veranda;
+      width: 100%;
+  	}
+table, th, td {
+  border:1px solid black;
+}
+</style>
+<body>
+
+<h1>{{ title }}</h1>
+<div class="row">
+<div id="left_col">
+<table style="width:80%">
+  <tr>
+    <th>Name</th>
+    <td><b>{{title}}</b></td>
+  </tr>
+  <tr>
+    <td>Ra</td>
+    <td>{{ra}}</td>
+  </tr>
+  <tr>
+    <td>Dec</td>
+    <td>{{dec}}</td>
+  </tr>
+  <tr>
+    <td>z</td>
+    <td>{{z}}</td>
+  </tr>
+  <tr>
+    <td>D\(_{\rm L}\) [Mpc]</td>
+    <td>{{dL}}</td>
+  </tr>
+  <tr>
+    <td>v\(_{\rm sys}\) [km s\(^{-1}\)]</td>
+    <td>{{vsys}}</td>
+  </tr>
+</table>
+
+<h2>Datacube information</h2>
+Cube name: <b>{{cubeName}}</b><br/>
+located in : {{cubeDir}}
+<br/><br/>
+<table style="width:50%">
+  <tr>
+    <td>Beam Major ["]</td>
+    <td>{{BMaj}}</td>
+  </tr>
+  <tr>
+    <td>Beam Minor ["]</td>
+    <td>{{BMin}}</td>
+  </tr>
+  <tr>
+    <td>channel width (\(\Delta v\)) [km s\(^{-1}\)]</td>
+    <td>{{dV}}</td>
+  </tr>
+  <tr>
+    <td><b>Noise per channel</b> [mJy beam\(^{-1}\)]</td>
+    <td>{{noise}}</td>
+  </tr>
+</table>
+</div>
+
+<h2>HI Emission detection limits</h2>
+<div class="row">
+<div id="left_col">
+<table style="width:95%">
+  <tr>
+    <td> </td>
+    <td><b>N\(_{\rm HI}\)</b> [cm\(^{-1}\)] </td>
+    <td><b>\(\Sigma_{\rm HI}\)</b> [M\(_\odot\) pc\(^{-2}\)]</td>
+    <td><b>M\(_{\rm HI}\)</b> [M\(_\odot\)] </td>  
+  </tr>
+  <tr>
+    <td><b>1 r.m.s. - 1 chan ({{dV}} km s\(^{-1}\))</b> </td>
+    <td>{{nhi}}</td>
+    <td>{{sbHI}}</td>
+    <td>{{mHI1}}</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td><b>3 r.m.s. - 1 chan ({{dV}} km s\(^{-1}\))</b> </td> 
+    <td>{{nhi3}}</td>
+    <td>{{sbHI3}}</td>
+    <td>{{mHI3}}</td>
+  </tr>
+  <tr>
+    <td><b>3 r.m.s. - 3 chan ({{vRes3}} km s\(^{-1}\))</b> </td> 
+    <td>{{nhi33}}</td>
+    <td>{{sbHI33}}</td>
+    <td>{{mHI33}}</td>
+  </tr>
+  <tr>
+    <td><b>5 r.m.s. - 5 chans ({{vRes5}} km s\(^{-1}\))</b> </td> 
+    <td>{{nhi5}}</td>
+    <td>{{sbHI5}}</td>
+    <td>{{mHI5}}</td>
+  </tr>
+</table>
+</div>
+<div id="right_col">
+<table style="width:95%">
+  <tr>
+    <td> </td>
+    <td><b>mJy beam\(^{-1}\) m s\(^{-1}\)</td>
+    <td><b>cm\(^{-2}\)</td>
+    <td><b>M\(_\odot\) pc\(^{-2}\)</td>
+  </tr>
+  <tr>
+    <td><b>S/N=3</b> </td>
+    <td>{{SN3}}</td>
+    <td>{{SN3Nhi}}</td>
+    <td>{{SN3Sb}}</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td><b>S/N=5</b> </td>
+    <td>{{SN5}}</td>
+    <td>{{SN5Nhi}}</td>
+    <td>{{SN5Sb}}</td>
+  </tr>
+  <tr>
+    <td><b>S/N=10</b> </td>
+    <td>{{SN10}}</td>
+    <td>{{SN10Nhi}}</td>
+    <td>{{SN10Sb}}</td>
+  </tr>
+</table>
+</div>
+</div>
+
+<h2>Moment Maps</h2>
+<div class="row">
+<div id="left_col">
+<h3>Column density map</h3>
+{{img_mom0}}<br/>
+
+Contour levels are {{SN3Nhi}}\(\times 2^{n}\) cm\(^{-2}\) where (\(n=0,2,4,...\)), up to 95% of the peak flux density in the moment-0 map. 
+The lowest contour marks the average S/N of 3 of the map.<br/>
+<br/><b>HI Mass</b><br/><br/>
+The HI mass enclosed within {{SN3Nhi}} cm\(^{-2}\) is {{mhi}} M\(_\odot\).
+</div>
+<div id="right_col">
+
+<h3>Velocity Field</h3>
+
+{{img_mom1}}
+<br/>
+The velocity field has been masked at the {{nhiMask}} cm\(^{-2}\) column density limit.
+
+
+</div>
+</div>
+<div class="row">
+<div id="left_col">
+
+<h3>Velocity dispersion map</h3>
+
+{{img_mom2}}
+
+<br/>
+
+Contours levels are shown in intervals of 25 km s\(^{-1} \) up to {{maxMom2}} km s\(^{-1} \). The mom-2 map has been masked as the velocity field.
+<br/>
+<br/><br/>
+</div>
+
+</html>
+
+</div>
+<div id="right_col">
+{{rms_img}}
+</div>

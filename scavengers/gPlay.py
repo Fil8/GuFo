@@ -539,7 +539,7 @@ class gplay(object):
                         noiseVec[idxMin:idxMax] -= np.nanmean(noiseVec[idxMin:idxMax])
                         # FIT
                         result = load_modelresult(cfg_par[key]['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
-                        
+                        print(cfg_par[key]['modNameDir']+str(binIDName)+'_'+cfg_par['gFit']['modName']+'.sav')
                         cfg_par['gPlot']['loadModel'] = True
                         #plot Fit
                         if cfg_par['gPlot']['enable'] == True:
@@ -593,8 +593,14 @@ class gplay(object):
         y = dd[idxMin:idxMax,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]
         all_zeros = not np.any(y)
         waveCut = wave[idxMin:idxMax]
+
+
+        print(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')        
         if doFit==False and os.path.exists(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav'):
             result = load_modelresult(cfg_par[key]['modNameDir']+str(binID)+'_'+cfg_par['gFit']['modName']+'.sav')
+            
+        
+
         elif doFit==True:
             print('''\t+---------+\n\t ...fitting...\n\t+---------+''')
             gMod,gPars = self.lineModDef(cfg_par,waveCut,y,lineInfo)
@@ -609,6 +615,7 @@ class gplay(object):
                 print('''\t+---------+\n\t EXIT with ERROR\n\t+---------+''')
                 sys.exit(0)
         cfg_par['gPlot']['loadModel'] = True
+        
         if cfg_par['gFit']['method'] != 'pixel':
             noiseVec = nn[idxMin:idxMax,int(tabGen['PixY'][idxTable]),int(tabGen['PixX'][idxTable])]
         else:

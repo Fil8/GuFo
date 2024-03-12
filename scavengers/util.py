@@ -1,26 +1,39 @@
+#!/usr/bin/env python
+
+'''
+
+These modules compute load important parameters for the functions of GaNGiaLF.
+The configuration file. New output directories. `rcparamFile` for plotting options.
+
+'''
+
 import sys, os
 import yaml
+import numpy as np
 
 from tqdm import tqdm
 
-# ==============================================================================
-#                          P R E T T Y   O U T P U T
-# ==============================================================================
-""" A collection of functions to generate the pretty output in stdout. """
-"""
-COPYRIGHT
-    This class is deliberately taken from the GIST pipeline: 
-    A multi-purpose tool for the analysis and visualisation of (integral-field) spectroscopic data
-    (abittner.gitlab.io/thegistpipeline/index.html)
-    (ui.adsabs.harvard.edu/abs/2019A%26A...628A.117B/abstract)
-PURPOSE: 
-    This file contains a collection of functions necessary to Voronoi-bin the data. 
-    The Voronoi-binning makes use of the algorithm from Cappellari & Copin 2003
-    (ui.adsabs.harvard.edu/?#abs/2003MNRAS.342..345C). 
-"""
-
 
 def loadCfg(file=None):
+    '''Loads configuration file
+
+    Parameters
+    ----------
+    file: str, optional
+        full path to parameter file
+        if not specified gufo_default.yaml is taken from GaNGiaLF installation directory
+    
+    Returns
+    -------
+    cfg_par: OrderedDict,
+        updated dictionary with all parameters needed by GaNGiaLF.
+
+    
+    Notes
+    -----
+    Run automatically by `bin/gufo`
+    '''
+
     #self.rootdir = os.getcwd()+'/'
     C = 2.99792458e8
 
@@ -43,7 +56,6 @@ def loadCfg(file=None):
     cfg_par['general']['gfitPath'] = GFIT_DIR
     cfg_par['general']['C'] = C
 
-    #set_dirs()
 
     cfg.close()
 
@@ -51,7 +63,23 @@ def loadCfg(file=None):
 
 
 def set_dirs(cfg_par):
+    '''Defines parameters and makes directories for workflow.
 
+    Parameters
+    ----------
+    cfg_par: OrderedDict
+        input dictionary of parameters given in the config file
+
+    Returns
+    -------
+    cfg_par: OrderedDict,
+        updated dictionary with all parameters needed by GaNGiaLF.
+
+    
+    Notes
+    -----
+    Run automatically by `bin/gufo`
+    '''
     runDir = cfg_par['general']['workdir']+cfg_par['general']['runName']+'/'
     if not os.path.exists(runDir):
         os.mkdir(runDir)
@@ -110,10 +138,14 @@ def set_dirs(cfg_par):
     if not cfg_par['general'].get('noiseCubeName',None):
        cfg_par['general']['noiseCubeName'] =  cfg_par['general']['outVorNoise'] 
 
-    outTableName = cfg_par['general']['runNameDir']+'gPlayOut.fits'
+    #outTableName = cfg_par['general']['runNameDir']+'gPlayOut.fits'
 
+
+    outTableName = cfg_par['general']['runNameDir']+cfg_par['general']['outTable']
+    outTableName2 = cfg_par['general']['runNameDir']+cfg_par['general']['outTable2']
     cfg_par['general']['outTableName'] = outTableName
-
+    cfg_par['general']['outTableName2'] = outTableName2
+    
     outPlotDir = cfg_par['general']['runNameDir']+'spectra/'
     if not os.path.exists(outPlotDir):
         os.mkdir(outPlotDir)
@@ -141,6 +173,86 @@ def set_dirs(cfg_par):
     cfg_par['general']['modNameDir'] = modNameDir
 
     return cfg_par
+
+
+
+def find_closest_value_index(arr, value):
+    """
+    Find the index of the closest value in a numpy array to the given value.
+    
+    Parameters:
+    arr (numpy array): The input numpy array
+    value (float): The value to find the closest value to
+    
+    Returns:
+    int: The index of the closest value in the array
+    """
+
+    idx = (np.abs(arr - value)).argmin()
+    return idx
+
+
+def loadRcParams():
+    '''Loads the standard rc parameters for uniform plots.
+
+    Returns
+    -------
+    dict()
+
+    '''
+
+    #figSize= '7.24409,7.24409'
+    figSize= '7.24409,7.24409'
+    font=20
+
+    params = {'figure.figsize'      : figSize,
+        'figure.autolayout' : True,
+        'font.family'         :'serif',
+        'figure.facecolor': 'white',
+        'pdf.fonttype'        : 3,
+        'font.serif'          :'times',
+        'font.style'          : 'normal',
+        'font.weight'         : 'book',
+        'font.size'           : font,
+        'axes.linewidth'      : 1.5,
+        'lines.linewidth'     : 1,
+        'xtick.labelsize'     : font,
+        'ytick.labelsize'     : font,
+        'legend.fontsize'     : font, 
+        'xtick.direction'     :'in',
+        'ytick.direction'     :'in',
+        'xtick.major.size'    : 3,
+        'xtick.major.width'   : 1.5,
+        'xtick.minor.size'    : 2.5,
+        'xtick.minor.width'   : 1.,
+        'ytick.major.size'    : 3,
+        'ytick.major.width'   : 1.5,
+        'ytick.minor.size'    : 2.5,
+        'ytick.minor.width'   : 1., 
+        'text.usetex'         : True,
+        'text.latex.preamble' : r'\usepackage{amsmath}',
+        #'text.latex.unicode'  : True
+         }
+  
+    return params
+
+
+
+# ==============================================================================
+#                          P R E T T Y   O U T P U T
+# ==============================================================================
+""" A collection of functions to generate the pretty output in stdout. """
+"""
+COPYRIGHT
+    This class is deliberately taken from the GIST pipeline: 
+    A multi-purpose tool for the analysis and visualisation of (integral-field) spectroscopic data
+    (abittner.gitlab.io/thegistpipeline/index.html)
+    (ui.adsabs.harvard.edu/abs/2019A%26A...628A.117B/abstract)
+PURPOSE: 
+    This file contains a collection of functions necessary to Voronoi-bin the data. 
+    The Voronoi-binning makes use of the algorithm from Cappellari & Copin 2003
+    (ui.adsabs.harvard.edu/?#abs/2003MNRAS.342..345C). 
+"""
 
 
 def printProgress(iteration, total, prefix = '', suffix = '', decimals = 2, barLength = 80, color = 'g'):

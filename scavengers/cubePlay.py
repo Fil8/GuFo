@@ -14,22 +14,34 @@ from reproject import reproject_interp as rp
 
 from astropy.io import ascii, fits
 from astropy.table import Table, Column
-from astropy import wcs
+from astropy.wcs import WCS
 from astropy import units as u
 from astropy.coordinates import SkyCoord
+from astropy.wcs import WCS
+from reproject import reproject_interp, reproject_exact
 
 
-from MontagePy.main    import *
-from MontagePy.archive import *
+from matplotlib import pyplot as plt
+
+#from MontagePy.main    import *
+#from MontagePy.archive import *
 
 import numpy as np
 #import numpy.ma as ma
 
-import tPlay,cvPlay,bptPlot,momPlot
+import logging
+
+
+import tPlay,cvPlay,bptPlot,momPlot, headPlay,fitsPlay
 
 tP = tPlay.tplay()
 cvP = cvPlay.convert()
 mPl = momPlot.MOMplot()
+hP = headPlay.headplay()
+fP = fitsPlay.fitsplay()
+
+
+
 
 class cubeplay:
     '''Modules to create cubelets of real fitted lines and residuals
@@ -38,9 +50,31 @@ class cubeplay:
     - makeLineCube
         make cubelets for each line marked in lineList.txt
     '''
+
+
+    def __init__(self):
+        self.C = 2.99792458e8
+        # Create a logger
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+
+        # remove all default handlers
+        for handler in self.logger.handlers:
+            self.logger.removeHandler(handler)
+
+        # create console handler and set level to debug
+        self.console_handle = logging.StreamHandler()
+        self.console_handle.setLevel(logging.DEBUG)
+
+        # create formatter
+        formatter = logging.Formatter("'%(name)-20s - %(levelname)-8s - %(message)s")
+        self.console_handle.setFormatter(formatter)
+
+        # now add new handler to logger
+        self.logger.addHandler( self.console_handle)
+
     def makeHeader(self,cfg_par,lineWave,header,waveAng):
-        '''
-        Defines header of output line cubelets
+        '''Defines header of output line cubelets
         Puts wcs coordinates in datacube from information provided in the configuration file
         Sets velocity axis to vrad
 
@@ -53,7 +87,6 @@ class cubeplay:
         '''       
             
         vel=cvP.lambdaVRad(waveAng,lineWave)+float(cfg_par['general']['velsys'])
-        print(vel)
         cdelt3=np.mean(np.ediff1d(vel))
 
         if 'CRDER3' in header:
@@ -83,6 +116,7 @@ class cubeplay:
         '''
         from SoFiA
         '''
+        
         self.delete_header(header, "NAXIS3")
         self.delete_header(header, "CTYPE3")
         self.delete_header(header, "CRPIX3")
@@ -97,7 +131,260 @@ class cubeplay:
 
         return
 
+    def makeSubCube(self, cubeName, centreCoords, cornerCoords, zRange=None, zunit='m/s', output=False):
+        '''A method to make a subcube given Ra,Dec coordinates and z-range borders of 
+        Parameters
+        ----------
 
+        cubeName : str
+            Path to the data cube.
+
+        centreCoords : dict
+            List with pixels (int) or Ra/Dec (hms,dms) of the centre coordinates. Dictionary keys are Ra, Dec.
+
+        cornerCoords : dict
+            List with pixels (int) or Ra/Dec of the bottom left corner and the top right corner of the subcube: RaMin, DecMin, RaMax, DecMax. 
+            Coordinates in pixels use the same dictionary keys.
+
+        zRange : tuple, optional
+            Spectral range. Default is None.
+
+        zunit : str, optional
+            Unit of the spectral range. Default is 'm/s'.
+
+        output : bool, optional
+            Full path and name of output subcube. Default is False will save the subcube in the datacube directory with postfix '_subCube.fits'.
+
+        Returns
+        -------
+
+        subcube : numpy.array
+            Array with subcube (NAXIS=3 or 4 depending on input cube).
+
+        subHead : dict
+            Header of the subcube.
+
+        Notes
+        -----
+
+        This method generates a subcube around a source given position and spectral range.
+
+
+        '''
+        
+        self.logger.info('\t *** cubePlay: makeSubCube ***\n')
+
+        datacube = fits.open(cubeName)
+
+        if datacube[0].header['NAXIS'] == 4:
+            stokes_dim, z_dim, y_dim, x_dim = 0, 1, 2, 3
+        if datacube[0].header['NAXIS'] == 3:
+            z_dim, y_dim, x_dim = 0, 1, 2
+
+        # Some lines stolen from cubelets in  SoFiA /SIP:
+        # Could consider allowing a user specified range in z.
+        cubeDim = datacube[0].data.shape
+        #Make Header of subcube
+        subHead =  datacube[0].header.copy()
+
+
+        if all(isinstance(value, str) for value in centreCoords.values()):
+            centreCoords = fP.coordToPix(cubeName,centreCoords['Ra'],centreCoords['Dec'])
+            Xc = int(centreCoords[0])
+            Yc = int(centreCoords[1])
+
+            subHead['CRVAL1']= cvP.hms2deg(centreCoords['Ra'])
+            subHead['CRVAL2']= cvP.hms2deg(centreCoords['Dec'])
+            subHead['CRPIX1']= Xc
+            subHead['CRPIX2']= Yc
+
+        elif all(isinstance(value, int) for value in centreCoords.values()):
+            Xc = int(centreCoords['Ra'])
+            Yc = int(centreCoords['Dec'])
+
+            coords = fP.pixToCoord(cubeName,Xc,Yc)
+            subHead['CRPIX1'] = Xc
+            subHead['CRPIX2'] = Yc
+            subHead['CRVAL1'] = coords[0]
+            subHead['CRVAL2'] = coords[1]
+        else:
+            raise ValueError('Centre coordinates not recognized. centreCoords must be a dict with Ra and Dec as keys and values in hms and dms or pix coordinates as int')
+        
+
+        self.logger.info('''Central Pixel Coordinates: 
+                        \txC = {:d} 
+                        \tyC = {:d}'''.format(Xc,Yc))
+        
+        if all(isinstance(value, str) for value in cornerCoords.values()):
+            if datacube[0].header['CDELT1'] < 0:
+                cornerCoordsMax = fP.coordToPix(cubeName,cornerCoords['RaMin'],cornerCoords['DecMin'])
+                cornerCoordsMin = fP.coordToPix(cubeName,cornerCoords['RaMax'],cornerCoords['DecMax'])
+            else:
+                cornerCoordsMax = fP.coordToPix(cubeName,cornerCoords['RaMin'],cornerCoords['DecMin'])
+                cornerCoordsMin = fP.coordToPix(cubeName,cornerCoords['RaMax'],cornerCoords['DecMax'])
+
+        elif all(isinstance(value, int) for value in cornerCoords.values()):
+            cornerCoordsMin = [int(cornerCoords['RaMin']),int(cornerCoords['DecMin'])]
+            cornerCoordsMax = [int(cornerCoords['RaMin']),int(cornerCoords['DecMax'])]
+        else:
+            raise ValueError('Corner coordinates not recognized. cornerCoords must be a dict with RaMin, DecMin, RaMax, DecMax as keys and values in hms and dms or pix coordinates as int')
+            
+
+
+
+
+        Xmin = int(cornerCoordsMin[0])
+        Ymin = int(cornerCoordsMin[1])
+        Xmax = int(cornerCoordsMax[0])
+        Ymax = int(cornerCoordsMax[1])
+
+        self.logger.info('''Box Coordinates: 
+                        \tx_min = {:d}, y_min = {:d}
+                        \tx_max = {:d}, y_max = {:d}'''.format(Xmin,Ymin,Xmax,Ymax))
+
+        cPixXNew = int(Xc)
+        cPixYNew = int(Yc)
+        maxX = 2 * max(abs(cPixXNew - Xmin), abs(cPixXNew - Xmax))
+        maxY = 2 * max(abs(cPixYNew - Ymin), abs(cPixYNew - Ymax))
+        XminNew = cPixXNew - maxX
+        if XminNew < 0: XminNew = 0
+        YminNew = cPixYNew - maxY
+        if YminNew < 0: YminNew = 0
+        XmaxNew = cPixXNew + maxX
+        if XmaxNew > cubeDim[x_dim] - 1: XmaxNew = cubeDim[x_dim] - 1
+        YmaxNew = cPixYNew + maxY
+        if YmaxNew > cubeDim[y_dim] - 1: YmaxNew = cubeDim[y_dim] - 1
+
+        if zRange is not None:
+            zmin=zRange[0]
+            zmax=zRange[1]
+
+
+            if len(cubeDim) == 4:
+                subcube = datacube[0].data[0, zmin:zmax, int(YminNew):int(YmaxNew) + 1, int(XminNew):int(XmaxNew) + 1]
+            elif len(cubeDim) == 3:
+                subcube = datacube[0].data[zmin:zmax, int(YminNew):int(YmaxNew) + 1, int(XminNew):int(XmaxNew) + 1]
+            else:
+                subcube = None
+        else:
+            if len(cubeDim) == 4:
+                subcube = datacube[0].data[0, :, int(YminNew):int(YmaxNew) + 1, int(XminNew):int(XmaxNew) + 1]
+            elif len(cubeDim) == 3:
+                subcube = datacube[0].data[:, int(YminNew):int(YmaxNew) + 1, int(XminNew):int(XmaxNew) + 1]
+            else:
+                subcube = None
+
+        self.logger.info('''Writing subcube header and .fits file''')
+
+
+        subHead['NAXIS1']=subcube.shape[2]
+
+        subHead['NAXIS2']=subcube.shape[1]
+
+
+        zAxis = self.spectralAxis(cubeName,axis=0,zunit=zunit)
+        subHead['NAXIS3'] = subcube.shape[0]
+        subHead['CRVAL3'] = zAxis[zmin]
+
+
+        if output==False:
+            tmpStr = str.split(cubeName, '.fits')
+            output=tmpStr[0]+'_subCube.fits'
+        
+        fits.writeto(output,subcube,subHead,overwrite=True)
+
+
+        datacube.close()
+
+        return subcube,subHead
+
+    def spectralAxis(self, cubePath, axis=0, zunit='m/s'):
+        """
+        Calculate the spectral axis for a given data cube.
+
+        :param cubePath: str
+            Path to the FITS data cube.
+        :param axis: int, optional
+            Axis along which to calculate the spectral axis (default is 0).
+        :param units: str, optional
+            Units for the spectral axis, can be 'm/s' 'km/s' or 'Hz'. Default is 'm/s'.
+
+        :return: numpy.ndarray
+            Spectral axis values in the specified units.
+
+        :example:
+        spectralAxis('/path/to/data_cube.fits', axis=1, units='km/s')
+
+        """
+
+        hduIm = fits.getdata(cubePath)
+        hduHead = fits.getheader(cubePath)
+
+        if hduHead['NAXIS'] == 2:
+            axisNum = '1' if axis == 0 else '1'
+        elif hduHead['NAXIS'] > 2:
+            axisNum = '3' if axis == 0 else ('2' if axis == 1 else '1')
+
+        x = ((np.linspace(1, hduIm.shape[axis], hduIm.shape[axis]) - hduHead[f'CRPIX{axisNum}'])
+             * hduHead[f'CDELT{axisNum}'] + hduHead[f'CRVAL{axisNum}'])
+
+        if zunit != 'm/s':
+            conversion_factors = {'km/s': 1e-3, 'Hz': 1./(1e-3*self.C)}  # Add more conversions as needed
+            if zunit in conversion_factors:
+                x *= conversion_factors[zunit]
+            else:
+                raise ValueError("Unsupported units. Please provide a valid conversion unit.")
+
+        return x
+
+    def measRMS(self,cubePath):
+        niter = 4 # nr of noise measurements
+        clip = 4  # clipping at each iteration (in units of std)
+
+        medNoise = []
+
+
+        unit_dict = {
+            'vrad'   :   [1e+3, 'Velocity [km/s]'],
+            'freq'   :   [1e+6, 'Frequency [MHz]'],
+            'velo-hel': [1e+3, 'Velocity [km/s]'],
+            'vopt-f2w': [1e+3, 'Velocity [km/s]'],
+        }
+
+        f=fits.open(cubePath)
+        head=f[0].header
+        cube=f[0].data
+        cube = np.squeeze(cube)
+        cube=cube[:,cube.shape[1]//4:3*cube.shape[1]//4,cube.shape[2]//4:3*cube.shape[2]//4]
+        iter=1
+        while iter<niter:
+          std=np.nanmedian(np.nanstd(cube,axis=(1,2)))
+          #print('# iter {1:d}, median std = {0:.2e} Jy/beam'.format(std,iter))
+          cube[np.abs(cube)>clip*std]=np.nan
+          iter+=1
+
+        noise=np.nanstd(cube,axis=(1,2))
+        #print('# iter {1:d}, median std = {0:.2e} Jy/beam'.format(np.nanmedian(noise),iter))
+
+        freqs=(np.arange(head['naxis3'])-(head['crpix3']-1))*head['cdelt3']+head['crval3']
+
+
+        noisePath = os.path.dirname(cubePath)
+        baseName = os.path.basename(cubePath)
+
+        if not os.path.exists(noisePath+'/noisePlots/'):
+            os.mkdir(noisePath+'/noisePlots/')
+        noisePath=noisePath+'/noisePlots/'
+
+        plt.plot(freqs/unit_dict[head['CTYPE3'].lower()][0],noise*1e+3,'k-')
+        plt.axhline(y=np.median(noise)*1e+3,linestyle=':',color='k')
+        plt.xlabel(unit_dict[head['CTYPE3'].lower()][1])
+        plt.ylabel('Noise [mJy/beam]')
+        outPath=noisePath+baseName.replace('.fits','_rms.png')
+        plt.savefig(outPath)
+        plt.clf()
+        print(np.nanmedian(noise))
+        return ((np.nanmedian(noise))),outPath
 
     def makeBFLineCube(self,cfg_par):
 
@@ -159,10 +446,16 @@ class cubeplay:
             lineNamesStrAll[ii] = str(lineNameStrAll+str(int(lineInfoAll['Wave'][ii])))
 
         indexLine =  np.where(lineNamesStrAll == lineNameStr)[0]
-        modName='BF'
-        f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
-        dd = f[0].data
-        hh = f[0].header
+        if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+            modName='BF'
+            f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
+            dd = f[0].data
+            hh = f[0].header
+        else:
+            modName='g2'
+            f = fits.open(cubeDir+'fitCube_'+modName+'.fits')
+            dd = f[0].data
+            hh = f[0].header            
         mom = fits.open(momDir+'g2/mom0_tot-'+lineName+'.fits')
         mm=mom[0].data
         indexFltr = np.broadcast_to(np.isnan(mm), dd.shape)
@@ -178,6 +471,7 @@ class cubeplay:
         idxMax = int(np.where(abs(wave-lambdaMax)==abs(wave-lambdaMax).min())[0])
 
         wave=wave[idxMin:idxMax]
+
         dd=dd[idxMin:idxMax,:,:]
 
         velRangeMin = cvP.vRadLambda(-cfg_par['bestFitSel']['BFcube']['velRange'][0],
@@ -210,83 +504,129 @@ class cubeplay:
         for i in range(0,len(ancels['BIN_ID'])):
             
             match_bin = np.where(tabGen['BIN_ID']==ancels['BIN_ID'][i])[0]
-                
-            if bF[i] == 0:
+            binID = ancels['BIN_ID'][i]
+            indexBinIDres = np.where(residuals['BIN_ID']==binID)[0]
+            if bF[indexBinIDres] == 0:
                 modName = 'g1'
-            elif bF[i] == 1:
-                modName = 'g2'
+   
         
-        
-            for index in match_bin:
-                
-                if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
-
-                    result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(ancels['BIN_ID'][i])+'_'+modName+'.sav')
-                    comps = result.eval_components()          
-                    
-                    if modName=='g1':
+                for index in match_bin:
+                    #print('figa')
+                    if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
+           
+                        result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(int(binID))+'_'+modName+'.sav')
+                        comps = result.eval_components()                    
+                        #if modName=='g1':
+                        #elif modName =='g2':
                         fit = comps['g1ln'+str(indexLine[0])+'_']
-                    elif modName =='g2':
+                        #print('cazzo')
+                        fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
+
+                        if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+                            mdSpec = mdC[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                            
+                            mdSpec[mdSpec!=0]=1.
+                            mdSpec = np.flipud(mdSpec)
+                            fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = mdSpec
+                            #centroid = ancels['centroid_'+lineName][i]
+                            #width = ancels['w80_'+lineName][i]
+                            fitSmall = fit[idxMin1:idxMax1]
+                            idxPeak = np.nanargmax(fitSmall)
+                            #print(idxPeak)
+                            idxLeft = int(np.where(abs(fitSmall[:idxPeak]-10.)==abs(fitSmall[:idxPeak]-10.).min())[0]) 
+                            idxRight = int(np.where(abs(fitSmall[idxPeak:]-10.)==abs(fitSmall[idxPeak:]-10.).min())[0]) +idxPeak
+
+                            #print(idxLeft,idxRight)
+                            #velMin = centroid-(width/2.)
+                            #velMax = centroid+(width/2.)
+                            #indexVelMin = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
+                            #indexVelMax = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0]) 
+                            
+                            fitMask = np.zeros(len(fit[idxMin1:idxMax1]))
+                            fitMaskIntercect = np.zeros(len(fit[idxMin1:idxMax1]))
+                            #fitMask[indexVelMin:indexVelMax] = 1.
+                            
+                            fitMask[idxLeft:idxRight] = 1.
+                            lenghtLine = np.count_nonzero(fitMask == 1.)
+                            
+                            fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMask
+                            #print(fitMask,mdSpec)
+                            vecCount = np.where((fitMask==1.)& (mdSpec==1.))
+                            fitMaskIntercect[vecCount] = 1.
+                            
+                            vecSum = np.count_nonzero(fitMaskIntercect == 1.)
+                            fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMaskIntercect
+                            
+                            vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = vecSum
+                            
+                            lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lenghtLine/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']
+                            lengthLineSpec= np.count_nonzero(mdSpec == 1.)
+                            
+                            if vecSum>(lengthLineSpec/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']):
+                                rotArr[i]=1.
+                                rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=1.
+
+                            else:
+                                rotArr[i]=0.
+                                rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
+                    else:
+                        fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+
+                        fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        rotArr[i]=np.nan
+                        
+                        if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+                            rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
+
+                
+            elif bF[indexBinIDres] == 1:
+                modName = 'g2' #we consider only the first component as rotation
+                #print(bF[i],residuals['BIN_ID'][i],residuals['bestFit'][i])
+                #sys.exit(0)        
+            #print('culo')
+            #print(rotArr[i],print(ancels['BIN_ID'][i]))
+                for index in match_bin:
+                    if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0: 
+                        result = load_modelresult(cfg_par['general']['runNameDir']+'models/'+modName+'/'+str(int(binID))+'_'+modName+'.sav')
+                        comps = result.eval_components()
                         fit = comps['g1ln'+str(indexLine[0])+'_']+comps['g2ln'+str(indexLine[0])+'_']
-
-                    fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]
-
-                    if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
-                        mdSpec = mdC[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                #fit = comps['g1ln'+str(indexLine[0])+'_'] 
+                        fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fit[idxMin1:idxMax1]           
+                    else:
+                        fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                        rotArr[i]=np.nan
                         
-                        mdSpec[mdSpec!=0]=1.
-                        mdSpec = np.flipud(mdSpec)
-                        fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = mdSpec
-                        #centroid = ancels['centroid_'+lineName][i]
-                        #width = ancels['w80_'+lineName][i]
-                        fitSmall = fit[idxMin1:idxMax1]
-                        idxPeak = np.nanargmax(fitSmall)
-                        #print(idxPeak)
-                        idxLeft = int(np.where(abs(fitSmall[:idxPeak]-10.)==abs(fitSmall[:idxPeak]-10.).min())[0]) 
-                        idxRight = int(np.where(abs(fitSmall[idxPeak:]-10.)==abs(fitSmall[idxPeak:]-10.).min())[0]) +idxPeak
-
-                        #print(idxLeft,idxRight)
-                        #velMin = centroid-(width/2.)
-                        #velMax = centroid+(width/2.)
-                        #indexVelMin = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
-                        #indexVelMax = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0]) 
-                        
-                        fitMask = np.zeros(len(fit[idxMin1:idxMax1]))
-                        fitMaskIntercect = np.zeros(len(fit[idxMin1:idxMax1]))
-                        #fitMask[indexVelMin:indexVelMax] = 1.
-                        
-                        fitMask[idxLeft:idxRight] = 1.
-                        lenghtLine = np.count_nonzero(fitMask == 1.)
-                        
-                        fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMask
-                        #print(fitMask,mdSpec)
-                        vecCount = np.where((fitMask==1.)& (mdSpec==1.))
-                        fitMaskIntercect[vecCount] = 1.
-                        
-                        vecSum = np.count_nonzero(fitMaskIntercect == 1.)
-                        fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMaskIntercect
-                        
-                        vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = vecSum
-                        
-                        lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lenghtLine/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']
-
-                        if vecSum>(lenghtLine/100.*cfg_par['bestFitSel']['BFcube']['rotationPercent']):
-                            rotArr[i]=1.
-                            rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=1.
-
-                        else:
-                            rotArr[i]=0.
-                            rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
+                        if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+                            rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
 
 
-                else:
-                    fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
-                    fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
-                    fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
 
-                    fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
-                    vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
-                    lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                    rotArr[i]=0.
+                    rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
+
+
+            else:
+                fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+
+                fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                rotArr[i]=np.nan
+                
+                if cfg_par['bestFitSel']['BFcube']['rotationID'] == True:
+                    rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=np.nan
 
         waveAng=np.exp(wave)
 
@@ -349,14 +689,242 @@ class cubeplay:
 
         return
 
+    def selectRotation(self,cfg_par):
+
+        cubeletsDir = cfg_par['general']['cubeletsDir']
+        momDir = cfg_par['general']['momDir']
+
+
+        hdul = fits.open(cfg_par['general']['outTableName'])
+        tabGen = hdul['BININFO'].data
+        ancels = hdul['Ancels'+cfg_par['gFit']['modName']].data
+
+        modelCube = fits.open(cfg_par['otherGasKinAnalysis']['rotID']['modelCube'])
+        mdC = modelCube[0].data
+        #indexFltrMod = mdC ==0.0
+        #print(mdC[65,64,43])
+        mdC[mdC>=float(cfg_par['otherGasKinAnalysis']['rotID']['maskValue'])] = 1.
+        #print(mdC[65,64,43])
+
+        mdC[mdC==0] = np.nan        
+
+        maskCube = fits.open(cfg_par['otherGasKinAnalysis']['rotID']['gasMask'])
+        maskD = np.array(maskCube[0].data,dtype=float)
+       
+
+        maskD[maskD!=0] = 1.
+        maskD[maskD==0] = np.nan        
+
+        rotMoM = np.zeros([mdC.shape[1],mdC.shape[2]])*np.nan
+
+        rotArr = np.empty(len(ancels['BIN_ID']))*np.nan
+
+        f = fits.open(cfg_par['otherGasKinAnalysis']['rotID']['gasCube'])
+        dd = f[0].data
+        header = f[0].header
+        mom = fits.open(cfg_par['otherGasKinAnalysis']['rotID']['gasMoment'])
+        mm=mom[0].data
+        indexFltr = np.broadcast_to(mm==0.0, dd.shape)
+        dd[indexFltr] = np.nan
+
+        lineNameName = cfg_par['otherGasKinAnalysis']['Name']
+
+
+        vel = ((np.linspace(1, dd.shape[0], dd.shape[0]) - header['CRPIX3']) 
+            * header['CDELT3'] + header['CRVAL3'])/1e3
+        velMin = cfg_par['otherGasKinAnalysis']['rotID']['velRange'][1]+float(cfg_par['general']['velsys'])
+        velMax = cfg_par['otherGasKinAnalysis']['rotID']['velRange'][0]+float(cfg_par['general']['velsys'])
+        idxMin1 = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
+        idxMax1 = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0])        
+
+        dd=dd[idxMin1:idxMax1,:,:]
+        mdC=mdC[idxMin1:idxMax1,:,:]
+        maskD=maskD[idxMin1:idxMax1,:,:]
+
+
+        fitCube = np.empty([dd.shape[0],dd.shape[1],dd.shape[2]])
+        fitCubeMask = np.zeros([dd.shape[0],dd.shape[1],dd.shape[2]])
+        fitCubeMD = np.zeros([dd.shape[0],dd.shape[1],dd.shape[2]])
+
+        fitCubeMaskInter = np.zeros([dd.shape[0],dd.shape[1],dd.shape[2]])
+        vecSumMap = np.zeros([dd.shape[1],dd.shape[2]])*np.nan
+        lenghtLineMap = np.zeros([dd.shape[1],dd.shape[2]])*np.nan
+
+
+        for i in range(0,len(ancels['BIN_ID'])):
+            
+            match_bin = np.where(tabGen['BIN_ID']==ancels['BIN_ID'][i])[0]
+                
+            for index in match_bin:
+                
+                if np.sum(~np.isnan(dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])])) != 0 and ancels['sigma_'+lineNameName][i] !=np.nan: 
+
+                    fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                    fit = dd[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                    
+
+                    mdSpec = mdC[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                    #if cfg_par['otherGasKinAnalysis']['rotID']['enable']==True:
+                        #idxModFalse = mdSpec<float(cfg_par['otherGasKinAnalysis']['rotID']['maskValue'])
+                        
+                        #idxMod = mdSpec>=float(cfg_par['otherGasKinAnalysis']['rotID']['maskValue'])
+                        #mdSpec[idxMod] =1.
+                        #mdSpec[idxMod] =0.
+                    #indexMod = np.logical_and(mdSpec!=0,mdSpec!=np.nan)
+
+                    #mdSpec[indexMod ]=1.
+#                    mdSpec = np.flipud(mdSpec)
+ 
+                    fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = mdSpec
+                    #centroid = ancels['centroid_'+lineName][i]
+                    #width = ancels['w80_'+lineName][i]
+                    fitSmall = fit[:]
+                    specMask = maskD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]
+                    velMinPeak = -100.+float(cfg_par['general']['velsys'])
+                    velMaxPeak = +100.+float(cfg_par['general']['velsys'])
+                    idxMinPeak = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
+                    idxMaxPeak = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0])    
+                    idxPeak = np.nanargmax(fitSmall[idxMinPeak:idxMaxPeak])
+                    idxPeak1 = np.nanargmax(fitSmall)
+
+                    #print(fitSmall[idxPeak],fitSmall[idxPeak1])
+  
+
+                    peakValue = fitSmall[idxPeak]
+                    noiseValue= cfg_par['otherGasKinAnalysis']['rotID']['sigmaNoise']*float(cfg_par['otherGasKinAnalysis']['rotID']['noiseValue'])
+                   
+                    idxMask = np.logical_or(specMask==0.,specMask==np.nan)
+                    idxMaskTrue = specMask==1.
+    
+                    #print(np.sum(idxMask))
+                    fitSmall[idxMask] = np.nan
+
+                    #idxLeft = int(np.where(abs(fitSmall[:idxPeak]-noiseValue)==abs(fitSmall[:idxPeak]-noiseValue).min())[0]) 
+                    #idxRight = int(np.where(abs(fitSmall[idxPeak:]-noiseValue)==abs(fitSmall[idxPeak:]-noiseValue).min())[0]) +idxPeak
+
+                    #print(idxLeft,idxRight)
+                    #velMin = centroid-(width/2.)
+                    #velMax = centroid+(width/2.)
+                    #indexVelMin = int(np.where(abs(vel-velMin)==abs(vel-velMin).min())[0]) 
+                    #indexVelMax = int(np.where(abs(vel-velMax)==abs(vel-velMax).min())[0]) 
+                    
+                    #fitMask = np.zeros(len(fit[:]))
+                    #fitMask[idxMaskTrue] = 1.
+                    fitMaskIntercect = np.zeros(len(fit[:]))
+                    #fitMask[indexVelMin:indexVelMax] = 1.
+                    
+                    #fitMask[idxLeft:idxRight] = 1.
+                    
+                    vecMask = np.logical_and(fitSmall > noiseValue, specMask==1.)
+                    
+                    fitMaskOne = np.zeros(len(fit[:]))
+                    fitMaskOne[vecMask]=1.
+
+                    lenghtLine = np.nansum(fitMaskOne == 1.)
+                    
+                    #fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMask
+                    fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMaskOne
+                    #print(fitMask,mdSpec)
+                    #vecCount = np.where((fitMask==1.)& (mdSpec!=0.0))
+                    vecCount = np.where((fitMaskOne==1.)& (mdSpec==1.))
+                    
+                    fitMaskIntercect[vecCount] = 1.
+                    
+                    vecSum = np.count_nonzero(fitMaskIntercect == 1.)
+                    #print(vecSum,lenghtLine,lenghtLine/100.*cfg_par['otherGasKinAnalysis']['rotID']['rotationPercent'])
+                    fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = fitMaskIntercect
+                    
+                    vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = vecSum
+                    
+                    lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = lenghtLine/100.*cfg_par['otherGasKinAnalysis']['rotID']['rotationPercent']
+                    #lengthLineSpec= np.count_nonzero(mdSpec == 1.)
+
+                    if vecSum>(lenghtLine/100.*cfg_par['otherGasKinAnalysis']['rotID']['rotationPercent']):
+                        rotArr[i]=1.
+                        rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=1.
+
+                    else:
+                        rotArr[i]=0.
+                        rotMoM[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])]=0.
+
+
+                else:
+                    fitCube[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                    fitCubeMask[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                    fitCubeMD[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+
+                    fitCubeMaskInter[:,int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                    vecSumMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+                    lenghtLineMap[int(tabGen['PixY'][index]),int(tabGen['PixX'][index])] = np.nan
+
+        #waveAng=np.exp(wave)
+
+        #header = self.makeHeader(cfg_par,lineInfo['Wave'][0],hh,waveAng)
+        
+        header['CRVAL3'] = (float(cfg_par['otherGasKinAnalysis']['rotID']['velRange'][0])+float(cfg_par['general']['velsys']))*1e3
+
+        outCubelet = cubeletsDir+str(lineNameName)+'_BF.fits'            
+        outCubeletMask = cubeletsDir+str(lineNameName)+'_BFMask.fits'        
+        outCubeletMaskfl = cubeletsDir+str(lineNameName)+'_BFMaskInter.fits'        
+        outCubeletMaskMD = cubeletsDir+str(lineNameName)+'_BFMD.fits'        
+
+        fits.writeto(outCubelet,fitCube,header,overwrite=True)
+        fits.writeto(outCubeletMask,fitCubeMask,header,overwrite=True)
+        fits.writeto(outCubeletMaskfl,fitCubeMaskInter,header,overwrite=True)
+        fits.writeto(outCubeletMaskMD,fitCubeMD,header,overwrite=True)
+
+        outMomRot =  momDir+str(lineNameName)+'_RotMom.fits'        
+        outMomSum =  momDir+str(lineNameName)+'_SumInter.fits'        
+        outMomLength =  momDir+str(lineNameName)+'_LengthLine.fits'        
+        outMomDiff =  momDir+str(lineNameName)+'_diffInter.fits'        
+
+        if 'CUNIT3' in header:
+            del header['CUNIT3']
+        if 'CTYPE3' in header:
+            del header['CTYPE3']
+        if 'CDELT3' in header:
+            del header['CDELT3']
+        if 'CRVAL3' in header:  
+            del header['CRVAL3']
+        if 'CRPIX3' in header:
+            del header['CRPIX3'] 
+        if 'NAXIS3' in header:
+            del header['NAXIS3']            
+        header['WCSAXES'] = 2
+        header['SPECSYS'] = 'topocent'
+        header['BUNIT'] = 'Jy/beam'
+
+        fits.writeto(outMomRot,rotMoM,header,overwrite=True)
+        fits.writeto(outMomSum,vecSumMap,header,overwrite=True)
+        fits.writeto(outMomLength,lenghtLineMap,header,overwrite=True)
+        fits.writeto(outMomDiff,vecSumMap-lenghtLineMap,header,overwrite=True)
+
+        t=Table(ancels)
+
+        if 'RotMod' not in ancels.dtype.names: 
+            t.add_column(Column(rotArr,name='RotMod'))
+        else:
+            t.replace_column('RotMod',Column(rotArr,name='RotMod'))        
+
+        try:
+            tt = Table(hdul['Ancels'+cfg_par['gFit']['modName']].data)
+            hdul['AncelsBF'] = fits.BinTableHDU(t.as_array(),name='AncelsBF')
+        except KeyError as e:
+            tt=fits.BinTableHDU.from_columns(t.as_array(),name='AncelsBF')   
+            hdul.append(tt)    
+
+        hdul.writeto(cfg_par['general']['outTableName'],overwrite=True)
+            
+
+        return
+
     def makeLineCubes(self,cfg_par):
 
         cubeletsDir = cfg_par['general']['cubeletsDir']
         cubeDir = cfg_par['general']['cubeDir']
-        if cfg_par['residuals']['BFcube'] == True:
-            modName='BF'
-        else:
-            modName = cfg_par['gFit']['modName']
+        
+
+        modName = cfg_par['gFit']['modName']
         momDir = cfg_par['general']['momDir']
 
 
@@ -598,186 +1166,6 @@ class cubeplay:
         extrs = [[np.rint(x1),np.rint(y1)],[np.rint(x2),np.rint(y2)]]
         return extrs,m
 
-    def pvDiagram(self,cfg_par):
-        '''
-        from SoFiA
-        '''
-        inCubelet=cfg_par['cubePlay']['pvDiagram']['inCube']
-        f = fits.open(inCubelet)
-        data = f[0].data
-        headerCubelets = f[0].header
-
-        # Centres and bounding boxes
-        Xc = cfg_par['cubePlay']['pvDiagram']['raCentre']
-        Yc = cfg_par['cubePlay']['pvDiagram']['decCentre']
-        Xc = cvP.hms2deg(Xc)
-        Yc = cvP.dms2deg(Yc)
-
-        header2d = headerCubelets.copy()
-        self.delete_3rd_axis(header2d)
-
-        pa = cfg_par['cubePlay']['pvDiagram']['pa']+90.
-        kin_pa = np.radians(float(pa))
-
-        w = wcs.WCS(header2d)
-
-        Xc,Yc=w.wcs_world2pix(Xc,Yc,0)
-
-
-        ww = np.rint(cfg_par['cubePlay']['pvDiagram']['width']/3600./headerCubelets['CDELT2'])
-        if ww < 1 :     
-            ww = 0.0
-        
-        if float(pa) == 90.:
-            extrs = [[Xc,0],[Xc,data.shape[1]]]            
-        else:
-
-            extrs,m = self.findExtremes(ww,pa,Xc,Yc,data.shape)
-
-        # if cfg_par['cubePlay']['cubelets']['raMin'] != False:
-        #     Xmin = cfg_par['cubePlay']['cubelets']['raMin']
-        #     Ymin = cfg_par['cubePlay']['cubelets']['decMin']
-        #     Xmax = cfg_par['cubePlay']['cubelets']['raMax']
-        #     Ymax = cfg_par['cubePlay']['cubelets']['decMax']
-        # else:
-        #     Xmin = 0
-        #     Ymin = 0
-        #     Xmax = subcube.shape[2]
-        #     Ymax = subcube.shape[1]
-        #sys.exit(0)
-        N=5.
-        px,py,dt,tmp,ss,tmpp=extrs[0][0],extrs[0][1],1./N,np.arange(0),np.arange(0),np.arange(0)
-        Dx,Dy=extrs[1][0]-extrs[0][0],extrs[1][1]-extrs[0][1]
-        dist=np.sqrt((Dx)**2+(Dy)**2)
-        # find perpendicular
-        if ww and ww > 1:
-            if Dx:
-                Dyp=ww/np.sqrt(1+Dy**2/Dx**2)
-                Dxp=-Dyp*Dy/Dx
-            else:
-                Dxp=ww/np.sqrt(1+Dx**2/Dy**2)
-                Dyp=-Dxp*Dx/Dy
-            distp=np.sqrt((Dxp)**2+(Dyp)**2)
-        else: Dxp,Dyp,distp=0,0,1
-        # move from one extreme to the other of the line
-        # append 1 average spectrum 'tmp' per pixel to 'ss' sampling the pixel with N sub-pixels
-        if m >= 0:
-            while np.rint((px))<extrs[1][0] and np.rint((py))<extrs[1][1]:
-                dw=-ww
-
-                while dw<=ww+1e-9:
-                    pxp,pyp=(px+dw*Dxp/distp),(py+dw*Dyp/distp)
-                    #sys.exit(0)
-                    if 0. <= pxp <= data.shape[2] and 0.<= pyp <=data.shape[1]:
-                        if not tmpp.sum():
-                            tmpp=data[:,int(floor(pyp)),int(floor(pxp))]
-                            tmpp=np.atleast_2d(tmpp)
-                        else: tmpp=np.vstack((tmpp,data[:,int(floor(pyp)),int(floor(pxp))]))
-                    dw+=1./N
-                if not tmp.sum():
-                    tmp=tmpp.mean(axis=0)
-                    tmp=np.atleast_2d(tmp)
-                else: tmp=np.vstack((tmp,tmpp.mean(axis=0)))
-                tmpp=np.arange(0)
-                if tmp.shape[0]==N:
-                    if not ss.sum():
-                        ss=tmp.mean(axis=0)
-                        ss=np.atleast_2d(ss)
-                    else: ss=np.vstack((ss,tmp.mean(axis=0)))
-                    tmp=np.arange(0)
-                if np.rint((px)) == np.rint(Xc) and np.rint((py)) == np.rint(Yc) :
-                    centreX = ss.shape[0]
-                px+=dt*(extrs[1][0]-extrs[0][0])/dist
-                py+=dt*(extrs[1][1]-extrs[0][1])/dist
-        elif m<0:
-            while np.rint(floor(px))<extrs[1][0] and np.rint(floor(py))>extrs[1][1]:
-                dw=-ww
-
-                while dw<=ww+1e-9:
-                    pxp,pyp=(px+dw*Dxp/distp),(py+dw*Dyp/distp)
-                    
-                    #sys.exit(0)
-                    if not tmpp.sum():
-                        tmpp=data[:,int(floor(pyp)),int(floor(pxp))]
-                        tmpp=np.atleast_2d(tmpp)
-                    else: tmpp=np.vstack((tmpp,data[:,int(floor(pyp)),int(floor(pxp))]))
-                    dw+=1./N
-                if not tmp.sum():
-                    tmp=tmpp.mean(axis=0)
-                    tmp=np.atleast_2d(tmp)
-                else: tmp=np.vstack((tmp,tmpp.mean(axis=0)))
-                tmpp=np.arange(0)
-                if tmp.shape[0]==N:
-                    if not ss.sum():
-                        ss=tmp.mean(axis=0)
-                        ss=np.atleast_2d(ss)
-                    else: ss=np.vstack((ss,tmp.mean(axis=0)))
-                    tmp=np.arange(0)
-                px+=dt*(extrs[1][0]-extrs[0][0])/dist
-                py+=dt*(extrs[1][1]-extrs[0][1])/dist            
-            #print(pv_slice)
-
-        # vel = ((np.linspace(1, ss.shape[0], ss.shape[0]) - headerCubelets['CRPIX3']) 
-        #     * headerCubelets['CDELT3'] + headerCubelets['CRVAL3'])
-
-        # print(vel[-1],vel[0],headerCubelets['CRPIX3'])
-        # # print(vel[0],vel[-1])
-        # if np.float(vel[0]) > np.float(vel[-1]):
-        #     headerCubelets['CRPIX3'] = ss.shape[0]
-        #     headerCubelets['CRVAL3'] = vel[-1]/1e3
-        #     headerCubelets['CDELT3'] = -headerCubelets['CDELT3']
-        #     ss = np.fliplr(ss).T
-        #     print('ciao')
-        # else:
-        #     ss = ss.T
-
-
-        hdu = fits.PrimaryHDU(data=ss.T, header=headerCubelets)
-        hdulist = fits.HDUList([hdu])
-        # print(hdulist[0].header)
-        #if hdulist[0].header["CRPIX3"]
-        # print(hdulist[0].header['CRVAL3'])
-
-        hdulist[0].header["CTYPE1"] = "PV--DIST"
-        hdulist[0].header["CDELT1"] = hdulist[0].header["CDELT2"]
-        hdulist[0].header["CRVAL1"] = 0
-        hdulist[0].header["CRPIX1"] = centreX
-        hdulist[0].header["CTYPE2"] = hdulist[0].header["CTYPE3"]
-        hdulist[0].header["CDELT2"] = hdulist[0].header["CDELT3"]
-        hdulist[0].header["CRVAL2"] = hdulist[0].header["CRVAL3"]
-        hdulist[0].header["CRPIX2"] = hdulist[0].header["CRPIX3"]
-        hdulist[0].header["CUNIT2"] = hdulist[0].header["CUNIT3"]
-        hdulist[0].header["ORIGIN"] = 'GaNGiaLF'
-
-        self.delete_3rd_axis(hdulist[0].header)
-        
-        outCubelet=str.split(os.path.basename(inCubelet),'.')[0]
-        outCubelet=outCubelet+'_'+str(cfg_par['cubePlay']['pvDiagram']['pa'])+'-pv.fits'
-        name = cfg_par['general']['pvDir'] + outCubelet
-        hdulist.writeto(name,overwrite=True)
-        
-        # hdu1 = fits.PrimaryHDU(data=pv_slice1[2,:,:], header=headerCubelets)
-        # hdul = fits.HDUList([hdu1])
-        # hdul[0].header["CTYPE1"] = "PV--DIST"
-        # hdul[0].header["CDELT1"] = hdul[0].header["CDELT2"]
-        # hdul[0].header["CRVAL1"] = 0
-        # hdul[0].header["CRPIX1"] = pv_slice1.shape[1] / 2
-        # hdul[0].header["CTYPE2"] = hdul[0].header["CTYPE3"]
-        # hdul[0].header["CDELT2"] = hdul[0].header["CDELT3"]
-        # hdul[0].header["CRVAL2"] = hdul[0].header["CRVAL3"]
-        # hdul[0].header["CRPIX2"] = hdul[0].header["CRPIX3"]
-        # hdul[0].header["ORIGIN"] = 'GaNGiaLF'
-
-        # self.delete_3rd_axis(hdul[0].header)
-        
-        # outCubelet=str.split(os.path.basename(inCubelet),'.')[0]
-        # outCubelet=outCubelet+'_'+str(cfg_par['cubePlay']['pvDiagram']['pa'])+'-pvSingle.fits'
-        # name = cfg_par['general']['pvDir'] + outCubelet
-        # print(name)
-        # hdul.writeto(name,overwrite=True)
-
-        return
-
     def pvDiagramLines(self,cfg_par,pa):
         # -------------------------
         # Position-velocity diagram
@@ -881,6 +1269,64 @@ class cubeplay:
 
         return 0
 
+
+    def regridCubeExact(self,inCube,pixSize):
+
+
+        d = fits.getdata(inCube)
+        h = fits.getheader(inCube)
+
+        h2D , d2D = hP.cleanHead(inCube)
+
+        h2D_or = h2D.copy()
+   
+        wcsh2D_or = WCS(h2D_or)
+
+        h2D['NAXIS1'] = int(np.floor(-h2D['NAXIS1']*h2D['CDELT1']/(float(pixSize)/3600.)))
+        h2D['NAXIS2'] = int(np.floor(h2D['NAXIS2']*h2D['CDELT2']/(float(pixSize)/3600.)))
+
+
+        h2D['CRPIX1'] = int(np.floor(-h2D['CRPIX1']*h2D['CDELT1']/(float(pixSize)/3600.)))
+        h2D['CRPIX2'] = int(np.floor(h2D['CRPIX2']*h2D['CDELT2']/(float(pixSize)/3600.)))
+
+        h2D['CDELT1'] = float(-pixSize)/3600.
+        h2D['CDELT2'] = float(pixSize)/3600.
+
+
+        wcs2D = WCS(h2D)
+
+        newCube = np.empty([d.shape[0],h2D['NAXIS2'],h2D['NAXIS1']])
+        newIm = np.empty([h2D['NAXIS2'],h2D['NAXIS1']])
+        print(d.shape)
+        print(newIm.shape)
+        for i in range(d.shape[0]):
+
+            array, footprint = reproject_exact((d[i,:,:], h2D_or) ,
+                                            wcs2D, shape_out=newIm.shape)
+            newCube[i,:,:] = array
+
+
+
+        newCubeName=inCube.replace('fits','_reg_pix_'+str(int(pixSize))+'asec.fits') 
+
+
+        h3D = h2D.copy()
+
+        h3D['NAXIS']= 3
+        
+        h3D['CRPIX3'] = h['CRPIX3'] 
+        h3D['CDELT3'] = h['CDELT3'] 
+        h3D['CRVAL3'] = h['CRVAL3'] 
+        
+        if 'CUNIT3' in h:
+            h3D['CUNIT3'] = h['CUNIT3']
+        if 'CTYPE3' in h:
+            h3D['CTYPE3'] = h['CTYPE3']
+
+        fits.writeto(newCubeName,newCube,h3D,overwrite=True)
+
+        return newCubeName
+
     def rebinCube(self,templateFile,inputFile):
 
         tFile = fits.open(templateFile)
@@ -916,6 +1362,7 @@ class cubeplay:
         rebinFileName=rebinFileName+'-rebin.fits'
         print(rebinFileName)
         fits.writeto(rebinFileName,data,iHead,overwrite=True)
+
 
 
         return 0

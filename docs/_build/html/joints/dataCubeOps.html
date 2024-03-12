@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Datacube analysis tools &mdash; GaNGiaLF 1.0.0. documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=58f5e731"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Neutral Hydrogen" href="../science/NeutralHydrogen.html" />
+    <link rel="prev" title="Cold gas kinematical analysis" href="ColdGas.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            GaNGiaLF
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../pipes/Introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipes/Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipes/listOfTools.html">List of tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipes/configFile.html">Configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipes/AutoGangia.html">Automated GaNGiaLF</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Joints:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="StellarSubtraction.html">Stellar Subtraction using ppxf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="VoronoiBinning.html">Voronoi binning of datacubes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GaussianFit.html">Line Fitter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GaussianFit.html#line-analysis">Line Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Residuals.html">Measure residuals of fit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BestFitSelection.html">Select best fit among different runs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="IntegratedLineParameters.html">Kinematics of total fitted lines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="MomentMaps.html">Moments maps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DataCubes.html">Data cubes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LineRatios.html">Line ratios</a></li>
+<li class="toctree-l1"><a class="reference internal" href="KinematicalAnalysis.html">Kinematical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ColdGas.html">Cold gas kinematical analysis</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Datacube analysis tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pv-diagrams">pv-Diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#regrid">Regrid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rebin">Rebin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#header-manipulation">Header manipulation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Science:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../science/NeutralHydrogen.html">Neutral Hydrogen</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/TerminalTutorial.html">GaNGiaLF from terminal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/JupyterTutorial.html">GaNGiaLF with jupyter notebook</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../source/gufo.html">gufo module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/scavengers.html">scavengers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/setup.html">setup module</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">GaNGiaLF</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Datacube analysis tools</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/joints/dataCubeOps.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="datacube-analysis-tools">
+<span id="datacubeops"></span><h1>Datacube analysis tools<a class="headerlink" href="#datacube-analysis-tools" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<section id="pv-diagrams">
+<h2>pv-Diagrams<a class="headerlink" href="#pv-diagrams" title="Link to this heading"></a></h2>
+</section>
+<section id="regrid">
+<h2>Regrid<a class="headerlink" href="#regrid" title="Link to this heading"></a></h2>
+</section>
+<section id="rebin">
+<h2>Rebin<a class="headerlink" href="#rebin" title="Link to this heading"></a></h2>
+</section>
+<section id="header-manipulation">
+<h2>Header manipulation<a class="headerlink" href="#header-manipulation" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ColdGas.html" class="btn btn-neutral float-left" title="Cold gas kinematical analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../science/NeutralHydrogen.html" class="btn btn-neutral float-right" title="Neutral Hydrogen" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Fil8.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+gufo -c cfgFiles/par_t60_small.yaml
+gufo -c cfgFiles/par_t60_small_pbcorr.yaml
+gufo -c cfgFiles/par_t60_normal.yaml
+gufo -c cfgFiles/par_t60_normal_pbcorr.yaml
+gufo -c cfgFiles/par_t60_large.yaml
+gufo -c cfgFiles/par_t60_large_pbcorr.yaml
+gufo -c cfgFiles/par_t90_small.yaml
+gufo -c cfgFiles/par_t90_small_pbcorr.yaml
+gufo -c cfgFiles/par_t90_normal.yaml
+gufo -c cfgFiles/par_t90_normal_pbcorr.yaml
+gufo -c cfgFiles/par_t90_large.yaml
+gufo -c cfgFiles/par_t90_large_pbcorr.yaml

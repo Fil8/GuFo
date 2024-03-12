@@ -27,8 +27,6 @@ import numpy as np
 import numpy.ma as ma
 
 import cvPlay, specPlot, tPlay
-import specPlot
-import tPlay
 
 cvP = cvPlay.convert()
 sP = specPlot.specplot()

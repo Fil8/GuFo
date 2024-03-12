@@ -1,0 +1,20 @@
+.. GaNGiaLF documentation file, created by
+   sphinx-quickstart on Mon Feb 18 15:04:26 2019.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+ 
+.. _ColdGas:
+
+=============================
+Cold gas kinematical analysis
+=============================
+ 
+.. toctree::
+   :maxdepth: 1
+ 
+
+Moment maps
+-----------
+
+Kinematical-plot
+----------------

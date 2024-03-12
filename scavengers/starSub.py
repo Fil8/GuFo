@@ -485,8 +485,6 @@ class starsub(object):
         print('''\t+---------+\n\t Line Cube saved\n\t+---------+''')     
         return 
     
-
-
     def makeHeader(self,cfg_par,wave,pxSize):
         '''
         Defines header of output datacube
@@ -529,3 +527,142 @@ class starsub(object):
         header['CUNIT3'] = "Angstrom"
 
         return header
+
+    def makeHeaderMoms(self,cfg_par,pxSize):
+        '''
+        Defines header of output datacube
+        Puts wcs coordinates in datacube from information provided in the configuration file
+        
+        Parameters:
+            - cfg_par: configuration file
+            - wave: x-axis of spectra in log(lamdba) units
+            - pxSize: pixel size of output cubes
+        
+        Returns:
+            - header of datacubes
+        '''   
+        crPix1=cfg_par['starSub']['pixX']
+        crPix2=cfg_par['starSub']['pixY']
+
+        crVal1=cfg_par['starSub']['ra']
+        crVal2=cfg_par['starSub']['dec']
+
+        ra = cvP.hms2deg(crVal1)
+        dec = cvP.dms2deg(crVal2)
+
+        w = wcs.WCS(naxis=2)
+
+        w.wcs.crpix = [crPix1, crPix2]
+        w.wcs.cdelt = np.array([-pxSize,pxSize])
+        w.wcs.crval = [ra, dec]
+        w.wcs.ctype = ["RA---TAN", "DEC--TAN"]
+
+        header = w.to_header()
+
+        header['EQUINOX'] = 2000
+
+        return header
+
+    def makePPFXmaps(self,cfg_par):
+        '''
+        Denerates the moment maps of stars from the PPFX output
+        
+        Parameters:
+            - cfg_par: configuration file
+               - tableBinName = _table of ppxf output
+               - tableStarKin = _ppxf of ppxf output
+        
+        Returns:
+            - output names of [flux,v,sigma] maps
+        '''               
+
+        print(cfg_par)
+        crPix1=cfg_par['starSub']['pixX']
+        crPix2=cfg_par['starSub']['pixY']
+      
+        tab = fits.open(cfg_par['general']['workdir']+cfg_par['general']['tableBinName'])
+        head = tab[0].header
+        headTab = tab[1].header
+        dataTab = tab[1].data    
+
+        tab = fits.open(cfg_par['general']['workdir']+cfg_par['general']['tableStarKin'])
+        dataStar = tab[1].data    
+
+        head['CRPIX1'] = crPix1
+        head['CRPIX2'] = crPix2 
+        
+        xMin = np.min(dataTab['X'])
+        xMax = np.max(dataTab['X'])
+
+        shapeX = (xMax-xMin)/head['PIXSIZE']
+
+        yMin = np.min(dataTab['Y'])
+        yMax = np.max(dataTab['Y'])
+
+        shapeY = (yMax-yMin)/head['PIXSIZE']
+
+        xAxis = np.arange(xMin, xMax,head['PIXSIZE'])
+        yAxis = np.arange(yMin, yMax,head['PIXSIZE'])
+        
+        pxSize = head['PIXSIZE']/3600.
+
+        head = self.makeHeaderMoms(cfg_par,pxSize)
+
+        diffusion = 1e-5
+        del head['LATPOLE']
+        del head['LONPOLE']
+        xxVec = []
+        yyVec = []
+        #create AllSpectra datacube
+        mom0=np.empty([yAxis.shape[0],xAxis.shape[0]])*np.nan
+        mom1=np.empty([yAxis.shape[0],xAxis.shape[0]])*np.nan
+        mom2=np.empty([yAxis.shape[0],xAxis.shape[0]])*np.nan
+
+        for i in range(0,dataTab['ID'].shape[0]):
+            #print xAxis
+            #print yAxis
+            match_bin = np.where(dataStar['BIN_ID']==(dataTab['BIN_ID'][i]))[0]
+            
+            indexX = ((xAxis <= (np.round(dataTab['X'][i],4)+diffusion)) & 
+                      ((np.round(dataTab['X'][i],4)-diffusion) < xAxis))
+            
+            indexY = ((yAxis <= (np.round(dataTab['Y'][i],4)+diffusion)) & 
+                      ((np.round(dataTab['Y'][i],4)-diffusion) < yAxis))       
+            
+            xx = np.where(indexX)[0]
+            yy = np.where(indexY)[0]
+            #print(indexBin,xx,yy,vorBinInfo['X'][i],vorBinInfo['Y'][i],indexX)
+
+            xxVec.append(xx[0])
+            yyVec.append(yy[0])
+
+            if  xx and yy and dataTab['FLUX'][i]!=0.0 and len(match_bin)==1:
+                
+                    mom0[yy[0],xx[0]] = dataTab['Flux'][i]
+                                    
+                    mom1[yy[0],xx[0]] = dataStar['V'][match_bin]
+                    mom2[yy[0],xx[0]] = dataStar['SIGMA'][match_bin]
+                
+
+                #tmp = np.array(dataStar[indexBin][1][:])
+                #tmp = tmp.tolist()
+                #Stars[:,yy[0],xx[0]] = tmp
+
+            else:
+                pass        
+
+        print(np.nanmedian(mom1))
+
+        mom1-=np.nanmedian(mom1)
+        mom1+=2035
+        head['BUNIT']='10-20 erg s^{-1} cm^{-2} AA^{-1}'
+        outMom0=cfg_par['general']['momDir']+'mom0Stars.fits'
+        fits.writeto(outMom0,mom0,head,overwrite=True)
+        head['BUNIT'] = 'km/s'
+        head['SPECSYS'] = 'topocent'
+        outMom1=cfg_par['general']['momDir']+'mom1Stars.fits'
+        fits.writeto(cfg_par['general']['momDir']+'mom1Stars.fits',mom1,head,overwrite=True)
+        outMom2=cfg_par['general']['momDir']+'mom2Stars.fits'
+        fits.writeto(cfg_par['general']['momDir']+'mom2Stars.fits',mom2,head,overwrite=True)
+
+        return [mom0,mom1]
