@@ -284,11 +284,16 @@ class fitsplay():
 
     def coordToPix(self,imagename,ra,dec,verbose=False):
         '''
-        
-        Module called by abs_ex
-        Converts ra,dec of continuum sources
-        into pixel coordinates of the datacube
-        
+        Converts the equatorial coordinates (RA and DEC) of continuum sources to pixel coordinates in the datacube.
+
+        Parameters:
+        - imagename (str): The name of the image file containing WCS information.
+        - ra (float): The right ascension of the source in hours:minutes:seconds.
+        - dec (float): The declination of the source in degrees:minutes:seconds.
+        - verbose (bool): If True, print messages when a source lies outside the field of view.
+
+        Returns:
+        - pixels (numpy.ndarray): An array containing the pixel coordinates [x, y] of the source in the datacube.
         '''
 
         #I load the WCS coordinate system:
@@ -301,57 +306,24 @@ class fitsplay():
         # RS added some additional if clauses
         prihdr = hdulist[0].header
         prihdr, dats = hP.cleanHead(imagename)
-        #if prihdr['NAXIS'] == 4:
-        # if 'CTYPE4' in prihdr:
-        #     del prihdr['CTYPE4']
-        # if 'CDELT4' in prihdr:
-        #     del prihdr['CDELT4']
-        # if 'CRVAL4' in prihdr:
-        #     del prihdr['CRVAL4']
-        # if 'CRPIX4' in prihdr:
-        #     del prihdr['CRPIX4']
-        # if 'CUNIT4' in prihdr:
-        #     del prihdr['CUNIT4']   
-        # if 'NAXIS4' in prihdr:
-        #     del prihdr['NAXIS4']
-        # if 'CTYPE3' in prihdr:
-        #     del prihdr['CTYPE3']
-        # if 'CDELT3' in prihdr:
-        #     del prihdr['CDELT3']
-        # if 'CRVAL3' in prihdr:
-        #     del prihdr['CRVAL3']
-        # if 'CRPIX3' in prihdr:
-        #     del prihdr['CRPIX3'] 
-        # if 'NAXIS3' in prihdr:
-        #     del prihdr['NAXIS3']
-        # if 'CUNIT3' in prihdr:
-        #     del prihdr['CUNIT3']
 
-        # del prihdr['NAXIS']
-        # prihdr['NAXIS']=2
         w=wcs.WCS(prihdr)    
-
-        pixels=np.zeros([2])
-        count_out = 0
-        count_flag = 0 
-        #for i in range(0,len(ra)):
 
         ra_deg = cP.hms2deg(ra)
         dec_deg = cP.dms2deg(dec)
-        print(ra_deg,dec_deg)
-        #px,py=w.wcs_world2pix(ra_deg,dec_deg,0)
-        
+
+        pixels=np.zeros([2])        
         px,py=w.wcs_world2pix(ra_deg,dec_deg,0)
-        print(px,py)
+
         if (0 < np.round(px) < prihdr['NAXIS1'] and
                 0 < np.round(py) < prihdr['NAXIS2']): 
-            pixels[0]= np.round(px)
-            pixels[1]= np.round(py)
+            pixels[0]= int(np.round(px))
+            pixels[1]= int(np.round(py))
         else :
             pixels[0]= np.nan
             pixels[1]= np.nan
             count_out +=1
-            if verbose == True:
+            if verbose:
                 print('# Source # '+str([i])+ ' lies outside the fov of the data cube #')
 
         #print('# Total number of sources: \t'+str(len(ra)))
@@ -359,6 +331,55 @@ class fitsplay():
         #print('# Sources to analyze: \t\t'+str(len(ra)-count_flag-count_out))
 
         return pixels
+
+
+
+    def pixToCoord(self,imagename,px,py,verbose=False):
+        '''
+        Converts the pixel coordinates into RA and Dec (hms, dms) of a given fits file.
+
+        Parameters:
+        - imagename (str): The name of the image file containing WCS information.
+        - px (int): x pixel coordinate
+        - py (int): y pixel coordinate
+        - verbose (bool): If True, print messages when a source lies outside the field of view.
+
+        Returns:
+        - coords (numpy.ndarray): RA and Dec of the input pixels in degrees
+        '''
+
+        #I load the WCS coordinate system:
+        #open file
+
+        hdulist = fits.open(imagename)  # read input
+
+        # read data and header
+        #what follows works for wcs, but can be written better
+        # RS added some additional if clauses
+        prihdr = hdulist[0].header
+        prihdr, dats = hP.cleanHead(imagename)
+
+        w=wcs.WCS(prihdr)    
+
+        coords=np.zeros([2])        
+        ra_deg,dec_deg=w.wcs_pix2world(px,py,0)
+        # if (0 < np.round(px) < prihdr['NAXIS1'] and
+        #         0 < np.round(py) < prihdr['NAXIS2']): 
+        coords[0]= np.round(ra_deg,8)
+        coords[1]= np.round(dec_deg,8)
+        # else :
+        #     pixels[0]= np.nan
+        #     pixels[1]= np.nan
+        #     count_out +=1
+        #     if verbose:
+        #         print('# Source # '+str([i])+ ' lies outside the fov of the data cube #')
+
+        #print('# Total number of sources: \t'+str(len(ra)))
+        #print('# Sources outside f.o.v.:\t'+str(count_out))
+        #print('# Sources to analyze: \t\t'+str(len(ra)-count_flag-count_out))
+
+        return coords
+
 
     def takeExt(self,fitsName,ext=1):
 

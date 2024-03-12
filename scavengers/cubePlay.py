@@ -29,12 +29,19 @@ from matplotlib import pyplot as plt
 import numpy as np
 #import numpy.ma as ma
 
-import tPlay,cvPlay,bptPlot,momPlot, headPlay
+import logging
+
+
+import tPlay,cvPlay,bptPlot,momPlot, headPlay,fitsPlay
 
 tP = tPlay.tplay()
 cvP = cvPlay.convert()
 mPl = momPlot.MOMplot()
 hP = headPlay.headplay()
+fP = fitsPlay.fitsplay()
+
+
+
 
 class cubeplay:
     '''Modules to create cubelets of real fitted lines and residuals
@@ -43,9 +50,31 @@ class cubeplay:
     - makeLineCube
         make cubelets for each line marked in lineList.txt
     '''
+
+
+    def __init__(self):
+        self.C = 2.99792458e8
+        # Create a logger
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+
+        # remove all default handlers
+        for handler in self.logger.handlers:
+            self.logger.removeHandler(handler)
+
+        # create console handler and set level to debug
+        self.console_handle = logging.StreamHandler()
+        self.console_handle.setLevel(logging.DEBUG)
+
+        # create formatter
+        formatter = logging.Formatter("'%(name)-20s - %(levelname)-8s - %(message)s")
+        self.console_handle.setFormatter(formatter)
+
+        # now add new handler to logger
+        self.logger.addHandler( self.console_handle)
+
     def makeHeader(self,cfg_par,lineWave,header,waveAng):
-        '''
-        Defines header of output line cubelets
+        '''Defines header of output line cubelets
         Puts wcs coordinates in datacube from information provided in the configuration file
         Sets velocity axis to vrad
 
@@ -87,6 +116,7 @@ class cubeplay:
         '''
         from SoFiA
         '''
+        
         self.delete_header(header, "NAXIS3")
         self.delete_header(header, "CTYPE3")
         self.delete_header(header, "CRPIX3")
@@ -101,24 +131,49 @@ class cubeplay:
 
         return
 
-    def makeSubCube(self, src, cubeName, zRange=None):
-        '''
-        Generate a subcube around a source from in a SoFiA catalogue (code from SIP, credit K. Hess)
-
+    def makeSubCube(self, cubeName, centreCoords, cornerCoords, zRange=None, zunit='m/s', output=False):
+        '''A method to make a subcube given Ra,Dec coordinates and z-range borders of 
         Parameters
         ----------
 
-        cubeName: str
-            path-to-datacube
+        cubeName : str
+            Path to the data cube.
 
-        src: astropy table (single_row)
-            
+        centreCoords : dict
+            List with pixels (int) or Ra/Dec (hms,dms) of the centre coordinates. Dictionary keys are Ra, Dec.
+
+        cornerCoords : dict
+            List with pixels (int) or Ra/Dec of the bottom left corner and the top right corner of the subcube: RaMin, DecMin, RaMax, DecMax. 
+            Coordinates in pixels use the same dictionary keys.
+
+        zRange : tuple, optional
+            Spectral range. Default is None.
+
+        zunit : str, optional
+            Unit of the spectral range. Default is 'm/s'.
+
+        output : bool, optional
+            Full path and name of output subcube. Default is False will save the subcube in the datacube directory with postfix '_subCube.fits'.
+
         Returns
         -------
 
-            subcube: np.array()
-                array with subcube (NAXIS=3 or 4 depending on input cube)
+        subcube : numpy.array
+            Array with subcube (NAXIS=3 or 4 depending on input cube).
+
+        subHead : dict
+            Header of the subcube.
+
+        Notes
+        -----
+
+        This method generates a subcube around a source given position and spectral range.
+
+
         '''
+        
+        self.logger.info('\t *** cubePlay: makeSubCube ***\n')
+
         datacube = fits.open(cubeName)
 
         if datacube[0].header['NAXIS'] == 4:
@@ -129,12 +184,64 @@ class cubeplay:
         # Some lines stolen from cubelets in  SoFiA /SIP:
         # Could consider allowing a user specified range in z.
         cubeDim = datacube[0].data.shape
-        Xc = src['x']
-        Yc = src['y']
-        Xmin = src['x_min']
-        Ymin = src['y_min']
-        Xmax = src['x_max']
-        Ymax = src['y_max']
+        #Make Header of subcube
+        subHead =  datacube[0].header.copy()
+
+
+        if all(isinstance(value, str) for value in centreCoords.values()):
+            centreCoords = fP.coordToPix(cubeName,centreCoords['Ra'],centreCoords['Dec'])
+            Xc = int(centreCoords[0])
+            Yc = int(centreCoords[1])
+
+            subHead['CRVAL1']= cvP.hms2deg(centreCoords['Ra'])
+            subHead['CRVAL2']= cvP.hms2deg(centreCoords['Dec'])
+            subHead['CRPIX1']= Xc
+            subHead['CRPIX2']= Yc
+
+        elif all(isinstance(value, int) for value in centreCoords.values()):
+            Xc = int(centreCoords['Ra'])
+            Yc = int(centreCoords['Dec'])
+
+            coords = fP.pixToCoord(cubeName,Xc,Yc)
+            subHead['CRPIX1'] = Xc
+            subHead['CRPIX2'] = Yc
+            subHead['CRVAL1'] = coords[0]
+            subHead['CRVAL2'] = coords[1]
+        else:
+            raise ValueError('Centre coordinates not recognized. centreCoords must be a dict with Ra and Dec as keys and values in hms and dms or pix coordinates as int')
+        
+
+        self.logger.info('''Central Pixel Coordinates: 
+                        \txC = {:d} 
+                        \tyC = {:d}'''.format(Xc,Yc))
+        
+        if all(isinstance(value, str) for value in cornerCoords.values()):
+            if datacube[0].header['CDELT1'] < 0:
+                cornerCoordsMax = fP.coordToPix(cubeName,cornerCoords['RaMin'],cornerCoords['DecMin'])
+                cornerCoordsMin = fP.coordToPix(cubeName,cornerCoords['RaMax'],cornerCoords['DecMax'])
+            else:
+                cornerCoordsMax = fP.coordToPix(cubeName,cornerCoords['RaMin'],cornerCoords['DecMin'])
+                cornerCoordsMin = fP.coordToPix(cubeName,cornerCoords['RaMax'],cornerCoords['DecMax'])
+
+        elif all(isinstance(value, int) for value in cornerCoords.values()):
+            cornerCoordsMin = [int(cornerCoords['RaMin']),int(cornerCoords['DecMin'])]
+            cornerCoordsMax = [int(cornerCoords['RaMin']),int(cornerCoords['DecMax'])]
+        else:
+            raise ValueError('Corner coordinates not recognized. cornerCoords must be a dict with RaMin, DecMin, RaMax, DecMax as keys and values in hms and dms or pix coordinates as int')
+            
+
+
+
+
+        Xmin = int(cornerCoordsMin[0])
+        Ymin = int(cornerCoordsMin[1])
+        Xmax = int(cornerCoordsMax[0])
+        Ymax = int(cornerCoordsMax[1])
+
+        self.logger.info('''Box Coordinates: 
+                        \tx_min = {:d}, y_min = {:d}
+                        \tx_max = {:d}, y_max = {:d}'''.format(Xmin,Ymin,Xmax,Ymax))
+
         cPixXNew = int(Xc)
         cPixYNew = int(Yc)
         maxX = 2 * max(abs(cPixXNew - Xmin), abs(cPixXNew - Xmax))
@@ -167,10 +274,68 @@ class cubeplay:
             else:
                 subcube = None
 
+        self.logger.info('''Writing subcube header and .fits file''')
+
+
+        subHead['NAXIS1']=subcube.shape[2]
+
+        subHead['NAXIS2']=subcube.shape[1]
+
+
+        zAxis = self.spectralAxis(cubeName,axis=0,zunit=zunit)
+        subHead['NAXIS3'] = subcube.shape[0]
+        subHead['CRVAL3'] = zAxis[zmin]
+
+
+        if output==False:
+            tmpStr = str.split(cubeName, '.fits')
+            output=tmpStr[0]+'_subCube.fits'
+        
+        fits.writeto(output,subcube,subHead,overwrite=True)
+
+
         datacube.close()
 
-        return subcube, subcube.shape[1]/2,subcube.shape[2]/2
+        return subcube,subHead
 
+    def spectralAxis(self, cubePath, axis=0, zunit='m/s'):
+        """
+        Calculate the spectral axis for a given data cube.
+
+        :param cubePath: str
+            Path to the FITS data cube.
+        :param axis: int, optional
+            Axis along which to calculate the spectral axis (default is 0).
+        :param units: str, optional
+            Units for the spectral axis, can be 'm/s' 'km/s' or 'Hz'. Default is 'm/s'.
+
+        :return: numpy.ndarray
+            Spectral axis values in the specified units.
+
+        :example:
+        spectralAxis('/path/to/data_cube.fits', axis=1, units='km/s')
+
+        """
+
+        hduIm = fits.getdata(cubePath)
+        hduHead = fits.getheader(cubePath)
+
+        if hduHead['NAXIS'] == 2:
+            axisNum = '1' if axis == 0 else '1'
+        elif hduHead['NAXIS'] > 2:
+            axisNum = '3' if axis == 0 else ('2' if axis == 1 else '1')
+
+        x = ((np.linspace(1, hduIm.shape[axis], hduIm.shape[axis]) - hduHead[f'CRPIX{axisNum}'])
+             * hduHead[f'CDELT{axisNum}'] + hduHead[f'CRVAL{axisNum}'])
+
+        if zunit != 'm/s':
+            conversion_factors = {'km/s': 1e-3, 'Hz': 1./(1e-3*self.C)}  # Add more conversions as needed
+            if zunit in conversion_factors:
+                x *= conversion_factors[zunit]
+            else:
+                raise ValueError("Unsupported units. Please provide a valid conversion unit.")
+
+        return x
 
     def measRMS(self,cubePath):
         niter = 4 # nr of noise measurements

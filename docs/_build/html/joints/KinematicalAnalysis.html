@@ -1,20 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kinematical analysis &mdash; GaNGiaLF 1.0.0. documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=58f5e731"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -28,11 +31,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> GaNGiaLF
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            GaNGiaLF
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -72,6 +79,10 @@
 <li class="toctree-l1"><a class="reference internal" href="ColdGas.html">Cold gas kinematical analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dataCubeOps.html">Datacube analysis tools</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Science:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../science/NeutralHydrogen.html">Neutral Hydrogen</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/TerminalTutorial.html">GaNGiaLF from terminal</a></li>
@@ -97,8 +108,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Kinematical analysis</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Kinematical analysis</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/joints/KinematicalAnalysis.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -109,12 +120,12 @@
            <div itemprop="articleBody">
              
   <section id="kinematical-analysis">
-<span id="kinematicalanalysis"></span><h1>Kinematical analysis<a class="headerlink" href="#kinematical-analysis" title="Permalink to this headline"></a></h1>
+<span id="kinematicalanalysis"></span><h1>Kinematical analysis<a class="headerlink" href="#kinematical-analysis" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 </div>
 <p>This set of tools can be used to analyse some kinematical properties of the observed gas. The analysed line emission must be specified in <code class="code docutils literal notranslate"><span class="pre">Name</span></code> which is assumed to be the base-string for all needed columns of the <cite>inputTable</cite>. <code class="code docutils literal notranslate"><span class="pre">TableFromMoms</span></code> and the default spectral line fitting routines of GanGIaLF generate the <cite>inputTable</cite> in the right format.</p>
 <section id="select-rotation">
-<h2>Select-rotation<a class="headerlink" href="#select-rotation" title="Permalink to this headline"></a></h2>
+<h2>Select-rotation<a class="headerlink" href="#select-rotation" title="Link to this heading"></a></h2>
 <p>If a model of the kinematics is available, GanGIaLF can look for all lines of sight of the spectral line cube that match with the model.</p>
 <p>All l.o.s. where the full width at zero intensity of the observed/fitted line matches within <code class="code docutils literal notranslate"><span class="pre">rotationPercent</span></code> (<span class="math notranslate nohighlight">\(\%\)</span>) with the corresponding emission line of the model are stored with 1 in the RotID column of the <code class="code docutils literal notranslate"><span class="pre">Ancels</span></code> extension of the <em>outputTable</em>.</p>
 <p>Schema of configuration file parameters within <code class="code docutils literal notranslate"><span class="pre">selectRotation</span></code>:</p>
@@ -133,7 +144,7 @@ Typically, in the kinematical anaylsys of spectral line observations tilted-ring
 <code class="code docutils literal notranslate"><span class="pre">[modelCube]</span></code>: The model must be given as a datacube at the same <strong>spectral</strong> and <strong>spatial</strong> resolution as <code class="code docutils literal notranslate"><span class="pre">[general][inputCube]</span></code>. Pixel size and datacube sizes must also be the same.</p>
 </section>
 <section id="kinematical-plot">
-<h2>Kinematical-plot<a class="headerlink" href="#kinematical-plot" title="Permalink to this headline"></a></h2>
+<h2>Kinematical-plot<a class="headerlink" href="#kinematical-plot" title="Link to this heading"></a></h2>
 <p>Once the kinematical properties of a spectral line in the field of view of the observations have been measured and stored in the <code class="code docutils literal notranslate"><span class="pre">Ancels</span></code> extension of the output table, is possible to draw the <strong>kinematical plot</strong> (<strong>k-plot</strong>): dispersion of the line (i.e. <span class="math notranslate nohighlight">\(\sigma\)</span>) vs. centroid (i.e. <span class="math notranslate nohighlight">\(v_{\rm los}-v_{\rm sys}\)</span>, the line shift with respect to the systemic velocity).</p>
 <p>Schema of configuration file parameters within <code class="code docutils literal notranslate"><span class="pre">kinematicalAnalysis</span></code></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">kinematicalAnalysis</span><span class="p">:</span>
@@ -196,7 +207,7 @@ If multi-fit component has been run, and columns called in ‘dispIntr-Name-g1�
 </ul>
 </section>
 <section id="multi-region-k-plot">
-<h2>Multi-region k-plot<a class="headerlink" href="#multi-region-k-plot" title="Permalink to this headline"></a></h2>
+<h2>Multi-region k-plot<a class="headerlink" href="#multi-region-k-plot" title="Link to this heading"></a></h2>
 <p>GanGIaLF can draw the k-plot of multiple regions simultaneously. A figure showing the location of these regions in the field of view can be generated <code class="code docutils literal notranslate"><span class="pre">[multiRegionMoment][enable]:</span> <span class="pre">True</span></code> providing an moment map for the header (<code class="code docutils literal notranslate"><span class="pre">inputMoment</span></code>. Colors and labels of regions are kept the same as in the k-plot.</p>
 <p>Schema of configuration file parameters within <code class="code docutils literal notranslate"><span class="pre">kinematicalAnalysis</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">kinematicalAnalysis</span><span class="p">:</span>
@@ -235,11 +246,11 @@ If multi-fit component has been run, and columns called in ‘dispIntr-Name-g1�
 </div></blockquote>
 </section>
 <section id="cold-chaotic-accretion-aanalysis-tools">
-<h2>Cold Chaotic Accretion Aanalysis tools<a class="headerlink" href="#cold-chaotic-accretion-aanalysis-tools" title="Permalink to this headline"></a></h2>
+<h2>Cold Chaotic Accretion Aanalysis tools<a class="headerlink" href="#cold-chaotic-accretion-aanalysis-tools" title="Link to this heading"></a></h2>
 <p>GanGIaLF can compute kinematical and physical parameters that can be directly compared to cold chaotic
 acccretion criteria. Specifically, the C-ratio (Gaspari et al. 2017) and the Taylor number (Gaspari et al. 2018) which both measure if thermal instabilities can generate a condensation cascade in the gas and consequent infall towards the SMBH.</p>
 <section id="taylor-number">
-<h3>Taylor Number<a class="headerlink" href="#taylor-number" title="Permalink to this headline"></a></h3>
+<h3>Taylor Number<a class="headerlink" href="#taylor-number" title="Link to this heading"></a></h3>
 <p>Abba:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CCAcriteria</span><span class="p">:</span>
     <span class="n">taylorNumber</span><span class="p">:</span>
@@ -255,7 +266,7 @@ acccretion criteria. Specifically, the C-ratio (Gaspari et al. 2017) and the Tay
 </div>
 </section>
 <section id="c-ratio">
-<h3>C-Ratio<a class="headerlink" href="#c-ratio" title="Permalink to this headline"></a></h3>
+<h3>C-Ratio<a class="headerlink" href="#c-ratio" title="Link to this heading"></a></h3>
 <p>ABBBa:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CCAcriteria</span><span class="p">:</span>
 <span class="n">cRatio</span><span class="p">:</span>

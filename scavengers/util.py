@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python
 
 '''
 
@@ -9,6 +9,7 @@ The configuration file. New output directories. `rcparamFile` for plotting optio
 
 import sys, os
 import yaml
+import numpy as np
 
 from tqdm import tqdm
 
@@ -172,6 +173,24 @@ def set_dirs(cfg_par):
     cfg_par['general']['modNameDir'] = modNameDir
 
     return cfg_par
+
+
+
+def find_closest_value_index(arr, value):
+    """
+    Find the index of the closest value in a numpy array to the given value.
+    
+    Parameters:
+    arr (numpy array): The input numpy array
+    value (float): The value to find the closest value to
+    
+    Returns:
+    int: The index of the closest value in the array
+    """
+
+    idx = (np.abs(arr - value)).argmin()
+    return idx
+
 
 def loadRcParams():
     '''Loads the standard rc parameters for uniform plots.

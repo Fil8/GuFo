@@ -68,6 +68,14 @@ scavengers.gPlayMp module
    :undoc-members:
    :show-inheritance:
 
+scavengers.hiPlay module
+-------------------------
+
+.. automodule:: scavengers.hiPlay
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 scavengers.momPlay module
 -------------------------
 

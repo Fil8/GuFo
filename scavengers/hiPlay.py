@@ -19,11 +19,16 @@ from specutils import Spectrum1D
 from specutils.analysis import fwzi
 from scavengers import headPlay, absInt
 
+import logging
+
 hP = headPlay.headplay()
 aBs = absInt.absint()
 
 class hiplay(object):
+    '''Methods to play with HI emission diagnostics
 
+    '''
+    
     def __init__(self):
 
         self.C = 2.99792458e8
@@ -38,7 +43,23 @@ class hiplay(object):
         self.HImassEmission=2.35E5
         self.G= 6.6742E-08       #cm3 g-1 s-1
 
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
 
+        # remove all default handlers
+        for handler in self.logger.handlers:
+            self.logger.removeHandler(handler)
+
+        # create console handler and set level to debug
+        self.console_handle = logging.StreamHandler()
+        self.console_handle.setLevel(logging.DEBUG)
+
+        # create formatter
+        formatter = logging.Formatter("'%(name)-20s - %(levelname)-8s - %(module)s  - %(message)s")
+        self.console_handle.setFormatter(formatter)
+
+        # now add new handler to logger
+        self.logger.addHandler( self.console_handle)
 
     def nhi(self,value,bMaj,bMin,dV,z=0.,vunit='m/s'):
         '''
@@ -91,7 +112,6 @@ class hiplay(object):
 
     def surfBrightHI(self,value):
         '''
-
         Module to convert column density into surface brightness
 
         Parameters
@@ -109,10 +129,7 @@ class hiplay(object):
                 surface brightness value
         
         Notes
-        -----
-
-
-            
+        ----- 
         '''        
 
         conversionFactor = self.mH*np.power(self.pc,2)/(self.mSun)
@@ -310,39 +327,40 @@ class hiplay(object):
 
         return mhi
 
-    def hiMassFromMom0(self,inMom0,cutoff,z,DL,zunit):
+    def hiMassFromMom0(self,inMom0,cutoff,z,DL,zunit='m/s'):
         '''
-
-        Estimate total HI mass from moment 0 map
+        Estimate the total HI mass by measuring the total flux from a moment zero flux density map.
 
         Parameters
         ----------
+        inMom0 : str
+            Full path to the moment zero map.
             
-        inMom0: str
-            full path to moment zero
+        cutoff : float
+            Threshold within which to compute the mass in Jy*km/s.
 
-        cutoff: float
-            threshold within which compute the mass in _Jy*km/s_
- 
-        z: float
-        redshift the source
+        z : float
+            Redshift of the source.
 
-        DL: float
-            luminosity distance of the source in Mpc
+        DL : float
+            Luminosity distance of the source in Mpc.
+
+        zunit : str, optional
+            Unit of the redshift. Default is 'm/s'.
 
         Returns
         -------
-            
-            mhi: float
-                HI mass in Msun
+        mhi : float
+            Estimated HI mass in solar masses.
 
         Notes
         -----
-
-            Conversion formula:
-            M(HI) = 2.35x10^5/(1+z)^2*DL^2[Mpc]*Sdv[Jy*km/s]
-
+        The conversion formula used is:
+        M(HI) = 2.35 x 10^5 / (1 + z)^2 * DL^2 [Mpc] * Sdv [Jy*km/s]
         '''
+        
+        self.logger.info('\t *** hiMassFromMom0 ***\n')
+        
 
         totFlux = self.totalFluxHI(inMom0,cutoff,z,DL,zunit)
         mhi=self.HImassEmission/np.power(1+z,2)*(DL**2)*totFlux
@@ -350,37 +368,46 @@ class hiplay(object):
         #print('Sdv [Jy*km/s] = {},'.format(np.round(totFlux,3)))
 
         #print('M(HI) = {} x10^9 Msun,'.format(np.round(mhi,3)/1e9))
-        
+        self.logger.info('''M(HI) = {} x10^9 Msun,'''.format(np.round(mhi,3)/1e9))
+
         return mhi
 
     def totalFluxHI(self,inMom0,cutoff,z,DL,zunit='km/s',verbose=True):
         '''
-
-        Estimate total flux of a source given a cutoff in flux density
+        Estimate the total flux of a source given a cutoff in flux density.
 
         Parameters
         ----------
-            
-        inMom0: str
-            full path to moment zero [Jy beam-1*km/s]
+        inMom0 : str
+            Full path to the moment zero map in Jy beam^-1 * km/s.
 
-        cutoff: float
-            threshold within which compute the mass in _Jy beam-1*km/s_
+        cutoff : float
+            Threshold within which to compute the mass in Jy beam^-1 * km/s.
 
+        z : float
+            Redshift of the source.
+
+        DL : float
+            Luminosity distance of the source in Mpc.
+
+        zunit : str, optional
+            Unit of the redshift. Default is 'km/s'.
+
+        verbose : bool, optional
+            Whether to print the calculated total flux. Default is True.
 
         Returns
         -------
-            
-            mhi: float
-                HI mass in Msun
+        factor : float
+            Calculated total flux of the source.
 
         Notes
         -----
-
-            Conversion formula:
-            S(HI) = Sum(flux_within_cutoff) * 1/beamArea * pixelArea
-
+        The conversion formula used is:
+        S(HI) = Sum(flux_within_cutoff) * 1/beamArea * pixelArea
         '''
+
+
         data = fits.getdata(inMom0,0)
         head = fits.getheader(inMom0, 0)
         if zunit=='m/s':
@@ -398,10 +425,10 @@ class hiplay(object):
         factor=totFlux/beamcorr
         #print(factor,beamcorr)
         #factor=totFlux
+
         if verbose==True:
             print('Sdv [Jy*km/s] = {},'.format(np.round(factor,3)))
         return factor
-
 
     def surfBrightCO(self,value,bmaj,bmin,nu_obs,dV,facMass=4.3):
         '''

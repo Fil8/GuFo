@@ -4,6 +4,14 @@ scavengers package
 Submodules
 ----------
 
+scavengers.absInt module
+------------------------
+
+.. automodule:: scavengers.absInt
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 scavengers.ancels module
 ------------------------
 
@@ -24,6 +32,14 @@ scavengers.bptPlot module
 -------------------------
 
 .. automodule:: scavengers.bptPlot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+scavengers.cosmoPlay module
+--------------------------
+
+.. automodule:: scavengers.cosmoPlay
    :members:
    :undoc-members:
    :show-inheritance:
@@ -52,6 +68,14 @@ scavengers.cvPlay module
    :undoc-members:
    :show-inheritance:
 
+scavengers.fitsPlay module
+------------------------
+
+.. automodule:: scavengers.fitsPlay
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 scavengers.gPlay module
 -----------------------
 
@@ -64,6 +88,30 @@ scavengers.gPlayMp module
 -------------------------
 
 .. automodule:: scavengers.gPlayMp
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+scavengers.headPlay module
+-------------------------
+
+.. automodule:: scavengers.headPlay
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+scavengers.hiPlay module
+-------------------------
+
+.. automodule:: scavengers.hiPlay
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+scavengers.linePlay module
+-------------------------
+
+.. automodule:: scavengers.linePlay
    :members:
    :undoc-members:
    :show-inheritance:
@@ -88,6 +136,22 @@ scavengers.pickle4MPplay module
 -------------------------------
 
 .. automodule:: scavengers.pickle4MPplay
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+scavengers.plotUtil module
+--------------------------
+
+.. automodule:: scavengers.plotUtil
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+scavengers.specPlay module
+--------------------------
+
+.. automodule:: scavengers.specPlay
    :members:
    :undoc-members:
    :show-inheritance:
