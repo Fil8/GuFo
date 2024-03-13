@@ -218,11 +218,15 @@ The beam and pixel sizes (expressed in degrees) are read from the header of the 
 <p>big(mathcal{N}_{rm HI}{h^-2})=5.91times10^{58}big(frac{D_L}{h^{-1} Mpc}big)^2big(frac{S}{rm Jy,Hz}big)</p>
 <p>where <span class="math notranslate nohighlight">\(h\)</span> is the Hubble Constant (<span class="math notranslate nohighlight">\(\frac{H_0}{100 km\,s^{-1}\,Mpc^{-1}}\)</span>).</p>
 <p>The total HI mass is given by: :math:<a href="#id2"><span class="problematic" id="id3">`</span></a>M_{rm HI}=mathcal{N}_{rm HI}m_H, therefore:</p>
+<div class="math notranslate nohighlight">
+\[\]</div>
 <p>big({M_{rm HI}}{h^{-2}M_odot}) &amp;=49.7big(frac{D_L}{h^{-1}{rm Mpc}}big)^2big(frac{S}{rm Jy,Hz}big)
 &amp;=frac{2.35times1-^5}{(1+z)^2}big(frac{D_L}{h^{-1}{rm Mpc}}big)^2big(frac{S^{rm V_{rm obs}}}{rm Jy,km/s}big)</p>
 <section id="mass-detection-limit">
 <h4>Mass detection limit<a class="headerlink" href="#mass-detection-limit" title="Link to this heading"></a></h4>
 <p>Given the r.m.s noise measured in a datacube the HI mass emission detection limit is computed assuming a flux threshold and the minimum number of continous channels within which this flux is measured. Knowing the beam size (<span class="math notranslate nohighlight">\(ab\)</span>) and channel width (<span class="math notranslate nohighlight">\(\Delta\,\,v\)</span>) the <span class="math notranslate nohighlight">\(3\sigma\)</span> mass detection in one channel is given by:</p>
+<div class="math notranslate nohighlight">
+\[\]</div>
 <p>big({M_{rm HI}}{h^{-2}M_odot}) = frac{2.35times1-^5}{(1+z)^2}big(frac{D_L}{h^{-1}{rm Mpc}}big)^2 big(frac{3sigma {rm rms}}{rm Jy}cdotfrac{Delta,,v}{km s^{-1}}big).</p>
 <ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">hiPlay.hiMass</span></code> computes the total HI mass from a flux density, channel widht and beam size specified by the user.</p></li>

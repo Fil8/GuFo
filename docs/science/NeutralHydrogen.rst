@@ -12,7 +12,7 @@ Neutral Hydrogen
 .. toctree::
    :maxdepth: 2
  
-The hyperfine spin rotation of the neutral hydrogen has a characteristic wavelength of 21-cm (???? Hz). Hence its emission and absorption phenomena in nearby galaxies that can be studied at radio-wavelenghts in the L-band. Here, we illustrate the typical astronomical calculations concerning neutral hydrogen emission and absorption studies, i.e. flux detection limits, column densities, masses. We show how these calculations can be performed within _GaNGIaLF.
+The hyperfine spin rotation of the neutral hydrogen (HI) has a characteristic wavelength of 21-cm (???? Hz), which is detectable in nearby galaxies in emission and absorption in the L-band. Here, we illustrate some useful HI calculations, i.e. flux detection limits, column densities, masses. We show how these calculations can be performed within _GaNGIaLF.
 
 ###########
 HI emission 
@@ -27,7 +27,6 @@ The observed flux density
 For a source at redshift z, with a rest frame total HI luminosity of L, its observed **flux S** will be:
 
 .. math::
-
 	S_\nu  & = \int_{\Omega_{\rm src}}I_{\nu}(\theta,\phi)d\Omega,
 					& = \frac{1}{\Omega_{\bm}\int_{\Omega_{\rm src}}I_{\nu}(\theta,\phi)\times P_n(\theta,\phi) d\Omega\
 					}}
@@ -46,14 +45,12 @@ The beam and pixel sizes (expressed in degrees) are read from the header of the 
 
 
 .. math::
-
 	S_\nu & = \frac{1}{\Omega_{\bm}\int_{\Omega_{\rm src}}I^{\rm obs}_{\nu}(\theta,\phi)d\Omega
 				  & = \sum^{\rm pix}_{S{\rm pix}>{\rm cutoff}}{I^{\rm obs}_{\nu}(pix)} \times {\frac{1}{\Omega_{\bm (pixel)}}
 
 which in terms of the beam angular major and minor axis, and pixel size `pixSize` is:
 
 .. math::
-
 	S_\nu & = \frac{1}{\Omega_{\bm}\int_{\Omega_{\rm src}I^{\rm obs}_{\nu}(\theta,\phi)d\Omega}
 				  & = \sum^{\rm pix}_{S{\rm pix}>{\rm cutoff}}{I^{\rm obs}_{\nu}(pix)} \times {\frac{1}{2 \pi (ab)/(2.35482^2)}}\times {\rm pixSize}^2
 
@@ -117,13 +114,13 @@ Taking 3/4 of HI atoms to be in the upper hyperfine state, with a spontaneous em
 hence:
 
 .. math ::
-
 \big(\mathcal{N}_{\rm HI}{h^-2})=5.91\times10^{58}\big(\frac{D_L}{h^{-1} Mpc}\big)^2\big(\frac{S}{\rm Jy\,Hz}\big)
 
 where :math:`h` is the Hubble Constant (:math:`\frac{H_0}{100 km\,s^{-1}\,Mpc^{-1}}`).
 
 The total HI mass is given by: :math:`M_{\rm HI}=\mathcal{N}_{\rm HI}m_H, therefore:
 
+.. math::
 \big({M_{\rm HI}}{h^{-2}M_\odot}) &=49.7\big(\frac{D_L}{h^{-1}{\rm Mpc}}\big)^2\big(\frac{S}{\rm Jy\,Hz}\big)
 &=\frac{2.35\times1-^5}{(1+z)^2}\big(\frac{D_L}{h^{-1}{\rm Mpc}}\big)^2\big(\frac{S^{\rm V_{\rm obs}}}{\rm Jy\,km/s}\big)
 
@@ -132,6 +129,7 @@ Mass detection limit
 --------------------
 Given the r.m.s noise measured in a datacube the HI mass emission detection limit is computed assuming a flux threshold and the minimum number of continous channels within which this flux is measured. Knowing the beam size (:math:`ab`) and channel width (:math:`\Delta\,\,v`) the :math:`3\sigma` mass detection in one channel is given by: 
 
+.. math::
 \big({M_{\rm HI}}{h^{-2}M_\odot}) = \frac{2.35\times1-^5}{(1+z)^2}\big(\frac{D_L}{h^{-1}{\rm Mpc}}\big)^2 \big(\frac{3\sigma {\rm rms}}{\rm Jy}\cdot\frac{\Delta\,\,v}{km s^{-1}}\big).
 
 
