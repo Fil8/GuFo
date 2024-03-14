@@ -178,7 +178,8 @@ class convert(object):
         ss = (float(ra[2])/3600)*15
         
         raDeg = hh+mm+ss
-
+        if raDeg>180:
+            raDeg-=360.
         return raDeg
 
 
