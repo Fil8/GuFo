@@ -198,11 +198,17 @@ class hiplay(object):
         dV: float
             channel width in km/s
 
+        corr: bool
+            correct for beam and pixel in case of integrated flux measured from mom0 for example
+            rather than only for the beam-size, as for point source HI mass limits over a given velocity range
+
         Returns
         -------
             
-            nhi: float
-                column density value
+            mhi: float
+                HI mass in solar mass units
+            mhiScience: string
+                HI mass in solar mass units for easy print-out
         
         Notes
         -----
@@ -216,15 +222,13 @@ class hiplay(object):
             
         '''
         if corr==True:
-            beamcorr=2.*np.pi*(bMaj.deg*bMin.deg)/(2.35482**2)/(np.power(pxSize.deg,2))
+            beamcorr=2.*np.pi*((bMaj.deg*bMin.deg)/(2.35482**2))/(np.power(pxSize.deg,2))
 
             factor=value*dV/beamcorr
         else:
-            factor=value
-        
-        print(factor)
-        
 
+            factor=value*dV
+        
         mhi=self.HImassEmission/np.power(1+z,2)*(DL**2)*factor
         mhiScience="{:.2e}".format(mhi*u.Msun)
 
@@ -350,6 +354,8 @@ class hiplay(object):
 
         Returns
         -------
+        totFlux : float
+            Estimated TotalFlux in solar Jy km/s.
         mhi : float
             Estimated HI mass in solar masses.
 
@@ -370,7 +376,7 @@ class hiplay(object):
         #print('M(HI) = {} x10^9 Msun,'.format(np.round(mhi,3)/1e9))
         self.logger.info('''M(HI) = {} x10^9 Msun,'''.format(np.round(mhi,3)/1e9))
 
-        return mhi
+        return totFlux,mhi
 
     def totalFluxHI(self,inMom0,cutoff,z,DL,zunit='km/s',verbose=True):
         '''
@@ -407,6 +413,7 @@ class hiplay(object):
         S(HI) = Sum(flux_within_cutoff) * 1/beamArea * pixelArea
         '''
 
+        self.logger.info('\t *** totalFluxHI from mom0 ***\n')
 
         data = fits.getdata(inMom0,0)
         head = fits.getheader(inMom0, 0)
@@ -423,11 +430,11 @@ class hiplay(object):
 
         beamcorr=2.*np.pi*(bx.deg*by.deg)/(2.35482**2)/(np.power(pixSize.deg,2))
         factor=totFlux/beamcorr
-        #print(factor,beamcorr)
+
         #factor=totFlux
 
         if verbose==True:
-            print('Sdv [Jy*km/s] = {},'.format(np.round(factor,3)))
+            self.logger.info('Sdv [Jy*km/s] = {},'.format(np.round(factor,3)))
         return factor
 
     def surfBrightCO(self,value,bmaj,bmin,nu_obs,dV,facMass=4.3):

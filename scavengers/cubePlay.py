@@ -16,7 +16,7 @@ from astropy.io import ascii, fits
 from astropy.table import Table, Column
 from astropy.wcs import WCS
 from astropy import units as u
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord, Angle
 from astropy.wcs import WCS
 from reproject import reproject_interp, reproject_exact
 
@@ -131,7 +131,7 @@ class cubeplay:
 
         return
 
-    def makeSubCube(self, cubeName, centreCoords, cornerCoords, zRange=None, zunit='m/s', output=False):
+    def makeSubCube(self, cubeName, centreCoords, cornerCoords=None, zRange=None, size=None, zunit='m/s', output=False):
         '''A method to make a subcube given Ra,Dec coordinates and z-range borders of 
         Parameters
         ----------
@@ -142,12 +142,15 @@ class cubeplay:
         centreCoords : dict
             List with pixels (int) or Ra/Dec (hms,dms) of the centre coordinates. Dictionary keys are Ra, Dec.
 
-        cornerCoords : dict
+        cornerCoords : dict, optional
             List with pixels (int) or Ra/Dec of the bottom left corner and the top right corner of the subcube: RaMin, DecMin, RaMax, DecMax. 
             Coordinates in pixels use the same dictionary keys.
 
         zRange : tuple, optional
             Spectral range. Default is None.
+
+        size : float, optional
+            Size of squared field of view in arcminutes (coornerCoords should be set to None)
 
         zunit : str, optional
             Unit of the spectral range. Default is 'm/s'.
@@ -189,15 +192,15 @@ class cubeplay:
 
 
         if all(isinstance(value, str) for value in centreCoords.values()):
-            centreCoords = fP.coordToPix(cubeName,centreCoords['Ra'],centreCoords['Dec'])
-            Xc = int(centreCoords[0])
-            Yc = int(centreCoords[1])
+            ctrCoords = fP.coordToPix(cubeName,centreCoords['Ra'],centreCoords['Dec'])
+            Xc = int(ctrCoords[0])
+            Yc = int(ctrCoords[1])
 
             subHead['CRVAL1']= cvP.hms2deg(centreCoords['Ra'])
-            subHead['CRVAL2']= cvP.hms2deg(centreCoords['Dec'])
+            subHead['CRVAL2']= cvP.dms2deg(centreCoords['Dec'])
             subHead['CRPIX1']= Xc
             subHead['CRPIX2']= Yc
-
+            print(subHead['CRVAL1'],subHead['CRVAL2'])
         elif all(isinstance(value, int) for value in centreCoords.values()):
             Xc = int(centreCoords['Ra'])
             Yc = int(centreCoords['Dec'])
@@ -215,28 +218,47 @@ class cubeplay:
                         \txC = {:d} 
                         \tyC = {:d}'''.format(Xc,Yc))
         
-        if all(isinstance(value, str) for value in cornerCoords.values()):
-            if datacube[0].header['CDELT1'] < 0:
-                cornerCoordsMax = fP.coordToPix(cubeName,cornerCoords['RaMin'],cornerCoords['DecMin'])
-                cornerCoordsMin = fP.coordToPix(cubeName,cornerCoords['RaMax'],cornerCoords['DecMax'])
+
+        if cornerCoords is None and size:
+
+            pixSize = Angle(subHead['CDELT2'],u.deg)
+            HalfSize = int(round(size/pixSize.arcminute)/2)
+            #HalfSize = int(round(size/pixSize.arcminute)/2)
+
+            Xmin = Xc-HalfSize
+            Ymin = Yc-HalfSize
+            Xmax = Xc+HalfSize
+            Ymax = Yc+HalfSize
+
+        elif size is None and cornerCoords:
+
+            if all(isinstance(value, str) for value in cornerCoords.values()):
+                if datacube[0].header['CDELT1'] < 0:
+                    cornerCoordsMax = fP.coordToPix(cubeName,cornerCoords['RaMin'],cornerCoords['DecMin'])
+                    cornerCoordsMin = fP.coordToPix(cubeName,cornerCoords['RaMax'],cornerCoords['DecMax'])
+
+                else:
+                    cornerCoordsMax = fP.coordToPix(cubeName,cornerCoords['RaMax'],cornerCoords['DecMin'])
+                    cornerCoordsMin = fP.coordToPix(cubeName,cornerCoords['RaMin'],cornerCoords['DecMax'])
+
+            elif all(isinstance(value, int) for value in cornerCoords.values()):
+                cornerCoordsMin = [int(cornerCoords['RaMin']),int(cornerCoords['DecMin'])]
+                cornerCoordsMax = [int(cornerCoords['RaMin']),int(cornerCoords['DecMax'])]
+                coords = fP.pixToCoord(cubeName,cornerCoordsMax[0],cornerCoordsMax[1])
             else:
-                cornerCoordsMax = fP.coordToPix(cubeName,cornerCoords['RaMin'],cornerCoords['DecMin'])
-                cornerCoordsMin = fP.coordToPix(cubeName,cornerCoords['RaMax'],cornerCoords['DecMax'])
+                raise ValueError('Corner coordinates not recognized. cornerCoords must be a dict with RaMin, DecMin, RaMax, DecMax as keys and values in hms and dms or pix coordinates as int')
+        
+            Xmin = int(cornerCoordsMin[0])
+            Ymin = int(cornerCoordsMin[1])
+            Xmax = int(cornerCoordsMax[0])
+            Ymax = int(cornerCoordsMax[1])
 
-        elif all(isinstance(value, int) for value in cornerCoords.values()):
-            cornerCoordsMin = [int(cornerCoords['RaMin']),int(cornerCoords['DecMin'])]
-            cornerCoordsMax = [int(cornerCoords['RaMin']),int(cornerCoords['DecMax'])]
-        else:
-            raise ValueError('Corner coordinates not recognized. cornerCoords must be a dict with RaMin, DecMin, RaMax, DecMax as keys and values in hms and dms or pix coordinates as int')
-            
+            subHead['CRPIX1'] = Xc-Xmin
+            subHead['CRPIX2'] = Yc-Ymin
 
+        else: 
+            raise ValueError('Coorner coordinates not recognized, or size for squared f.o.v. not specified.')
 
-
-
-        Xmin = int(cornerCoordsMin[0])
-        Ymin = int(cornerCoordsMin[1])
-        Xmax = int(cornerCoordsMax[0])
-        Ymax = int(cornerCoordsMax[1])
 
         self.logger.info('''Box Coordinates: 
                         \tx_min = {:d}, y_min = {:d}
@@ -244,16 +266,23 @@ class cubeplay:
 
         cPixXNew = int(Xc)
         cPixYNew = int(Yc)
-        maxX = 2 * max(abs(cPixXNew - Xmin), abs(cPixXNew - Xmax))
-        maxY = 2 * max(abs(cPixYNew - Ymin), abs(cPixYNew - Ymax))
-        XminNew = cPixXNew - maxX
-        if XminNew < 0: XminNew = 0
-        YminNew = cPixYNew - maxY
-        if YminNew < 0: YminNew = 0
-        XmaxNew = cPixXNew + maxX
-        if XmaxNew > cubeDim[x_dim] - 1: XmaxNew = cubeDim[x_dim] - 1
-        YmaxNew = cPixYNew + maxY
-        if YmaxNew > cubeDim[y_dim] - 1: YmaxNew = cubeDim[y_dim] - 1
+
+        XminNew = Xmin
+        XmaxNew = Xmax
+        YminNew = Ymin
+        YmaxNew = Ymax
+        # maxX = 2 * max(abs(cPixXNew - Xmin), abs(cPixXNew - Xmax))
+        # maxY = 2 * max(abs(cPixYNew - Ymin), abs(cPixYNew - Ymax))
+        # XminNew = cPixXNew - maxX
+        # if XminNew < 0: XminNew = 0
+        # YminNew = cPixYNew - maxY
+        # if YminNew < 0: YminNew = 0
+        # XmaxNew = cPixXNew + maxX
+        # if XmaxNew > cubeDim[x_dim] - 1: XmaxNew = cubeDim[x_dim] - 1
+        # YmaxNew = cPixYNew + maxY
+        # if YmaxNew > cubeDim[y_dim] - 1: YmaxNew = cubeDim[y_dim] - 1
+
+        self.logger.info('''Selecting subCube''')
 
         if zRange is not None:
             zmin=zRange[0]
@@ -266,6 +295,13 @@ class cubeplay:
                 subcube = datacube[0].data[zmin:zmax, int(YminNew):int(YmaxNew) + 1, int(XminNew):int(XmaxNew) + 1]
             else:
                 subcube = None
+
+
+
+            zAxis = self.spectralAxis(cubeName,axis=0,zunit=zunit)
+            subHead['NAXIS3'] = subcube.shape[0]
+            subHead['CRVAL3'] = zAxis[zmin]
+
         else:
             if len(cubeDim) == 4:
                 subcube = datacube[0].data[0, :, int(YminNew):int(YmaxNew) + 1, int(XminNew):int(XmaxNew) + 1]
@@ -274,23 +310,42 @@ class cubeplay:
             else:
                 subcube = None
 
-        self.logger.info('''Writing subcube header and .fits file''')
-
+        self.logger.info('''Writing subCube header''')
 
         subHead['NAXIS1']=subcube.shape[2]
-
         subHead['NAXIS2']=subcube.shape[1]
 
+        if size is not None:
+            print('HEERREER')
+            subHead['CRPIX1']=int(subcube.shape[2]/2)
+            subHead['CRPIX2']=int(subcube.shape[1]/2)
+        self.logger.info('''Clean Header from multiple beams''')
 
-        zAxis = self.spectralAxis(cubeName,axis=0,zunit=zunit)
-        subHead['NAXIS3'] = subcube.shape[0]
-        subHead['CRVAL3'] = zAxis[zmin]
+        # Define the pattern to match for deletion
+        bMaj = subHead['BMAJ']
+        bMin = subHead['BMIN']
+        bPA = subHead['BPA']
+        patterns=['BMAJ','BMIN', 'BPA']
+        for i in patterns:
+            # Recursively delete keys matching the pattern
+            keys_to_delete = [key for key in subHead.keys() if i in key]
+            for key in keys_to_delete:
+                del subHead[key]
 
+
+        subHead['BMAJ'] = bMaj  
+        subHead['BMIN'] = bMin  
+        subHead['BPA']  = bPA  
+        
+        # Save the modified FITS file
+
+        self.logger.info('''Writing subcube .fits file''')
 
         if output==False:
             tmpStr = str.split(cubeName, '.fits')
             output=tmpStr[0]+'_subCube.fits'
-        
+
+
         fits.writeto(output,subcube,subHead,overwrite=True)
 
 
